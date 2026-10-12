@@ -1,0 +1,54 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "requests": {
+      "$targetUid": {
+        // B 可以讀取所有對自己敲門的狀態
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          // 🌟 核心修正：允許 A (發送者) 讀取自己對 B 的敲門狀態
+          ".read": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)",
+          ".write": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)"
+        }
+      }
+    },
+
+    "chats": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.contains(auth.uid)",
+        ".write": "auth != null && $roomId.contains(auth.uid)"
+      }
+    },
+
+    "tokens": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "blockedBy": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          ".write": "auth != null && auth.uid === $senderUid"
+        }
+      }
+    }
+  }
+}

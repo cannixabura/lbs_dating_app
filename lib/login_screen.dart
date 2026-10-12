@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart'; 
@@ -49,17 +50,20 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_mood', mood);
 
-    // 🌟 核心修正：完美解決 String? 型態衝突
-    String? savedUid = prefs.getString('my_unique_uid'); // 從記憶體讀取，這可能是 null
-    String finalUid; // 宣告一個絕對不會是 null 的變數
-
-    if (savedUid == null) {
-      // 如果沒有紀錄，就產生一個新的，並存入記憶體
-      finalUid = 'user_${DateTime.now().millisecondsSinceEpoch}';
-      await prefs.setString('my_unique_uid', finalUid);
-    } else {
-      // 如果有紀錄，就直接使用
-      finalUid = savedUid;
+    // 🔐 以 Firebase 匿名登入取得 uid：不需註冊，但伺服器與資料庫規則能驗證身分
+    String finalUid;
+    try {
+      final auth = FirebaseAuth.instance;
+      final user = auth.currentUser ?? (await auth.signInAnonymously()).user;
+      if (user == null) throw Exception('anonymous sign-in returned no user');
+      finalUid = user.uid;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('無法連上城市，請檢查網路後再試一次。'), backgroundColor: Colors.redAccent),
+        );
+      }
+      return;
     }
 
     if (!mounted) return;

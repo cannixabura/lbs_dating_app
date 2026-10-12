@@ -15,6 +15,7 @@ import 'dart:async';
 import 'login_screen.dart';
 import 'whisper_engine.dart';
 import 'city_cooling_system.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -398,18 +399,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } catch (e) {}
   }
   
+  // 🔐 呼叫 geo-service 時附上 Firebase ID Token，伺服器據此辨識身分
+  Future<Map<String, String>> _authHeaders() async {
+    final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+    return {
+      'Content-Type': 'application/json',
+      if (idToken != null) 'Authorization': 'Bearer $idToken',
+    };
+  }
+
   Future<void> _updateMyLocationToServer(Position position) async {
     try {
       await http.post(
         Uri.parse(_updateLocationUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _authHeaders(),
         body: jsonEncode({
-          'uid': widget.uid,
           'lat': position.latitude,
           'lng': position.longitude,
           'mood': _myMood,
           'nickname': _myNickname, 
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
         }),
       );
     } catch (e) {}
@@ -426,7 +434,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     try {
       final response = await http.post(
         Uri.parse(_getNearbyUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _authHeaders(),
         body: jsonEncode({
           'lat': _currentPosition!.latitude,
           'lng': _currentPosition!.longitude,
@@ -606,6 +614,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final TextEditingController moodController = TextEditingController(text: _myMood);
     final TextEditingController nicknameController = TextEditingController(text: _myNickname);
     bool isUploading = false; 
+    String pendingAvatarUrl = _myAvatarUrl; // 按下「儲存」才生效，取消則不改變
 
     showDialog(
       context: context,
@@ -629,15 +638,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           setDialogState(() => isUploading = true);
                           try {
                             final storageRef = FirebaseStorage.instance.ref().child('avatars/${widget.uid}.jpg');
-                            await storageRef.putFile(File(image.path));
-                            final downloadUrl = await storageRef.getDownloadURL();
+                            await storageRef.putFile(File(image.path), SettableMetadata(contentType: 'image/jpeg'));
+                            // 同一路徑覆寫時網址不變，加上版本參數讓各裝置的圖片快取失效
+                            final downloadUrl = '${await storageRef.getDownloadURL()}&v=${DateTime.now().millisecondsSinceEpoch}';
                             
                             setDialogState(() {
-                              _myAvatarUrl = downloadUrl;
+                              pendingAvatarUrl = downloadUrl;
                               isUploading = false;
                             });
                           } catch (e) {
                             setDialogState(() => isUploading = false);
+                            debugPrint('avatar upload failed: $e');
                             if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('大頭貼上傳失敗。'), backgroundColor: Colors.redAccent));
                           }
                         }
@@ -648,8 +659,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.white12,
-                            backgroundImage: _myAvatarUrl.isNotEmpty ? NetworkImage(_myAvatarUrl) : null,
-                            child: _myAvatarUrl.isEmpty && !isUploading 
+                            backgroundImage: pendingAvatarUrl.isNotEmpty ? NetworkImage(pendingAvatarUrl) : null,
+                            child: pendingAvatarUrl.isEmpty && !isUploading 
                                 ? const Icon(Icons.camera_alt, color: Colors.white54, size: 30) 
                                 : null,
                           ),
@@ -678,7 +689,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     final String newMood = moodController.text.trim(); final String newNickname = nicknameController.text.trim();
                     if (newMood.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('心情不能為空，給城市留下點微光吧。'), backgroundColor: Colors.white24)); return; }
                     
-                    setState(() { _myMood = newMood; _myNickname = newNickname; });
+                    setState(() { _myMood = newMood; _myNickname = newNickname; _myAvatarUrl = pendingAvatarUrl; });
                     final prefs = await SharedPreferences.getInstance(); 
                     await prefs.setString('saved_mood', newMood); 
                     await prefs.setString('saved_nickname', newNickname);
@@ -1041,10 +1052,13 @@ class _AnimatedBubbleUI extends StatefulWidget {
 class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerProviderStateMixin {
   AnimationController? _controller;  
   late Animation<double> _glowAnimation;
+  // 🌟 串流只建立一次：若在 build 內呼叫 onValue，每一幀都會產生新串流、反覆重新訂閱，大頭貼永遠載不出來
+  late Stream<DatabaseEvent> _avatarStream;
 
   @override 
   void initState() {
     super.initState();
+    _avatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue;
     if (!widget.isShadow) {
       _controller = AnimationController(vsync: this);
       _setupAnimation();
@@ -1076,6 +1090,9 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
   @override 
   void didUpdateWidget(covariant _AnimatedBubbleUI oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.uid != oldWidget.uid) {
+      _avatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue;
+    }
     if (!widget.isShadow && widget.status != oldWidget.status) {
       _setupAnimation();
     }
@@ -1123,9 +1140,8 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
                 const SizedBox(height: 2),
                 
-                // 🌟 使用獨立的 StreamBuilder 直連資料庫，無論氣泡怎麼刷新都不受影響
                 StreamBuilder<DatabaseEvent>(
-                  stream: FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue,
+                  stream: _avatarStream,
                   builder: (context, snapshot) {
                     String peerAvatarUrl = '';
                     if (snapshot.hasData && snapshot.data?.snapshot.value != null) {

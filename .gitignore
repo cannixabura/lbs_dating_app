@@ -46,3 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Secrets — never commit
+*.p8
+*.p12
+*.pem
+.env
+.env.*
+*.secret.local
+.DS_Store

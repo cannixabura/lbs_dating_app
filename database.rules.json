@@ -3,36 +3,76 @@
     ".read": false,
     ".write": false,
 
+    // 在線狀態 / 心跳：只能寫自己
     "users": {
-      ".read": "auth != null",
       "$uid": {
+        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
 
+    // 公開暱稱：所有登入者可讀，只能寫自己
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        "nickname": { ".validate": "newData.isString() && newData.val().length <= 10" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    // 大頭貼網址：只接受 Firebase Storage 的網址
+    "user_avatars": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isString() && newData.val().length <= 1024 && newData.val().beginsWith('https://firebasestorage.googleapis.com/')"
+      }
+    },
+
+    // 敲門：發送者只能寫 pending 或收回；被敲者只能回覆 accepted / rejected 或略過
     "requests": {
       "$targetUid": {
-        // B 可以讀取所有對自己敲門的狀態
         ".read": "auth != null && auth.uid === $targetUid",
         "$senderUid": {
-          // 🌟 核心修正：允許 A (發送者) 讀取自己對 B 的敲門狀態
           ".read": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)",
-          ".write": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)"
+          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && ( !newData.exists() || (newData.child('status').val() === 'pending' && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists()))) || (auth.uid === $targetUid && ( !newData.exists() || newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected' )))",
+          "status": { ".validate": "newData.isString()" },
+          "nickname": { ".validate": "newData.isString() && newData.val().length <= 10" },
+          "$other": { ".validate": false }
         }
       }
     },
 
+    // 聊天室：roomId = 兩人 uid 排序後以 "_" 相接，只有房內兩人可讀寫
     "chats": {
       "$roomId": {
-        ".read": "auth != null && $roomId.contains(auth.uid)",
-        ".write": "auth != null && $roomId.contains(auth.uid)"
+        ".read": "auth != null && ($roomId.beginsWith(auth.uid + '_') || $roomId.endsWith('_' + auth.uid))",
+        ".write": "auth != null && ($roomId.beginsWith(auth.uid + '_') || $roomId.endsWith('_' + auth.uid))",
+        "status": { ".validate": "newData.val() === 'active' || newData.val() === 'ended'" },
+        "typing": {
+          "$uid": { ".validate": "$uid === auth.uid && newData.isBoolean()" }
+        },
+        "messages": {
+          "$msgId": {
+            ".validate": "newData.hasChildren(['sender', 'text', 'timestamp']) && newData.child('sender').val() === auth.uid",
+            "sender": { ".validate": "newData.isString()" },
+            "senderName": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "text": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000" },
+            "timestamp": { ".validate": "newData.isNumber() && newData.val() <= now" },
+            "$other": { ".validate": false }
+          }
+        },
+        "$other": { ".validate": false }
       }
     },
 
+    // 推播 token：只有本人能讀寫（Cloud Functions 以 Admin 權限讀取）
     "tokens": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isString() && newData.val().length <= 4096"
       }
     },
 
@@ -42,11 +82,13 @@
         ".write": "auth != null && auth.uid === $uid"
       }
     },
+
     "blockedBy": {
       "$targetUid": {
         ".read": "auth != null && auth.uid === $targetUid",
         "$senderUid": {
-          ".write": "auth != null && auth.uid === $senderUid"
+          ".write": "auth != null && auth.uid === $senderUid",
+          ".validate": "newData.val() === true"
         }
       }
     }

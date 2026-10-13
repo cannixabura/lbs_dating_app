@@ -695,10 +695,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     await prefs.setString('saved_nickname', newNickname);
                     await prefs.setString('saved_avatar', _myAvatarUrl); 
                     
-                    _dbRef.child('profiles/${widget.uid}/nickname').set(newNickname);
-                    // 🌟 上傳完成後，寫入專屬的廣播頻道
-                    if (_myAvatarUrl.isNotEmpty) {
-                      _dbRef.child('user_avatars/${widget.uid}').set(_myAvatarUrl); 
+                    try {
+                      await _dbRef.child('profiles/${widget.uid}/nickname').set(newNickname);
+                      // 🌟 上傳完成後，寫入專屬的廣播頻道
+                      if (_myAvatarUrl.isNotEmpty) {
+                        await _dbRef.child('user_avatars/${widget.uid}').set(_myAvatarUrl);
+                      }
+                    } catch (e) {
+                      debugPrint('profile write failed: $e');
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('狀態同步失敗，請稍後再試。'), backgroundColor: Colors.redAccent));
                     }
 
                     if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
@@ -804,9 +809,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _dbRef.child('requests/$targetUid/${widget.uid}').set({
         'status': 'pending',
         'nickname': _myNickname
+    }).then((_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('敲門聲已送出，等待回音...'), backgroundColor: Colors.white.withOpacity(0.2), duration: const Duration(seconds: 3)));
+    }).catchError((Object e) {
+      // 寫入被拒（規則驗證失敗、網路中斷等）時收回狀態並告知，不再默默失敗
+      debugPrint('knock write failed: $e');
+      _pendingTimers[targetUid]?.cancel(); _requestSubscriptions[targetUid]?.cancel();
+      if (mounted) {
+        setState(() => _outgoingRequests.remove(targetUid));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('敲門沒有送出，請稍後再試。'), backgroundColor: Colors.redAccent, duration: Duration(seconds: 3)));
+      }
     });
-    
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('敲門聲已送出，等待回音...'), backgroundColor: Colors.white.withOpacity(0.2), duration: const Duration(seconds: 3)));
 
     _pendingTimers[targetUid]?.cancel();
     _pendingTimers[targetUid] = Timer(const Duration(minutes: 5), () {

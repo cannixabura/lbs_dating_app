@@ -68,6 +68,13 @@ async function verifyCaller(req) {
     } catch (e) { return null; }
 }
 
+// 以「肉眼看到的字數」截斷（emoji 如 😵‍💫 算 1 個字），與 App 輸入框的 maxLength 一致
+const graphemeSegmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
+function truncateVisible(value, maxChars) {
+    const chars = Array.from(graphemeSegmenter.segment(String(value || '')), (seg) => seg.segment);
+    return chars.slice(0, maxChars).join('');
+}
+
 function isValidCoordinate(lat, lng) {
     return typeof lat === 'number' && typeof lng === 'number' &&
         Number.isFinite(lat) && Number.isFinite(lng) &&
@@ -86,8 +93,8 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
 
     const { lat, lng } = req.body;
     if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
-    const mood = String(req.body.mood || "").slice(0, MAX_MOOD_LENGTH);
-    const nickname = String(req.body.nickname || "").slice(0, MAX_NICKNAME_LENGTH);
+    const mood = truncateVisible(req.body.mood, MAX_MOOD_LENGTH);
+    const nickname = truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH);
     const timestamp = Date.now();
     try {
       await sendUpstashPipeline([

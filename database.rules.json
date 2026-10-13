@@ -16,7 +16,7 @@
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid",
-        "nickname": { ".validate": "newData.isString() && newData.val().length <= 10" },
+        "nickname": { ".validate": "newData.isString() && newData.val().length <= 120" },
         "$other": { ".validate": false }
       }
     },
@@ -38,7 +38,7 @@
           ".read": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)",
           ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && ( !newData.exists() || (newData.child('status').val() === 'pending' && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists()))) || (auth.uid === $targetUid && ( !newData.exists() || newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected' )))",
           "status": { ".validate": "newData.isString()" },
-          "nickname": { ".validate": "newData.isString() && newData.val().length <= 10" },
+          "nickname": { ".validate": "newData.isString() && newData.val().length <= 120" },
           "$other": { ".validate": false }
         }
       }
@@ -57,7 +57,7 @@
           "$msgId": {
             ".validate": "newData.hasChildren(['sender', 'text', 'timestamp']) && newData.child('sender').val() === auth.uid",
             "sender": { ".validate": "newData.isString()" },
-            "senderName": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "senderName": { ".validate": "newData.isString() && newData.val().length <= 120" },
             "text": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000" },
             "timestamp": { ".validate": "newData.isNumber() && newData.val() <= now" },
             "$other": { ".validate": false }

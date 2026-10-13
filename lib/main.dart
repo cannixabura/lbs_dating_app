@@ -138,6 +138,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     WidgetsBinding.instance.addObserver(this); 
     _myMood = widget.initialMood; 
     _loadProfileData(); 
+    _coolingSystem.loadRejections();
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
     

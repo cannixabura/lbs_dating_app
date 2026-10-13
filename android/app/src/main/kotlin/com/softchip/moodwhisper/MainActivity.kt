@@ -11,7 +11,7 @@ class MainActivity : FlutterActivity() {
         try {
             startService(Intent(this, PresenceService::class.java))
         } catch (e: IllegalStateException) {
-            // 系統不允許在背景啟動服務時忽略，退回由伺服器 12 小時的保底機制處理
+            // 系統不允許在背景啟動服務時忽略，退回由伺服器 1 小時的保底機制處理
         }
     }
 }

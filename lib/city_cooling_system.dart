@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CityCoolingSystem {
-  // 記錄各狀態的時間戳記與次數 (存於記憶體中)
+  // 記錄各狀態的時間戳記與次數；婉拒紀錄另存於手機，重開 App 也不會重置
   DateTime? _lastKnockTime;
   final Map<String, DateTime> _rejectionTimes = {};
   final Map<String, int> _rejectionCounts = {}; // 🌟 新增：用來追蹤被同一個人拒絕的次數
@@ -15,11 +17,13 @@ class CityCoolingSystem {
   /// 1. 全局敲門冷卻 (防連點)
   static const Duration globalKnockCooldown = Duration(seconds: 3);
   
-  /// 2-1. 被婉拒冷卻 - 第一次 (5 分鐘)
-  static const Duration rejectionCooldownTier1 = Duration(minutes: 5);
-  
-  /// 2-2. 被婉拒冷卻 - 第二次以上 (1 天)
-  static const Duration rejectionCooldownTier2 = Duration(hours: 24);
+  /// 2. 被同一個人婉拒的漸進冷卻：第 1 次 5 分鐘、第 2 次 10 分鐘、第 3 次以上 24 小時
+  static const List<Duration> rejectionCooldownTiers = [
+    Duration(minutes: 5),
+    Duration(minutes: 10),
+    Duration(hours: 24),
+  ];
+  static const String _rejectionPrefsKey = 'cooling_rejections';
   
   /// 3. 結束聊天後的專屬冷卻 (改為 1 分鐘)
   static const Duration postChatCooldown = Duration(minutes: 1);
@@ -38,17 +42,17 @@ class CityCoolingSystem {
 
     // 🌟 規則 B：漸進式婉拒冷卻檢查
     if (_rejectionTimes.containsKey(targetUid)) {
-      // 取得被這個人拒絕的次數 (預設為 1)
+      // 取得被這個人拒絕的次數 (預設為 1)，依次數決定冷卻時間，第 3 次以上都是 24 小時
       int currentRejectionCount = _rejectionCounts[targetUid] ?? 1;
-      
-      // 依據次數決定要套用的冷卻時間
-      Duration requiredCooldown = currentRejectionCount >= 2 
-          ? rejectionCooldownTier2 
-          : rejectionCooldownTier1;
+      final int tier = (currentRejectionCount - 1).clamp(0, rejectionCooldownTiers.length - 1);
+      Duration requiredCooldown = rejectionCooldownTiers[tier];
       
       if (now.difference(_rejectionTimes[targetUid]!) < requiredCooldown) {
-        String timeHint = currentRejectionCount >= 2 ? '1 天' : '5 分鐘';
-        onBlocked('對方目前不想被打擾，請給彼此一點空間 ($timeHint)。');
+        if (tier == rejectionCooldownTiers.length - 1) {
+          onBlocked('對方目前不想被打擾，請給彼此一點空間。');
+        } else {
+          onBlocked('對方目前不想被打擾，請給彼此一點空間 (${requiredCooldown.inMinutes} 分鐘)。');
+        }
         return false;
       } else {
         // 冷卻時間已過，允許再次敲門，移除時間紀錄 (但不移除次數紀錄)
@@ -75,17 +79,48 @@ class CityCoolingSystem {
   }
 
   /// 🌟 記錄被婉拒的對象、時間與次數
-  void recordRejection(String targetUid) {
+  Future<void> recordRejection(String targetUid) {
     _rejectionTimes[targetUid] = DateTime.now();
     // 將該使用者的拒絕次數 + 1
     _rejectionCounts[targetUid] = (_rejectionCounts[targetUid] ?? 0) + 1;
+    return _saveRejections();
   }
 
   /// 記錄結束聊天的對象與時間
-  void recordChatEnd(String targetUid) {
+  Future<void> recordChatEnd(String targetUid) {
     _chatEndTimes[targetUid] = DateTime.now();
     // 🌟 既然成功聊過天，就把之前的拒絕次數歸零，重新計算關係
     _rejectionCounts.remove(targetUid);
+    _rejectionTimes.remove(targetUid);
+    return _saveRejections();
+  }
+
+  /// App 啟動時載入婉拒紀錄（重開 App 不能用來繞過 24 小時冷卻）
+  Future<void> loadRejections() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? raw = prefs.getString(_rejectionPrefsKey);
+      if (raw == null) return;
+      final Map<String, dynamic> data = jsonDecode(raw);
+      data.forEach((uid, value) {
+        _rejectionCounts[uid] = value['count'] as int;
+        final int? at = value['at'] as int?;
+        if (at != null) _rejectionTimes[uid] = DateTime.fromMillisecondsSinceEpoch(at);
+      });
+    } catch (_) {
+      // 紀錄損毀時直接忽略，最壞情況只是冷卻被重置
+    }
+  }
+
+  Future<void> _saveRejections() async {
+    final Map<String, dynamic> data = {
+      for (final uid in _rejectionCounts.keys)
+        uid: {'count': _rejectionCounts[uid], 'at': _rejectionTimes[uid]?.millisecondsSinceEpoch},
+    };
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_rejectionPrefsKey, jsonEncode(data));
+    } catch (_) {}
   }
 
   /// 記錄整體互動頻率 (可用於視覺特效)

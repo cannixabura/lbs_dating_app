@@ -2,7 +2,7 @@
 // 雷達上的三種狀態判定 + 歷史殘影的密度分級留存
 //   active   ：App 在前景（每 60 秒有心跳）
 //   inactive ：鎖屏 / 背景（休息中），仍可敲門，由推播喚醒
-//   shadow   ：已結束 App，或在背景超過 12 小時；可讀不可敲門，依密度決定留存多久
+//   shadow   ：已結束 App，或在背景超過 1 小時；可讀不可敲門，依密度決定留存多久
 // 所有門檻都集中在這裡，調整後重新部署 geo-service 即可，不需更新 App。
 // ============================================================================
 
@@ -14,7 +14,7 @@ const DAY = 24 * HOUR;
 const ACTIVE_HEARTBEAT_TIMEOUT_MS = 3 * MINUTE;
 
 // 保底機制：iOS 被滑掉時常常收不到「已離開」訊號，背景超過此時間即視為已結束 App
-const BACKGROUND_TO_SHADOW_MS = 12 * HOUR;
+const BACKGROUND_TO_SHADOW_MS = 1 * HOUR;
 
 // 密度 = 觀看者周圍此半徑內的人數（含活躍、休息中、殘影）
 const DENSITY_RADIUS_KM = 1;

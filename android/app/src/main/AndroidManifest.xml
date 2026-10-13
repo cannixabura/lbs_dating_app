@@ -50,6 +50,11 @@
                 <data android:scheme="https" android:host="https://little-elephant-cc-piano.softchip-0004.chatgpt.site" />
             </intent-filter>
         </activity>
+        <!-- App 被滑掉時送出「已離開」訊號（stopWithTask=false 才收得到 onTaskRemoved） -->
+        <service
+            android:name=".PresenceService"
+            android:exported="false"
+            android:stopWithTask="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

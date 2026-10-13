@@ -104,6 +104,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   Timer? _heartbeatTimer;
   Timer? _radarTimer;
+  StreamSubscription<DatabaseEvent>? _connectionSubscription;
+  bool _isInForeground = true;
+  bool _locationServicesStarted = false;
   StreamSubscription<Position>? _positionStream;
   StreamSubscription<CompassEvent>? _compassStream;
   StreamSubscription<AccelerometerEvent>? _accelerometerStream;
@@ -150,12 +153,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       bubbleShaderProgram = await ui.FragmentProgram.fromAsset('shaders/breathing_glow.frag');
     } catch (e) {}
     await _initPushNotifications();
+    // 敲門監聽不需要定位，先啟動，避免定位較慢時漏接敲門
+    _listenToIncomingRequests();
     await _initSensors();
-    if (_currentPosition != null) {
-      _initPresence(); 
-      _startRadarSweep();
-      _listenToIncomingRequests(); 
-    }
+    if (_currentPosition != null) _startLocationServices();
+  }
+
+  // 取得第一個定位後才啟動在線狀態與雷達；首次定位逾時（>10 秒）時改由定位串流觸發
+  void _startLocationServices() {
+    if (_locationServicesStarted) return;
+    _locationServicesStarted = true;
+    _initPresence();
+    _startRadarSweep();
   }
 
   Future<void> _loadProfileData() async {
@@ -305,10 +314,42 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
   }
 
+  // ==========================================
+  // 在線狀態：active(前景) / background(鎖屏、背景，可被敲門) / exited(結束 App → 殘影)
+  // ==========================================
+  DatabaseReference get _presenceRef => _dbRef.child('presence/${widget.uid}');
+
+  Future<void> _setPresence(String state) async {
+    try {
+      final onDisconnect = _presenceRef.onDisconnect();
+      if (state == 'active') {
+        // 前景時連線中斷 = App 被結束（例如從 App 切換器滑掉），伺服器自動標記為已離開
+        await onDisconnect.set({'state': 'exited', 'at': ServerValue.timestamp});
+      } else {
+        // 背景時系統遲早會切斷連線，那不代表離開，所以取消自動標記
+        await onDisconnect.cancel();
+      }
+      await _presenceRef.set({'state': state, 'at': ServerValue.timestamp});
+    } catch (e) {
+      debugPrint('presence $state failed: $e');
+    }
+  }
+
   void _initPresence() {
-    _dbRef.child('users/${widget.uid}').onDisconnect().remove();
-    _heartbeatTimer = Timer.periodic(const Duration(minutes: 2), (_) {
-      if (_currentPosition != null) _dbRef.child('users/${widget.uid}/timestamp').set(DateTime.now().millisecondsSinceEpoch);
+    _setPresence('active');
+    // 網路斷線重連後，重新登記在線（斷線時 onDisconnect 可能已標記為已離開）
+    _connectionSubscription?.cancel();
+    _connectionSubscription = _dbRef.child('.info/connected').onValue.skip(1).listen((event) {
+      if (event.snapshot.value == true && _isInForeground) _setPresence('active');
+    });
+    _startForegroundHeartbeat();
+  }
+
+  // 前景心跳：即使沒有移動也每 60 秒回報一次，讓別人看到你是「活躍」而不是殘影
+  void _startForegroundHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (_isInForeground && _currentPosition != null) _updateMyLocationToServer(_currentPosition!);
     });
   }
 
@@ -371,12 +412,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         try {
           Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10));
           if (mounted) { setState(() => _currentPosition = position); _updateMyLocationToServer(position); }
-        } catch (e) {}
+        } catch (e) {
+          debugPrint('initial position timed out, waiting for position stream: $e');
+        }
         
         _positionStream?.cancel();
         _positionStream = Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 2)).listen(
           (Position newPosition) {
-            if (mounted) { setState(() => _currentPosition = newPosition); _updateMyLocationToServer(newPosition); _updateMapCamera(); }
+            if (mounted) {
+              setState(() => _currentPosition = newPosition);
+              _updateMyLocationToServer(newPosition);
+              _updateMapCamera();
+              _startLocationServices();
+            }
           },
           onError: (dynamic error) {},
           cancelOnError: false,
@@ -410,6 +458,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   Future<void> _updateMyLocationToServer(Position position) async {
+    // 伺服器把這個呼叫視為「活躍」心跳，背景時（例如 Android 背景定位回呼）不可送出
+    if (!_isInForeground) return;
     try {
       await http.post(
         Uri.parse(_updateLocationUrl),
@@ -454,34 +504,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _processNearbyData(List rawData) {
     final List<Map<String, dynamic>> updatedUsers = [];
-    final int currentTime = DateTime.now().millisecondsSinceEpoch;
 
     for (var user in rawData) {
       if (user['uid'] == widget.uid) continue;
       if (_blockedUids.contains(user['uid']) || _blockedByUids.contains(user['uid'])) continue;
 
-      int lastActive = user['timestamp'] ?? 0;
-      int timeDiff = currentTime - lastActive;
-
-      if (timeDiff > 864000000) continue; 
-
-      bool isShadow = false;
-      double shadowOpacity = 1.0; 
-
-      if (timeDiff > 300000) { 
-        isShadow = true;
-        if (timeDiff <= 7200000) {        
-          shadowOpacity = 0.8;
-        } else if (timeDiff <= 43200000) { 
-          shadowOpacity = 0.6;
-        } else if (timeDiff <= 172800000) { 
-          shadowOpacity = 0.4;
-        } else if (timeDiff <= 432000000) { 
-          shadowOpacity = 0.2;
-        } else {                            
-          shadowOpacity = 0.1;
-        }
-      }
+      // 狀態由伺服器判定（active / inactive / shadow），殘影留存時間依當地密度而定
+      final String status = user['status'] ?? 'active';
+      final bool isShadow = status == 'shadow';
+      final double shadowAge = ((user['shadowAge'] ?? 0) as num).toDouble().clamp(0.0, 1.0);
 
       updatedUsers.add({
         'uid': user['uid'],
@@ -490,15 +521,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'mood': user['mood'] ?? '無言中...',
         'nickname': isShadow ? '' : (user['nickname'] ?? ''), 
         'isShadow': isShadow,
-        'shadowOpacity': shadowOpacity, 
+        'isInactive': status == 'inactive',
+        // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
+        'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
     }
 
     if (mounted) {
       _activeUsersNotifier.value = updatedUsers;
-      final activeUids = updatedUsers.map((e) => e['uid']).toSet();
+      // 可敲門的對象 = 活躍 + 休息中；對方離開雷達或變成殘影時收回敲門
+      final knockableUids = updatedUsers.where((e) => e['isShadow'] != true).map((e) => e['uid']).toSet();
       _outgoingRequests.keys.toList().forEach((pendingTargetUid) {
-        if (!activeUids.contains(pendingTargetUid) && _outgoingRequests[pendingTargetUid] == RequestStatus.pending) {
+        if (!knockableUids.contains(pendingTargetUid) && _outgoingRequests[pendingTargetUid] == RequestStatus.pending) {
           _dbRef.child('requests/$pendingTargetUid/${widget.uid}').remove();
           _dbRef.child('requests/$pendingTargetUid/${widget.uid}').onDisconnect().cancel();
           _pendingTimers[pendingTargetUid]?.cancel(); _requestSubscriptions[pendingTargetUid]?.cancel();
@@ -854,7 +888,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       } else if (status == 'rejected') {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); _pendingTimers[targetUid]?.cancel(); _coolingSystem.recordRejection(targetUid); 
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
-      } else if (status == null) {
+      } else if (status.isEmpty) {
+        // 對方按「略過」會直接刪除請求 → 收回敲門中的狀態
         _pendingTimers[targetUid]?.cancel();
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       }
@@ -891,21 +926,35 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused) { _dbRef.child('users/${widget.uid}').onDisconnect().cancel(); } 
-    else if (state == AppLifecycleState.resumed) {
-      _dbRef.child('users/${widget.uid}').onDisconnect().remove();
-      if (_currentPosition != null) _dbRef.child('users/${widget.uid}/timestamp').set(DateTime.now().millisecondsSinceEpoch);
-    } 
-    else if (state == AppLifecycleState.detached) { _dbRef.child('users/${widget.uid}').remove(); }
+    if (state == AppLifecycleState.resumed) {
+      // 回到前景：立刻回報為活躍，並馬上刷新雷達
+      if (_isInForeground) return;
+      _isInForeground = true;
+      if (!_locationServicesStarted) return;
+      _setPresence('active');
+      if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
+      _startForegroundHeartbeat();
+      _startRadarSweep();
+    } else if (state == AppLifecycleState.hidden || state == AppLifecycleState.paused) {
+      // 鎖屏 / 切到背景：標記為休息中（仍可被敲門），停止前景心跳與雷達掃描
+      // 註：iOS 開啟 App 切換器只會進入 inactive，此時從切換器滑掉 App 會觸發 onDisconnect → exited
+      if (!_isInForeground) return;
+      _isInForeground = false;
+      _heartbeatTimer?.cancel();
+      _radarTimer?.cancel();
+      if (_locationServicesStarted) _setPresence('background');
+    } else if (state == AppLifecycleState.detached) {
+      _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
+    }
   }
 
   @override
   void dispose() {
     _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
-    _blockSubscription?.cancel(); _blockedBySubscription?.cancel();
+    _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose();
-    _dbRef.child('users/${widget.uid}').remove(); _dbRef.child('users/${widget.uid}').onDisconnect().cancel(); 
+    _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();
   }
 
@@ -1015,6 +1064,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                   distance: renderData.distance.toInt(), 
                                   baseColor: _getMoodColor(user['mood']), 
                                   isShadow: isShadow,
+                                  isInactive: user['isInactive'] ?? false,
                                   shadowOpacity: user['shadowOpacity'] ?? 1.0, 
                                 )
                               )
@@ -1044,6 +1094,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final int distance; 
   final Color baseColor; 
   final bool isShadow; 
+  final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -1056,6 +1107,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     required this.distance, 
     required this.baseColor, 
     this.isShadow = false, 
+    this.isInactive = false,
     this.shadowOpacity = 1.0
   });
 
@@ -1073,19 +1125,19 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
   void initState() {
     super.initState();
     _avatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue;
-    if (!widget.isShadow) {
-      _controller = AnimationController(vsync: this);
-      _setupAnimation();
-    } else {
-      _glowAnimation = const AlwaysStoppedAnimation(0.0);
-    }
+    // 一律建立 controller：殘影 / 休息中的人回到活躍時，呼吸光暈要能重新亮起
+    _controller = AnimationController(vsync: this);
+    _setupAnimation();
   }
 
   void _setupAnimation() {
     if (_controller == null) return;
     bool isPending = widget.status == RequestStatus.pending;
     
-    if (isPending) {
+    if (widget.isShadow || (widget.isInactive && !isPending)) {
+      _controller!.stop();
+      _glowAnimation = const AlwaysStoppedAnimation(0.0);
+    } else if (isPending) {
       _controller!.duration = const Duration(milliseconds: 1200);
       _glowAnimation = TweenSequence<double>([
         TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)), weight: 15), 
@@ -1107,7 +1159,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
     if (widget.uid != oldWidget.uid) {
       _avatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue;
     }
-    if (!widget.isShadow && widget.status != oldWidget.status) {
+    if (widget.status != oldWidget.status || widget.isShadow != oldWidget.isShadow || widget.isInactive != oldWidget.isInactive) {
       _setupAnimation();
     }
   }
@@ -1134,7 +1186,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
         Color iconColor = isPending ? Colors.orangeAccent.withOpacity(0.8) : widget.baseColor.withOpacity(0.6);
 
         return Opacity(
-          opacity: widget.isShadow ? widget.shadowOpacity : 1.0,
+          opacity: widget.isShadow ? widget.shadowOpacity : (widget.isInactive ? 0.6 : 1.0),
           child: SizedBox(
             width: 120,
             child: Column(
@@ -1186,7 +1238,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
                 
                 const SizedBox(height: 6),
-                Text('${widget.displayName} · ${widget.distance}m', style: const TextStyle(color: Colors.white24, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w400), overflow: TextOverflow.ellipsis),
+                Text('${widget.displayName} · ${widget.distance}m${widget.isInactive ? ' · 休息中' : ''}', style: const TextStyle(color: Colors.white24, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w400), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

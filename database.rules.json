@@ -11,6 +11,18 @@
       }
     },
 
+    // 在線狀態：active(前景) / background(背景、鎖屏) / exited(已結束 App)
+    // 只能寫自己；不開放讀取，由 Cloud Function 同步到 Redis 供雷達使用
+    "presence": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['state', 'at'])",
+        "state": { ".validate": "newData.val() === 'active' || newData.val() === 'background' || newData.val() === 'exited'" },
+        "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
+      }
+    },
+
     // 公開暱稱：所有登入者可讀，只能寫自己
     "profiles": {
       "$uid": {

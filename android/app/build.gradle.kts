@@ -71,3 +71,10 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // PresenceService 直接使用原生 Firebase；版本與 FlutterFire (firebase_core 4.15.0) 的 BoM 一致
+    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+}

@@ -3,6 +3,9 @@ const functionsV1 = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { defineSecret } = require("firebase-functions/params");
 const cors = require("cors")({ origin: true });
+const {
+    DENSITY_RADIUS_KM, MAX_SHADOW_RETENTION_MS, shadowRetentionFor, classifyPresence,
+} = require("./presence");
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -17,7 +20,6 @@ const MAX_RADIUS_KM = 5;
 const MAX_MOOD_LENGTH = 20;
 const MAX_NICKNAME_LENGTH = 10;
 const MAX_NEARBY_RESULTS = 300;
-const STALE_AFTER_MS = 10 * 24 * 60 * 60 * 1000; // 與 App 端殘影完全消失的 10 天一致
 
 // 去除貼上 Secret 時誤帶的空白、換行與引號
 function cleanSecret(secret) {
@@ -99,7 +101,9 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     try {
       await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
-          ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString()],
+          // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
+          ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString(),
+              "state", "active", "stateAt", timestamp.toString()],
       ]);
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
@@ -119,36 +123,62 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
     if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
     const radiusKM = Math.min(Math.max(Number(req.body.radiusKM) || MAX_RADIUS_KM, 0.1), MAX_RADIUS_KM);
     try {
-      // 1 次請求：由近到遠取出半徑內的人，座標直接由地理索引帶回
+      // 1 次請求：由近到遠取出半徑內的人，座標與距離直接由地理索引帶回
       const nearby = await sendUpstashCommand([
           "GEOSEARCH", "city_users", "FROMLONLAT", lng.toString(), lat.toString(),
-          "BYRADIUS", radiusKM.toString(), "km", "ASC", "COUNT", MAX_NEARBY_RESULTS.toString(), "WITHCOORD"
+          "BYRADIUS", radiusKM.toString(), "km", "ASC", "COUNT", MAX_NEARBY_RESULTS.toString(), "WITHDIST", "WITHCOORD"
       ]);
-      const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0]);
+      // 每筆格式：[uid, 距離(km), [lng, lat]]
+      const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] && m[0] !== uid);
 
-      // 1 次請求：以 pipeline 一口氣取回所有人的心情 / 暱稱 / 時間戳
+      // 1 次請求：以 pipeline 一口氣取回所有人的資料
       const profiles = await sendUpstashPipeline(
-          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp"])
+          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt"])
       );
 
       const now = Date.now();
-      const results = [];
       const staleUids = [];
-      members.forEach(([memberUid, coord], i) => {
-          const [mood, nickname, timestamp] = profiles[i] || [];
-          const ts = parseInt(timestamp || "0", 10);
-          if (!ts || now - ts > STALE_AFTER_MS) { staleUids.push(memberUid); return; }
-          results.push({ uid: memberUid, lng: parseFloat(coord[0]), lat: parseFloat(coord[1]), mood: mood || "", nickname: nickname || "", timestamp: ts });
+      const candidates = [];
+      members.forEach(([memberUid, dist, coord], i) => {
+          const [mood, nickname, timestamp, state, stateAt] = profiles[i] || [];
+          const lastSeen = parseInt(timestamp || "0", 10);
+          if (!lastSeen) { staleUids.push(memberUid); return; }
+          const presence = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
+          // 超過最長留存（10 天）的殘影，任何密度下都不會再顯示，直接清除
+          if (presence.status === 'shadow' && now - presence.shadowSince > MAX_SHADOW_RETENTION_MS) { staleUids.push(memberUid); return; }
+          candidates.push({ memberUid, dist: parseFloat(dist), coord, mood, nickname, lastSeen, presence });
       });
 
-      // 🧹 順手清掉超過 10 天沒出現的殘影，避免地理索引無限膨脹
+      // 密度：觀看者周圍 1 公里內的人數，決定殘影能留存多久
+      const peopleNearby = candidates.filter((c) => c.dist <= DENSITY_RADIUS_KM).length;
+      const retentionMs = shadowRetentionFor(peopleNearby);
+
+      const results = [];
+      for (const c of candidates) {
+          const { status, shadowSince } = c.presence;
+          let shadowAge = 0;
+          if (status === 'shadow') {
+              shadowAge = (now - shadowSince) / retentionMs;
+              if (shadowAge > 1) continue; // 超過此密度允許的留存時間
+          }
+          results.push({
+              uid: c.memberUid, lng: parseFloat(c.coord[0]), lat: parseFloat(c.coord[1]),
+              mood: c.mood || "",
+              nickname: status === 'shadow' ? "" : (c.nickname || ""), // 殘影不公開暱稱
+              status,
+              shadowAge, // 0 = 剛成為殘影，1 = 即將消失；供 App 計算淡出程度
+              timestamp: c.lastSeen,
+          });
+      }
+
+      // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
       if (staleUids.length > 0) {
           try {
               await sendUpstashPipeline([["ZREM", "city_users", ...staleUids], ...staleUids.map((u) => ["DEL", `user_data:${u}`])]);
           } catch (e) { console.error('stale cleanup failed:', e); }
       }
 
-      res.status(200).json({ success: true, data: results });
+      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 } });
     } catch (error) {
       console.error('getNearby failed:', error);
       res.status(500).json({ success: false, error: "掃描失敗" });
@@ -223,5 +253,24 @@ exports.notifyOnChat = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databas
     }
 
     await sendPush(targetUid, `來自 ${senderName} 的低語`, String(msg.text || ''), { type: 'chat_message', roomId: context.params.roomId, senderUid });
+    return null;
+  });
+
+// ============================================================================
+// API 5: 在線狀態同步 —— 把 RTDB 的 presence/{uid} 同步到 Redis 供雷達判定
+// ============================================================================
+exports.syncPresence = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).database.ref('/presence/{uid}')
+  .onWrite(async (change, context) => {
+    const data = change.after.val();
+    if (!data || !data.state || !data.at) return null;
+    const uid = context.params.uid;
+    try {
+        // 只接受比 Redis 現有狀態更新的事件，避免延遲送達的舊事件覆蓋新狀態
+        const [currentAt] = await sendUpstashCommand(["HMGET", `user_data:${uid}`, "stateAt"]);
+        if (currentAt && parseInt(currentAt, 10) > data.at) return null;
+        await sendUpstashCommand(["HSET", `user_data:${uid}`, "state", data.state, "stateAt", String(data.at)]);
+    } catch (e) {
+        console.error(`syncPresence failed (${uid}):`, e);
+    }
     return null;
   });

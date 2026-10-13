@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lbs_dating_app/legal.dart';
 import 'package:lbs_dating_app/login_screen.dart';
+import 'package:lbs_dating_app/ui/night.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> pumpLoginScreen(WidgetTester tester) async {
@@ -10,6 +12,11 @@ Future<void> pumpLoginScreen(WidgetTester tester) async {
 
 String moodFieldText(WidgetTester tester) =>
     tester.widget<TextField>(find.byType(TextField)).controller!.text;
+
+bool enterButtonEnabled(WidgetTester tester) =>
+    tester.widget<NightButton>(find.widgetWithText(NightButton, '走進城市低語')).onPressed != null;
+
+final consentRow = find.textContaining('零容忍');
 
 void main() {
   testWidgets('first launch: mood field is empty', (tester) async {
@@ -34,5 +41,33 @@ void main() {
 
     expect(find.text('請留下你此刻的心情，再沒入城市。'), findsOneWidget);
     expect(find.byType(LoginScreen), findsOneWidget);
+  });
+
+  testWidgets('first launch: must agree to the terms before entering', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await pumpLoginScreen(tester);
+
+    expect(consentRow, findsOneWidget);
+    expect(enterButtonEnabled(tester), isFalse);
+
+    await tester.tap(consentRow);
+    await tester.pump();
+    expect(enterButtonEnabled(tester), isTrue);
+  });
+
+  testWidgets('already agreed to this terms version: no checkbox, button enabled', (tester) async {
+    SharedPreferences.setMockInitialValues({'saved_mood': '下雨天', 'terms_accepted_version': Legal.termsVersion});
+    await pumpLoginScreen(tester);
+
+    expect(consentRow, findsNothing);
+    expect(enterButtonEnabled(tester), isTrue);
+  });
+
+  testWidgets('terms updated since last agreement: asked again', (tester) async {
+    SharedPreferences.setMockInitialValues({'saved_mood': '下雨天', 'terms_accepted_version': '2000-01'});
+    await pumpLoginScreen(tester);
+
+    expect(consentRow, findsOneWidget);
+    expect(enterButtonEnabled(tester), isFalse);
   });
 }

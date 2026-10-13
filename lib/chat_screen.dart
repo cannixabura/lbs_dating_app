@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'report_sheet.dart';
+import 'ui/night.dart';
 
 class ChatScreen extends StatefulWidget {
   final String myUid;
@@ -210,6 +212,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
+  Future<void> _report() async {
+    final result = await showReportSheet(
+      context,
+      myUid: widget.myUid,
+      targetUid: widget.targetUid,
+      targetName: widget.targetName,
+      reportContext: ReportContext.chat,
+    );
+    // 選擇同時封鎖時，立刻結束這場交集
+    if (result != null && result.blocked && mounted) _manualLeave(reason: '已封鎖對方，交集結束。');
+  }
+
   void _cancelAllTimers() {
     _countdownTimer?.cancel();
     _typingTimer?.cancel();
@@ -262,6 +276,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white54, size: 20),
           onPressed: () => _manualLeave(),
         ),
+        actions: [
+          IconButton(
+            tooltip: '檢舉',
+            icon: const Icon(Icons.flag_outlined, color: Night.inkMuted),
+            onPressed: _isClosing ? null : _report,
+          ),
+        ],
       ),
       body: Stack(
         children: [

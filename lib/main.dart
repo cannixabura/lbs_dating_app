@@ -23,6 +23,9 @@ import 'package:firebase_storage/firebase_storage.dart'; // 🌟 新增：雲端
 import 'package:image_picker/image_picker.dart'; // 🌟 新增：圖片選擇器
 import 'dart:io' show Platform;
 import 'firebase_options.dart';
+import 'legal.dart';
+import 'report_sheet.dart';
+import 'ui/night.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'dart:ui' as ui; 
 
@@ -596,28 +599,54 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   void _showIncomingRequestUI(String senderUid, String senderName) {
+    void close(BuildContext dialogContext) {
+      Navigator.pop(dialogContext);
+      _isDialogShowing = false;
+      _currentKnockerUid = null;
+    }
+
     showDialog(
-      context: context, barrierDismissible: true, 
+      context: context, barrierDismissible: true, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF1E1E1E), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('片刻交集', style: TextStyle(color: Colors.white70, fontSize: 18)),
-          content: Text('$senderName 正在敲門，\n想與你產生交集...', style: const TextStyle(color: Colors.white54), textAlign: TextAlign.center),
-          actionsAlignment: MainAxisAlignment.spaceEvenly,
-          actions: [
-            TextButton(onPressed: () { Navigator.pop(dialogContext); _isDialogShowing = false; _currentKnockerUid = null; _dbRef.child('requests/${widget.uid}/$senderUid').remove(); }, child: const Text('略過', style: TextStyle(color: Colors.white38))),
-            TextButton(onPressed: () { Navigator.pop(dialogContext); _isDialogShowing = false; _currentKnockerUid = null; _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'rejected'}); }, child: const Text('婉拒', style: TextStyle(color: Colors.white54))),
-            TextButton(onPressed: () { 
-              Navigator.pop(dialogContext); 
-              _isDialogShowing = false; 
-              _currentKnockerUid = null; 
-              _dbRef.child('requests/${widget.uid}/$senderUid').set({
-                'status': 'accepted',
-                'nickname': _myNickname
-              }); 
-              _navigateToChatScreen(senderUid, senderName); 
-            }, child: const Text('同意', style: TextStyle(color: Colors.orangeAccent))),
-          ],
+        return Dialog(
+          backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+          child: GlassCard(
+            glow: true,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                width: 56, height: 56,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: Night.night700, border: Border.all(color: Night.auroraViolet, width: 2), boxShadow: const [Night.glowViolet]),
+                child: const Icon(Icons.person_outline, color: Night.inkMuted, size: 30),
+              ),
+              const SizedBox(height: Night.space3),
+              const Text('片刻交集', style: Night.title),
+              const SizedBox(height: Night.space2),
+              Text('$senderName 正在敲門，\n想與你產生交集…', style: Night.body, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space4),
+              Row(children: [
+                Expanded(child: NightButton('略過', kind: NightButtonKind.text, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').remove(); })),
+                const SizedBox(width: Night.space2),
+                Expanded(child: NightButton('婉拒', kind: NightButtonKind.ghost, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'rejected'}); })),
+                const SizedBox(width: Night.space2),
+                Expanded(child: NightButton('同意', kind: NightButtonKind.warm, onPressed: () {
+                  close(dialogContext);
+                  _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'accepted', 'nickname': _myNickname});
+                  _navigateToChatScreen(senderUid, senderName);
+                })),
+              ]),
+              TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: Night.inkFaint, minimumSize: const Size(44, 44)),
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                label: const Text('檢舉這個人', style: Night.caption),
+                onPressed: () {
+                  // 檢舉時一併婉拒這次敲門，對方會進入冷卻
+                  close(dialogContext);
+                  _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'rejected'});
+                  showReportSheet(context, myUid: widget.uid, targetUid: senderUid, targetName: senderName, reportContext: ReportContext.knock);
+                },
+              ),
+            ]),
+          ),
         );
       },
     ).then((_) { if (_isDialogShowing) { _isDialogShowing = false; _currentKnockerUid = null; _dbRef.child('requests/${widget.uid}/$senderUid').remove(); } });
@@ -637,6 +666,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 const Divider(color: Colors.white12),
                 ListTile(leading: const Icon(Icons.person, color: Colors.white70), title: const Text('編輯個人狀態', style: TextStyle(color: Colors.white)), subtitle: const Text('設定大頭貼、暱稱與心情', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _showProfileEditDialog(); }),
                 ListTile(leading: const Icon(Icons.block, color: Colors.redAccent), title: const Text('管理封鎖名單', style: TextStyle(color: Colors.white)), subtitle: const Text('查看或解除被你沒入黑暗的人', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _showBlockListDialog(); }),
+                const Divider(color: Colors.white12),
+                ListTile(leading: const Icon(Icons.description_outlined, color: Night.inkMuted), title: const Text('使用條款', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.termsUrl)),
+                ListTile(leading: const Icon(Icons.privacy_tip_outlined, color: Night.inkMuted), title: const Text('隱私權政策', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.privacyUrl)),
+                ListTile(leading: const Icon(Icons.mail_outline, color: Night.inkMuted), title: const Text('聯絡我們', style: TextStyle(color: Colors.white)), subtitle: const Text(Legal.contactEmail, style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () => Legal.emailUs()),
                 const SizedBox(height: 10),
               ],
             ),
@@ -794,20 +827,38 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
-  void _showInteractionMenu(String targetUid, String displayName) {
+  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false}) {
+    Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Night.radiusSm),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Night.space3, horizontal: Night.space2),
+            child: Row(children: [Icon(icon, color: color), const SizedBox(width: Night.space3), Text(label, style: const TextStyle(color: Night.ink, fontSize: 15))]),
+          ),
+        );
+
     showDialog(
-      context: context,
+      context: context, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF1E1E1E), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Center(child: Text('與 $displayName 的相遇', style: const TextStyle(color: Colors.white54, fontSize: 16, letterSpacing: 2))),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Divider(color: Colors.white12),
-              ListTile(leading: const Icon(Icons.waving_hand_rounded, color: Colors.orangeAccent), title: const Text('敲門 (產生交集)', style: TextStyle(color: Colors.white)), onTap: () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
-              ListTile(leading: const Icon(Icons.block, color: Colors.redAccent), title: const Text('封鎖 (沒入黑暗)', style: TextStyle(color: Colors.white)), onTap: () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
-            ],
+        return Dialog(
+          backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+          child: GlassCard(
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text(isShadow ? '一道歷史殘影' : '與 $displayName 的相遇', style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
+              if (isShadow) ...[
+                const SizedBox(height: Night.space2),
+                const Text('這只是一道歷史殘影，無法產生交集。', style: Night.body, textAlign: TextAlign.center),
+              ],
+              const SizedBox(height: Night.space3),
+              if (!isShadow) ...[
+                item(Icons.waving_hand_outlined, Night.knockPink, '敲門 (產生交集)', () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
+                item(Icons.block, Night.danger, '封鎖 (沒入黑暗)', () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
+              ],
+              item(Icons.flag_outlined, Night.danger, '檢舉', () {
+                Navigator.pop(dialogContext);
+                showReportSheet(context, myUid: widget.uid, targetUid: targetUid, targetName: displayName, reportContext: ReportContext.bubble);
+              }),
+            ]),
           ),
         );
       },
@@ -1045,11 +1096,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent, 
                             onLongPress: () {
-                              if (isShadow) {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('這只是一道歷史殘影，無法產生交集。'), backgroundColor: Colors.white24, duration: Duration(seconds: 2)));
-                                return;
-                              }
-                              _showInteractionMenu(user['uid'], displayName);
+                              _showInteractionMenu(user['uid'], isShadow ? '歷史殘影' : displayName, isShadow: isShadow);
                             },
                             child: Opacity(
                               opacity: renderData.opacity, 

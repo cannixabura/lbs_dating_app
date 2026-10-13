@@ -1,0 +1,14 @@
+/* 城市低語 法律文件 — 與 App 的夜光設計系統同色系，維持高可讀性 */
+:root { color-scheme: dark; }
+body { margin: 0; background: #070b1f; color: #f3f0ff; font: 16px/1.75 "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; }
+main { max-width: 680px; margin: 0 auto; padding: 48px 20px 80px; }
+h1 { font-size: 28px; line-height: 1.3; letter-spacing: 1px; margin: 0 0 8px; }
+h2 { font-size: 18px; margin: 36px 0 8px; color: #f3f0ff; }
+p, li, td, th { color: #b9b6d6; }
+.meta { color: #8c89b0; font-size: 13px; letter-spacing: 1px; margin-bottom: 28px; }
+a { color: #4fc3f7; }
+strong { color: #f3f0ff; }
+ul { padding-left: 1.3em; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid #2a2f66; }
+th { color: #f3f0ff; font-weight: 500; white-space: nowrap; }

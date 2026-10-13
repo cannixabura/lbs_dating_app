@@ -48,7 +48,7 @@
         ".read": "auth != null && auth.uid === $targetUid",
         "$senderUid": {
           ".read": "auth != null && (auth.uid === $senderUid || auth.uid === $targetUid)",
-          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && ( !newData.exists() || (newData.child('status').val() === 'pending' && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists()))) || (auth.uid === $targetUid && ( !newData.exists() || newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected' )))",
+          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && ( !newData.exists() || (newData.child('status').val() === 'pending' && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists() && root.child('moderation/' + auth.uid + '/hidden').val() !== true))) || (auth.uid === $targetUid && ( !newData.exists() || newData.child('status').val() === 'accepted' || newData.child('status').val() === 'rejected' )))",
           "status": { ".validate": "newData.isString()" },
           "nickname": { ".validate": "newData.isString() && newData.val().length <= 120" },
           "$other": { ".validate": false }
@@ -85,6 +85,41 @@
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.isString() && newData.val().length <= 4096"
+      }
+    },
+
+    // 檢舉：只能以自己的名義新增、送出後不可修改；一般使用者不能讀取任何檢舉
+    "reports": {
+      ".indexOn": ["target"],
+      "$reportId": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['reporter', 'target', 'reason', 'context', 'at'])",
+        "reporter": { ".validate": "newData.val() === auth.uid" },
+        "target": { ".validate": "newData.isString() && newData.val() !== auth.uid && newData.val().length > 0 && newData.val().length <= 128" },
+        "reason": { ".validate": "newData.val() === 'harassment' || newData.val() === 'sexual' || newData.val() === 'scam' || newData.val() === 'hate' || newData.val() === 'impersonation' || newData.val() === 'other'" },
+        "detail": { ".validate": "newData.isString() && newData.val().length <= 500" },
+        "context": { ".validate": "newData.val() === 'bubble' || newData.val() === 'knock' || newData.val() === 'chat'" },
+        "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    // 審核狀態：只由後台（Cloud Functions 或你在 Firebase 主控台）寫入；本人可讀
+    "moderation": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    // 同意條款的紀錄（審核時可佐證使用者已同意）
+    "consents": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['version', 'at'])",
+        "version": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
       }
     },
 

@@ -6,6 +6,7 @@ const cors = require("cors")({ origin: true });
 const {
     DENSITY_RADIUS_KM, MAX_SHADOW_RETENTION_MS, shadowRetentionFor, classifyPresence,
 } = require("./presence");
+const { evaluateReports } = require("./moderation");
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -133,14 +134,15 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
 
       // 1 次請求：以 pipeline 一口氣取回所有人的資料
       const profiles = await sendUpstashPipeline(
-          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt"])
+          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden"])
       );
 
       const now = Date.now();
       const staleUids = [];
       const candidates = [];
       members.forEach(([memberUid, dist, coord], i) => {
-          const [mood, nickname, timestamp, state, stateAt] = profiles[i] || [];
+          const [mood, nickname, timestamp, state, stateAt, hidden] = profiles[i] || [];
+          if (hidden === "1") return; // 被檢舉自動隱藏或人工隱藏，不出現在任何人的雷達上
           const lastSeen = parseInt(timestamp || "0", 10);
           if (!lastSeen) { staleUids.push(memberUid); return; }
           const presence = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
@@ -271,6 +273,43 @@ exports.syncPresence = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databas
         await sendUpstashCommand(["HSET", `user_data:${uid}`, "state", data.state, "stateAt", String(data.at)]);
     } catch (e) {
         console.error(`syncPresence failed (${uid}):`, e);
+    }
+    return null;
+  });
+
+// ============================================================================
+// API 6: 檢舉 —— 24 小時內被 3 個不同的人檢舉，自動從雷達隱藏並等待人工審查
+// ============================================================================
+exports.onReportCreated = functionsV1.database.ref('/reports/{reportId}')
+  .onCreate(async (snapshot) => {
+    const report = snapshot.val();
+    if (!report || !report.target) return null;
+    const target = report.target;
+    try {
+        const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+        const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+        console.log(`[檢舉] ${target} 被 ${report.reporter} 檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+        if (!hide) return null;
+        const modRef = admin.database().ref(`/moderation/${target}`);
+        const current = (await modRef.once('value')).val();
+        if (current && current.hidden === true) return null;
+        await modRef.set({ hidden: true, at: Date.now(), reason: `auto: ${reporters} reporters in 24h`, reviewed: false });
+        console.warn(`[檢舉] ${target} 已自動隱藏，請在 24 小時內到 Firebase 主控台審查 reports 與 moderation/${target}`);
+    } catch (e) {
+        console.error(`[檢舉] 處理失敗 (${target}):`, e);
+    }
+    return null;
+  });
+
+// 審核狀態同步到 Redis：getNearby 依此過濾。人工解除隱藏 = 把 moderation/{uid}/hidden 改成 false 或刪除
+exports.syncModeration = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).database.ref('/moderation/{uid}')
+  .onWrite(async (change, context) => {
+    const data = change.after.val();
+    const hidden = !!(data && data.hidden === true);
+    try {
+        await sendUpstashCommand(["HSET", `user_data:${context.params.uid}`, "hidden", hidden ? "1" : "0"]);
+    } catch (e) {
+        console.error(`syncModeration failed (${context.params.uid}):`, e);
     }
     return null;
   });

@@ -17,7 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    
+    _prefillLastMood();
+
     // 🌟 核心修正：加入 400 毫秒的延遲。
     // 這是為了確保從 IntroScreen 切換過來的轉場動畫已經「完全結束」，
     // 再呼叫鍵盤，避免 iOS 系統因為動畫還在跑而把鍵盤擋下來。
@@ -26,6 +27,18 @@ class _LoginScreenState extends State<LoginScreen> {
         FocusScope.of(context).requestFocus(_focusNode);
       }
     });
+  }
+
+  // 再次進入 App 時，自動帶入上一次的心情（第一次使用則保持空白）
+  Future<void> _prefillLastMood() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String lastMood = prefs.getString('saved_mood')?.trim() ?? '';
+    // 使用者已經開始輸入就不覆蓋
+    if (!mounted || lastMood.isEmpty || _moodController.text.isNotEmpty) return;
+    _moodController.value = TextEditingValue(
+      text: lastMood,
+      selection: TextSelection.collapsed(offset: lastMood.length), // 游標放在最後，方便接著修改
+    );
   }
 
   @override

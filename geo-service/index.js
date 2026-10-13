@@ -19,10 +19,15 @@ const MAX_NICKNAME_LENGTH = 10;
 const MAX_NEARBY_RESULTS = 300;
 const STALE_AFTER_MS = 10 * 24 * 60 * 60 * 1000; // 與 App 端殘影完全消失的 10 天一致
 
+// 去除貼上 Secret 時誤帶的空白、換行與引號
+function cleanSecret(secret) {
+    return secret.value().trim().replace(/^["']|["']$/g, '').trim();
+}
+
 async function upstashFetch(path, body) {
-    const response = await fetch(UPSTASH_URL.value() + path, {
+    const response = await fetch(cleanSecret(UPSTASH_URL).replace(/\/+$/, '') + path, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN.value()}`, 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${cleanSecret(UPSTASH_TOKEN)}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     });
     if (!response.ok) throw new Error(`Upstash API Error: ${response.status}`);

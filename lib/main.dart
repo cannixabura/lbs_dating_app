@@ -276,7 +276,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Future<void> _initPushNotifications() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await messaging.requestPermission(alert: true, badge: true, sound: true);
-    await messaging.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+    // App 在前景時不顯示系統通知（與 Android 行為一致），改由下方 onMessage 的 App 內提示條處理
+    await messaging.setForegroundNotificationPresentationOptions(alert: false, badge: false, sound: false);
     
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       String? token;

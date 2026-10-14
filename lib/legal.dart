@@ -6,7 +6,7 @@ class Legal {
   Legal._();
 
   static const termsVersion = '2026-10';
-  static const contactEmail = 'cannixabura@gmail.com';
+  static const contactEmail = 'service.softchip@gmail.com';
   static final termsUrl = Uri.parse('https://mood-whisper-f7de9.web.app/terms.html');
   static final privacyUrl = Uri.parse('https://mood-whisper-f7de9.web.app/privacy.html');
 

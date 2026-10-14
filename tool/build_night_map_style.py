@@ -13,9 +13,9 @@ NIGHT_700 = "#1a1f4a"
 PARK = "#111a3e"
 WATER = "#0b1d52"
 WATER_EDGE = "#2a63d4"
-AMBER = "#a8743a"       # 主要道路（比 city-amber 暗兩階，仍略亮於次要道路）
-AMBER_MID = "#9c6a32"   # 次要道路
-AMBER_DIM = "#5f4228"   # 小巷
+AMBER = "#8a6a45"       # 主要道路：暗金琥珀（降低飽和度，避免與深藍紫成強烈互補色）
+AMBER_MID = "#6e5538"   # 次要道路
+AMBER_DIM = "#4a3b2e"   # 小巷
 AMBER_FAINT = "#3a3038" # 步道、服務道路
 VIOLET_LINE = "#3a2f80" # 鐵路、邊界
 
@@ -71,7 +71,7 @@ def recolor(style):
                 # 道路外框改成模糊的橘色光暈，形成「發光的道路」
                 paint["line-color"] = color
                 paint["line-blur"] = 6 if rank == "major" else 4
-                paint["line-opacity"] = {"major": 0.06 if tunnel else 0.16, "secondary": 0.08 if tunnel else 0.22}.get(rank, 0.05 if tunnel else 0.12)
+                paint["line-opacity"] = {"major": 0.05 if tunnel else 0.12, "secondary": 0.04 if tunnel else 0.1}.get(rank, 0.03 if tunnel else 0.08)
                 paint["line-width"] = scale_width(paint.get("line-width", 1), 2.6)
             else:
                 paint["line-color"] = color

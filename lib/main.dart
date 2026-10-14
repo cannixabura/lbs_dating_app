@@ -8,7 +8,7 @@ import 'package:vibration/vibration.dart';
 import 'chat_screen.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle, HapticFeedback;
+import 'package:flutter/services.dart' show rootBundle, HapticFeedback, MethodChannel;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -661,6 +661,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   /// 心跳震動：兩次「噗通－噗通」（一輕一重），取代單一的嗡嗡聲
   Future<void> _heartbeatVibration() async {
     try {
+      if (Platform.isIOS) {
+        // iPhone：用原生 Core Haptics 播放（見 ios/Runner/AppDelegate.swift），比一般震動更有心跳感
+        await const MethodChannel('citywhisper/haptics').invokeMethod('heartbeat');
+        return;
+      }
       if (!(await Vibration.hasVibrator())) return;
       if (await Vibration.hasCustomVibrationsSupport()) {
         // 時間軸（毫秒）：等待, 震, 停, 震 ...；強度對應每一段（0 = 停）

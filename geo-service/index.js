@@ -8,6 +8,7 @@ const {
 } = require("./presence");
 const { evaluateReports } = require("./moderation");
 const { fuzzLocation } = require("./fuzz");
+const citymood = require("./citymood");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -376,6 +377,71 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
     } catch (error) {
       console.error(`deleteAccount failed (${uid}):`, error);
       res.status(500).json({ success: false, error: "刪除失敗" });
+    }
+  });
+});
+
+// ============================================================================
+// API 8: 共鳴推播 —— 有人送你一道微光；同一人 30 分鐘內最多一則，避免洗版
+// ============================================================================
+const RESONANCE_PUSH_THROTTLE_MS = 30 * 60 * 1000;
+
+exports.notifyOnResonance = functionsV1.database.ref('/resonance/{targetUid}/{senderUid}')
+  .onWrite(async (change, context) => {
+    const after = change.after.val();
+    const before = change.before.val();
+    if (typeof after !== 'number' || (typeof before === 'number' && before >= after)) return null; // 刪除或舊值，不推播
+    const targetUid = context.params.targetUid;
+    const throttleRef = admin.database().ref(`/resonancePush/${targetUid}`);
+    try {
+        // 用交易確保同時多道微光只推一次
+        const result = await throttleRef.transaction((last) => {
+            if (typeof last === 'number' && Date.now() - last < RESONANCE_PUSH_THROTTLE_MS) return; // 放棄寫入
+            return Date.now();
+        });
+        if (!result.committed) return null;
+        await sendPush(targetUid, '城市低語', '有人在附近，與你的心情共鳴了。', { type: 'resonance' });
+    } catch (e) {
+        console.error(`notifyOnResonance failed (${targetUid}):`, e);
+    }
+    return null;
+  });
+
+// ============================================================================
+// API 9: 城市心情天氣 —— 20 公里內、24 小時內的匿名心情百分比（少於 10 人只回「城市還很安靜」）
+// ============================================================================
+const CITY_MOOD_CACHE_SECONDS = 300;
+const CITY_MOOD_MAX_PEOPLE = 3000;
+
+exports.getCityMood = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    const { lat, lng } = req.body;
+    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+
+    const key = citymood.cacheKey(lat, lng);
+    try {
+      const cached = await sendUpstashCommand(["GET", key]);
+      if (cached) return res.status(200).json({ success: true, data: JSON.parse(cached), cached: true });
+
+      const members = await sendUpstashCommand([
+          "GEOSEARCH", "city_users", "FROMLONLAT", lng.toString(), lat.toString(),
+          "BYRADIUS", String(citymood.CITY_RADIUS_KM), "km", "COUNT", String(CITY_MOOD_MAX_PEOPLE),
+      ]);
+      const uids = Array.isArray(members) ? members.filter(Boolean) : [];
+      const rows = await sendUpstashPipeline(uids.map((u) => ["HMGET", `user_data:${u}`, "mood", "timestamp", "hidden"]));
+      const people = rows
+          .filter((r) => r && r[2] !== "1")
+          .map(([mood, ts]) => ({ mood, lastSeen: parseInt(ts || "0", 10) }));
+      const summary = citymood.summarize(people, Date.now());
+
+      await sendUpstashCommand(["SET", key, JSON.stringify(summary), "EX", String(CITY_MOOD_CACHE_SECONDS)]);
+      res.status(200).json({ success: true, data: summary });
+    } catch (error) {
+      console.error('getCityMood failed:', error);
+      res.status(500).json({ success: false, error: "讀取失敗" });
     }
   });
 });

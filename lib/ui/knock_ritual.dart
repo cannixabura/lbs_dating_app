@@ -54,6 +54,7 @@ class KnockArcPainter extends CustomPainter {
 class ParticleBurstPainter extends CustomPainter {
   final Offset origin;
   final double progress;
+  final Color color;
   static final List<_Particle> _particles = List.generate(22, (i) {
     final r = Random(i * 7919);
     return _Particle(
@@ -64,7 +65,7 @@ class ParticleBurstPainter extends CustomPainter {
     );
   });
 
-  ParticleBurstPainter({required this.origin, required this.progress});
+  ParticleBurstPainter({required this.origin, required this.progress, this.color = Night.knockPink});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -75,14 +76,14 @@ class ParticleBurstPainter extends CustomPainter {
       final dist = p.speed * ease;
       final pos = origin + Offset(cos(p.angle) * dist + p.drift * ease, sin(p.angle) * dist - 20 * ease);
       paint
-        ..color = Night.knockPink.withOpacity(0.85 * fade)
+        ..color = color.withOpacity(0.85 * fade)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + 2 * ease);
       canvas.drawCircle(pos, p.size * (1 - 0.5 * ease), paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant ParticleBurstPainter old) => old.progress != progress || old.origin != origin;
+  bool shouldRepaint(covariant ParticleBurstPainter old) => old.progress != progress || old.origin != origin || old.color != color;
 }
 
 class _Particle {

@@ -88,6 +88,23 @@
       }
     },
 
+    // 共鳴（一道微光）：resonance/{收到的人}/{送出的人} = 送出時間
+    // 同一人 24 小時內只能送一次；被封鎖、被隱藏的人不能送；收到的人可讀、可清除自己的紀錄
+    "resonance": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && newData.exists() && (!data.exists() || data.val() < now - 86400000) && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists() && root.child('moderation/' + auth.uid + '/hidden').val() !== true) || (auth.uid === $targetUid && !newData.exists()))",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() > now - 60000"
+        }
+      }
+    },
+
+    // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
+    "resonancePush": {
+      "$uid": { ".read": false }
+    },
+
     // 檢舉：只能以自己的名義新增、送出後不可修改；一般使用者不能讀取任何檢舉
     "reports": {
       ".indexOn": ["target"],

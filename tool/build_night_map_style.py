@@ -1,7 +1,7 @@
 """把 CARTO dark-matter-nolabels 樣式改成城市低語的「夜光」地圖。
 
 用法：python3 tool/build_night_map_style.py <下載的 style.json> assets/map/night_style.json
-顏色取自設計系統 tokens.json：深藍地面、暖橘發光道路、深藍水域加藍色光邊。
+顏色取自設計系統：深藍地面、灰藍綠微光道路、深藍水域加藍色光邊。
 3D 霓虹建築與夜空漸層在 App 端（main.dart）加上。
 """
 import copy
@@ -13,10 +13,10 @@ NIGHT_700 = "#1a1f4a"
 PARK = "#111a3e"
 WATER = "#0b1d52"
 WATER_EDGE = "#2a63d4"
-AMBER = "#8a6a45"       # 主要道路：暗金琥珀（降低飽和度，避免與深藍紫成強烈互補色）
-AMBER_MID = "#6e5538"   # 次要道路
-AMBER_DIM = "#4a3b2e"   # 小巷
-AMBER_FAINT = "#3a3038" # 步道、服務道路
+ROAD_MAJOR = "#3d7a80"  # 主要道路：低飽和灰藍綠（與深藍紫同屬冷色，暖色系在此背景上一律顯得突兀）
+ROAD_MID = "#2f5f66"    # 次要道路
+ROAD_DIM = "#24454d"    # 小巷
+ROAD_FAINT = "#26324a"  # 步道、服務道路
 VIOLET_LINE = "#3a2f80" # 鐵路、邊界
 
 def scale_width(width, factor):
@@ -65,10 +65,10 @@ def recolor(style):
             paint["line-color"] = NIGHT_800
         elif layer.get("source-layer") == "transportation" and layer["type"] == "line":
             rank = road_rank(lid)
-            color = {"major": AMBER, "secondary": AMBER_MID, "minor": AMBER_DIM, "faint": AMBER_FAINT}[rank]
+            color = {"major": ROAD_MAJOR, "secondary": ROAD_MID, "minor": ROAD_DIM, "faint": ROAD_FAINT}[rank]
             tunnel = lid.startswith("tunnel_")
             if "_case" in lid:
-                # 道路外框改成模糊的橘色光暈，形成「發光的道路」
+                # 道路外框改成模糊的同色光暈，形成「發光的道路」
                 paint["line-color"] = color
                 paint["line-blur"] = 6 if rank == "major" else 4
                 paint["line-opacity"] = {"major": 0.05 if tunnel else 0.12, "secondary": 0.04 if tunnel else 0.1}.get(rank, 0.03 if tunnel else 0.08)

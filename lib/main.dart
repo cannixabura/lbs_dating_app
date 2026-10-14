@@ -8,6 +8,7 @@ import 'package:vibration/vibration.dart';
 import 'chat_screen.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -42,7 +43,8 @@ Color _getMoodColor(String mood) {
   return Colors.tealAccent; 
 }
 
-const String _darkStyleUrl = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
+// 夜光地圖樣式：由 tool/build_night_map_style.py 從 CARTO dark-matter 重新上色，內建在 App 裡
+const String _nightStyleAsset = 'assets/map/night_style.json';
 const String _updateLocationUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/updateLocation';
 const String _getNearbyUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/getNearby';
 const String _deleteAccountUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/deleteAccount';
@@ -129,6 +131,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   String? _currentKnockerUid;
   late String _myMood;
+  String? _mapStyle; // 夜光地圖樣式 JSON，載入完成前先顯示「正在感知這座城市」
   String _myNickname = ''; 
   String _myAvatarUrl = ''; // 🌟 儲存本機大頭貼網址
 
@@ -143,6 +146,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _myMood = widget.initialMood; 
     _loadProfileData(); 
     _coolingSystem.loadRejections();
+    rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
     
@@ -278,13 +282,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Future<void> _blockUser(String targetUid, String targetName) async {
     await _dbRef.child('blocks/${widget.uid}/$targetUid').set(targetName); 
     await _dbRef.child('blockedBy/$targetUid/${widget.uid}').set(true);
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('已將此人沒入黑暗。', style: TextStyle(color: Colors.white70)), backgroundColor: Colors.redAccent.withOpacity(0.2), duration: const Duration(seconds: 2)));
+    if (mounted) showGlassToast(context, '已將此人沒入黑暗。', icon: Icons.block, danger: true);
   }
 
   Future<void> _unblockUser(String targetUid) async {
     await _dbRef.child('blocks/${widget.uid}/$targetUid').remove();
     await _dbRef.child('blockedBy/$targetUid/${widget.uid}').remove();
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('已解除封鎖，城市再次產生交集。', style: TextStyle(color: Colors.white)), backgroundColor: Colors.greenAccent.withOpacity(0.2), duration: const Duration(seconds: 2)));
+    if (mounted) showGlassToast(context, '已解除封鎖，城市再次產生交集。', icon: Icons.nights_stay_outlined);
   }
 
   Future<void> _initPushNotifications() async {
@@ -384,10 +388,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'carto', 
         '3d-buildings', 
         const FillExtrusionLayerProperties(
-          fillExtrusionColor: '#1A1A1C', 
+          // 霓虹建築：依高度由深藍漸變到霓虹紫，越高越亮
+          fillExtrusionColor: [
+            'interpolate', ['linear'], ['get', 'render_height'],
+            0, '#1A1F4A',
+            20, '#2A2F66',
+            60, '#5B3FB0',
+            150, '#B44CFF',
+          ],
           fillExtrusionHeight: ['get', 'render_height'], 
           fillExtrusionBase: ['get', 'render_min_height'], 
-          fillExtrusionOpacity: 0.65, 
+          fillExtrusionOpacity: 0.78, 
         ),
         sourceLayer: 'building', 
       );
@@ -795,34 +806,61 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _showBlockListDialog() {
     showDialog(
-      context: context,
+      context: context, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF1E1E1E), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Center(child: Text('沉入黑暗的名單', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w400, letterSpacing: 2))),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: _blockedUids.isEmpty
-                    ? Padding(padding: const EdgeInsets.symmetric(vertical: 24.0), child: Column(mainAxisSize: MainAxisSize.min, children: const [Icon(Icons.nights_stay_outlined, color: Colors.white24, size: 40), SizedBox(height: 12), Text('夜色清朗，你的城市未曾放逐任何人。', style: TextStyle(color: Colors.white38, fontSize: 13, height: 1.4), textAlign: TextAlign.center)]))
-                    : ListView.separated(
-                        shrinkWrap: true, itemCount: _blockedUids.length, separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 1),
+            return Dialog(
+              backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+              child: GlassCard(
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  const Text('沉入黑暗的名單', style: Night.title, textAlign: TextAlign.center),
+                  const SizedBox(height: Night.space3),
+                  if (_blockedUids.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: Night.space4),
+                      child: Column(children: [
+                        Icon(Icons.nights_stay_outlined, color: Night.inkFaint, size: 40),
+                        SizedBox(height: Night.space3),
+                        Text('夜色清朗，你的城市未曾放逐任何人。', style: Night.body, textAlign: TextAlign.center),
+                      ]),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: _blockedUids.length,
+                        separatorBuilder: (context, index) => const Divider(color: Night.night600, height: 1),
                         itemBuilder: (context, index) {
                           final String blockedUid = _blockedUids[index];
                           final val = _blockedUsersData[blockedUid];
-                          
                           String displayName = '#${blockedUid.substring(blockedUid.length - 4).toUpperCase()}';
-                          if (val is String && val.isNotEmpty) {
-                              displayName = '$val ($displayName)';
-                          }
-                          
-                          return ListTile(contentPadding: const EdgeInsets.symmetric(vertical: 4), title: Text(displayName, style: const TextStyle(color: Colors.white70, fontSize: 14)), trailing: TextButton(style: TextButton.styleFrom(foregroundColor: Colors.tealAccent, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6)), onPressed: () async { await _unblockUser(blockedUid); setDialogState(() { _blockedUids.remove(blockedUid); }); }, child: const Text('解除放逐', style: TextStyle(fontSize: 13))));
+                          if (val is String && val.isNotEmpty) displayName = '$val ($displayName)';
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: Night.space2),
+                            child: Row(children: [
+                              Container(
+                                width: 36, height: 36,
+                                decoration: BoxDecoration(shape: BoxShape.circle, color: Night.night700, border: Border.all(color: Night.glassLine)),
+                                child: const Icon(Icons.person_outline, color: Night.inkFaint, size: 20),
+                              ),
+                              const SizedBox(width: Night.space3),
+                              Expanded(child: Text(displayName, style: const TextStyle(color: Night.ink, fontSize: 15), overflow: TextOverflow.ellipsis)),
+                              TextButton(
+                                style: TextButton.styleFrom(foregroundColor: Night.auroraBlue, minimumSize: const Size(44, 44)),
+                                onPressed: () async { await _unblockUser(blockedUid); setDialogState(() { _blockedUids.remove(blockedUid); }); },
+                                child: const Text('解除放逐', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                              ),
+                            ]),
+                          );
                         },
                       ),
+                    ),
+                  const SizedBox(height: Night.space4),
+                  NightButton('關閉', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext)),
+                ]),
               ),
-              actionsPadding: const EdgeInsets.only(right: 16, bottom: 12),
-              actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('關閉', style: TextStyle(color: Colors.white38)))],
             );
           },
         );
@@ -933,16 +971,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _showBlockConfirmationDialog(String targetUid, String displayName) {
     showDialog(
-      context: context,
+      context: context, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF1E1E1E), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text('確認封鎖', style: TextStyle(color: Colors.white70, fontSize: 16)),
-          content: Text('確定要將 $displayName 沒入黑暗嗎？\n封鎖後，雙方將永遠從彼此的城市中消失。', style: const TextStyle(color: Colors.white54, fontSize: 14)),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消', style: TextStyle(color: Colors.white38))),
-            TextButton(onPressed: () { Navigator.pop(dialogContext); _blockUser(targetUid, displayName); }, child: const Text('確定封鎖', style: TextStyle(color: Colors.redAccent))),
-          ],
+        return Dialog(
+          backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+          child: GlassCard(
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const Icon(Icons.block, color: Night.danger, size: 36),
+              const SizedBox(height: Night.space3),
+              const Text('確認封鎖', style: Night.title, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space2),
+              Text('確定要將 $displayName 沒入黑暗嗎？\n封鎖後，雙方將從彼此的城市中消失。', style: Night.body, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space4),
+              Row(children: [
+                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
+                const SizedBox(width: Night.space2),
+                Expanded(child: NightButton('確定封鎖', kind: NightButtonKind.danger, icon: Icons.block, onPressed: () { Navigator.pop(dialogContext); _blockUser(targetUid, displayName); })),
+              ]),
+            ]),
+          ),
         );
       },
     );
@@ -1079,7 +1126,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) {
-    if (_currentPosition == null) return const Scaffold(body: Center(child: Text("正在感知這座城市...", style: TextStyle(color: Colors.white54, letterSpacing: 2))));
+    if (_currentPosition == null || _mapStyle == null) return const Scaffold(backgroundColor: Night.night900, body: Center(child: Text("正在感知這座城市...", style: TextStyle(color: Night.inkMuted, letterSpacing: 2))));
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1100,7 +1147,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             MapLibreMap(
               onMapCreated: (controller) => _mapController = controller,
               onStyleLoadedCallback: _onStyleLoaded, 
-              styleString: _darkStyleUrl,
+              styleString: _mapStyle!,
               initialCameraPosition: CameraPosition(
                 target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                 zoom: 16.0,
@@ -1124,6 +1171,24 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
+                      // 夜空：地圖傾斜時，地平線上方漸層成深藍紫的夜空；平放時不顯示
+                      Positioned(
+                        left: 0, right: 0, top: 0, height: screenHeight * 0.32,
+                        child: IgnorePointer(
+                          child: Opacity(
+                            opacity: (smoothPitch / 0.8).clamp(0.0, 1.0),
+                            child: const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                                  colors: [Night.night900, Color(0xE61A1446), Color(0x553A1F6B), Color(0x00070B1F)],
+                                  stops: [0.0, 0.45, 0.75, 1.0],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       Positioned(
                         left: centerX - 150, top: centerY - 150,  
                         child: Transform(transform: Matrix4.identity()..setEntry(3, 2, 0.002)..rotateX(smoothPitch), alignment: FractionalOffset.center, child: RadarRipple(moodColor: _getMoodColor(_myMood))),
@@ -1188,6 +1253,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         );
                       }),
                       Positioned(right: 20, bottom: 40, child: IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white54, size: 28), onPressed: _showSettingsPanel, tooltip: '設定')),
+                      // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、CARTO）
+                      const Positioned(left: 12, bottom: 12, child: IgnorePointer(child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
                     ],
                   );
                 },

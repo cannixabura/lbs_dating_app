@@ -98,6 +98,7 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/knock.mp3
+    - assets/map/night_style.json
   # 🌟 新增這裡：宣告我們要使用的 Fragment Shader 檔案
   shaders:
     - shaders/breathing_glow.frag

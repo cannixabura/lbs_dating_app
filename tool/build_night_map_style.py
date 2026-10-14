@@ -13,10 +13,10 @@ NIGHT_700 = "#1a1f4a"
 PARK = "#111a3e"
 WATER = "#0b1d52"
 WATER_EDGE = "#2a63d4"
-AMBER = "#ffb547"       # city-amber：主要道路
-AMBER_MID = "#e0913a"   # 次要道路
-AMBER_DIM = "#8a5a2e"   # 小巷
-AMBER_FAINT = "#4a3a3c" # 步道、服務道路
+AMBER = "#c98a3d"       # 主要道路（比 city-amber 暗一階，避免像霓虹燈管）
+AMBER_MID = "#9c6a32"   # 次要道路
+AMBER_DIM = "#5f4228"   # 小巷
+AMBER_FAINT = "#3a3038" # 步道、服務道路
 VIOLET_LINE = "#3a2f80" # 鐵路、邊界
 
 def scale_width(width, factor):
@@ -71,18 +71,18 @@ def recolor(style):
                 # 道路外框改成模糊的橘色光暈，形成「發光的道路」
                 paint["line-color"] = color
                 paint["line-blur"] = 6 if rank == "major" else 4
-                paint["line-opacity"] = (0.12 if tunnel else 0.35) if rank in ("major", "secondary") else (0.08 if tunnel else 0.2)
+                paint["line-opacity"] = (0.08 if tunnel else 0.22) if rank in ("major", "secondary") else (0.05 if tunnel else 0.12)
                 paint["line-width"] = scale_width(paint.get("line-width", 1), 2.6)
             else:
                 paint["line-color"] = color
-                paint["line-opacity"] = 0.35 if tunnel else 1
+                paint["line-opacity"] = 0.3 if tunnel else 0.85
         elif lid == "building":
             paint["fill-color"] = NIGHT_700
             paint["fill-opacity"] = 0.6
         elif lid == "building-top":
             # 3D 霓虹建築由 App 疊加，這層只留很淡的輪廓
             paint["fill-color"] = "rgba(26, 31, 74, 0.25)"
-            paint["fill-outline-color"] = "rgba(180, 76, 255, 0.35)"
+            paint["fill-outline-color"] = "rgba(120, 110, 200, 0.25)"
         out.append(layer)
     style["layers"] = out
     style["name"] = "城市低語 夜光"

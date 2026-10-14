@@ -388,17 +388,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'carto', 
         '3d-buildings', 
         const FillExtrusionLayerProperties(
-          // 霓虹建築：依高度由深藍漸變到霓虹紫，越高越亮
+          // 夜色建築：以藍灰深藍為主，越高越亮，只有最高的建築帶一點淡紫
           fillExtrusionColor: [
             'interpolate', ['linear'], ['get', 'render_height'],
-            0, '#1A1F4A',
-            20, '#2A2F66',
-            60, '#5B3FB0',
-            150, '#B44CFF',
+            0, '#181D44',
+            20, '#22285A',
+            60, '#2F3570',
+            150, '#4A3F8C',
           ],
           fillExtrusionHeight: ['get', 'render_height'], 
           fillExtrusionBase: ['get', 'render_min_height'], 
-          fillExtrusionOpacity: 0.78, 
+          fillExtrusionOpacity: 0.72, 
         ),
         sourceLayer: 'building', 
       );

@@ -33,14 +33,14 @@ import 'dart:ui' as ui;
 enum RequestStatus { none, pending, accepted }
 
 Color _getMoodColor(String mood) {
-  if (mood.isEmpty) return Colors.tealAccent; 
-  if (mood.contains('😊') || mood.contains('開心') || mood.contains('笑')) return Colors.yellowAccent;
-  if (mood.contains('😢') || mood.contains('難過') || mood.contains('哭')) return Colors.blueAccent;
-  if (mood.contains('😡') || mood.contains('生氣') || mood.contains('怒')) return Colors.redAccent;
-  if (mood.contains('🌿') || mood.contains('平靜') || mood.contains('發呆')) return Colors.greenAccent;
-  if (mood.contains('🔥') || mood.contains('熱情')) return Colors.orangeAccent;
-  if (mood.contains('💖') || mood.contains('愛') || mood.contains('心')) return Colors.pinkAccent;
-  return Colors.tealAccent; 
+  if (mood.isEmpty) return Night.moodDefault;
+  if (mood.contains('😊') || mood.contains('開心') || mood.contains('笑')) return Night.moodJoy;
+  if (mood.contains('😢') || mood.contains('難過') || mood.contains('哭')) return Night.moodSad;
+  if (mood.contains('😡') || mood.contains('生氣') || mood.contains('怒')) return Night.moodAngry;
+  if (mood.contains('🌿') || mood.contains('平靜') || mood.contains('發呆')) return Night.moodCalm;
+  if (mood.contains('🔥') || mood.contains('熱情')) return Night.moodPassion;
+  if (mood.contains('💖') || mood.contains('愛') || mood.contains('心')) return Night.moodLove;
+  return Night.moodDefault;
 }
 
 // 夜光地圖樣式：由 tool/build_night_map_style.py 從 CARTO dark-matter 重新上色，內建在 App 裡
@@ -79,7 +79,7 @@ class MoodWhisperApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, 
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF121212),
+        scaffoldBackgroundColor: Night.night900,
         useMaterial3: true,
       ),
       home: hasSeenIntro ? const LoginScreen() : const IntroScreen(),
@@ -205,38 +205,43 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   Future<void> _checkAndShowReleaseNotes() async {
     final prefs = await SharedPreferences.getInstance();
-    const String currentVersion = '1.0.0'; 
+    const String currentVersion = '1.1.0'; 
     final String? lastSeenVersion = prefs.getString('last_seen_version');
 
     if (lastSeenVersion != currentVersion) {
       if (mounted) {
         showDialog(
           context: context,
-          barrierDismissible: false, 
+          barrierDismissible: false, barrierColor: const Color(0x99070B1F),
           builder: (context) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF1E1E1E),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              title: const Text("🚀 城市低語 內部測試版", style: TextStyle(color: Colors.white70, fontSize: 18)),
-              content: const Text(
-                "歡迎來到城市低語 1.0.0 版本！\n\n"
-                "• 導入 MapLibre 暗黑向量地圖\n"
-                "• 支援手機仰角與 3D 建築連動\n"
-                "• 引入 GLSL 呼吸光暈 Shader\n"
-                "• 建立完整敲門與交集雷達機制\n\n"
-                "請盡情探索這座城市，並期待你的回饋！",
-                style: TextStyle(color: Colors.white54, height: 1.5, fontSize: 14),
-              ),
-              actionsAlignment: MainAxisAlignment.center,
-              actions: [
-                TextButton(
-                  onPressed: () async {
+            Widget line(IconData icon, String text) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Icon(icon, color: Night.auroraBlue, size: 18),
+                    const SizedBox(width: Night.space3),
+                    Expanded(child: Text(text, style: const TextStyle(color: Night.inkMuted, fontSize: 14, height: 1.5))),
+                  ]),
+                );
+            return Dialog(
+              backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+              child: GlassCard(
+                glow: true,
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  const Text('城市低語 1.1 內部測試版', style: Night.title, textAlign: TextAlign.center),
+                  const SizedBox(height: Night.space2),
+                  const Text('這座城市換上了夜色。', style: Night.body, textAlign: TextAlign.center),
+                  const SizedBox(height: Night.space4),
+                  line(Icons.map_outlined, '全新夜光地圖：深藍街區、微光道路、霓虹建築'),
+                  line(Icons.bubble_chart_outlined, '心情氣泡改為深色玻璃，在哪裡都看得清楚'),
+                  line(Icons.nights_stay_outlined, '休息中與歷史殘影：鎖屏也能被敲門'),
+                  line(Icons.flag_outlined, '檢舉與封鎖：讓城市保持安全'),
+                  const SizedBox(height: Night.space4),
+                  NightButton('我知道了', onPressed: () async {
                     await prefs.setString('last_seen_version', currentVersion);
                     if (context.mounted) Navigator.pop(context);
-                  },
-                  child: const Text("我知道了", style: TextStyle(color: Colors.tealAccent, fontSize: 16)),
-                ),
-              ],
+                  }),
+                ]),
+              ),
             );
           },
         );
@@ -314,10 +319,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       messaging.onTokenRefresh.listen((newToken) { _dbRef.child('tokens/${widget.uid}').set(newToken); });
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (message.notification != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('${message.notification!.title}：${message.notification!.body}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            backgroundColor: Colors.teal.withOpacity(0.9), duration: const Duration(seconds: 4), behavior: SnackBarBehavior.floating, margin: const EdgeInsets.only(bottom: 80, left: 20, right: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          ));
+          showGlassToast(context, '${message.notification!.title}：${message.notification!.body}', icon: Icons.chat_bubble_outline);
         }
       });
     }
@@ -409,19 +411,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('請至手機設定開啟 GPS 定位服務，才能感知城市。'), backgroundColor: Colors.redAccent));
+        if (mounted) showGlassToast(context, '請至手機設定開啟 GPS 定位服務，才能感知城市。', icon: Icons.location_off_outlined, danger: true);
         return; 
       }
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('需要定位權限才能與附近的人產生交集。'), backgroundColor: Colors.orange));
+          if (mounted) showGlassToast(context, '需要定位權限才能與附近的人產生交集。', icon: Icons.location_off_outlined, danger: true);
           return;
         }
       }
       if (permission == LocationPermission.deniedForever) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('定位權限已被永久拒絕，請至系統設定中手動開啟。'), backgroundColor: Colors.redAccent));
+        if (mounted) showGlassToast(context, '定位權限已被永久拒絕，請至系統設定中手動開啟。', icon: Icons.location_off_outlined, danger: true);
         return;
       }
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
@@ -553,7 +555,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _dbRef.child('requests/$pendingTargetUid/${widget.uid}').onDisconnect().cancel();
           _pendingTimers[pendingTargetUid]?.cancel(); _requestSubscriptions[pendingTargetUid]?.cancel();
           setState(() => _outgoingRequests.remove(pendingTargetUid));
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('對方已沒入城市，悄悄收回敲門聲...'), backgroundColor: Colors.white.withOpacity(0.1), duration: const Duration(seconds: 2)));
+          showGlassToast(context, '對方已沒入城市，悄悄收回敲門聲…', icon: Icons.nights_stay_outlined);
         }
       });
     }
@@ -664,28 +666,108 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     ).then((_) { if (_isDialogShowing) { _isDialogShowing = false; _currentKnockerUid = null; _dbRef.child('requests/${widget.uid}/$senderUid').remove(); } });
   }
 
+  /// 底部玻璃選單：自己的大頭貼與心情（點一下編輯）＋設定
+  Widget _buildDock() {
+    final Color myColor = _getMoodColor(_myMood);
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.only(left: Night.space3, right: Night.space2),
+      decoration: BoxDecoration(
+        color: Night.glassFill,
+        borderRadius: BorderRadius.circular(Night.radiusLg),
+        border: Border.all(color: Night.glassLine),
+        boxShadow: const [Night.lift],
+      ),
+      child: Row(children: [
+        Expanded(
+          child: Semantics(
+            button: true,
+            label: '編輯你的心情',
+            child: InkWell(
+              borderRadius: BorderRadius.circular(Night.radiusMd),
+              onTap: _showProfileEditDialog,
+              child: Row(children: [
+                Container(
+                  width: 38, height: 38,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: Night.night700, border: Border.all(color: myColor, width: 1.5),
+                      boxShadow: [BoxShadow(color: myColor.withOpacity(0.35), blurRadius: 10)]),
+                  child: ClipOval(
+                    child: _myAvatarUrl.isNotEmpty
+                        ? Image.network(_myAvatarUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.person_outline, color: Night.inkMuted, size: 20))
+                        : const Icon(Icons.person_outline, color: Night.inkMuted, size: 20),
+                  ),
+                ),
+                const SizedBox(width: Night.space3),
+                Expanded(
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(_myMood, style: const TextStyle(color: Night.ink, fontSize: 15, height: 1.3), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Text(_myNickname.isNotEmpty ? '$_myNickname · 你的心情' : '你的心情 · 點一下修改', style: Night.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ]),
+                ),
+              ]),
+            ),
+          ),
+        ),
+        IconButton(
+          tooltip: '設定',
+          onPressed: _showSettingsPanel,
+          icon: const Icon(Icons.tune_rounded, color: Night.inkMuted),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+        ),
+      ]),
+    );
+  }
+
   void _showSettingsPanel() {
+    Widget item(IconData icon, String title, {String? subtitle, Color color = Night.inkMuted, Color titleColor = Night.ink, required VoidCallback onTap}) => InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Night.radiusSm),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Night.space3, horizontal: Night.space2),
+            child: Row(children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: Night.space4),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(title, style: TextStyle(color: titleColor, fontSize: 15)),
+                  if (subtitle != null) ...[const SizedBox(height: 2), Text(subtitle, style: Night.caption)],
+                ]),
+              ),
+              const Icon(Icons.chevron_right, color: Night.inkFaint, size: 20),
+            ]),
+          ),
+        );
+    Widget section(String label) => Padding(
+          padding: const EdgeInsets.only(left: Night.space2, top: Night.space4, bottom: Night.space1),
+          child: Text(label, style: Night.caption),
+        );
+
     showModalBottomSheet(
-      context: context, backgroundColor: const Color(0xFF1E1E1E), isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SafeArea(
-            child: Wrap(
-              children: [
-                const Padding(padding: EdgeInsets.only(top: 20, bottom: 10), child: Center(child: Text('設定', style: TextStyle(color: Colors.white54, fontSize: 14, letterSpacing: 2)))),
-                const Divider(color: Colors.white12),
-                ListTile(leading: const Icon(Icons.person, color: Colors.white70), title: const Text('編輯個人狀態', style: TextStyle(color: Colors.white)), subtitle: const Text('設定大頭貼、暱稱與心情', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _showProfileEditDialog(); }),
-                ListTile(leading: const Icon(Icons.block, color: Colors.redAccent), title: const Text('管理封鎖名單', style: TextStyle(color: Colors.white)), subtitle: const Text('查看或解除被你沒入黑暗的人', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _showBlockListDialog(); }),
-                const Divider(color: Colors.white12),
-                ListTile(leading: const Icon(Icons.description_outlined, color: Night.inkMuted), title: const Text('使用條款', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.termsUrl)),
-                ListTile(leading: const Icon(Icons.privacy_tip_outlined, color: Night.inkMuted), title: const Text('隱私權政策', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.privacyUrl)),
-                ListTile(leading: const Icon(Icons.mail_outline, color: Night.inkMuted), title: const Text('聯絡我們', style: TextStyle(color: Colors.white)), subtitle: const Text(Legal.contactEmail, style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () => Legal.emailUs()),
-                const Divider(color: Colors.white12),
-                ListTile(leading: const Icon(Icons.delete_forever_outlined, color: Night.danger), title: const Text('刪除帳號與資料', style: TextStyle(color: Night.danger)), subtitle: const Text('永久抹除你在城市留下的一切', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _confirmDeleteAccount(); }),
-                const SizedBox(height: 10),
-              ],
+      context: context, backgroundColor: Colors.transparent, isScrollControlled: true, barrierColor: const Color(0x99070B1F),
+      builder: (BuildContext sheetContext) {
+        void go(VoidCallback action) { Navigator.pop(sheetContext); action(); }
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(Night.space4),
+            child: GlassCard(
+              padding: const EdgeInsets.fromLTRB(Night.space4, Night.space3, Night.space4, Night.space4),
+              child: SingleChildScrollView(
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: Night.night600, borderRadius: BorderRadius.circular(2)))),
+                  const SizedBox(height: Night.space3),
+                  const Text('設定', style: Night.title, textAlign: TextAlign.center),
+                  section('我'),
+                  item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
+                  item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
+                  section('關於'),
+                  item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
+                  item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),
+                  item(Icons.mail_outline, '聯絡我們', subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),
+                  const Divider(color: Night.night600, height: Night.space6),
+                  item(Icons.delete_forever_outlined, '刪除帳號與資料', subtitle: '永久抹除你在城市留下的一切', color: Night.danger, titleColor: Night.danger, onTap: () => go(_confirmDeleteAccount)),
+                ]),
+              ),
             ),
           ),
         );
@@ -699,104 +781,143 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     bool isUploading = false; 
     String pendingAvatarUrl = _myAvatarUrl; // 按下「儲存」才生效，取消則不改變
 
+    InputDecoration nightInput(String hint) => InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 14),
+          counterStyle: Night.caption,
+          filled: true,
+          fillColor: Night.night700,
+          contentPadding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: 14),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.glassLine)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.auroraViolet, width: 2)),
+        );
+
     showDialog(
-      context: context,
+      context: context, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF1E1E1E), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Center(child: Text('編輯個人狀態', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w400, letterSpacing: 2))),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // 🌟 點擊上傳大頭貼
-                    GestureDetector(
-                      onTap: isUploading ? null : () async {
-                        final picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
-                        
-                        if (image != null) {
-                          setDialogState(() => isUploading = true);
-                          try {
-                            final storageRef = FirebaseStorage.instance.ref().child('avatars/${widget.uid}.jpg');
-                            await storageRef.putFile(File(image.path), SettableMetadata(contentType: 'image/jpeg'));
-                            // 同一路徑覆寫時網址不變，加上版本參數讓各裝置的圖片快取失效
-                            final downloadUrl = '${await storageRef.getDownloadURL()}&v=${DateTime.now().millisecondsSinceEpoch}';
-                            
-                            setDialogState(() {
-                              pendingAvatarUrl = downloadUrl;
-                              isUploading = false;
-                            });
-                          } catch (e) {
-                            setDialogState(() => isUploading = false);
-                            debugPrint('avatar upload failed: $e');
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('大頭貼上傳失敗。'), backgroundColor: Colors.redAccent));
-                          }
-                        }
-                      },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.white12,
-                            backgroundImage: pendingAvatarUrl.isNotEmpty ? NetworkImage(pendingAvatarUrl) : null,
-                            child: pendingAvatarUrl.isEmpty && !isUploading 
-                                ? const Icon(Icons.camera_alt, color: Colors.white54, size: 30) 
-                                : null,
-                          ),
-                          if (isUploading) 
-                            const CircularProgressIndicator(color: Colors.tealAccent),
-                        ],
+            // 心情色即時預覽：輸入心情時光環跟著變色，先看到自己的氣泡會是什麼顏色
+            final Color previewColor = _getMoodColor(moodController.text.trim());
+
+            Future<void> pickAvatar() async {
+              final picker = ImagePicker();
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
+              if (image == null) return;
+              setDialogState(() => isUploading = true);
+              try {
+                final storageRef = FirebaseStorage.instance.ref().child('avatars/${widget.uid}.jpg');
+                await storageRef.putFile(File(image.path), SettableMetadata(contentType: 'image/jpeg'));
+                // 同一路徑覆寫時網址不變，加上版本參數讓各裝置的圖片快取失效
+                final downloadUrl = '${await storageRef.getDownloadURL()}&v=${DateTime.now().millisecondsSinceEpoch}';
+                setDialogState(() {
+                  pendingAvatarUrl = downloadUrl;
+                  isUploading = false;
+                });
+              } catch (e) {
+                setDialogState(() => isUploading = false);
+                debugPrint('avatar upload failed: $e');
+                if (mounted) showGlassToast(context, '大頭貼上傳失敗，請稍後再試。', icon: Icons.error_outline, danger: true);
+              }
+            }
+
+            Future<void> save() async {
+              final String newMood = moodController.text.trim(); final String newNickname = nicknameController.text.trim();
+              if (newMood.isEmpty) { showGlassToast(context, '心情不能為空，給城市留下點微光吧。', icon: Icons.edit_outlined); return; }
+              
+              setState(() { _myMood = newMood; _myNickname = newNickname; _myAvatarUrl = pendingAvatarUrl; });
+              final prefs = await SharedPreferences.getInstance(); 
+              await prefs.setString('saved_mood', newMood); 
+              await prefs.setString('saved_nickname', newNickname);
+              await prefs.setString('saved_avatar', _myAvatarUrl); 
+              
+              try {
+                await _dbRef.child('profiles/${widget.uid}/nickname').set(newNickname);
+                // 🌟 上傳完成後，寫入專屬的廣播頻道
+                if (_myAvatarUrl.isNotEmpty) {
+                  await _dbRef.child('user_avatars/${widget.uid}').set(_myAvatarUrl);
+                }
+              } catch (e) {
+                debugPrint('profile write failed: $e');
+                if (mounted) showGlassToast(context, '狀態同步失敗，請稍後再試。', icon: Icons.error_outline, danger: true);
+              }
+
+              if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
+              
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+              if (mounted) showGlassToast(context, '狀態已更新，城市正感知你的呼吸。', icon: Icons.auto_awesome_outlined);
+            }
+
+            return Dialog(
+              backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+              child: GlassCard(
+                glow: true,
+                child: SingleChildScrollView(
+                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    const Text('編輯個人狀態', style: Night.title, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space4),
+                    Center(
+                      child: Semantics(
+                        button: true,
+                        label: '更換大頭貼',
+                        child: GestureDetector(
+                          onTap: isUploading ? null : pickAvatar,
+                          child: Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 92, height: 92,
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(colors: [previewColor, Night.auroraViolet], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                boxShadow: [BoxShadow(color: previewColor.withOpacity(0.45), blurRadius: 22)],
+                              ),
+                              child: Container(
+                                decoration: const BoxDecoration(shape: BoxShape.circle, color: Night.night700),
+                                child: ClipOval(
+                                  child: pendingAvatarUrl.isNotEmpty
+                                      ? Image.network(pendingAvatarUrl, fit: BoxFit.cover, width: 86, height: 86)
+                                      : const Icon(Icons.person_outline, color: Night.inkMuted, size: 38),
+                                ),
+                              ),
+                            ),
+                            if (isUploading) const SizedBox(width: 92, height: 92, child: CircularProgressIndicator(color: Night.auroraViolet, strokeWidth: 2)),
+                            Positioned(
+                              right: -2, bottom: -2,
+                              child: Container(
+                                width: 30, height: 30,
+                                decoration: BoxDecoration(shape: BoxShape.circle, gradient: Night.deepGradient, border: Border.all(color: Night.night700, width: 2)),
+                                child: const Icon(Icons.photo_camera_outlined, color: Night.onDeep, size: 16),
+                              ),
+                            ),
+                          ]),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Align(alignment: Alignment.centerLeft, child: Text('城市稱呼', style: TextStyle(color: Colors.white38, fontSize: 12))), 
-                    const SizedBox(height: 4),
-                    TextField(controller: nicknameController, style: const TextStyle(color: Colors.white), maxLength: 10, decoration: const InputDecoration(hintText: '選填，例如：遊蕩的貓', hintStyle: TextStyle(color: Colors.white24, fontSize: 14), counterStyle: TextStyle(color: Colors.white24), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)), focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.tealAccent)))),
-                    const SizedBox(height: 16), 
-                    const Align(alignment: Alignment.centerLeft, child: Text('當下心情', style: TextStyle(color: Colors.white38, fontSize: 12))), 
-                    const SizedBox(height: 4),
-                    TextField(controller: moodController, style: const TextStyle(color: Colors.tealAccent), maxLength: 20, decoration: const InputDecoration(hintText: '例如：漫步在微雨中 🌿', hintStyle: TextStyle(color: Colors.white24, fontSize: 14), counterStyle: TextStyle(color: Colors.white24), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)), focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.tealAccent)))),
-                  ],
+                    const SizedBox(height: Night.space2),
+                    const Text('輕觸更換大頭貼 · 光環是你的心情色', style: Night.caption, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space4),
+                    const Text('城市稱呼', style: Night.caption),
+                    const SizedBox(height: Night.space2),
+                    TextField(controller: nicknameController, style: const TextStyle(color: Night.ink, fontSize: 15), maxLength: 10, cursorColor: Night.auroraViolet, decoration: nightInput('選填，例如：遊蕩的貓')),
+                    const SizedBox(height: Night.space2),
+                    const Text('當下心情', style: Night.caption),
+                    const SizedBox(height: Night.space2),
+                    TextField(
+                      controller: moodController, maxLength: 20, cursorColor: Night.auroraViolet,
+                      onChanged: (_) => setDialogState(() {}),
+                      style: const TextStyle(color: Night.ink, fontSize: 15),
+                      decoration: nightInput('例如：漫步在微雨中 🌿'),
+                    ),
+                    const SizedBox(height: Night.space3),
+                    Row(children: [
+                      Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
+                      const SizedBox(width: Night.space2),
+                      Expanded(child: NightButton('儲存', onPressed: isUploading ? null : save)),
+                    ]),
+                  ]),
                 ),
               ),
-              actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), actionsAlignment: MainAxisAlignment.spaceBetween,
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消', style: TextStyle(color: Colors.white38))),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.tealAccent.withOpacity(0.15), foregroundColor: Colors.tealAccent, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
-                  onPressed: isUploading ? null : () async {
-                    final String newMood = moodController.text.trim(); final String newNickname = nicknameController.text.trim();
-                    if (newMood.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('心情不能為空，給城市留下點微光吧。'), backgroundColor: Colors.white24)); return; }
-                    
-                    setState(() { _myMood = newMood; _myNickname = newNickname; _myAvatarUrl = pendingAvatarUrl; });
-                    final prefs = await SharedPreferences.getInstance(); 
-                    await prefs.setString('saved_mood', newMood); 
-                    await prefs.setString('saved_nickname', newNickname);
-                    await prefs.setString('saved_avatar', _myAvatarUrl); 
-                    
-                    try {
-                      await _dbRef.child('profiles/${widget.uid}/nickname').set(newNickname);
-                      // 🌟 上傳完成後，寫入專屬的廣播頻道
-                      if (_myAvatarUrl.isNotEmpty) {
-                        await _dbRef.child('user_avatars/${widget.uid}').set(_myAvatarUrl);
-                      }
-                    } catch (e) {
-                      debugPrint('profile write failed: $e');
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('狀態同步失敗，請稍後再試。'), backgroundColor: Colors.redAccent));
-                    }
-
-                    if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
-                    
-                    if (dialogContext.mounted) Navigator.pop(dialogContext);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('狀態已更新，城市正感知你的呼吸。'), backgroundColor: Colors.teal, duration: Duration(seconds: 2)));
-                  },
-                  child: const Text('儲存'),
-                ),
-              ],
             );
           },
         );
@@ -997,7 +1118,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _handleBubbleLongPress(String targetUid, String targetName) {
     if (_outgoingRequests[targetUid] == RequestStatus.pending) return;
-    bool canProceed = _coolingSystem.canKnock(targetUid, (blockMessage) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(blockMessage, style: const TextStyle(color: Colors.white70)), backgroundColor: Colors.white.withOpacity(0.1), duration: const Duration(seconds: 2))); });
+    bool canProceed = _coolingSystem.canKnock(targetUid, (blockMessage) { showGlassToast(context, blockMessage, icon: Icons.hourglass_empty); });
     if (!canProceed) return;
 
     _outgoingRequests.forEach((uid, status) { if (status == RequestStatus.pending) _dbRef.child('requests/$uid/${widget.uid}').remove(); });
@@ -1010,14 +1131,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'status': 'pending',
         'nickname': _myNickname
     }).then((_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('敲門聲已送出，等待回音...'), backgroundColor: Colors.white.withOpacity(0.2), duration: const Duration(seconds: 3)));
+      if (mounted) showGlassToast(context, '敲門聲已送出，等待回音…', icon: Icons.waving_hand_outlined);
     }).catchError((Object e) {
       // 寫入被拒（規則驗證失敗、網路中斷等）時收回狀態並告知，不再默默失敗
       debugPrint('knock write failed: $e');
       _pendingTimers[targetUid]?.cancel(); _requestSubscriptions[targetUid]?.cancel();
       if (mounted) {
         setState(() => _outgoingRequests.remove(targetUid));
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('敲門沒有送出，請稍後再試。'), backgroundColor: Colors.redAccent, duration: Duration(seconds: 3)));
+        showGlassToast(context, '敲門沒有送出，請稍後再試。', icon: Icons.error_outline, danger: true);
       }
     });
 
@@ -1224,7 +1345,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         bool isShadow = user['isShadow'] ?? false; 
 
                         return Positioned(
-                          left: (centerX + (rotX / w)) - 60, top: (centerY + (rotY / w)) - 60,
+                          left: (centerX + (rotX / w)) - 66, top: (centerY + (rotY / w)) - 60,
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent, 
                             onLongPress: () {
@@ -1252,9 +1373,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         );
                       }),
-                      Positioned(right: 20, bottom: 40, child: IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white54, size: 28), onPressed: _showSettingsPanel, tooltip: '設定')),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、CARTO）
-                      const Positioned(left: 12, bottom: 12, child: IgnorePointer(child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
                     ],
                   );
                 },
@@ -1356,38 +1477,41 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
   Widget build(BuildContext context) {
     bool isPending = widget.status == RequestStatus.pending;
     IconData iconData = isPending ? Icons.send_rounded : Icons.person;
-    double avatarSize = isPending ? 18.0 : 24.0;
+    const double avatarSize = 26.0;
+    // 氣泡的主色：敲門中＝粉紅，殘影＝灰，其餘＝心情色
+    final Color accent = isPending ? Night.knockPink : (widget.isShadow ? Night.shadowInk : widget.baseColor);
 
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
         double glowValue = _glowAnimation.value;
-        
-        Color borderColor = isPending ? Colors.orangeAccent.withOpacity(0.3 + (0.4 * glowValue)) : (widget.isFavored ? widget.baseColor.withOpacity(0.5) : widget.baseColor.withOpacity(0.2));
-        Color haloColor = isPending ? Colors.orangeAccent.withOpacity(0.1 + (0.2 * glowValue)) : widget.baseColor.withOpacity(0.1);
-        Color iconColor = isPending ? Colors.orangeAccent.withOpacity(0.8) : widget.baseColor.withOpacity(0.6);
+        final Color borderColor = widget.isShadow
+            ? Night.shadowInk.withOpacity(0.7)
+            : accent.withOpacity(isPending ? 0.55 + 0.45 * glowValue : (widget.isFavored ? 0.95 : 0.75));
 
         return Opacity(
-          opacity: widget.isShadow ? widget.shadowOpacity : (widget.isInactive ? 0.6 : 1.0),
+          opacity: widget.isShadow ? widget.shadowOpacity : (widget.isInactive ? 0.62 : 1.0),
           child: SizedBox(
-            width: 120,
+            width: 132,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomPaint(
                   painter: SpeechBubblePainter(
-                    color: widget.isFavored ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.08), 
-                    borderColor: borderColor, 
-                    baseColor: widget.isShadow ? Colors.grey : widget.baseColor, 
-                    glowValue: glowValue, 
+                    // 深色玻璃底：任何道路或建築上都讀得清楚
+                    color: widget.isFavored ? const Color(0xD91A1F4A) : Night.glassFill,
+                    borderColor: borderColor,
+                    baseColor: accent,
+                    glowValue: (widget.isShadow || widget.isInactive) && !isPending ? 0.0 : glowValue,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 14), 
-                    child: Text(widget.moodText, textAlign: TextAlign.center, style: TextStyle(color: widget.isShadow ? Colors.white54 : Colors.white, fontSize: 12, fontWeight: FontWeight.w300))
+                    padding: const EdgeInsets.only(left: 12, right: 12, top: 9, bottom: 17),
+                    child: Text(widget.moodText, textAlign: TextAlign.center,
+                        style: TextStyle(color: widget.isShadow ? Night.inkMuted : Night.ink, fontSize: 14, height: 1.4)),
                   ),
                 ),
-                const SizedBox(height: 2),
-                
+                const SizedBox(height: 4),
+
                 StreamBuilder<DatabaseEvent>(
                   stream: _avatarStream,
                   builder: (context, snapshot) {
@@ -1395,31 +1519,45 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                     if (snapshot.hasData && snapshot.data?.snapshot.value != null) {
                       peerAvatarUrl = snapshot.data!.snapshot.value.toString();
                     }
-
-                    return Container(
-                      width: avatarSize,
-                      height: avatarSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle, 
-                        boxShadow: [BoxShadow(color: isPending ? haloColor : widget.baseColor.withOpacity(widget.isFavored ? 0.3 : 0.05), blurRadius: 10, spreadRadius: 2)]
-                      ), 
-                      // 🌟 解除殘影封印，只要有照片，就強制覆蓋預設 Icon
-                      child: (peerAvatarUrl.isNotEmpty) 
-                          ? ClipOval(
-                              child: Image.network(
-                                peerAvatarUrl,
-                                width: avatarSize,
-                                height: avatarSize,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Icon(iconData, color: widget.isShadow ? Colors.grey.withOpacity(0.5) : iconColor, size: avatarSize),
-                              ),
-                            )
-                          : Icon(iconData, color: widget.isShadow ? Colors.grey.withOpacity(0.5) : iconColor, size: avatarSize),
-                    );
+                    final Widget fallback = Icon(iconData, color: accent.withOpacity(0.9), size: 16);
+                    return Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: [
+                      // 地面漣漪：讓人像「站在」地圖上
+                      Positioned(
+                        bottom: -6,
+                        child: Container(
+                          width: 46, height: 14,
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(Radius.elliptical(23, 7)),
+                            border: Border.all(color: accent.withOpacity(widget.isShadow ? 0.3 : 0.55), width: 1.2),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: avatarSize, height: avatarSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Night.night700,
+                          border: Border.all(color: accent, width: 1.5),
+                          boxShadow: widget.isShadow ? null : [BoxShadow(color: accent.withOpacity(isPending ? 0.25 + 0.35 * glowValue : 0.35), blurRadius: 12, spreadRadius: 1)],
+                        ),
+                        child: ClipOval(
+                          child: peerAvatarUrl.isNotEmpty
+                              ? ColorFiltered(
+                                  // 殘影的大頭貼去色，和活躍的人一眼分得出來
+                                  colorFilter: widget.isShadow
+                                      ? const ColorFilter.matrix(<double>[0.33,0.33,0.33,0,0, 0.33,0.33,0.33,0,0, 0.33,0.33,0.33,0,0, 0,0,0,1,0])
+                                      : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+                                  child: Image.network(peerAvatarUrl, width: avatarSize, height: avatarSize, fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => fallback),
+                                )
+                              : Center(child: fallback),
+                        ),
+                      ),
+                    ]);
                   }
                 ),
-                
-                const SizedBox(height: 6),
+
+                const SizedBox(height: 10),
                 Text('${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -1467,10 +1605,10 @@ class SpeechBubblePainter extends CustomPainter {
     }
 
     final paint = Paint()..color = color..style = PaintingStyle.fill;
-    final borderPaint = Paint()..color = borderColor..strokeWidth = 1.0..style = PaintingStyle.stroke;
+    final borderPaint = Paint()..color = borderColor..strokeWidth = 1.5..style = PaintingStyle.stroke;
     
     final path = Path()
-      ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height - 8.0), const Radius.circular(12.0)))
+      ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height - 8.0), const Radius.circular(16.0)))
       ..moveTo(size.width / 2 - 6.0, size.height - 8.0)
       ..lineTo(size.width / 2, size.height)
       ..lineTo(size.width / 2 + 6.0, size.height - 8.0)
@@ -1482,7 +1620,7 @@ class SpeechBubblePainter extends CustomPainter {
   
   @override 
   bool shouldRepaint(covariant SpeechBubblePainter oldDelegate) => 
-      oldDelegate.glowValue != glowValue || oldDelegate.baseColor != baseColor;
+      oldDelegate.glowValue != glowValue || oldDelegate.baseColor != baseColor || oldDelegate.borderColor != borderColor || oldDelegate.color != color;
 }
 
 class RadarRipple extends StatefulWidget {

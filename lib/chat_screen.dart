@@ -33,6 +33,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   StreamSubscription<DatabaseEvent>? _messageSubscription;
   StreamSubscription<DatabaseEvent>? _statusSubscription;
   StreamSubscription<DatabaseEvent>? _typingSubscription; 
+  late final Stream<DatabaseEvent> _targetAvatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.targetUid}').onValue;
 
   Timer? _countdownTimer;
   Timer? _typingTimer; 
@@ -247,141 +248,174 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     String minutesStr = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     String secondsStr = (_remainingSeconds % 60).toString().padLeft(2, '0');
+    final bool lastMinute = _remainingSeconds <= 60;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Column(
-          children: [
-            Text(
-              '與 $displayTitle 的交集',
-              style: const TextStyle(color: Colors.white38, fontSize: 13, fontWeight: FontWeight.w300, letterSpacing: 2)
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '倒數 $minutesStr:$secondsStr 消散',
-              style: TextStyle(
-                color: _remainingSeconds <= 60 ? Colors.redAccent : Colors.tealAccent, 
-                fontSize: 11, 
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1
-              )
-            ),
-          ],
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white54, size: 20),
-          onPressed: () => _manualLeave(),
-        ),
-        actions: [
-          IconButton(
-            tooltip: '檢舉',
-            icon: const Icon(Icons.flag_outlined, color: Night.inkMuted),
-            onPressed: _isClosing ? null : _report,
-          ),
-        ],
-      ),
+      backgroundColor: Night.night800,
       body: Stack(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = _messages[index];
-                    bool isMe = msg['sender'] == widget.myUid;
-                    
-                    // 🌟 溯本正源：無視 Firebase 可能遺失的資料，直接用從 main 傳來的絕對名字！
-                    String bubbleName = isMe ? widget.myName : widget.targetName;
+          SafeArea(
+            child: Column(
+              children: [
+                // ---------- 玻璃標頭：返回、對方大頭貼與名字、倒數、檢舉 ----------
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Night.space2, Night.space2, Night.space2, 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: Night.space1, vertical: Night.space2),
+                    decoration: BoxDecoration(
+                      color: Night.glassFill,
+                      borderRadius: BorderRadius.circular(Night.radiusLg),
+                      border: Border.all(color: Night.glassLine),
+                    ),
+                    child: Row(children: [
+                      IconButton(
+                        tooltip: '離開對話',
+                        icon: const Icon(Icons.arrow_back_ios_new, color: Night.inkMuted, size: 20),
+                        onPressed: () => _manualLeave(),
+                      ),
+                      StreamBuilder<DatabaseEvent>(
+                        stream: _targetAvatarStream,
+                        builder: (context, snapshot) {
+                          final url = snapshot.data?.snapshot.value?.toString() ?? '';
+                          return Container(
+                            width: 38, height: 38,
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: Night.night700, border: Border.all(color: Night.auroraViolet, width: 1.5)),
+                            child: ClipOval(
+                              child: url.isNotEmpty
+                                  ? Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.person_outline, color: Night.inkMuted, size: 20))
+                                  : const Icon(Icons.person_outline, color: Night.inkMuted, size: 20),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: Night.space3),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('與 $displayTitle 的交集', style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text.rich(TextSpan(style: Night.caption, children: [
+                            const TextSpan(text: '倒數 '),
+                            TextSpan(
+                              text: '$minutesStr:$secondsStr',
+                              style: TextStyle(color: lastMinute ? Night.danger : Night.knockPink, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()]),
+                            ),
+                            const TextSpan(text: ' 消散'),
+                          ])),
+                        ]),
+                      ),
+                      IconButton(
+                        tooltip: '檢舉',
+                        icon: const Icon(Icons.flag_outlined, color: Night.inkMuted),
+                        onPressed: _isClosing ? null : _report,
+                      ),
+                    ]),
+                  ),
+                ),
 
-                    return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          // 🌟 如果是對方的訊息，在氣泡上方顯示名字
-                          if (!isMe) 
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12, bottom: 2),
+                // ---------- 訊息 ----------
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space3),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final msg = _messages[index];
+                      final bool isMe = msg['sender'] == widget.myUid;
+                      // 同一人連續發言時，只在第一則上方顯示名字
+                      final bool firstOfRun = index == 0 || _messages[index - 1]['sender'] != msg['sender'];
+
+                      return Align(
+                        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            if (!isMe && firstOfRun)
+                              Padding(
+                                padding: const EdgeInsets.only(left: Night.space2, top: Night.space2, bottom: 2),
+                                child: Text(widget.targetName, style: Night.caption),
+                              ),
+                            Container(
+                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.76),
+                              margin: const EdgeInsets.symmetric(vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: 10),
+                              decoration: BoxDecoration(
+                                gradient: isMe ? const LinearGradient(colors: [Night.deepViolet, Night.deepBlue], begin: Alignment.topLeft, end: Alignment.bottomRight) : null,
+                                color: isMe ? null : Night.night700,
+                                border: isMe ? null : Border.all(color: Night.glassLine),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: const Radius.circular(Night.radiusMd),
+                                  topRight: const Radius.circular(Night.radiusMd),
+                                  bottomLeft: Radius.circular(isMe ? Night.radiusMd : 4),
+                                  bottomRight: Radius.circular(isMe ? 4 : Night.radiusMd),
+                                ),
+                              ),
                               child: Text(
-                                bubbleName,
-                                style: const TextStyle(color: Colors.white38, fontSize: 11),
+                                msg['text'],
+                                style: TextStyle(color: isMe ? Night.onDeep : Night.ink, fontSize: 15, height: 1.6),
                               ),
                             ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isMe ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              msg['text'],
-                              style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w300),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: _isTargetTyping ? 24.0 : 0.0,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 24, bottom: 4),
-                child: _isTargetTyping 
-                  ? const Text('對方正在輸入中...', style: TextStyle(color: Colors.white38, fontSize: 12, fontStyle: FontStyle.italic)) 
-                  : const SizedBox.shrink(),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 30, top: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        onChanged: _onTextChanged, 
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: '輕聲說點什麼...',
-                          hintStyle: const TextStyle(color: Colors.white24),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.05),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  height: _isTargetTyping ? 24.0 : 0.0,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: Night.space6, bottom: 4),
+                  child: _isTargetTyping 
+                    ? const Text('對方正在輸入中…', style: TextStyle(color: Night.inkFaint, fontSize: 12, fontStyle: FontStyle.italic)) 
+                    : const SizedBox.shrink(),
+                ),
+
+                // ---------- 輸入列 ----------
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Night.space4, Night.space2, Night.space4, Night.space4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          onChanged: _onTextChanged, 
+                          style: const TextStyle(color: Night.ink, fontSize: 15),
+                          cursorColor: Night.auroraViolet,
+                          maxLength: 1000,
+                          minLines: 1,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintText: '輕聲說點什麼…',
+                            hintStyle: const TextStyle(color: Night.inkFaint),
+                            counterText: '',
+                            filled: true,
+                            fillColor: Night.night700,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: const BorderSide(color: Night.glassLine)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: const BorderSide(color: Night.auroraViolet, width: 1.5)),
+                          ),
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: Night.space3),
+                      Semantics(
+                        button: true,
+                        label: '送出',
+                        child: GestureDetector(
+                          onTap: _sendMessage,
+                          child: Container(
+                            width: 48, height: 48,
+                            decoration: const BoxDecoration(shape: BoxShape.circle, gradient: Night.deepGradient, boxShadow: [Night.glowViolet]),
+                            child: const Icon(Icons.send_rounded, color: Night.onDeep, size: 20),
                           ),
                         ),
-                        onSubmitted: (_) => _sendMessage(),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: _sendMessage,
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.send_rounded, color: Colors.white70, size: 20),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           if (_showLeaveOverlay)
@@ -389,12 +423,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               opacity: _showLeaveOverlay ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 800),
               child: Container(
-                color: const Color(0xFF121212).withOpacity(0.95), 
+                color: Night.night900.withOpacity(0.96), 
                 child: Center(
-                  child: Text(
-                    _leaveMessage,
-                    style: const TextStyle(color: Colors.white54, fontSize: 16, letterSpacing: 3, fontWeight: FontWeight.w300),
-                  ),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.nights_stay_outlined, color: Night.inkFaint, size: 36),
+                    const SizedBox(height: Night.space4),
+                    Text(
+                      _leaveMessage,
+                      style: const TextStyle(color: Night.inkMuted, fontSize: 16, letterSpacing: 3, fontWeight: FontWeight.w300),
+                    ),
+                  ]),
                 ),
               ),
             ),

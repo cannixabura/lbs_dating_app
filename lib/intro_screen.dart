@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import 'ui/night.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -38,7 +39,7 @@ class _IntroScreenState extends State<IntroScreen> {
     {
       "image": "assets/images/intro_5.png",
       "title": "準備好相遇了嗎？",
-      "description": "閉上眼睛，感受手機的震動與心跳。現在，寫下你的專屬暱稱，走進城市低語。"
+      "description": "閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，走進城市低語。"
     },
   ];
 
@@ -54,7 +55,7 @@ class _IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Night.night900,
       body: Stack(
         children: [
           // 滑動的頁面內容
@@ -119,7 +120,7 @@ class _IntroScreenState extends State<IntroScreen> {
               top: 50, right: 20,
               child: TextButton(
                 onPressed: _completeIntro,
-                child: const Text("略過", style: TextStyle(color: Colors.white38, fontSize: 16)),
+                child: const Text("略過", style: TextStyle(color: Night.inkMuted, fontSize: 16)),
               ),
             ),
 
@@ -139,7 +140,8 @@ class _IntroScreenState extends State<IntroScreen> {
                       height: 8,
                       width: _currentPage == index ? 24 : 8,
                       decoration: BoxDecoration(
-                        color: _currentPage == index ? Colors.tealAccent : Colors.white24,
+                        gradient: _currentPage == index ? Night.brightGradient : null,
+                        color: _currentPage == index ? null : Night.night600,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -147,20 +149,13 @@ class _IntroScreenState extends State<IntroScreen> {
                 ),
                 // 按鈕
                 _currentPage == _introData.length - 1
-                    ? ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.tealAccent,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                        ),
-                        onPressed: _completeIntro,
-                        child: const Text("開始探索", style: TextStyle(fontWeight: FontWeight.bold)),
-                      )
+                    ? NightButton('開始探索', onPressed: _completeIntro)
                     : IconButton(
                         onPressed: () {
                           _pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.ease);
                         },
-                        icon: const Icon(Icons.arrow_forward_ios, color: Colors.tealAccent),
+                        tooltip: '下一頁',
+                        icon: const Icon(Icons.arrow_forward_ios, color: Night.auroraBlue),
                       ),
               ],
             ),

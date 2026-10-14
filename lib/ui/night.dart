@@ -24,6 +24,16 @@ class Night {
   static const cityAmber = Color(0xFFFFB547);
   static const danger = Color(0xFFFF6B7A);
 
+  // 心情顏色：依心情文字的關鍵字決定，只用在氣泡邊框、光暈、定位點與漣漪
+  static const moodJoy = Color(0xFFFFD54A);
+  static const moodSad = Color(0xFF5AB8FF);
+  static const moodAngry = Color(0xFFFF8A5C);
+  static const moodCalm = Color(0xFF4DE3A0);
+  static const moodPassion = Color(0xFFFF9F45);
+  static const moodLove = Color(0xFFFF6BD6);
+  static const moodDefault = Color(0xFFA99CFF);
+  static const shadowInk = Color(0xFF6F6C8F);
+
   static const brightGradient = LinearGradient(colors: [auroraViolet, auroraBlue]);
   static const deepGradient = LinearGradient(colors: [deepViolet, deepBlue]);
 
@@ -31,6 +41,7 @@ class Night {
   static const radiusSm = 10.0;
   static const radiusMd = 16.0;
   static const radiusLg = 24.0;
+  static const space1 = 4.0;
   static const space2 = 8.0;
   static const space3 = 12.0;
   static const space4 = 16.0;

@@ -9,6 +9,10 @@ const {
 const { evaluateReports } = require("./moderation");
 const { fuzzLocation } = require("./fuzz");
 
+// 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
+// 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
+const FUZZ_LOCATION = false;
+
 if (!admin.apps.length) admin.initializeApp();
 
 // 🔐 金鑰改由 Firebase Secret Manager 提供，設定方式：
@@ -102,15 +106,18 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     const timestamp = Date.now();
     try {
       // 🔒 先算出對外公開的模糊位置（100m 網格，含遲滯）；精確座標只進地理索引，不會回傳給任何人
-      const [prevRow, prevCol] = await sendUpstashCommand(["HMGET", `user_data:${uid}`, "cellRow", "cellCol"]);
-      const previousCell = prevRow != null && prevCol != null ? { row: parseInt(prevRow, 10), col: parseInt(prevCol, 10) } : null;
-      const pub = fuzzLocation(lat, lng, uid, previousCell, timestamp);
+      const fuzzFields = [];
+      if (FUZZ_LOCATION) {
+          const [prevRow, prevCol] = await sendUpstashCommand(["HMGET", `user_data:${uid}`, "cellRow", "cellCol"]);
+          const previousCell = prevRow != null && prevCol != null ? { row: parseInt(prevRow, 10), col: parseInt(prevCol, 10) } : null;
+          const pub = fuzzLocation(lat, lng, uid, previousCell, timestamp);
+          fuzzFields.push("flat", pub.lat.toString(), "flng", pub.lng.toString(), "cellRow", String(pub.row), "cellCol", String(pub.col));
+      }
       await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
           // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
           ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString(),
-              "state", "active", "stateAt", timestamp.toString(),
-              "flat", pub.lat.toString(), "flng", pub.lng.toString(), "cellRow", String(pub.row), "cellCol", String(pub.col)],
+              "state", "active", "stateAt", timestamp.toString(), ...fuzzFields],
       ]);
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
@@ -154,10 +161,11 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           const presence = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
           // 超過最長留存（10 天）的殘影，任何密度下都不會再顯示，直接清除
           if (presence.status === 'shadow' && now - presence.shadowSince > MAX_SHADOW_RETENTION_MS) { staleUids.push(memberUid); return; }
-          // 🔒 只回傳模糊位置；舊資料沒有存模糊位置時，當場由精確座標換算（無遲滯）
-          const pub = flat && flng
-              ? { lat: parseFloat(flat), lng: parseFloat(flng) }
-              : fuzzLocation(parseFloat(coord[1]), parseFloat(coord[0]), memberUid, null, now);
+          const precise = { lat: parseFloat(coord[1]), lng: parseFloat(coord[0]) };
+          // 模糊化開啟時只回傳模糊位置；舊資料沒有存模糊位置時，當場由精確座標換算（無遲滯）
+          const pub = !FUZZ_LOCATION ? precise
+              : flat && flng ? { lat: parseFloat(flat), lng: parseFloat(flng) }
+              : fuzzLocation(precise.lat, precise.lng, memberUid, null, now);
           candidates.push({ memberUid, dist: parseFloat(dist), pub, mood, nickname, lastSeen, presence });
       });
 

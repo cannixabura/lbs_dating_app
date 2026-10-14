@@ -55,3 +55,6 @@ app.*.map.json
 .env.*
 *.secret.local
 .DS_Store
+
+# Firebase CLI hosting cache
+.firebase/

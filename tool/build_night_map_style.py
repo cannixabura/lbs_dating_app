@@ -13,10 +13,10 @@ NIGHT_700 = "#1a1f4a"
 PARK = "#111a3e"
 WATER = "#0b1d52"
 WATER_EDGE = "#2a63d4"
-ROAD_MAJOR = "#3d7a80"  # 主要道路：低飽和灰藍綠（與深藍紫同屬冷色，暖色系在此背景上一律顯得突兀）
-ROAD_MID = "#2f5f66"    # 次要道路
-ROAD_DIM = "#24454d"    # 小巷
-ROAD_FAINT = "#26324a"  # 步道、服務道路
+ROAD_MAJOR = "#33676c"  # 主要道路：低飽和灰藍綠（與深藍紫同屬冷色，暖色系在此背景上一律顯得突兀）
+ROAD_MID = "#284f55"    # 次要道路
+ROAD_DIM = "#1f3b42"    # 小巷
+ROAD_FAINT = "#222c42"  # 步道、服務道路
 VIOLET_LINE = "#3a2f80" # 鐵路、邊界
 
 def scale_width(width, factor):

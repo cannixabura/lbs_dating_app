@@ -5,6 +5,9 @@ import 'report_sheet.dart';
 import 'ui/night.dart';
 
 class ChatScreen extends StatefulWidget {
+  /// 目前開著的聊天室；來自同一聊天室的推播不再另外跳出提示（訊息已經在畫面上）
+  static String? activeRoomId;
+
   final String myUid;
   final String myName; // 接收自己的名字，用於發送訊息時夾帶[cite: 6]
   final String targetUid;
@@ -70,6 +73,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     List<String> uids = [widget.myUid, widget.targetUid];
     uids.sort();
     _roomId = "${uids[0]}_${uids[1]}";
+    ChatScreen.activeRoomId = _roomId;
 
     _dbRef.child('chats/$_roomId/status').set('active');
     
@@ -235,6 +239,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    if (ChatScreen.activeRoomId == _roomId) ChatScreen.activeRoomId = null;
     WidgetsBinding.instance.removeObserver(this);
     _cancelAllTimers();
     _messageController.dispose();

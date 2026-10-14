@@ -147,30 +147,92 @@ class NightButton extends StatelessWidget {
   }
 }
 
-/// 頂部玻璃提示條，取代舊的綠色長條 SnackBar。
+/// 頂部玻璃提示條：從狀態列下方滑入，3 秒後淡出。放在頂部，避免蓋住聊天輸入框或底部選單。
+/// 同一時間只顯示一則；新的提示會直接取代舊的。
+OverlayEntry? _currentToast;
+
 void showGlassToast(BuildContext context, String message, {IconData icon = Icons.favorite_border, bool danger = false}) {
-  final messenger = ScaffoldMessenger.maybeOf(context);
-  if (messenger == null) return;
-  messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(SnackBar(
-    behavior: SnackBarBehavior.floating,
-    backgroundColor: Colors.transparent,
-    elevation: 0,
-    duration: const Duration(seconds: 3),
-    padding: EdgeInsets.zero,
-    content: Container(
-      padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space3),
-      decoration: BoxDecoration(
-        color: Night.night700,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Night.glassLine),
-        boxShadow: const [Night.lift],
-      ),
-      child: Row(children: [
-        Icon(icon, size: 20, color: danger ? Night.danger : Night.knockPink),
-        const SizedBox(width: Night.space3),
-        Expanded(child: Text(message, style: const TextStyle(color: Night.ink, fontSize: 14, height: 1.4))),
-      ]),
+  final overlay = Overlay.maybeOf(context, rootOverlay: true);
+  if (overlay == null) return;
+  _currentToast?.remove();
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _GlassToast(
+      message: message,
+      icon: icon,
+      danger: danger,
+      onDone: () {
+        if (_currentToast == entry) _currentToast = null;
+        if (entry.mounted) entry.remove();
+      },
     ),
-  ));
+  );
+  _currentToast = entry;
+  overlay.insert(entry);
+}
+
+class _GlassToast extends StatefulWidget {
+  final String message;
+  final IconData icon;
+  final bool danger;
+  final VoidCallback onDone;
+  const _GlassToast({required this.message, required this.icon, required this.danger, required this.onDone});
+
+  @override
+  State<_GlassToast> createState() => _GlassToastState();
+}
+
+class _GlassToastState extends State<_GlassToast> with SingleTickerProviderStateMixin {
+  // 用動畫控制時間（而不是 Timer），畫面關閉時會一起被釋放，不會留下計時器
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 3400))
+    ..forward().whenComplete(widget.onDone);
+  late final Animation<double> _shown = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)), weight: 8),
+    TweenSequenceItem(tween: ConstantTween(1.0), weight: 80),
+    TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 12),
+  ]).animate(_c);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top + Night.space2;
+    return Positioned(
+      top: top, left: Night.space4, right: Night.space4,
+      child: AnimatedBuilder(
+        animation: _shown,
+        builder: (context, child) => Opacity(
+          opacity: _shown.value,
+          child: Transform.translate(offset: Offset(0, -16 * (1 - _shown.value)), child: child),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: Semantics(
+            liveRegion: true,
+            child: GestureDetector(
+              onTap: widget.onDone, // 點一下立即關閉
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space3),
+                decoration: BoxDecoration(
+                  color: Night.night700,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: Night.glassLine),
+                  boxShadow: const [Night.lift],
+                ),
+                child: Row(children: [
+                  Icon(widget.icon, size: 20, color: widget.danger ? Night.danger : Night.knockPink),
+                  const SizedBox(width: Night.space3),
+                  Expanded(child: Text(widget.message, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Night.ink, fontSize: 14, height: 1.4))),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

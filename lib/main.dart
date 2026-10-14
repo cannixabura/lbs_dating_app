@@ -318,6 +318,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       
       messaging.onTokenRefresh.listen((newToken) { _dbRef.child('tokens/${widget.uid}').set(newToken); });
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
+        if (message.data['type'] == 'chat_message' && message.data['roomId'] == ChatScreen.activeRoomId) return;
         if (message.notification != null && mounted) {
           showGlassToast(context, '${message.notification!.title}：${message.notification!.body}', icon: Icons.chat_bubble_outline);
         }

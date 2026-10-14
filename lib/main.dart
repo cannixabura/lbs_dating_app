@@ -8,7 +8,7 @@ import 'package:vibration/vibration.dart';
 import 'chat_screen.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, HapticFeedback;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -25,7 +25,9 @@ import 'package:image_picker/image_picker.dart'; // 🌟 新增：圖片選擇�
 import 'dart:io' show Platform;
 import 'firebase_options.dart';
 import 'legal.dart';
+import 'nightly_reminder.dart';
 import 'report_sheet.dart';
+import 'ui/knock_ritual.dart';
 import 'ui/night.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'dart:ui' as ui; 
@@ -97,7 +99,7 @@ class BlankCanvasScreen extends StatefulWidget {
   State<BlankCanvasScreen> createState() => _BlankCanvasScreenState();
 }
 
-class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindingObserver {
+class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   Position? _currentPosition;
   MapLibreMapController? _mapController; 
   
@@ -113,6 +115,22 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   StreamSubscription<DatabaseEvent>? _connectionSubscription;
   bool _isInForeground = true;
   bool _locationServicesStarted = false;
+  // 進場鏡頭：從城市高空俯衝到街道，期間暫停羅盤與仰角對鏡頭的更新
+  bool _introFlying = true;
+  late final AnimationController _introFade = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
+  bool _hasScanned = false; // 至少完成過一次雷達掃描（決定是否顯示「你是今晚第一道光」）
+
+  // ---------- 敲門儀式：虛線弧、倒數條、粒子消散 ----------
+  static const int _knockSeconds = 300;
+  String? _ritualTarget;
+  String _ritualTargetName = '';
+  DateTime? _ritualStart;
+  Timer? _knockTicker;
+  final ValueNotifier<int> _knockSecondsLeft = ValueNotifier(_knockSeconds);
+  late final AnimationController _arcFlow = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  late final AnimationController _dissolve = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+  Offset? _dissolveAt;
+  final Map<String, Offset> _bubbleAnchors = {}; // 每顆氣泡在畫面上的位置（虛線弧的終點、粒子的起點）
   StreamSubscription<Position>? _positionStream;
   StreamSubscription<CompassEvent>? _compassStream;
   StreamSubscription<AccelerometerEvent>? _accelerometerStream;
@@ -162,6 +180,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       bubbleShaderProgram = await ui.FragmentProgram.fromAsset('shaders/breathing_glow.frag');
     } catch (e) {}
     await _initPushNotifications();
+    NightlyReminder.reschedule(); // 每次進入城市重新排定未來 7 晚的提醒
     // 敲門監聽不需要定位，先啟動，避免定位較慢時漏接敲門
     _listenToIncomingRequests();
     await _initSensors();
@@ -367,6 +386,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   void _updateMapCamera() {
+    if (_introFlying) return;
     if (_mapController != null && _currentPosition != null) {
       double tiltDegrees = (_pitchNotifier.value * 180 / pi).clamp(0.0, 60.0); 
       double zoomLevel = 16.0 + (log(_scaleNotifier.value) / ln2);
@@ -383,6 +403,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         duration: const Duration(milliseconds: 100),
       );
     }
+  }
+
+  /// 進場鏡頭：從約 4 公里高空、正上方俯視，2.6 秒俯衝到街道並傾斜成 3D，夜光地圖同時從黑暗中亮起。
+  /// 系統開啟「減少動態效果」時直接到位。
+  Future<void> _playIntroFlight() async {
+    if (_mapController == null || _currentPosition == null) return;
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    _introFade.forward();
+    final target = CameraPosition(
+      target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+      zoom: 16.0, tilt: 50.0, bearing: _headingNotifier.value,
+    );
+    try {
+      if (reduceMotion) {
+        await _mapController!.moveCamera(CameraUpdate.newCameraPosition(target));
+      } else {
+        await _mapController!.animateCamera(CameraUpdate.newCameraPosition(target), duration: const Duration(milliseconds: 2600));
+      }
+    } catch (_) {}
+    // 讓仰角從鏡頭的 50° 平順接回感測器
+    _pitchNotifier.value = 50.0 * pi / 180.0;
+    if (mounted) setState(() => _introFlying = false);
   }
 
   void _onStyleLoaded() async {
@@ -407,6 +449,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         sourceLayer: 'building', 
       );
     } catch (e) {}
+    _playIntroFlight();
   }
 
   Future<void> _initSensors() async {
@@ -549,6 +592,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
     if (mounted) {
       _activeUsersNotifier.value = updatedUsers;
+      if (!_hasScanned) setState(() => _hasScanned = true);
       // 可敲門的對象 = 活躍 + 休息中；對方離開雷達或變成殘影時收回敲門
       final knockableUids = updatedUsers.where((e) => e['isShadow'] != true).map((e) => e['uid']).toSet();
       _outgoingRequests.keys.toList().forEach((pendingTargetUid) {
@@ -556,6 +600,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _dbRef.child('requests/$pendingTargetUid/${widget.uid}').remove();
           _dbRef.child('requests/$pendingTargetUid/${widget.uid}').onDisconnect().cancel();
           _pendingTimers[pendingTargetUid]?.cancel(); _requestSubscriptions[pendingTargetUid]?.cancel();
+          _endKnockRitual(pendingTargetUid, dissolve: true);
           setState(() => _outgoingRequests.remove(pendingTargetUid));
           showGlassToast(context, '對方已沒入城市，悄悄收回敲門聲…', icon: Icons.nights_stay_outlined);
         }
@@ -608,10 +653,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Future<void> _triggerKnockAlert(String senderUid, String senderName) async {
     _isDialogShowing = true; 
     await _audioPlayer.play(AssetSource('audio/knock.mp3'));
-    bool? hasVibrator = await Vibration.hasVibrator();
-    if (hasVibrator ?? false) Vibration.vibrate(duration: 400);
+    _heartbeatVibration();
 
     if (mounted) _showIncomingRequestUI(senderUid, senderName);
+  }
+
+  /// 心跳震動：兩次「噗通－噗通」（一輕一重），取代單一的嗡嗡聲
+  Future<void> _heartbeatVibration() async {
+    try {
+      if (!(await Vibration.hasVibrator())) return;
+      if (await Vibration.hasCustomVibrationsSupport()) {
+        // 時間軸（毫秒）：等待, 震, 停, 震 ...；強度對應每一段（0 = 停）
+        Vibration.vibrate(
+          pattern: const [0, 55, 110, 85, 560, 55, 110, 85],
+          intensities: const [0, 150, 0, 255, 0, 150, 0, 255],
+        );
+      } else {
+        // 不支援自訂震動的裝置：用兩下觸覺回饋模擬
+        HapticFeedback.mediumImpact();
+        await Future.delayed(const Duration(milliseconds: 160));
+        HapticFeedback.heavyImpact();
+      }
+    } catch (_) {}
   }
 
   void _showIncomingRequestUI(String senderUid, String senderName) {
@@ -668,6 +731,23 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     ).then((_) { if (_isDialogShowing) { _isDialogShowing = false; _currentKnockerUid = null; _dbRef.child('requests/${widget.uid}/$senderUid').remove(); } });
   }
 
+  /// 空雷達卡片：附近 5 公里內沒有人時顯示，取代一片空白
+  Widget _buildEmptyRadarCard() {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: Night.space6, vertical: Night.space4),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ShaderMask(
+          shaderCallback: (rect) => Night.brightGradient.createShader(rect),
+          child: const Text('你是今晚第一道光', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: 2)),
+        ),
+        const SizedBox(height: Night.space2),
+        const Text('附近還沒有人。你的心情已經在城市裡發光，\n有人經過時，就會看見你。', style: Night.body, textAlign: TextAlign.center),
+        const SizedBox(height: Night.space3),
+        NightButton('讓我的心情更亮一點', kind: NightButtonKind.ghost, icon: Icons.edit_outlined, onPressed: _showProfileEditDialog),
+      ]),
+    );
+  }
+
   /// 底部玻璃選單：自己的大頭貼與心情（點一下編輯）＋設定
   Widget _buildDock() {
     final Color myColor = _getMoodColor(_myMood);
@@ -721,7 +801,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
-  void _showSettingsPanel() {
+  Future<void> _showSettingsPanel() async {
+    bool reminderOn = await NightlyReminder.isEnabled();
+    if (!mounted) return;
     Widget item(IconData icon, String title, {String? subtitle, Color color = Night.inkMuted, Color titleColor = Night.ink, required VoidCallback onTap}) => InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Night.radiusSm),
@@ -749,6 +831,27 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       context: context, backgroundColor: Colors.transparent, isScrollControlled: true, barrierColor: const Color(0x99070B1F),
       builder: (BuildContext sheetContext) {
         void go(VoidCallback action) { Navigator.pop(sheetContext); action(); }
+        final reminderRow = StatefulBuilder(builder: (context, setRowState) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: Night.space1, horizontal: Night.space2),
+          child: Row(children: [
+            const Icon(Icons.nightlight_outlined, color: Night.inkMuted, size: 22),
+            const SizedBox(width: Night.space4),
+            const Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('每晚提醒', style: TextStyle(color: Night.ink, fontSize: 15)),
+                SizedBox(height: 2),
+                Text('每晚 21:30 一則溫和的提醒', style: Night.caption),
+              ]),
+            ),
+            Switch(
+              value: reminderOn,
+              activeThumbColor: Night.onDeep,
+              activeTrackColor: Night.deepViolet,
+              inactiveTrackColor: Night.night700,
+              onChanged: (v) { setRowState(() => reminderOn = v); NightlyReminder.setEnabled(v); },
+            ),
+          ]),
+        ));
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -762,6 +865,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   section('我'),
                   item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
+                  reminderRow,
                   section('關於'),
                   item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
                   item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),
@@ -1118,6 +1222,39 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
+  void _startKnockRitual(String targetUid, String targetName) {
+    _ritualTarget = targetUid;
+    _ritualTargetName = targetName;
+    _ritualStart = DateTime.now();
+    _knockSecondsLeft.value = _knockSeconds;
+    _knockTicker?.cancel();
+    _knockTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+      final start = _ritualStart;
+      if (start == null) return;
+      _knockSecondsLeft.value = (_knockSeconds - DateTime.now().difference(start).inSeconds).clamp(0, _knockSeconds);
+    });
+    if (!MediaQuery.of(context).disableAnimations) _arcFlow.repeat();
+    setState(() {});
+  }
+
+  /// 結束敲門儀式。[dissolve] 為 true 時，光在對方的位置化成粒子散去。
+  void _endKnockRitual(String targetUid, {bool dissolve = false, String? message}) {
+    if (_ritualTarget != targetUid) return;
+    _knockTicker?.cancel();
+    _arcFlow.stop();
+    final anchor = _bubbleAnchors[targetUid];
+    if (!mounted) return;
+    setState(() {
+      _ritualTarget = null;
+      _ritualStart = null;
+      if (dissolve && anchor != null && !MediaQuery.of(context).disableAnimations) {
+        _dissolveAt = anchor;
+        _dissolve.forward(from: 0);
+      }
+    });
+    if (message != null) showGlassToast(context, message, icon: Icons.nights_stay_outlined);
+  }
+
   void _handleBubbleLongPress(String targetUid, String targetName) {
     if (_outgoingRequests[targetUid] == RequestStatus.pending) return;
     bool canProceed = _coolingSystem.canKnock(targetUid, (blockMessage) { showGlassToast(context, blockMessage, icon: Icons.hourglass_empty); });
@@ -1128,6 +1265,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
     _coolingSystem.recordKnock(); _coolingSystem.recordInteraction();
     setState(() => _outgoingRequests[targetUid] = RequestStatus.pending);
+    _startKnockRitual(targetUid, targetName);
 
     _dbRef.child('requests/$targetUid/${widget.uid}').set({
         'status': 'pending',
@@ -1138,6 +1276,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       // 寫入被拒（規則驗證失敗、網路中斷等）時收回狀態並告知，不再默默失敗
       debugPrint('knock write failed: $e');
       _pendingTimers[targetUid]?.cancel(); _requestSubscriptions[targetUid]?.cancel();
+      _endKnockRitual(targetUid);
       if (mounted) {
         setState(() => _outgoingRequests.remove(targetUid));
         showGlassToast(context, '敲門沒有送出，請稍後再試。', icon: Icons.error_outline, danger: true);
@@ -1148,6 +1287,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _pendingTimers[targetUid] = Timer(const Duration(minutes: 5), () {
       if (_outgoingRequests[targetUid] == RequestStatus.pending) {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); 
+        _endKnockRitual(targetUid, dissolve: true, message: '沒有回音，敲門聲悄悄消散了。');
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       }
     });
@@ -1169,16 +1309,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
       if (status == 'accepted') {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); _pendingTimers[targetUid]?.cancel(); 
+        _endKnockRitual(targetUid);
         if (mounted) {
           setState(() => _outgoingRequests.remove(targetUid));
           _navigateToChatScreen(targetUid, targetAcceptedName); 
         }
       } else if (status == 'rejected') {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); _pendingTimers[targetUid]?.cancel(); _coolingSystem.recordRejection(targetUid); 
+        _endKnockRitual(targetUid, dissolve: true, message: '這次沒有交集，讓彼此保留一點空間。');
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
-      } else if (status.isEmpty) {
+      } else if (status.isEmpty && _outgoingRequests[targetUid] == RequestStatus.pending) {
         // 對方按「略過」會直接刪除請求 → 收回敲門中的狀態
+        // （同意 / 婉拒後由自己刪除請求時，狀態已先移除，不會走到這裡）
         _pendingTimers[targetUid]?.cancel();
+        _endKnockRitual(targetUid, dissolve: true, message: '對方先略過了，敲門聲悄悄消散。');
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       }
     });
@@ -1241,7 +1385,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
-    _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose();
+    _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose(); _introFade.dispose();
+    _knockTicker?.cancel(); _knockSecondsLeft.dispose(); _arcFlow.dispose(); _dissolve.dispose();
     // 刪除帳號後已登出，不再寫入
     if (FirebaseAuth.instance.currentUser != null) _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();
@@ -1273,7 +1418,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               styleString: _mapStyle!,
               initialCameraPosition: CameraPosition(
                 target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                zoom: 16.0,
+                zoom: 12.0, // 進場鏡頭的起點：城市高空
               ),
               myLocationEnabled: true, 
               myLocationRenderMode: MyLocationRenderMode.normal,
@@ -1282,8 +1427,22 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               attributionButtonMargins: const Point(-100, -100), 
             ),
 
-            Positioned.fill(
+            // 夜光地圖從黑暗中亮起（進場鏡頭期間）
+            IgnorePointer(
               child: AnimatedBuilder(
+                animation: _introFade,
+                builder: (context, _) {
+                  final v = Curves.easeInOut.transform(_introFade.value);
+                  return v >= 1 ? const SizedBox.shrink() : Container(color: Night.night900.withOpacity(1 - v));
+                },
+              ),
+            ),
+
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: _introFlying ? 0 : 1,
+                duration: const Duration(milliseconds: 600),
+                child: AnimatedBuilder(
                 animation: Listenable.merge([_pitchNotifier, _headingNotifier, _scaleNotifier, _activeUsersNotifier]),
                 builder: (context, child) {
                   final smoothPitch = _pitchNotifier.value;
@@ -1332,6 +1491,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
 
+                      // 敲門中：從自己到對方的流動虛線弧（畫在氣泡底下）
+                      if (_ritualTarget != null && _bubbleAnchors[_ritualTarget] != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _arcFlow,
+                              builder: (context, _) => CustomPaint(
+                                painter: KnockArcPainter(from: Offset(centerX, centerY), to: _bubbleAnchors[_ritualTarget]!, phase: _arcFlow.value),
+                              ),
+                            ),
+                          ),
+                        ),
                       ...activeUsers.map((user) {
                         BubbleRenderData renderData = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, user['lat'], user['lng'], currentHeading, user['uid'], currentRhythmScore);
                         
@@ -1346,6 +1517,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         String displayName = user['nickname'].toString().isNotEmpty ? user['nickname'] : '#$shortId';
                         bool isShadow = user['isShadow'] ?? false; 
 
+                        _bubbleAnchors[user['uid'].toString()] = Offset(centerX + (rotX / w), centerY + (rotY / w) + 10);
                         return Positioned(
                           left: (centerX + (rotX / w)) - 66, top: (centerY + (rotY / w)) - 60,
                           child: GestureDetector(
@@ -1377,10 +1549,37 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       }),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、CARTO）
                       Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      // 被婉拒、逾時或對方略過：光在對方的位置化成粒子散去
+                      if (_dissolveAt != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _dissolve,
+                              builder: (context, _) => _dissolve.isAnimating
+                                  ? CustomPaint(painter: ParticleBurstPainter(origin: _dissolveAt!, progress: _dissolve.value))
+                                  : const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      // 等待回音的倒數條
+                      if (_ritualTarget != null)
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 64, left: Night.space4, right: Night.space4,
+                          child: Center(
+                            child: ValueListenableBuilder<int>(
+                              valueListenable: _knockSecondsLeft,
+                              builder: (context, left, _) => KnockCountdownPill(secondsLeft: left, totalSeconds: _knockSeconds, targetName: _ritualTargetName),
+                            ),
+                          ),
+                        ),
+                      // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
+                      if (_hasScanned && activeUsers.isEmpty)
+                        Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 112, child: _buildEmptyRadarCard()),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
                     ],
                   );
                 },
+              ),
               ),
             ),
           ],

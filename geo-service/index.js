@@ -7,6 +7,7 @@ const {
     DENSITY_RADIUS_KM, MAX_SHADOW_RETENTION_MS, shadowRetentionFor, classifyPresence,
 } = require("./presence");
 const { evaluateReports } = require("./moderation");
+const { fuzzLocation } = require("./fuzz");
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -100,11 +101,16 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     const nickname = truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH);
     const timestamp = Date.now();
     try {
+      // 🔒 先算出對外公開的模糊位置（100m 網格，含遲滯）；精確座標只進地理索引，不會回傳給任何人
+      const [prevRow, prevCol] = await sendUpstashCommand(["HMGET", `user_data:${uid}`, "cellRow", "cellCol"]);
+      const previousCell = prevRow != null && prevCol != null ? { row: parseInt(prevRow, 10), col: parseInt(prevCol, 10) } : null;
+      const pub = fuzzLocation(lat, lng, uid, previousCell, timestamp);
       await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
           // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
           ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString(),
-              "state", "active", "stateAt", timestamp.toString()],
+              "state", "active", "stateAt", timestamp.toString(),
+              "flat", pub.lat.toString(), "flng", pub.lng.toString(), "cellRow", String(pub.row), "cellCol", String(pub.col)],
       ]);
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
@@ -134,21 +140,25 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
 
       // 1 次請求：以 pipeline 一口氣取回所有人的資料
       const profiles = await sendUpstashPipeline(
-          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden"])
+          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden", "flat", "flng"])
       );
 
       const now = Date.now();
       const staleUids = [];
       const candidates = [];
       members.forEach(([memberUid, dist, coord], i) => {
-          const [mood, nickname, timestamp, state, stateAt, hidden] = profiles[i] || [];
+          const [mood, nickname, timestamp, state, stateAt, hidden, flat, flng] = profiles[i] || [];
           if (hidden === "1") return; // 被檢舉自動隱藏或人工隱藏，不出現在任何人的雷達上
           const lastSeen = parseInt(timestamp || "0", 10);
           if (!lastSeen) { staleUids.push(memberUid); return; }
           const presence = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
           // 超過最長留存（10 天）的殘影，任何密度下都不會再顯示，直接清除
           if (presence.status === 'shadow' && now - presence.shadowSince > MAX_SHADOW_RETENTION_MS) { staleUids.push(memberUid); return; }
-          candidates.push({ memberUid, dist: parseFloat(dist), coord, mood, nickname, lastSeen, presence });
+          // 🔒 只回傳模糊位置；舊資料沒有存模糊位置時，當場由精確座標換算（無遲滯）
+          const pub = flat && flng
+              ? { lat: parseFloat(flat), lng: parseFloat(flng) }
+              : fuzzLocation(parseFloat(coord[1]), parseFloat(coord[0]), memberUid, null, now);
+          candidates.push({ memberUid, dist: parseFloat(dist), pub, mood, nickname, lastSeen, presence });
       });
 
       // 密度：觀看者周圍 1 公里內的人數，決定殘影能留存多久
@@ -164,7 +174,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
               if (shadowAge > 1) continue; // 超過此密度允許的留存時間
           }
           results.push({
-              uid: c.memberUid, lng: parseFloat(c.coord[0]), lat: parseFloat(c.coord[1]),
+              uid: c.memberUid, lng: c.pub.lng, lat: c.pub.lat,
               mood: c.mood || "",
               nickname: status === 'shadow' ? "" : (c.nickname || ""), // 殘影不公開暱稱
               status,
@@ -313,3 +323,52 @@ exports.syncModeration = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).datab
     }
     return null;
   });
+
+// ============================================================================
+// API 7: 刪除帳號（Apple 5.1.1(v)：App 內可建立帳號，就必須能在 App 內刪除）
+// 刪除：雷達位置、心情與暱稱、大頭貼、推播權杖、在線狀態、封鎖名單、敲門請求、聊天室、同意紀錄、登入身分。
+// 保留：檢舉紀錄與審核狀態（隱私權政策載明保存 1 年，用於防止濫用）。
+// ============================================================================
+exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+
+    const db = admin.database();
+    try {
+      await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`]]);
+
+      const updates = {};
+      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests"]) {
+          updates[`${path}/${uid}`] = null;
+      }
+      // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
+      const myBlocks = (await db.ref(`blocks/${uid}`).once("value")).val() || {};
+      for (const target of Object.keys(myBlocks)) updates[`blockedBy/${target}/${uid}`] = null;
+      const requestTargets = (await db.ref("requests").once("value")).val() || {};
+      for (const [target, senders] of Object.entries(requestTargets)) {
+          if (senders && Object.prototype.hasOwnProperty.call(senders, uid)) updates[`requests/${target}/${uid}`] = null;
+      }
+      const rooms = (await db.ref("chats").once("value")).val() || {};
+      for (const roomId of Object.keys(rooms)) {
+          if (roomId.split("_").includes(uid)) updates[`chats/${roomId}`] = null;
+      }
+      await db.ref().update(updates);
+
+      try {
+          await admin.storage().bucket().file(`avatars/${uid}.jpg`).delete();
+      } catch (e) {
+          if (e.code !== 404) console.error(`deleteAccount avatar (${uid}):`, e);
+      }
+      await admin.auth().deleteUser(uid);
+
+      console.log(`[刪除帳號] ${uid} 已刪除（${Object.keys(updates).length} 個資料節點）`);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error(`deleteAccount failed (${uid}):`, error);
+      res.status(500).json({ success: false, error: "刪除失敗" });
+    }
+  });
+});
+

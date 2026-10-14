@@ -45,6 +45,7 @@ Color _getMoodColor(String mood) {
 const String _darkStyleUrl = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
 const String _updateLocationUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/updateLocation';
 const String _getNearbyUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/getNearby';
+const String _deleteAccountUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/deleteAccount';
 
 ui.FragmentProgram? bubbleShaderProgram;
 
@@ -670,6 +671,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 ListTile(leading: const Icon(Icons.description_outlined, color: Night.inkMuted), title: const Text('使用條款', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.termsUrl)),
                 ListTile(leading: const Icon(Icons.privacy_tip_outlined, color: Night.inkMuted), title: const Text('隱私權政策', style: TextStyle(color: Colors.white)), onTap: () => Legal.open(Legal.privacyUrl)),
                 ListTile(leading: const Icon(Icons.mail_outline, color: Night.inkMuted), title: const Text('聯絡我們', style: TextStyle(color: Colors.white)), subtitle: const Text(Legal.contactEmail, style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () => Legal.emailUs()),
+                const Divider(color: Colors.white12),
+                ListTile(leading: const Icon(Icons.delete_forever_outlined, color: Night.danger), title: const Text('刪除帳號與資料', style: TextStyle(color: Night.danger)), subtitle: const Text('永久抹除你在城市留下的一切', style: TextStyle(color: Colors.white38, fontSize: 12)), onTap: () { Navigator.pop(context); _confirmDeleteAccount(); }),
                 const SizedBox(height: 10),
               ],
             ),
@@ -825,6 +828,69 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         );
       },
     );
+  }
+
+  void _confirmDeleteAccount() {
+    showDialog(
+      context: context, barrierColor: const Color(0x99070B1F),
+      builder: (dialogContext) {
+        bool deleting = false;
+        return StatefulBuilder(builder: (dialogContext, setDialogState) {
+          return Dialog(
+            backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+            child: GlassCard(
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                const Icon(Icons.delete_forever_outlined, color: Night.danger, size: 36),
+                const SizedBox(height: Night.space3),
+                const Text('刪除帳號與資料', style: Night.title, textAlign: TextAlign.center),
+                const SizedBox(height: Night.space2),
+                const Text('你的位置、心情、城市稱呼、大頭貼、封鎖名單與進行中的對話都會被永久刪除，無法復原。\n\n為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。',
+                    style: Night.body, textAlign: TextAlign.center),
+                const SizedBox(height: Night.space4),
+                Row(children: [
+                  Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: deleting ? null : () => Navigator.pop(dialogContext))),
+                  const SizedBox(width: Night.space2),
+                  Expanded(child: NightButton(deleting ? '刪除中…' : '永久刪除', kind: NightButtonKind.danger, onPressed: deleting ? null : () async {
+                    setDialogState(() => deleting = true);
+                    final ok = await _deleteAccount();
+                    if (!ok && dialogContext.mounted) {
+                      setDialogState(() => deleting = false);
+                      showGlassToast(context, '刪除沒有完成，請檢查網路後再試一次。', icon: Icons.error_outline, danger: true);
+                    }
+                  })),
+                ]),
+              ]),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  /// 刪除帳號：先停止所有回報，避免刪除後又被心跳或斷線標記寫回資料；成功後清空本機並回到起點。
+  Future<bool> _deleteAccount() async {
+    _heartbeatTimer?.cancel(); _radarTimer?.cancel(); _positionStream?.cancel();
+    _isInForeground = false; // 讓 _updateMyLocationToServer 不再送出
+    try {
+      await _presenceRef.onDisconnect().cancel();
+      final response = await http.post(Uri.parse(_deleteAccountUrl), headers: await _authHeaders(), body: '{}');
+      if (response.statusCode != 200) throw Exception('deleteAccount ${response.statusCode}');
+    } catch (e) {
+      debugPrint('delete account failed: $e');
+      // 失敗時恢復正常運作
+      _isInForeground = true;
+      _setPresence('active');
+      _startForegroundHeartbeat();
+      _startRadarSweep();
+      return false;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await FirebaseAuth.instance.signOut();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const IntroScreen()), (_) => false);
+    }
+    return true;
   }
 
   void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false}) {
@@ -1006,7 +1072,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose();
-    _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
+    // 刪除帳號後已登出，不再寫入
+    if (FirebaseAuth.instance.currentUser != null) _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();
   }
 
@@ -1109,7 +1176,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                   isFavored: renderData.isFavored, 
                                   status: _outgoingRequests[user['uid']] ?? RequestStatus.none, 
                                   displayName: displayName, 
-                                  distance: renderData.distance.toInt(), 
+                                  distanceLabel: WhisperEngine.formatDistance(renderData.distance), 
                                   baseColor: _getMoodColor(user['mood']), 
                                   isShadow: isShadow,
                                   isInactive: user['isInactive'] ?? false,
@@ -1139,7 +1206,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isFavored; 
   final RequestStatus status; 
   final String displayName; 
-  final int distance; 
+  final String distanceLabel; 
   final Color baseColor; 
   final bool isShadow; 
   final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
@@ -1152,7 +1219,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isFavored = false, 
     required this.status, 
     required this.displayName, 
-    required this.distance, 
+    required this.distanceLabel, 
     required this.baseColor, 
     this.isShadow = false, 
     this.isInactive = false,
@@ -1286,7 +1353,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
                 
                 const SizedBox(height: 6),
-                Text('${widget.displayName} · ${widget.distance}m${widget.isInactive ? ' · 休息中' : ''}', style: const TextStyle(color: Colors.white24, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w400), overflow: TextOverflow.ellipsis),
+                Text('${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

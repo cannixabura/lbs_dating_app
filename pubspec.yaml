@@ -36,9 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   geolocator: ^14.0.3
   permission_handler: ^13.0.2
-  # google_maps_flutter: ^2.5.3  # 🌟 確保有這個套件
-  # 刪除這行：google_maps_flutter: ^x.x.x
-  # 新增這行：替換為 MapLibre
   maplibre_gl: ^0.27.1
   firebase_core: ^4.15.0
   firebase_database: ^12.6.0
@@ -50,8 +47,6 @@ dependencies:
   audioplayers: ^6.8.1
   shared_preferences: ^2.5.5
   firebase_messaging: ^16.7.0
-  google_maps_flutter_android: ^2.21.0
-  google_maps_flutter_platform_interface: ^2.17.0
   http: ^1.6.0
   image_picker: ^1.2.4
   firebase_storage: ^13.6.0

@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Legal {
   Legal._();
 
-  static const termsVersion = '2026-10';
+  static const termsVersion = '2026-10.1'; // .1：同意文字加入「年滿 18 歲」
   static const contactEmail = 'service.softchip@gmail.com';
   static final termsUrl = Uri.parse('https://mood-whisper-f7de9.web.app/terms.html');
   static final privacyUrl = Uri.parse('https://mood-whisper-f7de9.web.app/privacy.html');

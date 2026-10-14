@@ -200,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
     const linkStyle = TextStyle(color: Night.auroraBlue, decoration: TextDecoration.underline, decorationColor: Night.auroraBlue);
     return Semantics(
       checked: _agreed,
-      label: '同意使用條款與隱私權政策',
+      label: '我已年滿 18 歲，並同意使用條款與隱私權政策',
       child: InkWell(
         onTap: () => setState(() => _agreed = !_agreed),
         child: Padding(
@@ -220,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Expanded(
               child: Text.rich(
                 TextSpan(style: const TextStyle(color: Night.inkMuted, fontSize: 13, height: 1.6), children: [
-                  const TextSpan(text: '我已閱讀並同意'),
+                  const TextSpan(text: '我已年滿 18 歲，並已閱讀及同意'),
                   TextSpan(text: '《使用條款》', style: linkStyle, recognizer: _termsTap),
                   const TextSpan(text: '與'),
                   TextSpan(text: '《隱私權政策》', style: linkStyle, recognizer: _privacyTap),

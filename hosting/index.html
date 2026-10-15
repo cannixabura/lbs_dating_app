@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>城市低語</title>
+<meta name="description" content="在夜裡的城市留下此刻的心情，與擦肩而過的人產生片刻的交集。匿名、安全、不留痕跡。">
+<meta name="theme-color" content="#070b1f">
+<!-- 分享到 LINE / IG / Messenger 時的預覽 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語｜今晚，你的心情在城市裡發光">
+<meta property="og:description" content="在夜裡的城市留下此刻的心情，與擦肩而過的人產生片刻的交集。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/intro_1.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+  /* 城市低語 夜光設計系統（https://claude.ai/artifact/TSf7xkrr7ZBbPfkFGqGAg4） */
+  :root {
+    color-scheme: dark;
+    --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+    --glass-fill: rgba(26, 31, 74, 0.72); --glass-line: rgba(196, 170, 255, 0.38);
+    --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+    --aurora-violet: #b44cff; --aurora-blue: #4fc3f7; --deep-violet: #8e2de2; --deep-blue: #2a63d4;
+    --knock-pink: #ff5fd2;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--night-900); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--aurora-blue); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; }
+
+  /* ---------- Hero ---------- */
+  .hero { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; padding-block: 32px 48px; }
+  .poster { width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 28px; overflow: hidden;
+    border: 1px solid var(--glass-line); box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 60px rgba(180,76,255,.25); }
+  .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .welcome { display: none; margin: 20px 0 0; padding: 8px 14px; border-radius: 999px; width: fit-content;
+    background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); font-size: 14px; }
+  .welcome.show { display: inline-flex; gap: 8px; align-items: center; }
+  .welcome i { width: 8px; height: 8px; border-radius: 50%; background: var(--knock-pink); box-shadow: 0 0 10px var(--knock-pink); display: inline-block; }
+  h1 { margin: 0; font-size: clamp(36px, 7vw, 60px); line-height: 1.15; letter-spacing: 3px; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rule { width: 128px; height: 2px; margin: 20px 0; border-radius: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); }
+  .lead { margin: 0; font-size: 17px; line-height: 1.85; color: var(--ink-muted); max-width: 32em; }
+  .stores { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .store { display: inline-flex; flex-direction: column; justify-content: center; min-height: 56px; padding: 8px 22px; border-radius: 16px;
+    background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); text-decoration: none; }
+  .store b { font-size: 16px; font-weight: 500; }
+  .store small { font-size: 12px; color: var(--ink-faint); letter-spacing: 1px; }
+  .notify { margin-top: 16px; font-size: 14px; color: var(--ink-faint); }
+
+  /* ---------- Features ---------- */
+  section { padding-block: 40px; }
+  h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: 2px; }
+  .sub { margin: 0 0 24px; color: var(--ink-muted); line-height: 1.8; }
+  .gallery { display: grid; grid-auto-flow: column; grid-auto-columns: 72%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding-bottom: 12px; margin-inline: -20px; padding-inline: 20px; scrollbar-width: none; }
+  .gallery::-webkit-scrollbar { display: none; }
+  .card { scroll-snap-align: center; margin: 0; }
+  .card img { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 22px; border: 1px solid var(--glass-line); display: block; }
+  .card figcaption { margin-top: 12px; color: var(--ink-muted); font-size: 15px; line-height: 1.7; }
+  .card figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 17px; margin-bottom: 2px; }
+
+  .safe { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .safe div { padding: 18px 20px; border-radius: 20px; background: var(--glass-fill); border: 1px solid var(--glass-line); }
+  .safe b { display: block; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .safe span { color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
+
+  footer { padding-block: 40px 56px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-bottom: 8px; }
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  footer a:hover, footer a:focus-visible { color: var(--ink); text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; }
+
+  @media (min-width: 860px) {
+    .hero { grid-template-columns: 1.05fr .95fr; padding-block: 64px 72px; }
+    .hero .text { order: -1; }
+    .gallery { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; }
+    .safe { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="welcome" id="welcome"><i></i><span id="welcome-text"></span></p>
+  <div class="hero">
+    <div class="poster"><img src="img/intro_1.jpg" alt="夜裡的台北城市，屋頂上的人望著浮在建築間的心情氣泡" width="675" height="1200"></div>
+    <div class="text">
+      <h1><em>今晚，</em>你的心情<br>在城市裡發光</h1>
+      <div class="rule"></div>
+      <p class="lead">城市低語是一座夜裡的城市。寫下此刻的心情，它會化成一顆會呼吸的氣泡，浮在你所在的街區。看見附近的心情，送出一道微光，或輕輕敲門，與擦肩而過的人產生片刻的交集。</p>
+      <div class="stores">
+        <span class="store" aria-disabled="true"><b>App Store</b><small>即將推出</small></span>
+        <span class="store" aria-disabled="true"><b>Google Play</b><small>即將推出</small></span>
+      </div>
+      <p class="notify">想在上架時第一個知道？寫信給我們：<a href="mailto:service.softchip@gmail.com?subject=城市低語上架通知">service.softchip@gmail.com</a></p>
+    </div>
+  </div>
+
+  <section aria-labelledby="how">
+    <h2 id="how">在城市裡，片刻相遇</h2>
+    <p class="sub">不需要帳號、不需要真名。只留下你此刻的心情與座標。</p>
+    <div class="gallery">
+      <figure class="card"><img src="img/intro_2.jpg" alt="河堤步道上，人們頭上浮著不同顏色的心情氣泡" loading="lazy" width="675" height="1200">
+        <figcaption><b>片刻的交集</b>看見附近浮動的心情氣泡，輕輕敲門，與擦肩而過的人產生一期一會的對話。</figcaption></figure>
+      <figure class="card"><img src="img/intro_3.jpg" alt="敲門後等待回音的倒數計時" loading="lazy" width="675" height="1200">
+        <figcaption><b>城市的節奏</b>敲門後靜待回音；若無緣交集，300 秒後氣泡悄悄消散。對話 10 分鐘沒有新訊息也會消散。</figcaption></figure>
+      <figure class="card"><img src="img/intro_4.jpg" alt="收到敲門時可以婉拒或封鎖" loading="lazy" width="675" height="1200">
+        <figcaption><b>溫柔的距離</b>不想被打擾？婉拒或封鎖。冷卻系統會為你隔絕喧囂，還你安靜的角落。</figcaption></figure>
+      <figure class="card"><img src="img/intro_5.jpg" alt="準備進入城市低語" loading="lazy" width="675" height="1200">
+        <figcaption><b>準備好相遇了嗎？</b>寫下你此刻的心情，走進城市低語。</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="safe">
+    <h2 id="safe">安心，是最重要的事</h2>
+    <p class="sub">我們對騷擾、色情與仇恨內容零容忍。</p>
+    <div class="safe">
+      <div><b>匿名進入</b><span>不需要電話、信箱或真名，只用一句心情進入城市。</span></div>
+      <div><b>檢舉與封鎖</b><span>氣泡、敲門、聊天室都能一鍵檢舉；封鎖後雙方從彼此的城市消失。</span></div>
+      <div><b>不留痕跡</b><span>對話結束即從伺服器刪除，離開後的心情只留下會淡去的殘影。</span></div>
+      <div><b>隨時離開</b><span>在 App 內就能永久刪除帳號與所有資料。</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <nav aria-label="法律與聯絡">
+      <a href="terms.html">使用條款</a>
+      <a href="privacy.html">隱私權政策</a>
+      <a href="delete-account.html">刪除帳號</a>
+      <a href="mailto:service.softchip@gmail.com">聯絡我們</a>
+    </nav>
+    © 2026 Softchip · 城市低語
+  </footer>
+</main>
+<script>
+  // 依來源顯示歡迎詞：?ref=invite（朋友邀請）或 ?ref=card（心情卡）
+  (function () {
+    var ref = new URLSearchParams(location.search).get('ref');
+    var text = { invite: '朋友邀請你一起點亮街區', card: '有人在城市低語留下了此刻的心情' }[ref];
+    if (!text) return;
+    document.getElementById('welcome-text').textContent = text;
+    document.getElementById('welcome').classList.add('show');
+  })();
+</script>
+</body>
+</html>

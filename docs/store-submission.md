@@ -10,6 +10,7 @@
 | 使用條款 / EULA（Apple 可填在「授權協議」） | https://mood-whisper-f7de9.web.app/terms.html |
 | 刪除帳號網址（Google Play 必填） | https://mood-whisper-f7de9.web.app/delete-account.html |
 | 支援信箱 | service.softchip@gmail.com |
+| 行銷網站 / 落地頁（心情卡與邀請連結指向這裡） | https://mood-whisper-f7de9.web.app/ |
 
 ## Apple：App 隱私權（App Store Connect → App 隱私權）
 

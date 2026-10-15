@@ -25,6 +25,7 @@ import 'package:image_picker/image_picker.dart'; // 🌟 新增：圖片選擇�
 import 'dart:io' show Platform;
 import 'firebase_options.dart';
 import 'legal.dart';
+import 'mood_card.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'ui/knock_ritual.dart';
@@ -885,7 +886,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               style: Night.caption, textAlign: TextAlign.center),
         ],
         const SizedBox(height: Night.space3),
-        NightButton('讓我的心情更亮一點', kind: NightButtonKind.ghost, icon: Icons.edit_outlined, onPressed: _showProfileEditDialog),
+        NightButton('邀請朋友點亮街區', icon: Icons.group_add_outlined, onPressed: () => shareInvite(context)),
+        const SizedBox(height: Night.space2),
+        NightButton('分享我的心情卡', kind: NightButtonKind.ghost, icon: Icons.ios_share, onPressed: () => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood))),
       ]),
     );
   }
@@ -938,6 +941,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               ]),
             ),
           ),
+        ),
+        IconButton(
+          tooltip: '分享我的心情卡',
+          onPressed: () => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)),
+          icon: const Icon(Icons.ios_share, color: Night.inkMuted),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         ),
         IconButton(
           tooltip: '設定',
@@ -1014,6 +1023,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
                   reminderRow,
+                  section('分享'),
+                  item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
+                  item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
                   section('關於'),
                   item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
                   item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),

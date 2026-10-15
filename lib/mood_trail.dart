@@ -211,7 +211,7 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
             ),
           if (_entries.isNotEmpty) const Padding(
             padding: EdgeInsets.only(top: 6, left: 4),
-            child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10)),
+            child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10)),
           ),
           for (final day in byDay.entries) ...[
             Padding(padding: const EdgeInsets.only(top: Night.space6, bottom: Night.space2), child: Text(day.key, style: Night.caption)),

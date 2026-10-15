@@ -1,8 +1,11 @@
-"""把 CARTO dark-matter-nolabels 樣式改成城市低語的「夜光」地圖。
+"""把 dark-matter-nolabels 樣式改成城市低語的「夜光」地圖，圖資改用 OpenFreeMap。
 
 用法：python3 tool/build_night_map_style.py <下載的 style.json> assets/map/night_style.json
 顏色取自設計系統：深藍地面、灰藍綠微光道路、深藍水域加藍色光邊。
 3D 霓虹建築與夜空漸層在 App 端（main.dart）加上。
+
+圖資：OpenFreeMap（OpenMapTiles 格式，與 CARTO 的欄位相同），免費、免金鑰、可商用；
+必須標示「© OpenMapTiles © OpenStreetMap」。
 """
 import copy
 import json
@@ -88,9 +91,23 @@ def recolor(style):
     style["name"] = "城市低語 夜光"
     return style
 
+OPENFREEMAP_TILES = "https://tiles.openfreemap.org/planet"
+OPENFREEMAP_FONTS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf"
+SOURCE_ID = "openmaptiles"
+
+def use_openfreemap(style):
+    """把圖資來源換成 OpenFreeMap。不畫文字與圖示，所以不需要 sprite。"""
+    style["sources"] = {SOURCE_ID: {"type": "vector", "url": OPENFREEMAP_TILES}}
+    style["glyphs"] = OPENFREEMAP_FONTS
+    style.pop("sprite", None)
+    for layer in style["layers"]:
+        if "source" in layer:
+            layer["source"] = SOURCE_ID
+    return style
+
 if __name__ == "__main__":
     src, dst = sys.argv[1], sys.argv[2]
-    style = recolor(json.load(open(src, encoding="utf-8")))
+    style = use_openfreemap(recolor(json.load(open(src, encoding="utf-8"))))
     with open(dst, "w", encoding="utf-8") as f:
         json.dump(style, f, ensure_ascii=False, separators=(",", ":"))
     print(f"wrote {dst} ({len(style['layers'])} layers)")

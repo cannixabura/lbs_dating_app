@@ -1128,6 +1128,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final TextEditingController moodController = TextEditingController(text: _myMood);
     final TextEditingController nicknameController = TextEditingController(text: _myNickname);
     bool isUploading = false; 
+    bool isPicking = false; // 相簿開著時再點一次，會讓前一個請求被取消並丟出例外
     String pendingAvatarUrl = _myAvatarUrl; // 按下「儲存」才生效，取消則不改變
 
     InputDecoration nightInput(String hint) => InputDecoration(
@@ -1151,7 +1152,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
             Future<void> pickAvatar() async {
               final picker = ImagePicker();
-              final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
+              if (isPicking) return;
+              isPicking = true;
+              final XFile? image;
+              try {
+                image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
+              } catch (e) {
+                debugPrint('avatar pick failed: $e');
+                return;
+              } finally {
+                isPicking = false;
+              }
               if (image == null) return;
               setDialogState(() => isUploading = true);
               try {
@@ -1709,7 +1720,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                 zoom: 12.0, // 進場鏡頭的起點：城市高空
               ),
-              myLocationEnabled: true, 
+              // 有大頭貼時由下方的大頭貼標示自己，不再畫系統藍點
+              myLocationEnabled: _myAvatarUrl.isEmpty,
               myLocationRenderMode: MyLocationRenderMode.normal,
               compassEnabled: false,
               logoViewMargins: const Point(-100, -100), 

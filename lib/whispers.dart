@@ -83,76 +83,99 @@ String _ago(DateTime t) {
 
 /// 留下低語。成功回傳 true。
 Future<bool> showWhisperComposer(BuildContext context, {required double lat, required double lng, required String mood}) async {
-  final controller = TextEditingController();
-  bool sending = false;
   final posted = await showModalBottomSheet<bool>(
     context: context, isScrollControlled: true, backgroundColor: Colors.transparent, barrierColor: const Color(0x99070B1F),
-    builder: (sheetContext) => StatefulBuilder(builder: (sheetContext, setState) {
-      Future<void> send() async {
-        final text = controller.text.trim();
-        if (text.isEmpty || sending) return;
-        setState(() => sending = true);
-        final error = await WhisperApi.post(lat, lng, text, mood);
-        if (!sheetContext.mounted) return;
-        if (error == null) {
-          Navigator.pop(sheetContext, true);
-        } else {
-          setState(() => sending = false);
-          showGlassToast(sheetContext, error, icon: Icons.mail_outline, danger: true);
-        }
-      }
+    builder: (_) => _WhisperComposer(lat: lat, lng: lng, mood: mood),
+  );
+  return posted == true;
+}
 
-      return Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(Night.space4),
-            child: GlassCard(
-              glow: true,
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                const Icon(Icons.mail_outline, color: Night.auroraBlue, size: 30),
-                const SizedBox(height: Night.space2),
-                const Text('留下一則低語', style: Night.title, textAlign: TextAlign.center),
-                const SizedBox(height: Night.space2),
-                const Text('寫給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
-                const SizedBox(height: Night.space4),
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  maxLength: whisperMaxLength,
-                  minLines: 2,
-                  maxLines: 4,
-                  onChanged: (_) => setState(() {}),
-                  cursorColor: Night.auroraViolet,
-                  style: const TextStyle(color: Night.ink, fontSize: 16, height: 1.6),
-                  decoration: InputDecoration(
-                    hintText: '例如：這裡的夕陽很美，記得抬頭看看。',
-                    hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 14),
-                    counterStyle: Night.caption,
-                    filled: true,
-                    fillColor: Night.night700,
-                    contentPadding: const EdgeInsets.all(Night.space4),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.glassLine)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.auroraViolet, width: 2)),
-                  ),
+/// 輸入框的 controller 由這個 widget 持有，等面板關閉動畫結束、真正移除時才釋放。
+/// 若在 showModalBottomSheet 回傳後就 dispose，關閉動畫期間的 TextField 會用到已釋放的 controller。
+class _WhisperComposer extends StatefulWidget {
+  final double lat;
+  final double lng;
+  final String mood;
+  const _WhisperComposer({required this.lat, required this.lng, required this.mood});
+
+  @override
+  State<_WhisperComposer> createState() => _WhisperComposerState();
+}
+
+class _WhisperComposerState extends State<_WhisperComposer> {
+  final TextEditingController controller = TextEditingController();
+  bool sending = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> send() async {
+    final text = controller.text.trim();
+    if (text.isEmpty || sending) return;
+    setState(() => sending = true);
+    final error = await WhisperApi.post(widget.lat, widget.lng, text, widget.mood);
+    if (!mounted) return;
+    if (error == null) {
+      Navigator.pop(context, true);
+    } else {
+      setState(() => sending = false);
+      showGlassToast(context, error, icon: Icons.mail_outline, danger: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: GlassCard(
+            glow: true,
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const Icon(Icons.mail_outline, color: Night.auroraBlue, size: 30),
+              const SizedBox(height: Night.space2),
+              const Text('留下一則低語', style: Night.title, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space2),
+              const Text('寫給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space4),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLength: whisperMaxLength,
+                minLines: 2,
+                maxLines: 4,
+                onChanged: (_) => setState(() {}),
+                cursorColor: Night.auroraViolet,
+                style: const TextStyle(color: Night.ink, fontSize: 16, height: 1.6),
+                decoration: InputDecoration(
+                  hintText: '例如：這裡的夕陽很美，記得抬頭看看。',
+                  hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 14),
+                  counterStyle: Night.caption,
+                  filled: true,
+                  fillColor: Night.night700,
+                  contentPadding: const EdgeInsets.all(Night.space4),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.glassLine)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusSm), borderSide: const BorderSide(color: Night.auroraViolet, width: 2)),
                 ),
-                const SizedBox(height: Night.space2),
-                const Text('7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶', style: Night.caption, textAlign: TextAlign.center),
-                const SizedBox(height: Night.space4),
-                Row(children: [
-                  Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(sheetContext, false))),
-                  const SizedBox(width: Night.space2),
-                  Expanded(child: NightButton(sending ? '送出中…' : '留在這裡', onPressed: controller.text.trim().isEmpty || sending ? null : send)),
-                ]),
+              ),
+              const SizedBox(height: Night.space2),
+              const Text('7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶', style: Night.caption, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space4),
+              Row(children: [
+                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context, false))),
+                const SizedBox(width: Night.space2),
+                Expanded(child: NightButton(sending ? '送出中…' : '留在這裡', onPressed: controller.text.trim().isEmpty || sending ? null : send)),
               ]),
-            ),
+            ]),
           ),
         ),
-      );
-    }),
-  );
-  controller.dispose();
-  return posted == true;
+      ),
+    );
+  }
 }
 
 /// 閱讀一則低語。回傳 true 表示作者收回了它。

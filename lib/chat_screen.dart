@@ -317,6 +317,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   ),
                 ),
 
+                // 示範對話：對方是自動回覆的示範對象，要讓使用者一眼知道
+                if (widget.targetUid.startsWith('demo-'))
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(Night.space4, Night.space2, Night.space4, 0),
+                    child: Text('示範對話：對方由程式自動回覆，不是真人。', style: Night.caption, textAlign: TextAlign.center),
+                  ),
+
                 // ---------- 訊息 ----------
                 Expanded(
                   child: ListView.builder(

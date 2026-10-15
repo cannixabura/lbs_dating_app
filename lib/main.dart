@@ -703,6 +703,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'nickname': isShadow ? '' : (user['nickname'] ?? ''), 
         'isShadow': isShadow,
         'isInactive': status == 'inactive',
+        // 示範對象（導覽員機器人）：名字前一律標示「示範」
+        'isDemo': user['demo'] == true,
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -1412,7 +1414,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     return true;
   }
 
-  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, Color moodColor = Night.moodDefault}) {
+  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, Color moodColor = Night.moodDefault}) {
     Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Night.radiusSm),
@@ -1433,6 +1435,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               if (isShadow) ...[
                 const SizedBox(height: Night.space2),
                 const Text('這只是一道歷史殘影，無法產生交集。', style: Night.body, textAlign: TextAlign.center),
+              ],
+              if (isDemo) ...[
+                const SizedBox(height: Night.space2),
+                const Text('這是示範對象，由程式自動回應，不是真人。可以用它體驗敲門、聊天、微光、檢舉與封鎖。', style: Night.body, textAlign: TextAlign.center),
               ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, '送出一道微光 (共鳴)', () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
@@ -1833,7 +1839,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent, 
                             onLongPress: () {
-                              _showInteractionMenu(user['uid'], isShadow ? '歷史殘影' : displayName, isShadow: isShadow, moodColor: _getMoodColor(user['mood']));
+                              _showInteractionMenu(user['uid'], isShadow ? '歷史殘影' : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
                             },
                             // 雙擊氣泡：直接送出一道微光
                             onDoubleTap: () {
@@ -1854,6 +1860,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                   baseColor: _getMoodColor(user['mood']), 
                                   isShadow: isShadow,
                                   isInactive: user['isInactive'] ?? false,
+                                  isDemo: user['isDemo'] ?? false,
                                   shadowOpacity: user['shadowOpacity'] ?? 1.0, 
                                 )
                               )
@@ -1927,6 +1934,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final Color baseColor; 
   final bool isShadow; 
   final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
+  final bool isDemo; // 示範對象：名字前面加上「示範」
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -1940,6 +1948,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     required this.baseColor, 
     this.isShadow = false, 
     this.isInactive = false,
+    this.isDemo = false,
     this.shadowOpacity = 1.0
   });
 
@@ -2087,7 +2096,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
 
                 const SizedBox(height: 10),
-                Text('${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                Text('${widget.isDemo ? '示範 · ' : ''}${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

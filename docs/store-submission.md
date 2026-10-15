@@ -63,10 +63,27 @@
 - 目標對象與內容：只勾選 **18 歲以上**
 - 是否為約會應用程式：依你的定位決定。若勾選「是」，Google 會要求額外的安全聲明。
 
-## 提交審核時的備註（兩個平台都建議填）
+## 提交審核時的備註（兩個平台都要填）
 
-審核人員只有一支手機，雷達上不會有人，敲門、聊天、檢舉都測不到，這是社交 App 最常見的退件原因。送審前建議：
+審核人員只有一支手機、通常在美國，雷達上不會有真人，所以 App 內建「審核示範」：在心情欄輸入通關碼 `#review`，伺服器會在審核人員所在位置周圍放 20 位示範對象（距離 200 公尺、400 公尺……到 4 公里），只有輸入過通關碼的帳號看得到。示範對象會自動同意敲門、在聊天室自動回覆說明、收到微光會回送一道，也可以被檢舉與封鎖。
 
-1. 在審核期間開著一支測試機放在 App 內（審核人員通常在美國加州，雷達是 5 公里範圍，所以測試機需要也在附近才看得到，實務上做不到）。
-2. 比較可行的做法：做一個「審核示範帳號」功能，讓審核備註裡提供的方式可以叫出一個示範對象，示範敲門、聊天、檢舉與封鎖。這需要另外開發，建議排在送審前。
-3. 備註裡說明：匿名登入不需要帳號密碼；檢舉入口在氣泡長按選單、敲門卡片、聊天室右上角；刪除帳號在設定最下方；條款同意在第一次進場時。
+台北市中心另有 200 位「示範」導覽員給一般使用者體驗，名字前一律標示「示範」，長按選單與聊天室都會說明「由程式自動回應，不是真人」。
+
+**App Review 備註（英文，貼到 App Store Connect →「App 審核資訊」→「備註」）**
+
+```
+City Whisper is an anonymous, location-based app. No account or password is needed: tapping "走進城市低語" (Enter) signs in anonymously.
+
+Because the radar only shows people within 5 km, we added a review mode so you can test every social feature alone:
+1. On the first screen, type #review in the mood field (此時此刻，你想對城市說什麼？), tick the 18+ terms box, and tap the button.
+2. 20 demo people ("示範對象 01–20") appear around your location, 200 m apart. They are labelled 示範 (demo) and are only visible to accounts that entered the code.
+3. Knock: long-press a bubble → 敲門. The demo person accepts in about 3 seconds and a 10-minute chat opens; it replies automatically.
+4. Report: chat header flag icon, the bubble long-press menu (檢舉), or the knock card. Block: bubble long-press menu → 封鎖.
+5. Glimmer (resonance): double-tap a bubble; the demo person sends one back.
+6. Delete account: Settings (sliders icon, bottom right) → 刪除帳號與資料 at the bottom.
+
+User-generated content: moods, nicknames and whispers pass a server-side word and contact-info filter; reported users or whispers are hidden automatically after 3 reports and reviewed by us within 24 hours. Users must accept the terms (18+, zero tolerance for objectionable content) before entering.
+```
+
+**Google Play（Play Console →「應用程式內容」→「應用程式存取權」）**
+選「部分功能受限」，說明欄貼上同一段英文說明（不需要帳號密碼）。

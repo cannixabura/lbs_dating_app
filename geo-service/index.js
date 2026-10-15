@@ -11,6 +11,7 @@ const { fuzzLocation } = require("./fuzz");
 const citymood = require("./citymood");
 const whisper = require("./whisper");
 const { maskBlockedTerms } = require("./contentfilter");
+const demo = require("./demo");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -105,10 +106,13 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     const { lat, lng } = req.body;
     if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
     // 不當字詞替換成「＊」（App Store 1.2 的內容過濾）
-    const mood = maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
+    // 審核通關碼：心情欄輸入後開啟審核示範對象，通關碼本身不會出現在雷達上
+    const reviewCode = demo.isReviewCode(req.body.mood);
+    const mood = reviewCode ? demo.REVIEW_MOOD : maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
     const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
     const timestamp = Date.now();
     try {
+      if (reviewCode) await sendUpstashCommand(["SADD", demo.REVIEWERS_KEY, uid]);
       // 🔒 先算出對外公開的模糊位置（100m 網格，含遲滯）；精確座標只進地理索引，不會回傳給任何人
       const fuzzFields = [];
       if (FUZZ_LOCATION) {
@@ -130,6 +134,48 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     }
   });
 });
+
+/**
+ * 附近的示範對象：台北示範（所有人）＋審核示範（只給輸入過通關碼的帳號）。
+ * 不計入密度，也不在 city_users 裡，所以不影響殘影留存與城市心情天氣。
+ */
+async function nearbyDemoBots(viewerUid, lat, lng, radiusKM) {
+    const here = { lat, lng };
+    const found = []; // [uid, distanceKm, {lat, lng}]
+    const publicHits = await sendUpstashCommand([
+        "GEOSEARCH", demo.PUBLIC_GEO_KEY, "FROMLONLAT", lng.toString(), lat.toString(),
+        "BYRADIUS", radiusKM.toString(), "km", "ASC", "COUNT", String(demo.PUBLIC_MAX_RESULTS), "WITHDIST", "WITHCOORD",
+    ]);
+    for (const m of Array.isArray(publicHits) ? publicHits : []) {
+        if (Array.isArray(m) && m[0]) found.push([m[0], parseFloat(m[1]), { lat: parseFloat(m[2][1]), lng: parseFloat(m[2][0]) }]);
+    }
+
+    const isReviewer = await sendUpstashCommand(["SISMEMBER", demo.REVIEWERS_KEY, viewerUid]);
+    if (isReviewer === 1) {
+        // 錨點跟著審核人員：第一次或移動超過 5 公里時重新放置
+        const [aLat, aLng] = (await sendUpstashCommand(["HMGET", `demo_anchor:${viewerUid}`, "lat", "lng"])) || [];
+        let anchor = aLat && aLng ? { lat: parseFloat(aLat), lng: parseFloat(aLng) } : null;
+        if (!anchor || demo.distanceKm(anchor, here) > demo.REVIEW_REANCHOR_KM) {
+            anchor = here;
+            await sendUpstashCommand(["HSET", `demo_anchor:${viewerUid}`, "lat", String(lat), "lng", String(lng)]);
+        }
+        for (const bot of demo.reviewBots(anchor)) {
+            const d = demo.distanceKm(here, bot);
+            if (d <= radiusKM) found.push([bot.uid, d, { lat: bot.lat, lng: bot.lng }]);
+        }
+    }
+    if (found.length === 0) return [];
+
+    const profiles = await sendUpstashPipeline(found.map(([botUid]) => ["HMGET", `user_data:${botUid}`, "mood", "nickname", "hidden"]));
+    const now = Date.now();
+    const bots = [];
+    found.forEach(([botUid, , pos], i) => {
+        const [mood, nickname, hidden] = profiles[i] || [];
+        if (hidden === "1" || !nickname) return; // 被檢舉隱藏，或尚未建立資料
+        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: now, demo: true });
+    });
+    return bots;
+}
 
 exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {
@@ -195,6 +241,8 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           });
       }
 
+      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM));
+
       // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
       if (staleUids.length > 0) {
           try {
@@ -209,6 +257,26 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
     }
   });
 });
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function replyAsDemoBot(roomId, botUid) {
+    const room = admin.database().ref(`/chats/${roomId}`);
+    try {
+        await room.child(`typing/${botUid}`).set(true);
+        await sleep(1800);
+        const [status, messagesSnap] = await Promise.all([room.child('status').once('value'), room.child('messages').once('value')]);
+        if (status.val() !== 'active') return; // 使用者已經離開
+        let botMessages = 0;
+        messagesSnap.forEach((m) => { if (m.child('sender').val() === botUid) botMessages++; });
+        const botName = (await getNicknameFromRedis(botUid)) || '示範對象';
+        await room.child('messages').push({ sender: botUid, senderName: botName, text: demo.chatReply(botMessages), timestamp: Date.now() });
+    } catch (e) {
+        console.error(`demo bot reply failed (${roomId}):`, e);
+    } finally {
+        await room.child(`typing/${botUid}`).remove().catch(() => {});
+    }
+}
 
 // ============================================================================
 // 推播：全專案唯一的推播出口（其他 codebase 的重複推播已移除）
@@ -240,7 +308,19 @@ exports.notifyOnKnock = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databa
     if (beforeData && beforeData.status === 'pending') return null;
 
     const targetUid = context.params.targetUid; const senderUid = context.params.senderUid;
-    
+
+    // 示範對象：稍等一下（讓敲門儀式的虛線弧跑一會兒）就自動同意
+    if (demo.isDemoUid(targetUid)) {
+        await sleep(2500);
+        const ref = admin.database().ref(`/requests/${targetUid}/${senderUid}`);
+        const current = (await ref.once('value')).val();
+        if (current && current.status === 'pending') {
+            const botName = (await getNicknameFromRedis(targetUid)) || '示範對象';
+            await ref.set({ status: 'accepted', nickname: botName });
+        }
+        return null;
+    }
+
     let senderName = data.nickname;
     if (!senderName || senderName.trim() === '' || senderName.startsWith('#')) {
         const redisName = await getNicknameFromRedis(senderUid);
@@ -259,8 +339,16 @@ exports.notifyOnChat = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databas
   .onCreate(async (snapshot, context) => {
     const msg = snapshot.val(); if (!msg) return null;
     const senderUid = msg.sender;
-    const targetUid = context.params.roomId.split('_').find(id => id !== senderUid);
+    const roomId = context.params.roomId;
+    const targetUid = roomId.split('_').find(id => id !== senderUid);
     if (!targetUid) return null;
+
+    // 示範對象：輸入中一下，再依序回覆說明；示範對象沒有推播權杖，不需要推播
+    if (demo.isDemoUid(targetUid)) {
+        await replyAsDemoBot(roomId, targetUid);
+        return null;
+    }
+    if (demo.isDemoUid(senderUid)) return null; // 使用者正在聊天室裡，訊息已在畫面上
 
     // 第一防線：抓取訊息夾帶的名字
     let senderName = msg.senderName;
@@ -362,7 +450,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
 
     const db = admin.database();
     try {
-      await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`]]);
+      await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`]]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
           await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);
@@ -422,6 +510,17 @@ exports.notifyOnResonance = functionsV1.database.ref('/resonance/{targetUid}/{se
     const before = change.before.val();
     if (typeof after !== 'number' || (typeof before === 'number' && before >= after)) return null; // 刪除或舊值，不推播
     const targetUid = context.params.targetUid;
+
+    // 示範對象收到微光：回送一道，讓使用者也體驗「收到微光」（24 小時一次，和真人規則相同）
+    if (demo.isDemoUid(targetUid)) {
+        const senderUid = context.params.senderUid;
+        if (demo.isDemoUid(senderUid)) return null;
+        await sleep(3000);
+        const back = admin.database().ref(`/resonance/${senderUid}/${targetUid}`);
+        const last = (await back.once('value')).val();
+        if (typeof last !== 'number' || Date.now() - last > 24 * 60 * 60 * 1000) await back.set(Date.now());
+        return null;
+    }
     const throttleRef = admin.database().ref(`/resonancePush/${targetUid}`);
     try {
         // 用交易確保同時多道微光只推一次

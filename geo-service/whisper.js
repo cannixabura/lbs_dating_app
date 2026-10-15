@@ -3,7 +3,7 @@
 // ============================================================================
 
 const { cellOf } = require('./fuzz');
-const { hasBlockedTerm } = require('./contentfilter');
+const { hasBlockedTerm, hasContactInfo } = require('./contentfilter');
 
 const MAX_LENGTH = 60;               // 一則低語最多 60 個字（以肉眼看到的字數計）
 const TTL_SECONDS = 7 * 24 * 60 * 60; // 7 天後消失
@@ -23,6 +23,7 @@ function validateText(raw) {
     if (!text) return { error: '低語不能是空白的。' };
     if (visibleLength(text) > MAX_LENGTH) return { error: `低語最多 ${MAX_LENGTH} 個字。` };
     if (hasBlockedTerm(text)) return { error: '這則低語含有不適合的字詞，換個說法吧。' };
+    if (hasContactInfo(text)) return { error: '低語是匿名的，不能留下電話、網址或社群帳號。' };
     return { text };
 }
 

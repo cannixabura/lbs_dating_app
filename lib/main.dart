@@ -1352,7 +1352,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 const SizedBox(height: Night.space3),
                 const Text('刪除帳號與資料', style: Night.title, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space2),
-                const Text('你的位置、心情、城市稱呼、大頭貼、封鎖名單與進行中的對話都會被永久刪除，無法復原。\n\n為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。',
+                const Text('你的位置、心情、城市稱呼、大頭貼、留下的低語、微光、封鎖名單與進行中的對話都會被永久刪除，無法復原。\n\n為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。',
                     style: Night.body, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space4),
                 Row(children: [

@@ -367,9 +367,14 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       if (myWhispers.length > 0) {
           await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);
       }
+      // 收下別人低語時留下的讀者紀錄（只保留匿名的收下次數）
+      const allWhispers = (await sendUpstashCommand(["ZRANGE", "whispers", "0", "-1"])) || [];
+      if (allWhispers.length > 0) {
+          await sendUpstashPipeline(allWhispers.map((id) => ["SREM", `whisper_readers:${id}`, uid]));
+      }
 
       const updates = {};
-      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests"]) {
+      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush"]) {
           updates[`${path}/${uid}`] = null;
       }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
@@ -378,6 +383,11 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const requestTargets = (await db.ref("requests").once("value")).val() || {};
       for (const [target, senders] of Object.entries(requestTargets)) {
           if (senders && Object.prototype.hasOwnProperty.call(senders, uid)) updates[`requests/${target}/${uid}`] = null;
+      }
+      // 送給別人的微光
+      const resonanceTargets = (await db.ref("resonance").once("value")).val() || {};
+      for (const [target, senders] of Object.entries(resonanceTargets)) {
+          if (target !== uid && senders && Object.prototype.hasOwnProperty.call(senders, uid)) updates[`resonance/${target}/${uid}`] = null;
       }
       const rooms = (await db.ref("chats").once("value")).val() || {};
       for (const roomId of Object.keys(rooms)) {

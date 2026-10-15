@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'ui/night.dart';
 
 /// 檢舉的來源，對應資料庫規則允許的值。
-enum ReportContext { bubble, knock, chat }
+enum ReportContext { bubble, knock, chat, whisper }
 
 class _Reason {
   final String code;
@@ -42,13 +42,14 @@ Future<ReportResult?> showReportSheet(
   required String targetUid,
   required String targetName,
   required ReportContext reportContext,
+  bool allowBlock = true, // 檢舉低語時作者匿名，沒有對象可以封鎖
 }) async {
   final result = await showModalBottomSheet<ReportResult>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     barrierColor: const Color(0x99070B1F),
-    builder: (_) => _ReportSheet(myUid: myUid, targetUid: targetUid, targetName: targetName, reportContext: reportContext),
+    builder: (_) => _ReportSheet(myUid: myUid, targetUid: targetUid, targetName: targetName, reportContext: reportContext, allowBlock: allowBlock),
   );
   if (result != null && context.mounted) {
     showGlassToast(context, '已收到你的檢舉，我們會在 24 小時內處理。', icon: Icons.flag_outlined);
@@ -61,7 +62,8 @@ class _ReportSheet extends StatefulWidget {
   final String targetUid;
   final String targetName;
   final ReportContext reportContext;
-  const _ReportSheet({required this.myUid, required this.targetUid, required this.targetName, required this.reportContext});
+  final bool allowBlock;
+  const _ReportSheet({required this.myUid, required this.targetUid, required this.targetName, required this.reportContext, required this.allowBlock});
 
   @override
   State<_ReportSheet> createState() => _ReportSheetState();
@@ -70,7 +72,7 @@ class _ReportSheet extends StatefulWidget {
 class _ReportSheetState extends State<_ReportSheet> {
   final TextEditingController _detail = TextEditingController();
   String? _reason;
-  bool _alsoBlock = true;
+  late bool _alsoBlock = widget.allowBlock;
   bool _sending = false;
 
   @override
@@ -134,7 +136,7 @@ class _ReportSheetState extends State<_ReportSheet> {
                     style: const TextStyle(color: Night.ink, fontSize: 15),
                     decoration: _inputDecoration('發生了什麼事？'),
                   ),
-                  _blockToggle(),
+                  if (widget.allowBlock) _blockToggle(),
                   const SizedBox(height: Night.space4),
                   Row(children: [
                     Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: _sending ? null : () => Navigator.of(context).pop())),

@@ -26,6 +26,8 @@ import 'dart:io' show Platform;
 import 'firebase_options.dart';
 import 'legal.dart';
 import 'mood_card.dart';
+import 'mood_trail.dart';
+import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'ui/knock_ritual.dart';
@@ -155,6 +157,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   // ---------- 城市心情天氣 ----------
   Map<String, dynamic>? _cityMood;
   Timer? _cityMoodTimer;
+
+  // ---------- 低語（城市漂流瓶） ----------
+  List<Whisper> _whispers = [];
+  final Set<String> _seenWhisperIds = {};
+  bool _whispersLoaded = false;
+  int _radarTick = 0;
   StreamSubscription<Position>? _positionStream;
   StreamSubscription<CompassEvent>? _compassStream;
   StreamSubscription<AccelerometerEvent>? _accelerometerStream;
@@ -548,6 +556,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Future<void> _updateMyLocationToServer(Position position) async {
     // 伺服器把這個呼叫視為「活躍」心跳，背景時（例如 Android 背景定位回呼）不可送出
     if (!_isInForeground) return;
+    MoodTrail.record(_myMood, position.latitude, position.longitude); // 只存在手機上
     try {
       await http.post(
         Uri.parse(_updateLocationUrl),
@@ -565,10 +574,77 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   void _startRadarSweep() {
     _fetchNearbyUsers(); 
     _radarTimer?.cancel();
-    _radarTimer = Timer.periodic(const Duration(seconds: 10), (_) => _fetchNearbyUsers());
+    _radarTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _fetchNearbyUsers();
+      if (++_radarTick % 3 == 0) _fetchWhispers(); // 低語每 30 秒更新一次
+    });
+    _fetchWhispers();
     _fetchCityMood();
     _cityMoodTimer?.cancel();
     _cityMoodTimer = Timer.periodic(const Duration(minutes: 5), (_) => _fetchCityMood());
+  }
+
+  Future<void> _fetchWhispers() async {
+    if (_currentPosition == null || !_isInForeground) return;
+    final list = await WhisperApi.list(_currentPosition!.latitude, _currentPosition!.longitude);
+    if (!mounted) return;
+    final fresh = list.where((w) => !w.mine && !_seenWhisperIds.contains(w.id)).toList();
+    _seenWhisperIds.addAll(list.map((w) => w.id));
+    setState(() => _whispers = list);
+    if (fresh.isEmpty) return;
+    HapticFeedback.lightImpact();
+    showGlassToast(context,
+        !_whispersLoaded && fresh.length > 1 ? '你附近有 ${fresh.length} 則低語，點信封讀讀看。' : '你經過了一則低語，點信封讀讀看。',
+        icon: Icons.mail_outline);
+    _whispersLoaded = true;
+  }
+
+  Future<void> _composeWhisper() async {
+    if (_currentPosition == null) return;
+    final posted = await showWhisperComposer(context, lat: _currentPosition!.latitude, lng: _currentPosition!.longitude, mood: _myMood);
+    if (!posted || !mounted) return;
+    showGlassToast(context, '你的低語留在這裡了，7 天後消散。', icon: Icons.mail_outline);
+    _fetchWhispers();
+  }
+
+  Future<void> _openWhisper(Whisper w) async {
+    final color = (_cityMoodStyle[w.mood] ?? _cityMoodStyle['other']!).$2;
+    final deleted = await showWhisperReader(context, w, color: color, myUid: widget.uid);
+    if (!mounted) return;
+    if (deleted) {
+      setState(() => _whispers.removeWhere((x) => x.id == w.id));
+      showGlassToast(context, '低語已經收回。', icon: Icons.mail_outline);
+    } else {
+      _fetchWhispers(); // 更新「已被 N 個人收下」
+    }
+  }
+
+  /// 雷達上的低語信封：與氣泡用同一套 3D 投影
+  Widget _buildWhisperMarker(Whisper w) {
+    final color = (_cityMoodStyle[w.mood] ?? _cityMoodStyle['other']!).$2;
+    return Semantics(
+      button: true,
+      label: w.mine ? '你留下的低語' : '一則低語，點一下閱讀',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _openWhisper(w),
+        child: SizedBox(
+          width: 44, height: 44,
+          child: Center(
+            child: Container(
+              width: 30, height: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Night.night700,
+                border: Border.all(color: color, width: 1.5),
+                boxShadow: [BoxShadow(color: color.withOpacity(0.55), blurRadius: 14, spreadRadius: 1)],
+              ),
+              child: Icon(w.mine ? Icons.edit_note : Icons.mail_outline, color: color, size: 16),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _fetchCityMood() async {
@@ -879,7 +955,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           child: const Text('你是今晚第一道光', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: 2)),
         ),
         const SizedBox(height: Night.space2),
-        const Text('附近還沒有人。你的心情已經在城市裡發光，\n有人經過時，就會看見你。', style: Night.body, textAlign: TextAlign.center),
+        const Text('附近還沒有人。你的心情已經在城市裡發光，\n有人經過時，就會看見你。也可以留一則低語，給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
         if (_cityMood != null && _cityMood!['quiet'] != true && (_cityMood!['moods'] as List?)?.isNotEmpty == true) ...[
           const SizedBox(height: Night.space2),
           Text('今晚城市裡有 ${_cityMood!['total']} 個人，多半感到「${(_cityMoodStyle[(_cityMood!['moods'] as List).first['key']] ?? _cityMoodStyle['other']!).$1}」',
@@ -941,6 +1017,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               ]),
             ),
           ),
+        ),
+        IconButton(
+          tooltip: '留下一則低語',
+          onPressed: _composeWhisper,
+          icon: const Icon(Icons.edit_note, color: Night.inkMuted),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
         ),
         IconButton(
           tooltip: '分享我的心情卡',
@@ -1022,6 +1104,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   section('我'),
                   item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
+                  item(Icons.timeline, '我的心情軌跡', subtitle: '只存在你的手機上', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
                   section('分享'),
                   item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
@@ -1697,6 +1780,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
 
+                      // 低語信封（畫在氣泡底下）
+                      ..._whispers.map((w) {
+                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
+                        final d = (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
+                        final a = v.relativeAngle * pi / 180.0;
+                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
+                        final ww = max(0.01, 1.0 + (rz * 0.002));
+                        return Positioned(left: centerX + rx / ww - 22, top: centerY + ry / ww - 22, child: _buildWhisperMarker(w));
+                      }),
                       // 敲門中：從自己到對方的流動虛線弧（畫在氣泡底下）
                       if (_ritualTarget != null && _bubbleAnchors[_ritualTarget] != null)
                         Positioned.fill(

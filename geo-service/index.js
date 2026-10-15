@@ -9,6 +9,8 @@ const {
 const { evaluateReports } = require("./moderation");
 const { fuzzLocation } = require("./fuzz");
 const citymood = require("./citymood");
+const whisper = require("./whisper");
+const { maskBlockedTerms } = require("./contentfilter");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -102,8 +104,9 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
 
     const { lat, lng } = req.body;
     if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
-    const mood = truncateVisible(req.body.mood, MAX_MOOD_LENGTH);
-    const nickname = truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH);
+    // 不當字詞替換成「＊」（App Store 1.2 的內容過濾）
+    const mood = maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
+    const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
     const timestamp = Date.now();
     try {
       // 🔒 先算出對外公開的模糊位置（100m 網格，含遲滯）；精確座標只進地理索引，不會回傳給任何人
@@ -304,6 +307,19 @@ exports.onReportCreated = functionsV1.database.ref('/reports/{reportId}')
     const report = snapshot.val();
     if (!report || !report.target) return null;
     const target = report.target;
+    // 低語的檢舉：target = "whisper:<id>"，3 個不同的人檢舉就隱藏這則低語
+    if (report.context === 'whisper' && String(target).startsWith('whisper:')) {
+        try {
+            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+            console.log(`[檢舉] 低語 ${target} 被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+            if (hide) {
+                await sendUpstashCommand(["HSET", `whisper:${target.slice(8)}`, "hidden", "1"]);
+                console.warn(`[檢舉] 低語 ${target} 已自動隱藏，請到 Firebase 主控台審查`);
+            }
+        } catch (e) { console.error(`[檢舉] 低語處理失敗 (${target}):`, e); }
+        return null;
+    }
     try {
         const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
         const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
@@ -347,6 +363,10 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
     const db = admin.database();
     try {
       await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`]]);
+      const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
+      if (myWhispers.length > 0) {
+          await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);
+      }
 
       const updates = {};
       for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests"]) {
@@ -442,6 +462,112 @@ exports.getCityMood = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SE
     } catch (error) {
       console.error('getCityMood failed:', error);
       res.status(500).json({ success: false, error: "讀取失敗" });
+    }
+  });
+});
+
+// ============================================================================
+// API 10: 低語（城市漂流瓶）—— action: post / list / collect / delete
+//   作者永遠不回傳給其他人；位置對齊到 100 公尺網格；7 天後自動消失
+// ============================================================================
+const WHISPER_TTL = String(whisper.TTL_SECONDS);
+
+async function blockedUidsFor(uid) {
+    const [mine, byOthers] = await Promise.all([
+        admin.database().ref(`blocks/${uid}`).once('value'),
+        admin.database().ref(`blockedBy/${uid}`).once('value'),
+    ]);
+    return new Set([...Object.keys(mine.val() || {}), ...Object.keys(byOthers.val() || {})]);
+}
+
+exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    const { action, lat, lng, id } = req.body || {};
+    const now = Date.now();
+    try {
+      if (action === "post") {
+        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+        const checked = whisper.validateText(req.body.text);
+        if (checked.error) return res.status(400).json({ success: false, error: checked.error });
+        const moderation = (await admin.database().ref(`moderation/${uid}/hidden`).once('value')).val();
+        if (moderation === true) return res.status(403).json({ success: false, error: "你的帳號正在審查中，暫時無法留下低語。" });
+
+        // 每人同時最多 3 則（先清掉已過期的）
+        const mine = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
+        const alive = mine.length ? await sendUpstashPipeline(mine.map((w) => ["EXISTS", `whisper:${w}`])) : [];
+        const expired = mine.filter((_, i) => !alive[i]);
+        if (expired.length) await sendUpstashPipeline([["SREM", `whispers_by:${uid}`, ...expired], ["ZREM", "whispers", ...expired]]);
+        if (mine.length - expired.length >= whisper.MAX_ACTIVE_PER_USER) {
+            return res.status(429).json({ success: false, error: `你已經在城市裡留下 ${whisper.MAX_ACTIVE_PER_USER} 則低語了，等其中一則消散再留吧。` });
+        }
+        // 每 10 分鐘最多 1 則
+        const ok = await sendUpstashCommand(["SET", `whisper_rl:${uid}`, "1", "EX", String(whisper.POST_COOLDOWN_SECONDS), "NX"]);
+        if (ok !== "OK") return res.status(429).json({ success: false, error: "剛剛才留過低語，過幾分鐘再來吧。" });
+
+        const wid = `${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+        const pos = whisper.snapToCell(lat, lng);
+        const moodKey = citymood.classifyMood(req.body.mood);
+        await sendUpstashPipeline([
+            ["GEOADD", "whispers", pos.lng.toString(), pos.lat.toString(), wid],
+            ["HSET", `whisper:${wid}`, "text", checked.text, "author", uid, "createdAt", String(now), "mood", moodKey, "reads", "0", "hidden", "0"],
+            ["EXPIRE", `whisper:${wid}`, WHISPER_TTL],
+            ["SADD", `whispers_by:${uid}`, wid],
+            ["EXPIRE", `whispers_by:${uid}`, WHISPER_TTL],
+        ]);
+        return res.status(200).json({ success: true, data: { id: wid } });
+      }
+
+      if (action === "list") {
+        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+        const found = await sendUpstashCommand([
+            "GEOSEARCH", "whispers", "FROMLONLAT", lng.toString(), lat.toString(),
+            "BYRADIUS", String(whisper.DISCOVER_RADIUS_KM), "km", "ASC", "COUNT", String(whisper.MAX_RESULTS), "WITHCOORD",
+        ]);
+        const items = (Array.isArray(found) ? found : []).filter((f) => Array.isArray(f) && f[0]);
+        const rows = await sendUpstashPipeline(items.map(([wid]) => ["HMGET", `whisper:${wid}`, "text", "author", "createdAt", "mood", "reads", "hidden"]));
+        const blocked = await blockedUidsFor(uid);
+        const gone = [];
+        const data = [];
+        items.forEach(([wid, coord], i) => {
+            const [text, author, createdAt, mood, reads, hidden] = rows[i] || [];
+            if (!text) { gone.push(wid); return; }             // 已過期
+            if (hidden === "1" || blocked.has(author)) return;  // 被檢舉隱藏，或與作者互相封鎖
+            data.push({
+                id: wid, text, mood: mood || "other",
+                createdAt: parseInt(createdAt, 10), reads: parseInt(reads || "0", 10),
+                lat: parseFloat(coord[1]), lng: parseFloat(coord[0]),
+                mine: author === uid,                            // 作者本人才知道是自己的；從不回傳作者 uid
+            });
+        });
+        if (gone.length) await sendUpstashCommand(["ZREM", "whispers", ...gone]);
+        return res.status(200).json({ success: true, data });
+      }
+
+      if (action === "collect") {
+        const author = await sendUpstashCommand(["HGET", `whisper:${id}`, "author"]);
+        if (!author) return res.status(404).json({ success: false, error: "這則低語已經消散了。" });
+        if (author === uid) return res.status(200).json({ success: true });
+        const added = await sendUpstashCommand(["SADD", `whisper_readers:${id}`, uid]);
+        if (added === 1) {
+            await sendUpstashPipeline([["HINCRBY", `whisper:${id}`, "reads", "1"], ["EXPIRE", `whisper_readers:${id}`, WHISPER_TTL]]);
+        }
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "delete") {
+        const author = await sendUpstashCommand(["HGET", `whisper:${id}`, "author"]);
+        if (author !== uid) return res.status(403).json({ success: false, error: "只能收回自己的低語。" });
+        await sendUpstashPipeline([["ZREM", "whispers", id], ["DEL", `whisper:${id}`, `whisper_readers:${id}`], ["SREM", `whispers_by:${uid}`, id]]);
+        return res.status(200).json({ success: true });
+      }
+
+      return res.status(400).json({ success: false, error: "未知的操作" });
+    } catch (error) {
+      console.error(`whisper ${action} failed:`, error);
+      res.status(500).json({ success: false, error: "低語暫時無法使用，請稍後再試。" });
     }
   });
 });

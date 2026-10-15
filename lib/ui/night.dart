@@ -236,3 +236,14 @@ class _GlassToastState extends State<_GlassToast> with SingleTickerProviderState
     );
   }
 }
+
+/// 心情文字 → (分類名稱, 顏色)。與氣泡顏色、城市心情天氣（geo-service/citymood.js）使用同一套關鍵字，先符合者優先。
+(String, Color) moodStyleOf(String mood) {
+  if (mood.contains('😊') || mood.contains('開心') || mood.contains('笑')) return ('開心', Night.moodJoy);
+  if (mood.contains('😢') || mood.contains('難過') || mood.contains('哭')) return ('難過', Night.moodSad);
+  if (mood.contains('😡') || mood.contains('生氣') || mood.contains('怒')) return ('生氣', Night.moodAngry);
+  if (mood.contains('🌿') || mood.contains('平靜') || mood.contains('發呆')) return ('平靜', Night.moodCalm);
+  if (mood.contains('🔥') || mood.contains('熱情')) return ('熱情', Night.moodPassion);
+  if (mood.contains('💖') || mood.contains('愛') || mood.contains('心')) return ('愛', Night.moodLove);
+  return ('其他', Night.moodDefault);
+}

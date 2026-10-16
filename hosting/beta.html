@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>加入公測｜城市低語</title>
+<meta name="description" content="成為第一批點亮台北的人。報名城市低語公測，在固定的「點亮之夜」和大家一起上線。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語公測招募｜成為第一批點亮台北的人">
+<meta property="og:description" content="匿名寫下此刻的心情，看見附近的人，敲門聊 10 分鐘，說完就消散。現在報名公測。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/beta_og.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/beta.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+  /* 城市低語 夜光設計系統 */
+  :root {
+    color-scheme: dark;
+    --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+    --glass-fill: rgba(26, 31, 74, 0.72); --glass-line: rgba(196, 170, 255, 0.38);
+    --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+    --aurora-violet: #b44cff; --aurora-blue: #4fc3f7; --deep-violet: #8e2de2; --deep-blue: #2a63d4;
+    --knock-pink: #ff5fd2; --danger: #ff6b8a; --mood-calm: #4ade9a;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--night-900); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { background: radial-gradient(120% 60% at 20% -10%, rgba(142,45,226,.28), transparent 60%), var(--night-900); min-height: 100vh; }
+  a { color: var(--aurora-blue); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 20px 56px; }
+  .back { display: inline-block; color: var(--ink-faint); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px;
+    background: var(--glass-fill); border: 1px solid var(--glass-line); font-size: 13px; letter-spacing: 1px; color: var(--ink); }
+  .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: var(--knock-pink); box-shadow: 0 0 10px var(--knock-pink); }
+  h1 { margin: 18px 0 0; font-size: clamp(34px, 6.5vw, 54px); line-height: 1.2; letter-spacing: 3px; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rule { width: 128px; height: 2px; margin: 20px 0; border-radius: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); }
+  .lead { margin: 0 0 24px; font-size: 17px; line-height: 1.85; color: var(--ink-muted); max-width: 32em; }
+
+  .perks { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .perks li { display: flex; gap: 14px; padding: 14px 16px; border-radius: 18px; background: var(--glass-fill); border: 1px solid var(--glass-line); }
+  .perks b { display: block; font-weight: 500; margin-bottom: 2px; }
+  .perks span { color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
+  .perks .dot { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 16px;
+    background: var(--night-700); border: 1px solid var(--glass-line); }
+
+  form { padding: 24px; border-radius: 24px; background: var(--glass-fill); border: 1px solid var(--glass-line);
+    box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 50px rgba(180,76,255,.18); }
+  form h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: 1px; }
+  form > p { margin: 0 0 20px; color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
+  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .label { font-size: 13px; letter-spacing: 1px; color: var(--ink-faint); }
+  input[type=email], select { width: 100%; min-height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--glass-line);
+    background: var(--night-700); color: var(--ink); font: 400 16px var(--sans); }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%), linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+    background-position: calc(100% - 22px) 22px, calc(100% - 16px) 22px; background-size: 6px 6px; background-repeat: no-repeat; }
+  input:focus-visible, select:focus-visible, button:focus-visible, .choice input:focus-visible + span { outline: 2px solid var(--aurora-violet); outline-offset: 2px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .choice span { display: grid; place-items: center; min-height: 50px; border-radius: 14px; border: 1px solid var(--glass-line); background: var(--night-700);
+    font-size: 15px; cursor: pointer; transition: border-color .15s, background .15s; }
+  .choice input:checked + span { border-color: var(--aurora-violet); background: linear-gradient(90deg, rgba(142,45,226,.35), rgba(42,99,212,.35)); }
+  .agree { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.7; color: var(--ink-muted); margin: 4px 0 20px; cursor: pointer; }
+  .agree input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--deep-violet); flex: none; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button { width: 100%; min-height: 54px; border: 0; border-radius: 999px; cursor: pointer; font: 600 16px var(--sans); letter-spacing: 2px; color: #fff;
+    background: linear-gradient(90deg, var(--deep-violet), var(--deep-blue)); box-shadow: 0 0 24px rgba(180,76,255,.45); }
+  button[disabled] { opacity: .6; cursor: progress; }
+  .msg { min-height: 22px; margin: 12px 0 0; font-size: 14px; text-align: center; }
+  .msg.err { color: var(--danger); }
+  .done { display: none; text-align: center; padding: 12px 4px; }
+  .done.show { display: block; }
+  .done .big { font-size: 46px; line-height: 1; margin-bottom: 8px; }
+  .done h2 { margin: 0 0 8px; }
+  .done p { color: var(--ink-muted); line-height: 1.8; margin: 0 0 8px; }
+  .faq { margin-top: 40px; }
+  .faq h2 { font-size: 22px; margin: 0 0 12px; letter-spacing: 1px; }
+  details { border-bottom: 1px solid var(--night-600); padding: 14px 0; }
+  summary { cursor: pointer; font-size: 16px; }
+  details p { color: var(--ink-muted); line-height: 1.8; margin: 10px 0 0; font-size: 15px; }
+  footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
+  footer a { color: var(--ink-muted); text-decoration: none; margin-right: 18px; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 1.05fr .95fr; gap: 48px; } form { position: sticky; top: 24px; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="back" href="./">← 城市低語</a>
+  <div class="grid">
+    <div>
+      <span class="eyebrow"><i></i>公測招募中・台北優先</span>
+      <h1>成為第一批<br><em>點亮台北</em>的人</h1>
+      <div class="rule"></div>
+      <p class="lead">城市低語是一座夜裡的城市。匿名寫下此刻的心情，它會化成一顆發光的氣泡浮在你的街區；看見附近的心情，敲門聊 10 分鐘，說完就消散。我們正在找第一批一起點亮城市的人。</p>
+      <ul class="perks">
+        <li><span class="dot">🌙</span><div><b>點亮之夜</b><span>每週固定一晚大家一起上線。同一時間、同一座城市，雷達上才會亮起一片光。</span></div></li>
+        <li><span class="dot">✨</span><div><b>你的意見會被做出來</b><span>在 LINE 社群直接跟開發者說，好點子會進到下一版。</span></div></li>
+        <li><span class="dot">🔒</span><div><b>不用手機號碼、不用真名</b><span>只用一句心情進入城市；檢舉、封鎖、刪除帳號都在 App 裡。</span></div></li>
+        <li><span class="dot">📱</span><div><b>iPhone 與 Android 都能參加</b><span>iPhone 用 TestFlight，Android 用 Google Play 測試版，我們會把安裝連結寄給你。</span></div></li>
+      </ul>
+    </div>
+
+    <form id="form" novalidate>
+      <div id="fields">
+        <h2>報名公測</h2>
+        <p>填完就好，不到 30 秒。我們只會用這個 Email 寄公測邀請與點亮之夜通知。</p>
+        <label class="field"><span class="label">Email</span>
+          <input type="email" name="email" autocomplete="email" inputmode="email" required placeholder="you@example.com"></label>
+        <div class="field" role="radiogroup" aria-label="你的手機">
+          <span class="label">你的手機</span>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="platform" value="ios" required><span>iPhone</span></label>
+            <label class="choice"><input type="radio" name="platform" value="android"><span>Android</span></label>
+          </div>
+        </div>
+        <label class="field"><span class="label">你常出沒的地區</span>
+          <select name="area" required>
+            <option value="" selected disabled>請選擇</option>
+            <option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>新竹</option>
+            <option>苗栗</option><option>台中市</option><option>彰化</option><option>南投</option><option>雲林</option>
+            <option>嘉義</option><option>台南市</option><option>高雄市</option><option>屏東</option><option>宜蘭</option>
+            <option>花蓮</option><option>台東</option><option>離島</option><option>海外</option>
+          </select></label>
+        <label class="field"><span class="label">從哪裡知道我們（選填）</span>
+          <select name="source">
+            <option value="other" selected>請選擇</option>
+            <option value="threads">Threads</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option>
+            <option value="dcard">Dcard</option><option value="line">LINE</option><option value="friend">朋友介紹</option><option value="other">其他</option>
+          </select></label>
+        <label class="hp" aria-hidden="true">請勿填寫<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <label class="agree"><input type="checkbox" name="agree" required>
+          <span>我已年滿 18 歲，並同意城市低語用這個 Email 寄送公測邀請與通知（可隨時來信取消）。詳見<a href="privacy.html#beta">隱私權政策</a>。</span></label>
+        <button type="submit" id="submit">送出報名</button>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      </div>
+      <div class="done" id="done" role="status" aria-live="polite">
+        <div class="big">✨</div>
+        <h2>你已經在名單上了</h2>
+        <p>公測版準備好時，我們會把安裝連結寄到你的信箱。</p>
+        <p>想先認識其他測試者？加入我們的 LINE 社群，第一時間收到點亮之夜的通知。</p>
+      </div>
+    </form>
+  </div>
+
+  <section class="faq" aria-labelledby="faq">
+    <h2 id="faq">常見問題</h2>
+    <details><summary>公測要做什麼？</summary><p>照平常的樣子用就好：寫下心情、看看附近的人、敲門聊聊天。遇到問題或有想法，在 App 設定裡回報，或在 LINE 社群告訴我們。</p></details>
+    <details><summary>什麼是「點亮之夜」？</summary><p>城市低語只看得到附近 5 公里內的人，所以大家同一時間上線最好玩。我們會固定在每週的某一晚（例如週五 21:00–23:00）邀請大家一起上線，時間會在 LINE 社群和 Email 公布。</p></details>
+    <details><summary>會不會被看到我的真實身分或精確位置？</summary><p>不需要手機號碼、Email 或真名就能使用；雷達上只顯示分級的距離（例如「500 公尺內」），不會顯示地址。聊天 10 分鐘沒有新訊息就會消散，結束後從伺服器刪除。</p></details>
+    <details><summary>報名的 Email 會拿去做什麼？</summary><p>只用來寄公測邀請、安裝連結與點亮之夜通知，不會分享給任何人，也和你在 App 裡的匿名身分無關。想取消，寫信到 service.softchip@gmail.com 即可。</p></details>
+    <details><summary>不在台北可以參加嗎？</summary><p>可以！只是附近的人可能比較少。我們會先集中在台北，再一個城市一個城市點亮，你的報名能讓我們知道下一站去哪裡。</p></details>
+  </section>
+
+  <footer>
+    <a href="terms.html">使用條款</a><a href="privacy.html">隱私權政策</a><a href="mailto:service.softchip@gmail.com">聯絡我們</a><br>
+    © 2026 Softchip · 城市低語
+  </footer>
+</main>
+<script>
+  (function () {
+    var ENDPOINT = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/betaSignup';
+    var params = new URLSearchParams(location.search);
+    var form = document.getElementById('form');
+    var msg = document.getElementById('msg');
+    var btn = document.getElementById('submit');
+    // 從社群貼文帶來的 ?src=threads 會自動選好來源
+    var src = params.get('src');
+    if (src && form.source.querySelector('option[value="' + src + '"]')) form.source.value = src;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      msg.textContent = ''; msg.className = 'msg';
+      var platform = form.querySelector('input[name=platform]:checked');
+      var body = {
+        email: form.email.value, platform: platform ? platform.value : '', area: form.area.value,
+        source: form.source.value, agree: form.agree.checked, website: form.website.value,
+        ref: params.get('ref') || params.get('src') || ''
+      };
+      btn.disabled = true; btn.textContent = '送出中…';
+      fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+        .then(function (data) {
+          if (data.success) {
+            document.getElementById('fields').style.display = 'none';
+            document.getElementById('done').classList.add('show');
+          } else {
+            msg.textContent = data.error || '報名沒有送出，請稍後再試。'; msg.className = 'msg err';
+          }
+        })
+        .catch(function () { msg.textContent = '網路好像斷了，請檢查後再試一次。'; msg.className = 'msg err'; })
+        .finally(function () { btn.disabled = false; btn.textContent = '送出報名'; });
+    });
+  })();
+</script>
+</body>
+</html>

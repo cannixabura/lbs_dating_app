@@ -12,6 +12,7 @@ const citymood = require("./citymood");
 const whisper = require("./whisper");
 const { maskBlockedTerms } = require("./contentfilter");
 const demo = require("./demo");
+const betasignup = require("./betasignup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -541,6 +542,29 @@ exports.notifyOnResonance = functionsV1.database.ref('/resonance/{targetUid}/{se
 // ============================================================================
 const CITY_MOOD_CACHE_SECONDS = 300;
 const CITY_MOOD_MAX_PEOPLE = 3000;
+
+// ============================================================================
+// API: 公測報名（落地頁 beta.html）。不需登入；以隱藏欄位與 IP 頻率限制擋機器人
+// ============================================================================
+exports.betaSignup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const checked = betasignup.validateSignup(req.body, Date.now());
+    if (checked.error === "bot") return res.status(200).json({ success: true }); // 不讓機器人知道被擋
+    if (checked.error) return res.status(400).json({ success: false, error: checked.error });
+    try {
+      const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim() || "unknown";
+      const n = await sendUpstashCommand(["INCR", `beta_rl:${ip}`]);
+      if (n === 1) await sendUpstashCommand(["EXPIRE", `beta_rl:${ip}`, "600"]);
+      if (n > 5) return res.status(429).json({ success: false, error: "報名太頻繁了，請稍後再試。" });
+      await admin.database().ref(`betaSignups/${checked.key}`).set(checked.record);
+      res.status(200).json({ success: true });
+    } catch (e) {
+      console.error("betaSignup failed:", e);
+      res.status(500).json({ success: false, error: "報名沒有送出，請稍後再試。" });
+    }
+  });
+});
 
 exports.getCityMood = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {

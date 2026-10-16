@@ -58,3 +58,6 @@ app.*.map.json
 
 # Firebase CLI hosting cache
 .firebase/
+
+# 公測報名匯出（含個人資料）
+beta_signups/

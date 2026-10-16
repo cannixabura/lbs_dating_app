@@ -68,7 +68,7 @@
 ### D2. 商店資訊
 - [ ] 應用程式名稱、簡短說明（80 字內）、完整說明
 - [ ] 圖示 512×512（用 `assets/images/app_icon.png` 縮成 512）
-- [ ] 主題圖片 1024×500（**還沒做**，需要的話跟我說）
+- [ ] 主題圖片 1024×500：上傳 `store_screenshots/android/feature_graphic.png`（用 `tool/make_feature_graphic.py` 產生）
 - [ ] 手機截圖：上傳 `store_screenshots/android/1.png`～`5.png`
 
 ### D3. 發布

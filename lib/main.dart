@@ -48,7 +48,7 @@ Color _getMoodColor(String mood) {
   return Night.moodDefault;
 }
 
-// 夜光地圖樣式：由 tool/build_night_map_style.py 從 CARTO dark-matter 重新上色，內建在 App 裡
+// 夜光地圖樣式：由 tool/build_night_map_style.py 從 dark-matter 重新上色、圖資用 OpenFreeMap，內建在 App 裡
 const String _nightStyleAsset = 'assets/map/night_style.json';
 const String _updateLocationUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/updateLocation';
 const String _getNearbyUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/getNearby';
@@ -464,7 +464,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (_mapController == null) return;
     try {
       await _mapController!.addFillExtrusionLayer(
-        'carto', 
+        'openmaptiles',
         '3d-buildings', 
         const FillExtrusionLayerProperties(
           // 夜色建築：以藍灰深藍為主，越高越亮，只有最高的建築帶一點淡紫
@@ -1868,8 +1868,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         );
                       }),
-                      // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、CARTO）
-                      Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenStreetMap © CARTO', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
+                      Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
                       // 被婉拒、逾時或對方略過：光在對方的位置化成粒子散去
                       if (_dissolveAt != null)
                         Positioned.fill(

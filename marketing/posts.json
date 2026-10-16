@@ -1,0 +1,131 @@
+{
+  "_note": "第 1 週貼文圖的設定。文案在 marketing/week1.md。改完執行：python3 tool/make_social_posts.py marketing/posts.json marketing/images",
+  "posts": [
+    {
+      "id": "d1a",
+      "template": "bubble",
+      "color": "calm",
+      "kicker": "如果今晚，你在台北寫下",
+      "mood": "今晚的風好舒服",
+      "headline": "城市就會為你亮起一道光"
+    },
+    {
+      "id": "d1b",
+      "template": "scene",
+      "art": "assets/images/intro_1.png",
+      "headline": "今晚，你的心情在城市裡發光",
+      "sub": "城市低語公測招募中\n成為第一批點亮台北的人"
+    },
+    {
+      "id": "d2a",
+      "template": "phone",
+      "shot": "store_screenshots/raw/1.png",
+      "headline": "看見附近的心情",
+      "sub": "5 公里內，每一顆發光的氣泡，都是此刻的某個人"
+    },
+    {
+      "id": "d2b",
+      "template": "question",
+      "question": "你今晚的心情\n是什麼顏色？",
+      "sub": "在城市低語裡，每種心情都有自己的光",
+      "comment_cta": true
+    },
+    {
+      "id": "d3a",
+      "template": "steps",
+      "headline": "三步驟，走進城市低語",
+      "steps": [
+        [
+          "寫下心情",
+          "一句話就好。不用手機號碼、不用真名。"
+        ],
+        [
+          "看見附近",
+          "附近的心情化成會呼吸的氣泡，浮在街區上。"
+        ],
+        [
+          "敲門相遇",
+          "聊 10 分鐘，說完就消散，不留痕跡。"
+        ]
+      ]
+    },
+    {
+      "id": "d3b",
+      "template": "bubble",
+      "color": "love",
+      "kicker": "如果今晚，你在信義區寫下",
+      "mood": "想找人一起喝杯熱可可",
+      "headline": "也許轉角，就有人懂你"
+    },
+    {
+      "id": "d4a",
+      "template": "phone",
+      "shot": "store_screenshots/raw/2.png",
+      "headline": "敲門，等一個片刻交集",
+      "sub": "對方有 5 分鐘決定要不要開門。不回應，也是一種溫柔。"
+    },
+    {
+      "id": "d4b",
+      "template": "scene",
+      "art": "assets/images/intro_2.png",
+      "headline": "不用真名，也能被看見",
+      "sub": "匿名・附近・說完就消散"
+    },
+    {
+      "id": "d5a",
+      "template": "phone",
+      "shot": "store_screenshots/raw/3.png",
+      "headline": "十分鐘，說完就消散",
+      "sub": "有人說話，倒數就重新開始；安靜下來，交集就輕輕結束。"
+    },
+    {
+      "id": "d5b",
+      "template": "poster",
+      "headline": "點亮之夜\n一起亮起來",
+      "when": "每週五 21:00 – 23:00",
+      "sub": "同一時間、同一座城市，雷達上才會亮起一片光。\n報名公測，一起點亮台北。"
+    },
+    {
+      "id": "d6a",
+      "template": "phone",
+      "shot": "store_screenshots/raw/4.png",
+      "headline": "留一句話給陌生人",
+      "sub": "低語會留在那一帶 7 天，只有經過的人收得到。",
+      "focus": "bottom"
+    },
+    {
+      "id": "d6b",
+      "template": "bubble",
+      "color": "sad",
+      "kicker": "如果今晚，你在公館寫下",
+      "mood": "雨好大，有點想家",
+      "headline": "難過的時候，城市也聽得見"
+    },
+    {
+      "id": "d7a",
+      "template": "steps",
+      "headline": "安心，是最重要的事",
+      "steps": [
+        [
+          "不用手機號碼",
+          "只用一句心情進入城市，沒有真名、沒有個人檔案。"
+        ],
+        [
+          "檢舉與封鎖",
+          "氣泡、敲門、聊天都能一鍵檢舉；封鎖後彼此消失。"
+        ],
+        [
+          "不留痕跡",
+          "對話結束就從伺服器刪除，帳號隨時能永久刪除。"
+        ]
+      ]
+    },
+    {
+      "id": "d7b",
+      "template": "scene",
+      "art": "assets/images/intro_4.png",
+      "headline": "準備好相遇了嗎？",
+      "sub": "城市低語公測報名中\niPhone 與 Android 都能參加"
+    }
+  ]
+}

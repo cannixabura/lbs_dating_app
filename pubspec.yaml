@@ -84,11 +84,11 @@ flutter_launcher_icons:
 
 # 🌟 3. 原生啟動畫面 (Splash Screen) 的設定
 flutter_native_splash:
-  color: "#121212" # 堅持純粹的極簡黑底
-  image: "assets/images/splash_logo.png"
+  color: "#070B1F" # 設計系統的 night-900，與開場介紹畫面同色，啟動時不會閃一下
+  image: "assets/images/splash_logo.png" # 圓形圖示＋光暈＋「城市低語」字標
   android_12:
-    color: "#121212"
-    image: "assets/images/splash_logo.png"
+    color: "#070B1F"
+    image: "assets/images/splash_android12.png" # Android 12 起系統會自動裁成圓形，所以不放文字
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -8,7 +8,8 @@ import 'package:vibration/vibration.dart';
 import 'chat_screen.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle, HapticFeedback, MethodChannel;
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/services.dart' show rootBundle, HapticFeedback, MethodChannel, SystemNavigator;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -36,6 +37,9 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'dart:ui' as ui; 
 
 enum RequestStatus { none, pending, accepted }
+
+/// 定位無法使用的原因：服務關閉、未授權、永久拒絕、只給大概位置、抓不到位置
+enum _LocationIssue { none, serviceOff, denied, deniedForever, reduced, noFix }
 
 Color _getMoodColor(String mood) {
   if (mood.isEmpty) return Night.moodDefault;
@@ -81,13 +85,15 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('has_seen_intro');
   final bool hasSeenIntro = prefs.getBool('has_seen_intro') ?? false;
+  final bool ageBlocked = prefs.getBool(AgeGate.blockedKey) ?? false;
 
-  runApp(MoodWhisperApp(hasSeenIntro: hasSeenIntro));
+  runApp(MoodWhisperApp(hasSeenIntro: hasSeenIntro, ageBlocked: ageBlocked));
 }
 
 class MoodWhisperApp extends StatelessWidget {
   final bool hasSeenIntro; 
-  const MoodWhisperApp({super.key, required this.hasSeenIntro});
+  final bool ageBlocked; // 曾回答未滿 18 歲：之後每次開啟都只顯示說明頁
+  const MoodWhisperApp({super.key, required this.hasSeenIntro, this.ageBlocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +105,7 @@ class MoodWhisperApp extends StatelessWidget {
         scaffoldBackgroundColor: Night.night900,
         useMaterial3: true,
       ),
-      home: hasSeenIntro ? const LoginScreen() : const IntroScreen(),
+      home: ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
     );
   }
 }
@@ -134,6 +140,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   bool _introFlying = true;
   late final AnimationController _introFade = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
   bool _hasScanned = false; // 至少完成過一次雷達掃描（決定是否顯示「你是今晚第一道光」）
+  bool _emptyCardDismissed = false; // 使用者關掉了「你是今晚第一道光」卡片（本次開啟期間不再出現）
+  _LocationIssue _locationIssue = _LocationIssue.none; // 定位無法使用時顯示說明頁，不能進入雷達
+  bool _checkingLocation = false;
 
   // ---------- 敲門儀式：虛線弧、倒數條、粒子消散 ----------
   static const int _knockSeconds = 300;
@@ -486,48 +495,83 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   Future<void> _initSensors() async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (mounted) showGlassToast(context, '請至手機設定開啟 GPS 定位服務，才能感知城市。', icon: Icons.location_off_outlined, danger: true);
-        return; 
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) showGlassToast(context, '需要定位權限才能與附近的人產生交集。', icon: Icons.location_off_outlined, danger: true);
-          return;
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        if (mounted) showGlassToast(context, '定位權限已被永久拒絕，請至系統設定中手動開啟。', icon: Icons.location_off_outlined, danger: true);
-        return;
-      }
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        try {
-          Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10));
-          if (mounted) { setState(() => _currentPosition = position); _updateMyLocationToServer(position); }
-        } catch (e) {
-          debugPrint('initial position timed out, waiting for position stream: $e');
-        }
-        
-        _positionStream?.cancel();
-        _positionStream = Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 2)).listen(
-          (Position newPosition) {
-            if (mounted) {
-              setState(() => _currentPosition = newPosition);
-              _updateMyLocationToServer(newPosition);
-              _updateMapCamera();
-              _startLocationServices();
-            }
-          },
-          onError: (dynamic error) {},
-          cancelOnError: false,
-        );
-      }
-    } catch (e) {}
+    await _checkLocation();
+    _startMotionSensors();
+  }
 
+  void _setLocationIssue(_LocationIssue issue) {
+    if (mounted && _locationIssue != issue) setState(() => _locationIssue = issue);
+  }
+
+  /// 檢查定位：服務開啟、已授權、精確位置。任何一項不符合就顯示說明頁，不進入雷達。
+  /// 從系統設定回到 App 時會再檢查一次（didChangeAppLifecycleState）。
+  Future<void> _checkLocation() async {
+    if (_checkingLocation) return;
+    _checkingLocation = true;
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return _setLocationIssue(_LocationIssue.serviceOff);
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) return _setLocationIssue(_LocationIssue.deniedForever);
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+        return _setLocationIssue(_LocationIssue.denied);
+      }
+      // 精確位置：iOS 可以臨時要求一次；Android 再請求一次權限會出現「改成精確」的選項
+      LocationAccuracyStatus accuracy = await Geolocator.getLocationAccuracy();
+      if (accuracy == LocationAccuracyStatus.reduced) {
+        try {
+          if (Platform.isIOS) {
+            accuracy = await Geolocator.requestTemporaryFullAccuracy(purposeKey: 'Radar');
+          } else {
+            await Geolocator.requestPermission();
+            accuracy = await Geolocator.getLocationAccuracy();
+          }
+        } catch (e) {
+          debugPrint('full accuracy request failed: $e');
+        }
+      }
+      if (accuracy == LocationAccuracyStatus.reduced) return _setLocationIssue(_LocationIssue.reduced);
+      if (_locationIssue != _LocationIssue.noFix) _setLocationIssue(_LocationIssue.none);
+      _startPositionUpdates();
+    } catch (e) {
+      debugPrint('location check failed: $e');
+    } finally {
+      _checkingLocation = false;
+    }
+  }
+
+  void _startPositionUpdates() {
+    _positionStream ??= Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 2)).listen(
+      (Position newPosition) {
+        if (!mounted) return;
+        setState(() {
+          _currentPosition = newPosition;
+          if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
+        });
+        _updateMyLocationToServer(newPosition);
+        _updateMapCamera();
+        _startLocationServices();
+      },
+      onError: (dynamic error) => debugPrint('position stream error: $error'),
+      cancelOnError: false,
+    );
+    if (_currentPosition != null) return;
+    // 第一個定位：10 秒內拿不到就說明原因（室內訊號弱；模擬器沒有設定位置），而不是一直停在載入畫面
+    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10)).then((position) {
+      if (!mounted) return;
+      setState(() {
+        _currentPosition = position;
+        if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
+      });
+      _updateMyLocationToServer(position);
+      _startLocationServices();
+    }).catchError((Object e) {
+      debugPrint('initial position failed: $e');
+      if (mounted && _currentPosition == null) _setLocationIssue(_LocationIssue.noFix);
+    });
+  }
+
+  void _startMotionSensors() {
     try {
       _compassStream?.cancel();
       _compassStream = FlutterCompass.events?.listen((CompassEvent event) {
@@ -543,7 +587,61 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       }, onError: (e) {});
     } catch (e) {}
   }
-  
+
+  /// 定位無法使用時的說明頁（取代雷達）
+  Widget _buildLocationBlocker() {
+    final issue = _locationIssue;
+    final (IconData icon, String title, String body) = switch (issue) {
+      _LocationIssue.serviceOff => (Icons.location_off_outlined, '請開啟定位服務', '城市低語需要知道你在城市的哪個角落，才能讓附近的人看見你的心情。請到手機的「設定」開啟「定位服務」。'),
+      _LocationIssue.reduced => (Icons.my_location, '請開啟「精確位置」',
+          Platform.isIOS ? '你目前只分享了大概的位置，雷達無法判斷誰在你附近。請到「設定」›「城市低語」›「位置」，打開「精確位置」。'
+                         : '你目前只分享了大概的位置，雷達無法判斷誰在你附近。請在位置權限中選擇「精確」。'),
+      _LocationIssue.noFix => (Icons.gps_not_fixed, '暫時抓不到你的位置', '可能在室內或訊號較弱。請到窗邊或戶外、開啟 Wi-Fi 後再試一次。'),
+      _ => (Icons.location_off_outlined, '需要使用你的位置',
+          '城市低語只在你使用 App 時取得位置，用來顯示附近 5 公里內的心情；雷達上只顯示大概的距離，不會顯示地址。\n請在設定中允許「使用 App 期間」取用位置，並開啟「精確位置」。'),
+    };
+    final bool needsSettings = issue != _LocationIssue.noFix;
+    return Scaffold(
+      backgroundColor: Night.night900,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Night.space6),
+            child: GlassCard(
+              glow: true,
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Icon(icon, color: Night.auroraBlue, size: 44),
+                const SizedBox(height: Night.space3),
+                Text(title, style: Night.title, textAlign: TextAlign.center),
+                const SizedBox(height: Night.space3),
+                Text(body, style: Night.body, textAlign: TextAlign.center),
+                if (kDebugMode && issue == _LocationIssue.noFix) ...[
+                  const SizedBox(height: Night.space2),
+                  const Text('（開發提示：模擬器請在 Features › Location 選一個位置）', style: Night.caption, textAlign: TextAlign.center),
+                ],
+                const SizedBox(height: Night.space6),
+                if (needsSettings)
+                  NightButton('前往設定', icon: Icons.settings_outlined, expand: true, onPressed: () {
+                    issue == _LocationIssue.serviceOff ? Geolocator.openLocationSettings() : Geolocator.openAppSettings();
+                  }),
+                if (needsSettings) const SizedBox(height: Night.space2),
+                NightButton(needsSettings ? '我已開啟，重新檢查' : '再試一次', kind: needsSettings ? NightButtonKind.ghost : NightButtonKind.primary,
+                    icon: Icons.refresh, expand: true, onPressed: () {
+                  if (issue == _LocationIssue.noFix) _setLocationIssue(_LocationIssue.none);
+                  _checkLocation();
+                }),
+                if (Platform.isAndroid) ...[
+                  const SizedBox(height: Night.space2),
+                  NightButton('離開', kind: NightButtonKind.text, expand: true, onPressed: () => SystemNavigator.pop()),
+                ],
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // 🔐 呼叫 geo-service 時附上 Firebase ID Token，伺服器據此辨識身分
   Future<Map<String, String>> _authHeaders() async {
     final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -949,6 +1047,22 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   /// 空雷達卡片：附近 5 公里內沒有人時顯示，取代一片空白
   Widget _buildEmptyRadarCard() {
+    return Stack(children: [
+      _buildEmptyRadarCardBody(),
+      // 不想邀請或分享也能關掉；本次開啟期間不再出現
+      Positioned(
+        top: 2, right: 2,
+        child: IconButton(
+          tooltip: '關閉',
+          icon: const Icon(Icons.close, color: Night.inkFaint, size: 20),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          onPressed: () => setState(() => _emptyCardDismissed = true),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildEmptyRadarCardBody() {
     return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: Night.space6, vertical: Night.space4),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -1663,6 +1777,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
+      // 從系統設定回來：重新檢查定位權限與精確位置
+      if (_locationIssue != _LocationIssue.none) _checkLocation();
       // 回到前景：立刻回報為活躍，並馬上刷新雷達
       if (_isInForeground) return;
       _isInForeground = true;
@@ -1700,6 +1816,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) {
+    if (_locationIssue != _LocationIssue.none && _currentPosition == null) return _buildLocationBlocker();
     if (_currentPosition == null || _mapStyle == null) return const Scaffold(backgroundColor: Night.night900, body: Center(child: Text("正在感知這座城市...", style: TextStyle(color: Night.inkMuted, letterSpacing: 2))));
 
     final screenWidth = MediaQuery.of(context).size.width;
@@ -1908,7 +2025,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 城市心情天氣
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
-                      if (_hasScanned && activeUsers.isEmpty)
+                      if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 112, child: _buildEmptyRadarCard()),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
                     ],

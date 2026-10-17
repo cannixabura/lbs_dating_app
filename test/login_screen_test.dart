@@ -20,19 +20,19 @@ final consentRow = find.textContaining('零容忍');
 
 void main() {
   testWidgets('first launch: mood field is empty', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true});
     await pumpLoginScreen(tester);
     expect(moodFieldText(tester), isEmpty);
   });
 
   testWidgets('returning user: mood field shows the last mood', (tester) async {
-    SharedPreferences.setMockInitialValues({'saved_mood': '喝了一杯好咖啡😊'});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '喝了一杯好咖啡😊'});
     await pumpLoginScreen(tester);
     expect(moodFieldText(tester), '喝了一杯好咖啡😊');
   });
 
   testWidgets('empty mood cannot enter the city', (tester) async {
-    SharedPreferences.setMockInitialValues({'saved_mood': '下雨天'});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '下雨天'});
     await pumpLoginScreen(tester);
 
     await tester.enterText(find.byType(TextField), '   ');
@@ -44,7 +44,7 @@ void main() {
   });
 
   testWidgets('first launch: must agree to the terms before entering', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true});
     await pumpLoginScreen(tester);
 
     expect(consentRow, findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
   });
 
   testWidgets('already agreed to this terms version: no checkbox, button enabled', (tester) async {
-    SharedPreferences.setMockInitialValues({'saved_mood': '下雨天', 'terms_accepted_version': Legal.termsVersion});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '下雨天', 'terms_accepted_version': Legal.termsVersion});
     await pumpLoginScreen(tester);
 
     expect(consentRow, findsNothing);
@@ -64,10 +64,36 @@ void main() {
   });
 
   testWidgets('terms updated since last agreement: asked again', (tester) async {
-    SharedPreferences.setMockInitialValues({'saved_mood': '下雨天', 'terms_accepted_version': '2000-01'});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '下雨天', 'terms_accepted_version': '2000-01'});
     await pumpLoginScreen(tester);
 
     expect(consentRow, findsOneWidget);
     expect(enterButtonEnabled(tester), isFalse);
+  });
+
+  testWidgets('first launch: asks the age question before the mood field', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await pumpLoginScreen(tester);
+    expect(find.text('請問你已年滿 18 歲了嗎？'), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
+  });
+
+  testWidgets('answering 18+ shows the mood field and remembers it', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await pumpLoginScreen(tester);
+    await tester.tap(find.widgetWithText(NightButton, '已滿 18 歲'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(TextField), findsOneWidget);
+    expect((await SharedPreferences.getInstance()).getBool(AgeGate.confirmedKey), isTrue);
+  });
+
+  testWidgets('answering under 18 blocks the app and remembers it', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await pumpLoginScreen(tester);
+    await tester.tap(find.widgetWithText(NightButton, '未滿 18 歲'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AgeBlockedScreen), findsOneWidget);
+    expect(find.byType(LoginScreen), findsNothing);
+    expect((await SharedPreferences.getInstance()).getBool(AgeGate.blockedKey), isTrue);
   });
 }

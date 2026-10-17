@@ -61,3 +61,7 @@ app.*.map.json
 
 # 公測報名匯出（含個人資料）
 beta_signups/
+
+# 短影音素材與成品（檔案大，不進 git）
+marketing/shorts/footage/
+marketing/shorts/out/

@@ -11,7 +11,7 @@ const AREAS = [
     '台北市', '新北市', '基隆市', '桃園市', '新竹', '苗栗', '台中市', '彰化', '南投', '雲林',
     '嘉義', '台南市', '高雄市', '屏東', '宜蘭', '花蓮', '台東', '離島', '海外',
 ];
-const SOURCES = ['threads', 'instagram', 'facebook', 'dcard', 'line', 'friend', 'other'];
+const SOURCES = ['threads', 'instagram', 'facebook', 'x', 'dcard', 'line', 'friend', 'other'];
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,190}\.[a-z]{2,}$/i;
 
 /**

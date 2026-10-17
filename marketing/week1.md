@@ -10,6 +10,7 @@
 | Threads | https://mood-whisper-f7de9.web.app/beta.html?src=threads | 貼文內文可直接放 |
 | Instagram | https://mood-whisper-f7de9.web.app/beta.html?src=instagram | **只能放個人檔案**，內文寫「連結在個人檔案」 |
 | Facebook | https://mood-whisper-f7de9.web.app/beta.html?src=facebook | 貼文內文可直接放 |
+| X | https://mood-whisper-f7de9.web.app/beta.html?src=x | 貼文內文；X 專用短版文案在 [week1-x.md](week1-x.md) |
 | Dcard | https://mood-whisper-f7de9.web.app/beta.html?src=dcard | 文末放一次就好 |
 | LINE | https://mood-whisper-f7de9.web.app/beta.html?src=line | 社群記事本／公告 |
 

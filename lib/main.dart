@@ -217,6 +217,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   Future<void> _startAppSetup() async {
+    _ensureConsentRecorded();
     try {
       bubbleShaderProgram = await ui.FragmentProgram.fromAsset('shaders/breathing_glow.frag');
     } catch (e) {}
@@ -227,6 +228,22 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _listenToIncomingRequests();
     await _initSensors();
     if (_currentPosition != null) _startLocationServices();
+  }
+
+  /// 條款同意紀錄：登入畫面寫入失敗時（網路不穩、剛登入的權杖還沒生效），進城後補寫一次。
+  /// 審核或爭議時要能證明這個帳號同意過哪一版條款。
+  Future<void> _ensureConsentRecorded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final version = prefs.getString('terms_accepted_version');
+      if (version == null) return;
+      final ref = _dbRef.child('consents/${widget.uid}');
+      final existing = await ref.child('version').get();
+      if (existing.value == version) return;
+      await ref.set({'version': version, 'at': ServerValue.timestamp});
+    } catch (e) {
+      debugPrint('consent backfill failed: $e');
+    }
   }
 
   // 取得第一個定位後才啟動在線狀態與雷達；首次定位逾時（>10 秒）時改由定位串流觸發

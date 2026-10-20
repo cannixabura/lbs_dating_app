@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>ChatScreen</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="padding-block:24px;gap:24px;align-items:flex-start">
+  <div class="cw-phone">
+    <div class="cw-phone__status"><span>22:31</span><span>78%</span></div>
+    <div class="cw-chatscreen">
+      <div class="cw-chat__head">
+        <button class="cw-iconbtn" type="button" aria-label="離開對話"><span class="cw-ico cw-ico--sm i-chevron" style="transform:scaleX(-1)"></span></button>
+        <div class="cw-avatar cw-avatar--sm"><span class="cw-ico cw-ico--sm i-person"></span></div>
+        <div class="cw-chat__grow"><div class="cw-chat__name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">與 遊蕩的貓 的交集</div><div class="cw-chat__sub">倒數 <span class="cw-chat__time ">09:42</span> 消散</div></div>
+        <button class="cw-iconbtn" type="button" aria-label="檢舉"><span class="cw-ico i-flag"></span></button>
+      </div>
+      <div class="cw-chatscreen__list">
+        <p class="cw-msg__who">遊蕩的貓</p>
+        <div class="cw-msg cw-msg--them">嗨，你也在河堤這邊嗎？</div>
+        <div class="cw-msg cw-msg--them">剛剛看到你的心情氣泡，「平靜地漫步在微雨中」</div>
+        <div class="cw-msg cw-msg--me">對呀，風好舒服，正在散步</div>
+        <div class="cw-msg cw-msg--me">你那邊也下雨嗎？</div>
+        <p class="cw-msg__who">遊蕩的貓</p>
+        <div class="cw-msg cw-msg--them">小雨而已，路燈下面很好看</div>
+      </div>
+      <div class="cw-typing">對方正在輸入中…</div>
+      <div class="cw-chatscreen__compose">
+        <input class="cw-input" placeholder="輕聲說點什麼…" aria-label="訊息">
+        <button class="cw-iconbtn cw-iconbtn--fill" type="button" aria-label="送出"><span class="cw-ico cw-ico--sm i-send"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <div style="width:330px;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">最後一分鐘：倒數轉紅</p>
+    <div class="cw-chatscreen" style="position:static;background:transparent">
+      <div class="cw-chat__head">
+        <button class="cw-iconbtn" type="button" aria-label="離開對話"><span class="cw-ico cw-ico--sm i-chevron" style="transform:scaleX(-1)"></span></button>
+        <div class="cw-avatar cw-avatar--sm"><span class="cw-ico cw-ico--sm i-person"></span></div>
+        <div class="cw-chat__grow"><div class="cw-chat__name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">與 遊蕩的貓 的交集</div><div class="cw-chat__sub">倒數 <span class="cw-chat__time cw-chat__time--warn">00:48</span> 消散</div></div>
+        <button class="cw-iconbtn" type="button" aria-label="檢舉"><span class="cw-ico i-flag"></span></button>
+      </div>
+    </div>
+    <p class="cw-note" style="margin-top:12px">交集結束：全畫面淡出後回到雷達</p>
+    <div class="cw-mini"><div class="cw-leave"><span class="cw-ico cw-ico--lg i-moon"></span><p class="cw-leave__text">交集已結束...</p></div></div>
+    <div class="cw-mini"><div class="cw-leave"><span class="cw-ico cw-ico--lg i-moon"></span><p class="cw-leave__text">時間已盡，交集消散...</p></div></div>
+    <div class="cw-mini"><div class="cw-leave"><span class="cw-ico cw-ico--lg i-moon"></span><p class="cw-leave__text">對方已沒入城市...</p></div></div>
+  </div>
+</div>
+</body>
+</html>

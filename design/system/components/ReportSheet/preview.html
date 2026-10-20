@@ -1,0 +1,48 @@
+<!-- @dsCard group="Safety" height=700 subtitle="Reporting a person (with block), reporting a whisper (no block), and the confirmation" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ReportSheet</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <form class="cw-glass cw-glass--form" style="width:340px;max-width:100%;display:flex;flex-direction:column;gap:16px" onsubmit="event.preventDefault()">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;color:var(--danger)"><span class="cw-ico i-flag"></span><h3 class="cw-glass__title" style="margin:0;color:var(--ink)">檢舉 遊蕩的貓</h3></div>
+    <p class="cw-glass__body" style="font-size:14px">你的檢舉不會讓對方知道。請選擇原因：</p>
+    <div class="cw-options" role="radiogroup" aria-label="檢舉原因">
+      <label class="cw-option"><input type="radio" name="reason" checked><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>騷擾或霸凌</span></label>
+      <label class="cw-option"><input type="radio" name="reason"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>色情或性暗示</span></label>
+      <label class="cw-option"><input type="radio" name="reason"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>詐騙或廣告</span></label>
+      <label class="cw-option"><input type="radio" name="reason"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>仇恨或暴力言論</span></label>
+      <label class="cw-option"><input type="radio" name="reason"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>冒充他人</span></label>
+      <label class="cw-option"><input type="radio" name="reason"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>其他</span></label>
+    </div>
+    <div class="cw-field"><label class="cw-field__label" for="report-detail">補充說明（選填）</label><input class="cw-input" id="report-detail" placeholder="發生了什麼事？" maxlength="500"></div>
+    <label class="cw-check"><input type="checkbox" checked><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>同時封鎖對方，雙方將從彼此的城市中消失</span></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+      <button class="cw-btn cw-btn--danger" type="submit">送出檢舉</button>
+    </div>
+  </form>
+
+  <div style="width:340px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">檢舉低語：作者匿名，沒有封鎖選項；尚未選原因時無法送出</p>
+    <div class="cw-glass cw-glass--form" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center;color:var(--danger)"><span class="cw-ico i-flag"></span><h3 class="cw-glass__title" style="margin:0;color:var(--ink)">檢舉 這則低語</h3></div>
+      <p class="cw-glass__body" style="font-size:14px">你的檢舉不會讓對方知道。請選擇原因：</p>
+      <div class="cw-options" role="radiogroup" aria-label="檢舉原因">
+        <label class="cw-option"><input type="radio" name="reason2"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>騷擾或霸凌</span></label>
+        <label class="cw-option"><input type="radio" name="reason2"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>色情或性暗示</span></label>
+        <label class="cw-option" style="color:var(--ink-faint)"><span style="visibility:hidden"></span><span>⋯</span></label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+        <button class="cw-btn" type="button" disabled>送出檢舉</button>
+      </div>
+    </div>
+    <p class="cw-note" style="margin-top:8px">送出後</p>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-flag"></span><span class="cw-toast__text">已收到你的檢舉，我們會在 24 小時內處理。</span></div>
+    <div class="cw-toast cw-toast--danger"><span class="cw-ico cw-toast__icon i-close"></span><span class="cw-toast__text">檢舉沒有送出，請檢查網路後再試一次。</span></div>
+  </div>
+</div>
+</body>
+</html>

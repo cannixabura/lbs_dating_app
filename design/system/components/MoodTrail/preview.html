@@ -1,0 +1,66 @@
+<!-- @dsCard group="Screens" height=790 page subtitle="My mood trail: the weekly recap, glowing map, daily list, and the empty and clear states" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>MoodTrail</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="padding-block:24px;gap:24px;align-items:flex-start">
+  <div class="cw-phone">
+    <div class="cw-phone__status"><span>22:14</span><span>81%</span></div>
+    <div class="cw-screen">
+      <div class="cw-appbar"><button class="cw-iconbtn" type="button" aria-label="返回"><span class="cw-ico i-chevron" style="transform:scaleX(-1)"></span></button><span class="cw-appbar__title">我的心情軌跡</span><span></span></div>
+      <p class="cw-caption">只存在你的手機上，不會上傳到任何地方。</p>
+      <div class="cw-glass" style="margin-top:16px">
+        <p class="cw-caption">這週的你</p>
+        <p class="cw-recap" style="--m:var(--mood-calm)">最常感到「<b>平靜</b>」，共 6 次</p>
+        <p class="cw-glass__body">在 4 個不同的地方，留下了 11 道心情</p>
+      </div>
+      <div class="cw-map cw-trailmap" style="margin-top:16px">
+        <span class="cw-map__block" style="left:24px;top:30px;width:60px;height:40px"></span>
+        <span class="cw-map__block" style="left:220px;top:120px;width:70px;height:46px"></span>
+        <span class="cw-trailmap__pt" style="left:70px;top:140px;--m:var(--mood-calm)"></span>
+        <span class="cw-trailmap__pt" style="left:150px;top:96px;--m:var(--mood-joy)"></span>
+        <span class="cw-trailmap__pt" style="left:200px;top:60px;--m:var(--mood-calm)"></span>
+        <span class="cw-trailmap__pt" style="left:268px;top:92px;--m:var(--mood-love)"></span>
+        <span class="cw-trailmap__pt" style="left:118px;top:160px;--m:var(--mood-sad)"></span>
+      </div>
+      <p class="cw-attrib">© OpenStreetMap © CARTO</p>
+      <p class="cw-day">10 月 15 日</p>
+      <div class="cw-trailrow" style="--m:var(--mood-love)"><span class="cw-trailrow__mood">好愛這座城市💖</span><span class="cw-trailrow__time">21:48</span></div>
+      <div class="cw-trailrow" style="--m:var(--mood-calm)"><span class="cw-trailrow__mood">平靜地漫步在微雨中🌿</span><span class="cw-trailrow__time">19:20</span></div>
+      <div class="cw-trailrow" style="--m:var(--mood-joy)"><span class="cw-trailrow__mood">終於下班了😊</span><span class="cw-trailrow__time">18:05</span></div>
+      <p class="cw-day">10 月 14 日</p>
+      <div class="cw-trailrow" style="--m:var(--mood-sad)"><span class="cw-trailrow__mood">雨好大，有點難過</span><span class="cw-trailrow__time">23:31</span></div>
+      <div class="cw-trailrow" style="--m:var(--mood-calm)"><span class="cw-trailrow__mood">平靜地喝一杯熱茶</span><span class="cw-trailrow__time">20:12</span></div>
+      <p class="cw-day">10 月 13 日</p>
+      <div class="cw-trailrow" style="--m:var(--mood-calm)"><span class="cw-trailrow__mood">河堤邊吹風，很安靜</span><span class="cw-trailrow__time">22:40</span></div>
+      <div class="cw-trailrow" style="--m:var(--mood-joy)"><span class="cw-trailrow__mood">和朋友吃到好吃的拉麵😊</span><span class="cw-trailrow__time">19:55</span></div>
+      <div class="cw-trailrow" style="--m:var(--mood-default)"><span class="cw-trailrow__mood">有點想念某個人</span><span class="cw-trailrow__time">00:18</span></div>
+    </div>
+    <div class="cw-fade-bottom"></div>
+  </div>
+
+  <div style="width:330px;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">列表最下方</p>
+    <div class="cw-glass" style="display:flex;align-items:center;gap:12px;padding:8px 16px">
+      <span class="cw-row__text" style="font-size:15px">記錄我的心情軌跡<span class="cw-row__sub">關閉後不再記錄新的軌跡</span></span>
+      <span class="cw-switch" role="switch" aria-checked="true" aria-label="記錄我的心情軌跡"></span>
+    </div>
+    <button class="cw-btn cw-btn--danger cw-btn--block" type="button"><span class="cw-ico cw-ico--sm i-trash"></span>清除心情軌跡</button>
+
+    <p class="cw-note" style="margin-top:12px">這週還沒有軌跡</p>
+    <div class="cw-glass"><p class="cw-glass__body">這週還沒有心情軌跡。每次寫下心情、或走到新的地方，這裡都會多一道光。</p></div>
+
+    <p class="cw-note" style="margin-top:12px">清除確認</p>
+    <div class="cw-glass" style="display:flex;flex-direction:column;gap:12px">
+      <h3 class="cw-glass__title" style="margin:0">清除心情軌跡</h3>
+      <p class="cw-glass__body">這支手機上的所有心情軌跡都會刪除，無法復原。</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+        <button class="cw-btn cw-btn--danger" type="button">清除</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

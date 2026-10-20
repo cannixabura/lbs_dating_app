@@ -1,0 +1,60 @@
+<!-- @dsCard group="Safety" height=640 subtitle="From the settings row to the confirmation, while deleting, failure, and the web route for people who removed the app" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>DeleteAccount</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <div style="width:330px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">1 · 設定最下方，分隔線之後</p>
+    <div class="cw-glass cw-sheet" style="width:auto;padding-block:8px">
+      <a class="cw-row cw-row--danger" href="#"><span class="cw-ico i-trash"></span><span class="cw-row__text">刪除帳號與資料<span class="cw-row__sub">永久抹除你在城市留下的一切</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+    </div>
+    <p class="cw-note" style="margin-top:8px">2 · 確認</p>
+    <div class="cw-glass" style="display:flex;flex-direction:column;gap:12px;text-align:center">
+      <span class="cw-ico i-trash" style="color:var(--danger);width:36px;height:36px;margin:0 auto"></span>
+      <h3 class="cw-glass__title" style="margin:0">刪除帳號與資料</h3>
+      <p class="cw-glass__body">你的位置、心情、城市稱呼、大頭貼、留下的低語、微光、封鎖名單與進行中的對話都會被永久刪除，無法復原。</p>
+      <p class="cw-glass__body">為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <button class="cw-btn cw-btn--ghost" type="button" >取消</button>
+        <button class="cw-btn cw-btn--danger" type="button" >永久刪除</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="width:330px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">3 · 刪除中：兩顆按鈕都停用</p>
+    <div class="cw-glass" style="display:flex;flex-direction:column;gap:12px;text-align:center">
+      <span class="cw-ico i-trash" style="color:var(--danger);width:36px;height:36px;margin:0 auto"></span>
+      <h3 class="cw-glass__title" style="margin:0">刪除帳號與資料</h3>
+      <p class="cw-glass__body">你的位置、心情、城市稱呼、大頭貼、留下的低語、微光、封鎖名單與進行中的對話都會被永久刪除，無法復原。</p>
+      <p class="cw-glass__body">為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <button class="cw-btn cw-btn--ghost" type="button" disabled>取消</button>
+        <button class="cw-btn cw-btn--danger" type="button" disabled>刪除中…</button>
+      </div>
+    </div>
+    <p class="cw-note" style="margin-top:8px">失敗：視窗保留，可以再試一次</p>
+    <div class="cw-toast cw-toast--danger"><span class="cw-ico cw-toast__icon i-close"></span><span class="cw-toast__text">刪除沒有完成，請檢查網路後再試一次。</span></div>
+    <p class="cw-note" style="margin-top:8px">成功：清空這支手機，回到開場畫面</p>
+  </div>
+
+  <div style="width:330px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">已移除 App 的人：網頁 /delete-account</p>
+    <div class="cw-glass" style="display:flex;flex-direction:column;gap:12px">
+      <h3 class="cw-gradient-title" style="font-size:20px;line-height:28px">刪除你的城市低語帳號</h3>
+      <div>
+        <p style="margin:0 0 4px;font-weight:600;font-size:15px">還裝著 App：立即刪除</p>
+        <p class="cw-glass__body" style="text-align:left;font-size:14px">設定 → 刪除帳號與資料 → 永久刪除。刪除會立刻完成。</p>
+      </div>
+      <div>
+        <p style="margin:0 0 4px;font-weight:600;font-size:15px">已經移除 App：來信申請</p>
+        <p class="cw-glass__body" style="text-align:left;font-size:14px">寄信到 <a class="cw-link" href="#">service.softchip@gmail.com</a>，主旨寫「刪除帳號申請」，30 天內處理並回信。</p>
+      </div>
+      <p class="cw-caption" style="text-align:left">檢舉紀錄最長保留 1 年，詳見《隱私權政策》。</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

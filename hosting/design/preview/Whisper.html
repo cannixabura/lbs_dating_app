@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Whisper</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px">
+  <div class="cw-map" style="position:relative;width:300px;height:300px;border-radius:24px">
+    <span class="cw-envelope" style="left:60px;top:70px;--m:var(--mood-calm)"><span class="cw-ico i-mail"></span></span>
+    <span class="cw-envelope" style="left:200px;top:110px;--m:var(--mood-love)"><span class="cw-ico i-mail"></span></span>
+    <span class="cw-envelope" style="left:120px;top:190px;--m:var(--mood-joy)"><span class="cw-ico i-pen"></span></span>
+    <span class="cw-me" style="left:139px;top:239px"></span>
+    <div style="position:absolute;left:12px;right:12px;bottom:12px"><div class="cw-toast" style="width:auto"><span class="cw-ico cw-toast__icon i-mail"></span><span class="cw-toast__text">你經過了一則低語，點信封讀讀看。</span></div></div>
+  </div>
+  <form class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px" onsubmit="event.preventDefault()">
+    <span class="cw-ico cw-ico--lg i-mail" style="color:var(--aurora-blue);margin:0 auto"></span>
+    <h3 class="cw-glass__title" style="margin:0">留下一則低語</h3>
+    <p class="cw-glass__body">寫給下一個經過這裡的人。</p>
+    <label class="cw-field"><span class="cw-field__label">低語</span>
+      <textarea class="cw-textarea" id="whisper-text" maxlength="60" oninput="document.getElementById('whisper-count').textContent=[...this.value].length+'/60';document.getElementById('whisper-go').disabled=!this.value.trim()">這裡的夕陽很美，記得抬頭看看。</textarea></label>
+    <span class="cw-field__count" id="whisper-count">15/60</span>
+    <p class="cw-caption">7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+      <button class="cw-btn" id="whisper-go" type="submit">留在這裡</button>
+    </div>
+  </form>
+  <div class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <h3 class="cw-glass__title" style="margin:0;display:flex;gap:8px;justify-content:center;align-items:center"><span class="cw-ico cw-ico--sm i-mail" style="color:var(--mood-love)"></span>一則低語</h3>
+    <p class="cw-caption">3 小時前留在這一帶</p>
+    <div class="cw-whisper" style="--m:var(--mood-love);box-shadow:0 0 18px rgba(255,107,214,.25)">今天謝謝那個幫我撿起雨傘的人。</div>
+    <p class="cw-glass__body">你收下了這則低語。</p>
+    <p class="cw-caption">在你之前，已經有 4 個人經過這裡。</p>
+    <button class="cw-knock__report" type="button" style="align-self:center"><span class="cw-ico cw-ico--sm i-flag"></span>檢舉這則低語</button>
+  </div>
+  <div class="cw-glass" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <h3 class="cw-glass__title" style="margin:0;display:flex;gap:8px;justify-content:center;align-items:center"><span class="cw-ico cw-ico--sm i-pen" style="color:var(--mood-joy)"></span>你留下的低語</h3>
+    <p class="cw-caption">2 天前留在這一帶</p>
+    <div class="cw-whisper" style="--m:var(--mood-joy);box-shadow:0 0 18px rgba(255,213,74,.22)">這家店的熱可可會讓人開心起來😊</div>
+    <p class="cw-glass__body">已被 7 個人收下</p>
+    <button class="cw-btn cw-btn--danger" type="button">收回這則低語</button>
+  </div>
+</div>
+</body>
+</html>

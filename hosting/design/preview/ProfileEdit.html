@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>ProfileEdit</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <form class="cw-glass cw-glass--glow" style="width:340px;max-width:100%;display:flex;flex-direction:column;gap:8px" onsubmit="event.preventDefault()">
+    <h3 class="cw-glass__title" style="margin:0 0 8px">編輯個人狀態</h3>
+    <button class="cw-ring" id="ringa" type="button" aria-label="更換大頭貼" style="--m:var(--mood-calm)"><span class="cw-ring__face"><span class="cw-ico i-person"></span></span><span class="cw-ring__cam"><span class="cw-ico i-camera"></span></span></button>
+    <p class="cw-caption">輕觸更換大頭貼 · 光環是你的心情色</p>
+    <div class="cw-field" style="margin-top:8px"><label class="cw-field__label" for="nicka">城市稱呼</label><input class="cw-input" id="nicka" maxlength="10" placeholder="選填，例如：遊蕩的貓" value="遊蕩的貓"><span class="cw-field__count">4/10</span></div>
+    <div class="cw-field"><label class="cw-field__label" for="mooda">當下心情</label><input class="cw-input" id="mooda" data-ring="ringa" maxlength="20" placeholder="例如：漫步在微雨中 🌿" value="平靜地漫步在微雨中🌿"><span class="cw-field__count" data-count="mooda">10/20</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+      <button class="cw-btn" type="submit" >儲存</button>
+    </div>
+  </form>
+  <div style="width:340px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">試著改上面的心情：打「開心」「難過」「生氣」「🔥」「愛」，光環會跟著變色</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div style="text-align:center"><span class="cw-ring" style="--m:var(--mood-joy);width:56px;height:56px;display:block"><span class="cw-ring__face"><span class="cw-ico cw-ico--sm i-person"></span></span></span><p class="cw-caption" style="margin-top:6px">開心</p></div>
+      <div style="text-align:center"><span class="cw-ring" style="--m:var(--mood-sad);width:56px;height:56px;display:block"><span class="cw-ring__face"><span class="cw-ico cw-ico--sm i-person"></span></span></span><p class="cw-caption" style="margin-top:6px">難過</p></div>
+      <div style="text-align:center"><span class="cw-ring" style="--m:var(--mood-angry);width:56px;height:56px;display:block"><span class="cw-ring__face"><span class="cw-ico cw-ico--sm i-person"></span></span></span><p class="cw-caption" style="margin-top:6px">生氣</p></div>
+      <div style="text-align:center"><span class="cw-ring" style="--m:var(--mood-love);width:56px;height:56px;display:block"><span class="cw-ring__face"><span class="cw-ico cw-ico--sm i-person"></span></span></span><p class="cw-caption" style="margin-top:6px">愛</p></div>
+      <div style="text-align:center"><span class="cw-ring" style="--m:var(--mood-default);width:56px;height:56px;display:block"><span class="cw-ring__face"><span class="cw-ico cw-ico--sm i-person"></span></span></span><p class="cw-caption" style="margin-top:6px">其他</p></div>
+    </div>
+    <p class="cw-note" style="margin-top:8px">上傳大頭貼中：儲存暫時不能按</p>
+    <div class="cw-glass" style="display:flex;align-items:center;gap:16px">
+      <span class="cw-ring" style="--m:var(--mood-love);margin:0;flex:none"><span class="cw-ring__face"><span class="cw-ico i-person"></span></span><span class="cw-ring__spin"></span><span class="cw-ring__cam"><span class="cw-ico i-camera"></span></span></span>
+      <button class="cw-btn" type="button" disabled style="flex:1">儲存</button>
+    </div>
+    <p class="cw-note" style="margin-top:8px">提示</p>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-spark"></span><span class="cw-toast__text">狀態已更新，城市正感知你的呼吸。</span></div>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-pen"></span><span class="cw-toast__text">心情不能為空，給城市留下點微光吧。</span></div>
+    <div class="cw-toast cw-toast--danger"><span class="cw-ico cw-toast__icon i-close"></span><span class="cw-toast__text">大頭貼上傳失敗，請稍後再試。</span></div>
+  </div>
+</div>
+<script>
+  // Same keyword table as the app's moodStyleOf(): first match wins.
+  const table = [
+    [['😊', '開心', '笑'], 'joy'], [['😢', '難過', '哭'], 'sad'], [['😡', '生氣', '怒'], 'angry'],
+    [['🌿', '平靜', '發呆'], 'calm'], [['🔥', '熱情'], 'passion'], [['💖', '愛', '心'], 'love'],
+  ];
+  const moodOf = (t) => (table.find(([keys]) => keys.some((k) => t.includes(k))) || [null, 'default'])[1];
+  document.querySelectorAll('input[data-ring]').forEach((input) => {
+    const ring = document.getElementById(input.dataset.ring);
+    const count = document.querySelector('[data-count="' + input.id + '"]');
+    const update = () => {
+      ring.style.setProperty('--m', 'var(--mood-' + moodOf(input.value.trim()) + ')');
+      if (count) count.textContent = [...input.value].length + '/20';
+    };
+    input.addEventListener('input', update);
+  });
+</script>
+</body>
+</html>

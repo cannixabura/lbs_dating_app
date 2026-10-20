@@ -1,0 +1,42 @@
+<!-- @dsCard group="Resonance" height=520 subtitle="Bubble menu, the sparkle on send, and what the receiver sees" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Resonance</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <div class="cw-glass" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <h3 class="cw-glass__title" style="margin:0">與 遊蕩的貓 的相遇</h3>
+    <div class="cw-menu">
+      <button class="cw-menu__item" type="button" style="--c:var(--mood-calm)"><span class="cw-ico i-spark"></span>送出一道微光 (共鳴)</button>
+      <button class="cw-menu__item" type="button" style="--c:var(--knock-pink)"><span class="cw-ico i-wave"></span>敲門 (產生交集)</button>
+      <button class="cw-menu__item" type="button" style="--c:var(--danger)"><span class="cw-ico i-block"></span>封鎖 (沒入黑暗)</button>
+      <button class="cw-menu__item" type="button" style="--c:var(--danger)"><span class="cw-ico i-flag"></span>檢舉</button>
+    </div>
+    <p class="cw-caption">長按氣泡打開；雙擊氣泡直接送出微光</p>
+  </div>
+
+  <div class="cw-map" style="position:relative;width:330px;height:470px;border-radius:24px">
+    <p class="cw-note" style="position:absolute;top:12px;left:16px;margin:0">送出的人</p>
+    <div class="cw-toast" style="position:absolute;top:40px;left:12px;right:12px;width:auto"><span class="cw-ico cw-toast__icon i-spark"></span><span class="cw-toast__text">你送出了一道微光。</span></div>
+    <div class="cw-bubble" style="position:absolute;left:99px;top:170px;--m:var(--mood-calm)">
+      <div class="cw-bubble__body"><span class="cw-bubble__mood">平靜地散步🌿</span></div>
+      <span class="cw-bubble__pin"></span><span class="cw-bubble__ripple"></span>
+      <span class="cw-bubble__caption">遊蕩的貓 · 150m</span>
+    </div>
+    <span class="cw-burst cw-burst--once" style="left:165px;top:228px;--c:var(--mood-calm)"><i style="--x:-24px;--y:-61px;--d:0.01s"></i><i style="--x:-5px;--y:-85px;--d:0.10s"></i><i style="--x:-83px;--y:-18px;--d:0.02s"></i><i style="--x:-37px;--y:-115px;--d:0.04s"></i><i style="--x:48px;--y:-116px;--d:0.08s"></i><i style="--x:54px;--y:-17px;--d:0.06s"></i><i style="--x:-51px;--y:-36px;--d:0.16s"></i><i style="--x:-68px;--y:-56px;--d:0.07s"></i><i style="--x:-6px;--y:-64px;--d:0.04s"></i><i style="--x:35px;--y:-77px;--d:0.12s"></i><i style="--x:-1px;--y:-80px;--d:0.14s"></i><i style="--x:-61px;--y:-71px;--d:0.18s"></i><i style="--x:57px;--y:-62px;--d:0.02s"></i><i style="--x:-36px;--y:-109px;--d:0.10s"></i><i style="--x:-79px;--y:-18px;--d:0.11s"></i><i style="--x:66px;--y:-37px;--d:0.12s"></i><i style="--x:30px;--y:-89px;--d:0.19s"></i><i style="--x:-21px;--y:-106px;--d:0.14s"></i><i style="--x:63px;--y:-116px;--d:0.06s"></i><i style="--x:-48px;--y:-100px;--d:0.09s"></i><i style="--x:-57px;--y:-40px;--d:0.15s"></i><i style="--x:-58px;--y:-36px;--d:0.17s"></i></span>
+    <span class="cw-me" style="left:154px;top:390px"></span>
+  </div>
+
+  <div class="cw-map" style="position:relative;width:330px;height:470px;border-radius:24px">
+    <p class="cw-note" style="position:absolute;top:12px;left:16px;margin:0">收到的人</p>
+    <div class="cw-toast" style="position:absolute;top:40px;left:12px;right:12px;width:auto"><span class="cw-ico cw-toast__icon i-spark"></span><span class="cw-toast__text">有人送你一道微光，與你的心情共鳴。</span></div>
+    <span class="cw-me" style="left:154px;top:250px"></span>
+    <div class="cw-dock" style="bottom:16px;left:12px;right:12px">
+      <div class="cw-dock__mine"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--mood-love)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">好愛這座城市💖</div><div class="cw-dock__hint cw-dock__hint--glow">今晚 3 道微光與你共鳴</div></div></div>
+      <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!-- @dsCard group="Screens" height=790 page subtitle="The radar with every bubble state, toast and dock" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>RadarScreen</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="padding-block:24px">
+  <div class="cw-phone">
+    <div class="cw-map" style="position:absolute;inset:0">
+      <span class="cw-map__block" style="left:30px;top:120px;width:70px;height:46px"></span>
+      <span class="cw-map__block" style="left:220px;top:90px;width:96px;height:60px"></span>
+      <span class="cw-map__block" style="left:40px;top:430px;width:84px;height:70px"></span>
+      <span class="cw-map__block" style="left:250px;top:520px;width:70px;height:52px"></span>
+      <span class="cw-map__lit" style="left:118px;top:300px"></span><span class="cw-map__lit" style="left:205px;top:250px"></span>
+      <span class="cw-map__lit" style="left:160px;top:470px"></span><span class="cw-map__lit" style="left:300px;top:380px"></span>
+      <span class="cw-map__lit" style="left:70px;top:610px"></span>
+    </div>
+    <div class="cw-phone__status"><span>10:08</span><span>95%</span></div>
+    <div class="cw-toast" style="position:absolute;top:52px;left:16px;right:16px;width:auto;z-index:3"><span class="cw-ico cw-toast__icon i-heart"></span><span class="cw-toast__text"><b>遊蕩的貓</b> 正在附近散步</span></div>
+    <div class="cw-bubble " style="position:absolute;left:24px;top:150px;--m:var(--mood-love)"><div class="cw-bubble__body"><span class="cw-bubble__mood">好愛這座城市💖</span></div><span class="cw-bubble__pin"></span><span class="cw-bubble__ripple"></span><span class="cw-bubble__caption">遊蕩的貓 · 41m</span></div>
+    <div class="cw-bubble " style="position:absolute;left:204px;top:176px;--m:var(--mood-joy)"><div class="cw-bubble__body"><span class="cw-bubble__mood">終於下班了😊</span></div><span class="cw-bubble__pin"></span><span class="cw-bubble__ripple"></span><span class="cw-bubble__caption">小樹 · 220m</span></div>
+    <div class="cw-bubble cw-bubble--resting" style="position:absolute;left:196px;top:390px;--m:var(--mood-passion)"><div class="cw-bubble__body"><span class="cw-bubble__mood">熱情地喝一杯咖啡</span></div><span class="cw-bubble__pin"></span><span class="cw-bubble__ripple"></span><span class="cw-bubble__caption">阿哲 · 120m<span class="cw-tag">休息中</span></span></div>
+    <div class="cw-bubble cw-bubble--shadow" style="position:absolute;left:20px;top:420px;--m:var(--mood-sad)"><div class="cw-bubble__body"><span class="cw-bubble__mood">雨好大，有點難過</span></div><span class="cw-bubble__pin"></span><span class="cw-bubble__ripple"></span><span class="cw-bubble__caption">歷史殘影 · 300m</span></div>
+    <span class="cw-me" style="left:170px;top:345px"></span>
+    <div class="cw-dock">
+      <div class="cw-dock__mine"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--aurora-blue)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">平靜地漫步在微雨中🌿</div><div class="cw-dock__hint">你的心情 · 點一下修改</div></div></div>
+      <div class="cw-dock__actions">
+        <button class="cw-iconbtn" type="button" aria-label="留下一則低語"><span class="cw-ico i-pen"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="分享我的心情卡"><span class="cw-ico i-share"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

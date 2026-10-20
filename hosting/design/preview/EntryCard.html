@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>EntryCard</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="flex-direction:column;align-items:center;text-align:center;padding-block:32px">
+  <h1 class="cw-headline"><em>準備好</em>相遇了嗎？</h1>
+  <div class="cw-rule"></div>
+  <p class="cw-glass__body" style="max-width:320px">閉上眼睛，感受手機的震動與心跳。<br>現在，寫下你此刻的心情，走進城市低語。</p>
+  <form class="cw-glass cw-glass--glow cw-glass--form" style="width:340px;max-width:100%;margin-top:16px;display:flex;flex-direction:column;gap:16px" onsubmit="event.preventDefault()">
+    <div class="cw-field">
+      <label class="cw-field__label" for="entry-mood">此時此刻，你想對城市說什麼？</label>
+      <input class="cw-input" id="entry-mood" maxlength="20" value="喝了一杯好咖啡" oninput="document.getElementById('entry-count').textContent=[...this.value].length+'/20'">
+      <span class="cw-field__count" id="entry-count">7/20</span>
+    </div>
+    <label class="cw-check"><input type="checkbox" id="entry-agree" onchange="document.getElementById('entry-go').disabled=!this.checked"><span><span class="cw-ico cw-ico--sm i-check"></span></span><span>我已閱讀並同意<a class="cw-link" href="#terms">《使用條款》</a>與<a class="cw-link" href="#privacy">《隱私權政策》</a>。城市低語對騷擾、色情與仇恨等不當內容零容忍，違者將被移出城市。</span></label>
+    <button class="cw-btn cw-btn--block" id="entry-go" type="submit" disabled>走進城市低語</button>
+  </form>
+  <p class="cw-note" style="margin-top:8px">勾選同意後按鈕才會亮起</p>
+</div>
+</body>
+</html>

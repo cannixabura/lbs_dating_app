@@ -1,0 +1,43 @@
+<!-- @dsCard group="Knocking" height=560 subtitle="Incoming knock with 檢舉, what the knocker sees, and the block confirmation" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>KnockCard</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <div class="cw-map" style="width:360px;max-width:100%;height:520px;border-radius:24px;display:grid;place-items:center;padding:16px">
+    <div class="cw-glass cw-glass--glow cw-knock">
+      <div class="cw-avatar"><span class="cw-ico cw-ico--lg i-person"></span></div>
+      <h3 class="cw-glass__title" style="margin:0">片刻交集</h3>
+      <p class="cw-glass__body"><strong style="color:var(--ink);font-weight:500">遊蕩的貓</strong> 正在敲門，<br>想與你產生交集…</p>
+      <div class="cw-knock__actions">
+        <button class="cw-btn cw-btn--text" type="button">略過</button>
+        <button class="cw-btn cw-btn--ghost" type="button">婉拒</button>
+        <button class="cw-btn cw-btn--warm" type="button">同意</button>
+      </div>
+      <button class="cw-knock__report" type="button"><span class="cw-ico cw-ico--sm i-flag"></span>檢舉這個人</button>
+    </div>
+  </div>
+
+  <div style="width:343px;max-width:100%;display:flex;flex-direction:column;gap:10px">
+    <p class="cw-note">敲門的人看到的提示</p>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-wave"></span><span class="cw-toast__text">敲門聲已送出，等待回音…</span></div>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-hourglass"></span><span class="cw-toast__text">對方目前不想被打擾，請給彼此一點空間 (10 分鐘)。</span></div>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-hourglass"></span><span class="cw-toast__text">你們才剛結束交集，讓回憶沉澱一下吧。</span></div>
+    <div class="cw-toast"><span class="cw-ico cw-toast__icon i-moon"></span><span class="cw-toast__text">對方已沒入城市，悄悄收回敲門聲…</span></div>
+    <div class="cw-toast cw-toast--danger"><span class="cw-ico cw-toast__icon i-close"></span><span class="cw-toast__text">敲門沒有送出，請稍後再試。</span></div>
+
+    <p class="cw-note" style="margin-top:10px">封鎖確認（與敲門卡片同一種樣式）</p>
+    <div class="cw-glass" style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+      <span class="cw-ico cw-ico--lg i-block" style="color:var(--danger);width:36px;height:36px"></span>
+      <h3 class="cw-glass__title" style="margin:0">確認封鎖</h3>
+      <p class="cw-glass__body">確定要將 遊蕩的貓 沒入黑暗嗎？<br>封鎖後，雙方將從彼此的城市中消失。</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:4px">
+        <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+        <button class="cw-btn cw-btn--danger" type="button"><span class="cw-ico cw-ico--sm i-block"></span>確定封鎖</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

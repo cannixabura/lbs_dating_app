@@ -1,0 +1,70 @@
+<!-- @dsCard group="Radar" height=820 subtitle="The glass dock in its three caption states, and the settings sheet it opens" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Dock</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:24px;align-items:flex-start">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">尚未取暱稱</p>
+    <div class="cw-dock cw-dock--static">
+      <div class="cw-dock__mine" role="button" tabindex="0" aria-label="編輯你的心情"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--aurora-blue);box-shadow:0 0 10px var(--aurora-blue)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">平靜地漫步在微雨中🌿</div><div class="cw-dock__hint ">你的心情 · 點一下修改</div></div></div>
+      <div class="cw-dock__actions">
+        <button class="cw-iconbtn" type="button" aria-label="留下一則低語"><span class="cw-ico i-pen"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="分享我的心情卡"><span class="cw-ico i-share"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+      </div>
+    </div>
+    <p class="cw-note" style="margin-top:8px">有暱稱</p>
+    <div class="cw-dock cw-dock--static">
+      <div class="cw-dock__mine" role="button" tabindex="0" aria-label="編輯你的心情"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--mood-joy);box-shadow:0 0 10px var(--mood-joy)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">終於下班了😊</div><div class="cw-dock__hint ">小樹 · 你的心情</div></div></div>
+      <div class="cw-dock__actions">
+        <button class="cw-iconbtn" type="button" aria-label="留下一則低語"><span class="cw-ico i-pen"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="分享我的心情卡"><span class="cw-ico i-share"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+      </div>
+    </div>
+    <p class="cw-note" style="margin-top:8px">今晚收到微光</p>
+    <div class="cw-dock cw-dock--static">
+      <div class="cw-dock__mine" role="button" tabindex="0" aria-label="編輯你的心情"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--mood-love);box-shadow:0 0 10px var(--mood-love)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">好愛這座城市💖</div><div class="cw-dock__hint cw-dock__hint--glow">今晚 3 道微光與你共鳴</div></div></div>
+      <div class="cw-dock__actions">
+        <button class="cw-iconbtn" type="button" aria-label="留下一則低語"><span class="cw-ico i-pen"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="分享我的心情卡"><span class="cw-ico i-share"></span></button>
+        <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+      </div>
+    </div>
+    <div class="cw-map" style="position:relative;width:343px;height:300px;border-radius:24px;margin-top:8px">
+      <span class="cw-map__block" style="left:30px;top:50px;width:70px;height:46px"></span>
+      <span class="cw-map__block" style="left:230px;top:30px;width:80px;height:56px"></span>
+      <span class="cw-me" style="left:160px;top:120px"></span>
+      <div class="cw-dock" style="left:12px;right:12px;bottom:16px">
+        <div class="cw-dock__mine" role="button" tabindex="0" aria-label="編輯你的心情"><div class="cw-avatar cw-avatar--sm" style="border-color:var(--mood-calm);box-shadow:0 0 10px var(--mood-calm)"><span class="cw-ico cw-ico--sm i-person"></span></div><div style="min-width:0"><div class="cw-dock__mood">平靜地漫步在微雨中🌿</div><div class="cw-dock__hint">你的心情 · 點一下修改</div></div></div>
+        <div class="cw-dock__actions">
+          <button class="cw-iconbtn" type="button" aria-label="留下一則低語"><span class="cw-ico i-pen"></span></button>
+          <button class="cw-iconbtn" type="button" aria-label="分享我的心情卡"><span class="cw-ico i-share"></span></button>
+          <button class="cw-iconbtn" type="button" aria-label="設定"><span class="cw-ico i-sliders"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cw-glass cw-sheet">
+    <h3 class="cw-glass__title" style="margin:0">設定</h3>
+    <p class="cw-sheet__section">我</p>
+      <a class="cw-row " href="#"><span class="cw-ico i-person"></span><span class="cw-row__text">編輯個人狀態<span class="cw-row__sub">大頭貼、城市稱呼與心情</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <a class="cw-row " style="--c:var(--danger)" href="#"><span class="cw-ico i-block"></span><span class="cw-row__text">管理封鎖名單<span class="cw-row__sub">查看或解除被你沒入黑暗的人</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <a class="cw-row " href="#"><span class="cw-ico i-trail"></span><span class="cw-row__text">我的心情軌跡<span class="cw-row__sub">只存在你的手機上</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <div class="cw-row" style="cursor:default"><span class="cw-ico i-moon"></span><span class="cw-row__text">每晚提醒<span class="cw-row__sub">每晚 21:30 一則溫和的提醒</span></span><span class="cw-switch" role="switch" aria-checked="true" aria-label="每晚提醒"></span></div>
+    <p class="cw-sheet__section">分享</p>
+      <a class="cw-row " href="#"><span class="cw-ico i-share"></span><span class="cw-row__text">分享我的心情卡<span class="cw-row__sub">一張夜景心情卡，適合 IG 限時動態</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <a class="cw-row " href="#"><span class="cw-ico i-invite"></span><span class="cw-row__text">邀請朋友點亮街區<span class="cw-row__sub">附近的人越多，城市越亮</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+    <p class="cw-sheet__section">關於</p>
+      <a class="cw-row " href="#"><span class="cw-ico i-doc"></span><span class="cw-row__text">使用條款</span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <a class="cw-row " href="#"><span class="cw-ico i-shield"></span><span class="cw-row__text">隱私權政策</span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+      <a class="cw-row " href="#"><span class="cw-ico i-mail"></span><span class="cw-row__text">聯絡我們<span class="cw-row__sub">service.softchip@gmail.com</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+    <div class="cw-divider"></div>
+      <a class="cw-row cw-row--danger" href="#"><span class="cw-ico i-trash"></span><span class="cw-row__text">刪除帳號與資料<span class="cw-row__sub">永久抹除你在城市留下的一切</span></span><span class="cw-ico cw-row__chev i-chevron"></span></a>
+  </div>
+</div>
+</body>
+</html>

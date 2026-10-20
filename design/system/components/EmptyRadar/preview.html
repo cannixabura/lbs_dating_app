@@ -1,0 +1,33 @@
+<!-- @dsCard group="Radar" height=610 subtitle="Nobody within 5km: the card that replaces an empty map" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>EmptyRadar</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px;align-items:flex-start">
+  <div class="cw-map" style="position:relative;width:340px;height:570px;border-radius:24px">
+    <span class="cw-map__block" style="left:30px;top:120px;width:70px;height:46px"></span>
+    <span class="cw-map__block" style="left:230px;top:80px;width:80px;height:56px"></span>
+    <span class="cw-map__lit" style="left:118px;top:200px"></span><span class="cw-map__lit" style="left:260px;top:180px"></span>
+    <span class="cw-chip" style="position:absolute;top:14px;left:14px"><span class="cw-chip__dot" style="--m:var(--mood-calm)"></span>今晚的城市 · 平靜 38%</span>
+    <span class="cw-me" style="left:159px;top:160px"></span>
+    <div class="cw-glass cw-empty" style="position:absolute;left:16px;right:16px;bottom:16px">
+      <h3 class="cw-gradient-title">你是今晚第一道光</h3>
+      <p class="cw-glass__body">附近還沒有人。你的心情已經在城市裡發光，有人經過時，就會看見你。也可以留一則低語，給下一個經過這裡的人。</p>
+      <p class="cw-caption">今晚城市裡有 128 個人，多半感到「平靜」</p>
+      <button class="cw-btn cw-btn--block" type="button" style="margin-top:4px"><span class="cw-ico cw-ico--sm i-invite"></span>邀請朋友點亮街區</button>
+      <button class="cw-btn cw-btn--ghost cw-btn--block" type="button"><span class="cw-ico cw-ico--sm i-share"></span>分享我的心情卡</button>
+    </div>
+  </div>
+  <div style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <p class="cw-note">城市還很安靜時（少於 10 人）不顯示城市那一行</p>
+    <div class="cw-glass cw-empty">
+      <h3 class="cw-gradient-title">你是今晚第一道光</h3>
+      <p class="cw-glass__body">附近還沒有人。你的心情已經在城市裡發光，有人經過時，就會看見你。也可以留一則低語，給下一個經過這裡的人。</p>
+      <button class="cw-btn cw-btn--block" type="button" style="margin-top:4px"><span class="cw-ico cw-ico--sm i-invite"></span>邀請朋友點亮街區</button>
+      <button class="cw-btn cw-btn--ghost cw-btn--block" type="button"><span class="cw-ico cw-ico--sm i-share"></span>分享我的心情卡</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

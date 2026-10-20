@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="城市低語設計系統元件「進場卡片」：標題、心情欄位，勾選使用條款才能進入">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="進場卡片 · 城市低語設計系統">
+<meta property="og:description" content="城市低語設計系統元件「進場卡片」：標題、心情欄位，勾選使用條款才能進入">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/beta_og.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/design/EntryCard.html">
+<title>進場卡片 · 城市低語設計系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Chakra+Petch:wght@500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+  --glass-fill: rgba(26, 31, 74, 0.72); --glass-line: rgba(196, 170, 255, 0.38);
+  --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+  --aurora-violet: #b44cff; --aurora-blue: #4fc3f7;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "Chakra Petch", "Noto Sans TC", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--night-900); color: var(--ink); font: 400 15px/1.75 var(--font-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; overflow-x: clip; }
+h1, h2, h3, h4 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--aurora-blue); }
+code { font-family: var(--font-num); font-size: .9em; background: var(--night-700); border-radius: 6px; padding: 1px 6px; color: var(--ink); overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; border-radius: 6px; }
+.top { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding-block: 20px; font-size: 13px; color: var(--ink-faint); flex-wrap: wrap; }
+.top a { color: var(--ink-muted); text-decoration: none; }
+.top a:hover { color: var(--ink); }
+.eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--ink-faint); }
+.grad-text { background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+section { padding-block: 40px 8px; display: grid; gap: 18px; border-top: 1px solid var(--night-600); }
+section > .head { display: grid; gap: 6px; }
+section > .head h2 { font-size: 22px; font-weight: 700; letter-spacing: 1.5px; }
+section > .head p { color: var(--ink-muted); max-width: 40em; }
+.prose { display: grid; gap: 14px; max-width: 46em; color: var(--ink-muted); min-width: 0; }
+.prose h2 { font-size: 19px; color: var(--ink); letter-spacing: 1px; margin-top: 18px; }
+.prose h3 { font-size: 16px; color: var(--ink); margin-top: 10px; }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose ul { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.prose ul ul { margin-top: 6px; }
+.prose li::marker { color: var(--aurora-violet); }
+.table { overflow-x: auto; border: 1px solid var(--night-600); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--night-600); white-space: nowrap; }
+th { color: var(--ink); font-weight: 500; background: var(--night-800); }
+tr:last-child td { border-bottom: 0; }
+footer { padding-block: 40px 0; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
+footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+footer a { color: var(--ink-muted); text-decoration: none; }
+footer a:hover { color: var(--ink); text-decoration: underline; }
+
+.title { padding-block: 16px 24px; display: grid; gap: 8px; }
+.title h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: 2px; }
+.title h1 span { font-family: var(--font-num); font-size: .45em; color: var(--ink-faint); letter-spacing: 1px; margin-left: 10px; font-weight: 500; }
+.title p { color: var(--ink-muted); }
+.stage { border-radius: 24px; overflow: hidden; border: 1px solid var(--night-600); background: var(--night-900); }
+.stage iframe { display: block; width: 100%; border: 0; }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 32px; }
+.pager a { color: var(--ink-muted); text-decoration: none; border: 1px solid var(--glass-line); border-radius: 999px; padding: 6px 16px; font-size: 14px; }
+.pager a:hover { color: var(--ink); border-color: var(--aurora-violet); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a href="./">← 夜光設計系統</a><span>引導</span></div>
+<header class="title"><h1>進場卡片<span>EntryCard</span></h1><p>標題、心情欄位，勾選使用條款才能進入</p></header>
+<div class="stage"><iframe id="pv" src="preview/EntryCard.html" title="進場卡片 預覽" style="height:620px"></iframe></div>
+<section><div class="head"><h2>規格</h2></div><div class="prose"><p>The way into the city: one mood line and the terms agreement, under the onboarding headline. Mood only; no nickname on entry.</p>
+<ul><li>
+Provide the last mood (prefilled for returning people, empty on first launch), the agreement state, and the enter handler.
+</li><li>
+The checkbox must be ticked before 走進城市低語 enables, on first launch and whenever the terms change. It names 《使用條款》 and 《隱私權政策》 as links and states zero tolerance for objectionable content (App Store guideline 1.2).
+</li><li>
+Empty or blank moods are refused with 「請留下你此刻的心情，再沒入城市。」
+</li><li>
+Headline copy: 「準備好相遇了嗎？」 then 「閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，走進城市低語。」
+</li></ul></div></section>
+<nav class="pager"><a href="RadarScreen.html">← 雷達畫面</a><a href="Dock.html">底部選單 →</a></nav>
+<footer><nav>
+<a href="../">城市低語</a><a href="./">設計系統</a><a href="../colors.html">品牌用色</a>
+<a href="../privacy.html">隱私權政策</a><a href="../terms.html">使用條款</a><a href="../beta.html">加入公測</a>
+</nav>© Softchip 城市低語 · 介面設計規範，供合作夥伴與開發參考</footer>
+</div>
+<script>
+(function () {
+  var f = document.getElementById('pv');
+  function fit() {
+    try { var d = f.contentDocument; if (d && d.body) f.style.height = Math.max(120, d.documentElement.scrollHeight) + 'px'; } catch (e) {}
+  }
+  f.addEventListener('load', function () { fit(); setTimeout(fit, 400); setTimeout(fit, 1500); });
+  window.addEventListener('resize', function () { setTimeout(fit, 100); });
+})();
+</script>
+</body>
+</html>

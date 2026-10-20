@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="城市低語的夜光色彩規範：底色層次、文字、招牌漸層、功能色、心情色與夜光地圖，附色碼與使用規則。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語 用色指南">
+<meta property="og:description" content="夜裡的城市只有一種天色：城市低語的色彩規範。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/beta_og.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/colors.html">
+<title>城市低語 用色指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Chakra+Petch:wght@500;600&display=swap">
+<style>
+/* 版面：一條夜空往下沉的長卷——每一節是一層「從 night-900 往上疊」的材料，色票直接用 App 裡的元件形狀呈現 */
+:root {
+  color-scheme: dark;
+  --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+  --glass-fill: rgba(26, 31, 74, 0.72); --glass-line: rgba(196, 170, 255, 0.38);
+  --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+  --aurora-violet: #b44cff; --aurora-blue: #4fc3f7; --deep-violet: #8e2de2; --deep-blue: #2a63d4;
+  --knock-pink: #ff5fd2; --city-amber: #ffb547; --danger: #ff6b7a; --shadow-ink: #6f6c8f;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "Chakra Petch", "Noto Sans TC", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--night-900); color: var(--ink); font: 400 15px/1.7 var(--font-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code, .hex { font-family: var(--font-num); font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+:focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; border-radius: 6px; }
+
+/* hero：亮漸層只出現在這一個地方 */
+.hero { padding-block: 56px 40px; display: grid; gap: 18px; position: relative; isolation: isolate; }
+.wrap { overflow-x: clip; }
+.hero::before { content: ""; position: absolute; inset: -40px 0 auto; height: 360px; z-index: -1;
+  background: radial-gradient(60% 70% at 30% 20%, rgba(142,45,226,.35), transparent 70%); }
+.eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--ink-faint); }
+.hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.15; font-weight: 700; letter-spacing: 3px; }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { color: var(--ink-muted); max-width: 36em; font-size: 16px; }
+.hero .rule { width: 128px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); }
+
+section { padding-block: 40px 8px; display: grid; gap: 18px; border-top: 1px solid var(--night-600); }
+.head { display: grid; gap: 6px; }
+.head h2 { font-size: 22px; font-weight: 700; letter-spacing: 1.5px; }
+.head p { color: var(--ink-muted); max-width: 40em; }
+
+/* 地層：底色由深到淺堆疊 */
+.strata { display: grid; border-radius: 24px; overflow: hidden; border: 1px solid var(--glass-line); }
+.stratum { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 18px 20px; }
+.stratum .name { font-weight: 500; }
+.stratum .use { color: var(--ink-muted); font-size: 13px; }
+
+/* 色票 */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.swatch { display: grid; grid-template-rows: 88px auto; border-radius: 18px; overflow: hidden; background: var(--night-800); border: 1px solid var(--night-600); min-width: 0; }
+.chip { position: relative; }
+.chip .hex { position: absolute; left: 12px; bottom: 10px; font-size: 13px; }
+.info { padding: 12px 14px 14px; display: grid; gap: 4px; min-width: 0; }
+.info .name { font-weight: 500; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.info .token { font-family: var(--font-num); font-size: 12px; color: var(--ink-faint); }
+.info .use { color: var(--ink-muted); font-size: 13px; line-height: 1.6; }
+.copy { appearance: none; border: 1px solid var(--glass-line); background: transparent; color: var(--ink-muted); font: 500 12px var(--font-body); border-radius: 999px; padding: 2px 10px; cursor: pointer; min-height: 28px; }
+.copy:hover { color: var(--ink); border-color: var(--aurora-violet); }
+
+/* 文字對比示範 */
+.ink-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.ink-card { border-radius: 18px; padding: 18px 20px; display: grid; gap: 10px; }
+.ink-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.ratio { font-family: var(--font-num); font-size: 13px; color: var(--ink-faint); white-space: nowrap; }
+
+/* 漸層 */
+.grads { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.grad { border-radius: 20px; overflow: hidden; border: 1px solid var(--night-600); background: var(--night-800); display: grid; }
+.grad .bar { height: 120px; display: grid; place-items: center; padding: 16px; }
+.grad .body { padding: 16px 18px 18px; display: grid; gap: 8px; }
+.grad h3 { font-size: 17px; }
+.btn-demo { min-height: 48px; padding: 0 28px; border-radius: 999px; border: 0; color: #fff; font: 600 15px var(--font-body); letter-spacing: 1px;
+  background: linear-gradient(90deg, var(--deep-violet), var(--deep-blue)); box-shadow: 0 0 24px rgba(180,76,255,.45); }
+.title-demo { font-size: 28px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* 心情氣泡 */
+.moods { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px 12px; }
+.mood { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.bubble { --m: #a99cff; position: relative; padding: 9px 14px; border-radius: 16px; background: var(--glass-fill); border: 1.5px solid var(--m);
+  box-shadow: 0 0 22px -4px var(--m); font-size: 14px; color: var(--ink); max-width: 100%; }
+.bubble::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; transform: translateX(-50%) rotate(45deg);
+  background: var(--night-700); border-right: 1.5px solid var(--m); border-bottom: 1.5px solid var(--m); }
+.pin { width: 10px; height: 10px; border-radius: 50%; background: var(--m); box-shadow: 0 0 12px var(--m); margin-top: 6px; }
+.mood .meta { display: grid; gap: 2px; }
+.mood .kw { font-size: 13px; color: var(--ink-muted); }
+.mood .hex { font-size: 12px; color: var(--ink-faint); }
+
+/* 地圖色：用道路層級畫一小塊夜光地圖 */
+.mapbox { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.map { position: relative; min-height: 240px; border-radius: 20px; overflow: hidden; background: #0e1433; border: 1px solid var(--night-600); }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.legend { display: grid; gap: 8px; align-content: start; }
+.leg { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 12px; border-radius: 12px; background: var(--night-800); }
+.leg i { height: 8px; border-radius: 4px; display: block; }
+.leg small { color: var(--ink-faint); font-size: 12px; }
+
+/* 規則 */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.rule-card { border-radius: 18px; padding: 16px 18px; background: var(--night-800); border: 1px solid var(--night-600); display: grid; gap: 8px; }
+.rule-card h3 { font-size: 15px; font-weight: 500; display: flex; gap: 8px; align-items: center; }
+.rule-card ul { margin: 0; padding-left: 1.1em; color: var(--ink-muted); display: grid; gap: 4px; }
+.tag { font-size: 11px; letter-spacing: 1px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.tag.yes { color: #4de3a0; } .tag.no { color: var(--danger); }
+
+footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; display: grid; gap: 4px; }
+footer a { color: var(--ink-muted); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 10px 18px; border-radius: 999px;
+  background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); font-size: 14px; backdrop-filter: blur(10px); }
+
+@media (max-width: 640px) {
+  .mapbox { grid-template-columns: 1fr; }
+  .stratum { grid-template-columns: 1fr; }
+  .stratum .copy { justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">城市低語 · MOOD WHISPER · 夜光設計系統</span>
+    <h1><em>夜裡</em>的城市<br>只有一種天色</h1>
+    <div class="rule"></div>
+    <p>城市低語只有一個主題「夜」。所有畫面都從最深的夜空開始往上疊：地圖、玻璃卡片、文字，最後才是會發光的心情。這份指南列出 App 裡每一個顏色的色碼、用在哪裡，以及不能怎麼用。</p>
+  </header>
+
+  <section aria-labelledby="s-ground">
+    <div class="head">
+      <h2 id="s-ground">底色：從夜空往上疊</h2>
+      <p>越深的顏色越底層。不再使用中性灰 #121212；任何畫面的最底層都是 night-900。</p>
+    </div>
+    <div class="strata">
+      <div class="stratum" style="background:#2a2f66"><div><div class="name">night-600　<span class="hex">#2A2F66</span></div><div class="use">按下時的底色、卡片內的分隔線</div></div><button class="copy" data-hex="#2A2F66">複製</button></div>
+      <div class="stratum" style="background:#1a1f4a"><div><div class="name">night-700　<span class="hex">#1A1F4A</span></div><div class="use">輸入框、列表列、浮起的表面</div></div><button class="copy" data-hex="#1A1F4A">複製</button></div>
+      <div class="stratum" style="background:#0e1433"><div><div class="name">night-800　<span class="hex">#0E1433</span></div><div class="use">地圖地面、聊天室背景</div></div><button class="copy" data-hex="#0E1433">複製</button></div>
+      <div class="stratum" style="background:#070b1f"><div><div class="name">night-900　<span class="hex">#070B1F</span></div><div class="use">App 背景、啟動畫面、所有畫面最底層</div></div><button class="copy" data-hex="#070B1F">複製</button></div>
+    </div>
+    <div class="grid">
+      <div class="swatch"><div class="chip" style="background:linear-gradient(135deg,#1c2150,#0e1433);"><div style="position:absolute;inset:18px;border-radius:14px;background:rgba(26,31,74,.72);border:1px solid rgba(196,170,255,.38)"></div></div>
+        <div class="info"><div class="name">玻璃底 <button class="copy" data-hex="rgba(26, 31, 74, 0.72)">複製</button></div><span class="token">glass-fill · rgba(26,31,74,.72)</span><span class="use">玻璃卡片、提示條、底部選單的底。只放在 night-800 或更深的底上，不疊在亮的插畫上。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#0e1433;"><div style="position:absolute;inset:18px;border-radius:14px;border:1px solid rgba(196,170,255,.38)"></div></div>
+        <div class="info"><div class="name">玻璃邊框 <button class="copy" data-hex="rgba(196, 170, 255, 0.38)">複製</button></div><span class="token">glass-line · rgba(196,170,255,.38)</span><span class="use">玻璃表面 1px 邊框、輸入框靜止時的外框。</span></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-ink">
+    <div class="head">
+      <h2 id="s-ink">文字：三層墨色</h2>
+      <p>文字對比至少 4.5:1。ink-faint 只能用在最小的說明字級（12px），而且只放在 night-700 或更深的底上。</p>
+    </div>
+    <div class="ink-demo">
+      <div class="ink-card" style="background:#1a1f4a">
+        <div class="ink-row"><span style="color:#f3f0ff;font-size:18px;font-weight:500">與 遊蕩的貓 的相遇</span><span class="ratio">ink · #F3F0FF</span></div>
+        <div class="ink-row"><span style="color:#b9b6d6">送出一道微光，或輕輕敲門。</span><span class="ratio">ink-muted · 8:1</span></div>
+        <div class="ink-row"><span style="color:#8c89b0;font-size:12px;letter-spacing:1px">遊蕩的貓 · 150m</span><span class="ratio">ink-faint · 4.7:1</span></div>
+      </div>
+      <div class="ink-card" style="background:linear-gradient(90deg,#8e2de2,#2a63d4)">
+        <div class="ink-row"><span style="color:#fff;font-weight:600;letter-spacing:1px">走進城市低語</span><span class="ratio" style="color:#fff">on-deep · #FFFFFF</span></div>
+        <div style="color:#fff;font-size:13px;opacity:.9">深漸層上一律用白字：deep-violet 5.8:1、deep-blue 5.5:1。</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="swatch"><div class="chip" style="background:#f3f0ff;color:#070b1f"><span class="hex">#F3F0FF</span></div><div class="info"><div class="name">ink <button class="copy" data-hex="#F3F0FF">複製</button></div><span class="use">主要文字與圖示，氣泡裡的心情文字一律用它。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#b9b6d6;color:#070b1f"><span class="hex">#B9B6D6</span></div><div class="info"><div class="name">ink-muted <button class="copy" data-hex="#B9B6D6">複製</button></div><span class="use">次要文字、對話框內文、心情列。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#8c89b0;color:#070b1f"><span class="hex">#8C89B0</span></div><div class="info"><div class="name">ink-faint <button class="copy" data-hex="#8C89B0">複製</button></div><span class="use">名字·距離、計數、時間戳。只用在 caption 字級。</span></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-grad">
+    <div class="head">
+      <h2 id="s-grad">招牌漸層：兩組，不能混用</h2>
+      <p>一個畫面只有一個亮漸層的焦點，通常是主按鈕或標題，不會兩者同時出現。</p>
+    </div>
+    <div class="grads">
+      <div class="grad">
+        <div class="bar" style="background:#070b1f"><span class="title-demo">準備好相遇了嗎？</span></div>
+        <div class="body"><h3>亮漸層　<span class="hex" style="font-size:13px;color:var(--ink-faint)">#B44CFF → #4FC3F7</span></h3>
+          <p style="color:var(--ink-muted);font-size:14px">aurora-violet → aurora-blue。用在標題關鍵字、發光邊框、光暈、焦點框。<b style="color:var(--ink);font-weight:500">上面不能放白字</b>，對比只有 2:1～3.9:1。</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy" data-hex="#B44CFF">複製 #B44CFF</button><button class="copy" data-hex="#4FC3F7">複製 #4FC3F7</button></div></div>
+      </div>
+      <div class="grad">
+        <div class="bar" style="background:#070b1f"><button class="btn-demo" type="button" tabindex="-1">走進城市低語</button></div>
+        <div class="body"><h3>深漸層　<span class="hex" style="font-size:13px;color:var(--ink-faint)">#8E2DE2 → #2A63D4</span></h3>
+          <p style="color:var(--ink-muted);font-size:14px">deep-violet → deep-blue。用在主按鈕底色、自己的聊天泡泡，上面的字用白色 on-deep。按鈕外圍加 glow-violet 光暈。</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="copy" data-hex="#8E2DE2">複製 #8E2DE2</button><button class="copy" data-hex="#2A63D4">複製 #2A63D4</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-func">
+    <div class="head">
+      <h2 id="s-func">功能色：每個顏色只做一件事</h2>
+      <p>看到這個顏色，使用者就知道正在發生什麼。不要拿它們當裝飾。</p>
+    </div>
+    <div class="grid">
+      <div class="swatch"><div class="chip" style="background:#070b1f"><div style="position:absolute;left:50%;top:50%;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;border:2px solid #ff5fd2;box-shadow:0 0 22px rgba(255,95,210,.55)"></div><span class="hex" style="color:#ff5fd2">#FF5FD2</span></div><div class="info"><div class="name">敲門粉 <button class="copy" data-hex="#FF5FD2">複製</button></div><span class="token">knock-pink</span><span class="use">所有和敲門有關的東西：等待時的脈動、流向對方的虛線弧、300 秒倒數條。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#070b1f;display:grid;place-items:center"><span style="border:1px solid #ffb547;color:#ffb547;border-radius:999px;padding:6px 22px;font-weight:600">同意</span><span class="hex" style="color:#ffb547">#FFB547</span></div><div class="info"><div class="name">城市琥珀 <button class="copy" data-hex="#FFB547">複製</button></div><span class="token">city-amber</span><span class="use">只用在敲門卡片的「同意」，對話框裡唯一溫暖的字。地圖上禁止使用。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#070b1f;display:grid;place-items:center"><span style="border:1px solid #ff6b7a;color:#ff6b7a;border-radius:999px;padding:6px 18px;font-weight:600">確定封鎖</span><span class="hex" style="color:#ff6b7a">#FF6B7A</span></div><div class="info"><div class="name">警示紅 <button class="copy" data-hex="#FF6B7A">複製</button></div><span class="token">danger</span><span class="use">封鎖、檢舉、刪除帳號。只用在圖示、文字與 1px 邊框，不當大面積底色。</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#070b1f;display:grid;place-items:center"><span style="border:1.5px dashed #6f6c8f;color:#b9b6d6;border-radius:14px;padding:6px 14px;opacity:.6;font-size:13px">雨好大，有點難過</span><span class="hex" style="color:#6f6c8f">#6F6C8F</span></div><div class="info"><div class="name">殘影灰 <button class="copy" data-hex="#6F6C8F">複製</button></div><span class="token">shadow-ink</span><span class="use">歷史殘影的邊框與圖示。整顆氣泡的透明度從 0.8 隨時間淡到 0.1。</span></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-mood">
+    <div class="head">
+      <h2 id="s-mood">心情色：由使用者的一句話決定</h2>
+      <p>App 依心情文字裡的關鍵字決定氣泡顏色，由上往下比對，先符合的優先。心情色只用在氣泡的邊框、光暈、定位點與地面漣漪；氣泡裡的字永遠是 ink。</p>
+    </div>
+    <div class="moods">
+      <div class="mood" style="--m:#ffd54a"><span class="bubble" style="--m:#ffd54a">終於下班了😊</span><span class="pin" style="--m:#ffd54a"></span><div class="meta"><span class="kw">😊 開心 笑</span><span class="hex">mood-joy #FFD54A</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#5ab8ff">雨好大，有點難過</span><span class="pin" style="--m:#5ab8ff"></span><div class="meta"><span class="kw">😢 難過 哭</span><span class="hex">mood-sad #5AB8FF</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#ff8a5c">塞車塞到好生氣</span><span class="pin" style="--m:#ff8a5c"></span><div class="meta"><span class="kw">😡 生氣 怒</span><span class="hex">mood-angry #FF8A5C</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#4de3a0">平靜地散步🌿</span><span class="pin" style="--m:#4de3a0"></span><div class="meta"><span class="kw">🌿 平靜 發呆</span><span class="hex">mood-calm #4DE3A0</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#ff9f45">熱情地跑一場🔥</span><span class="pin" style="--m:#ff9f45"></span><div class="meta"><span class="kw">🔥 熱情</span><span class="hex">mood-passion #FF9F45</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#ff6bd6">好愛這座城市💖</span><span class="pin" style="--m:#ff6bd6"></span><div class="meta"><span class="kw">💖 愛 心</span><span class="hex">mood-love #FF6BD6</span></div></div>
+      <div class="mood"><span class="bubble" style="--m:#a99cff">今晚的風</span><span class="pin" style="--m:#a99cff"></span><div class="meta"><span class="kw">其他</span><span class="hex">mood-default #A99CFF</span></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-map">
+    <div class="head">
+      <h2 id="s-map">夜光地圖</h2>
+      <p>道路一律用冷色的灰藍綠，依層級由亮到暗，底下各有一層同色、模糊的光暈。橘色和暗金都在實機上試過，和深藍紫是互補色，再暗都會跳出來，所以地圖上不用暖色。圖資來自 OpenFreeMap，左下角固定標示「© OpenMapTiles © OpenStreetMap」。</p>
+    </div>
+    <div class="mapbox">
+      <div class="map" aria-hidden="true">
+        <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
+          <rect width="400" height="260" fill="#0e1433"/>
+          <path d="M-10 200 C 80 170, 140 230, 230 190 S 360 150, 410 175 L410 260 L-10 260 Z" fill="#0b1d52" stroke="#2a63d4" stroke-width="1.5"/>
+          <g fill="#181d44"><rect x="40" y="40" width="50" height="34" rx="3"/><rect x="250" y="30" width="60" height="44" rx="3"/><rect x="300" y="100" width="40" height="30" rx="3" fill="#4a3f8c"/><rect x="120" y="110" width="44" height="30" rx="3" fill="#2f3570"/></g>
+          <g fill="none" stroke-linecap="round">
+            <path d="M-10 150 L 410 90" stroke="#33676c" stroke-width="16" opacity=".12"/><path d="M-10 150 L 410 90" stroke="#33676c" stroke-width="5"/>
+            <path d="M200 -10 L 170 270" stroke="#284f55" stroke-width="12" opacity=".1"/><path d="M200 -10 L 170 270" stroke="#284f55" stroke-width="3.5"/>
+            <path d="M20 90 L 380 40 M 60 -10 L 110 200 M 320 0 L 280 220" stroke="#1f3b42" stroke-width="2.4"/>
+            <path d="M0 230 L 400 120 M 230 -10 L 360 250" stroke="#222c42" stroke-width="1.4" stroke-dasharray="2 4"/>
+          </g>
+          <text x="10" y="252" fill="#8c89b0" font-size="8" font-family="Noto Sans TC, sans-serif">© OpenMapTiles © OpenStreetMap</text>
+        </svg>
+      </div>
+      <div class="legend">
+        <div class="leg"><i style="background:#33676c;box-shadow:0 0 8px #33676c"></i><span>主要道路 <small>map-road-major · 光暈 12%</small></span><span class="hex">#33676C</span></div>
+        <div class="leg"><i style="background:#284f55"></i><span>次要道路 <small>map-road-mid · 10%</small></span><span class="hex">#284F55</span></div>
+        <div class="leg"><i style="background:#1f3b42"></i><span>巷弄 <small>map-road-minor · 8%</small></span><span class="hex">#1F3B42</span></div>
+        <div class="leg"><i style="background:#222c42"></i><span>步道、服務道路 <small>無光暈</small></span><span class="hex">#222C42</span></div>
+        <div class="leg"><i style="background:#0b1d52;outline:1px solid #2a63d4"></i><span>水域 <small>加 deep-blue 光邊</small></span><span class="hex">#0B1D52</span></div>
+        <div class="leg"><i style="background:linear-gradient(90deg,#181d44,#4a3f8c)"></i><span>3D 建築 <small>低 → 高（150 m）</small></span><span class="hex">#181D44→4A3F8C</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-rules">
+    <div class="head"><h2 id="s-rules">使用規則</h2></div>
+    <div class="rules">
+      <div class="rule-card"><h3><span class="tag yes">這樣用</span></h3><ul>
+        <li>背景一律從 night-900 開始。</li>
+        <li>主按鈕用深漸層加白字；標題關鍵字用亮漸層。</li>
+        <li>敲門的一切都是粉紅，同意是琥珀，封鎖與檢舉是警示紅。</li>
+        <li>狀態不只靠顏色：休息中有「休息中」字樣，殘影有灰色與虛線，敲門有倒數。</li>
+        <li>焦點框：2px aurora-violet 實線，外推 2px。</li>
+      </ul></div>
+      <div class="rule-card"><h3><span class="tag no">不要這樣用</span></h3><ul>
+        <li>不要在亮漸層或 aurora 色上放白字。</li>
+        <li>不要讓亮漸層同時出現在標題和按鈕。</li>
+        <li>不要把心情色用在文字上，也不要拿來當大面積底色。</li>
+        <li>不要把 danger 當底色；不要在地圖上用任何暖色。</li>
+        <li>不要把 ink-faint 用在比 caption 大的字，或放在淺色底上。</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>城市低語 Mood Whisper · Softchip · 2026 年 10 月</span>
+    <span><a href="./">城市低語首頁</a>　<a href="beta.html">加入公測</a>　<a href="privacy.html">隱私權政策</a>　<a href="terms.html">使用條款</a></span>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script>
+(function () {
+  var toast = document.getElementById('toast'), timer;
+  function show(msg) { toast.textContent = msg; toast.hidden = false; clearTimeout(timer); timer = setTimeout(function () { toast.hidden = true; }, 1600); }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.copy'); if (!b) return;
+    var hex = b.getAttribute('data-hex');
+    function fallback() { show('請手動複製：' + hex); }
+    try {
+      navigator.clipboard.writeText(hex).then(function () { show('已複製 ' + hex); }, fallback);
+    } catch (err) { fallback(); }
+  });
+})();
+</script>
+
+</body>
+</html>

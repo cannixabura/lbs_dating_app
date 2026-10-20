@@ -294,6 +294,14 @@ INDEX_STYLE = """
 """
 
 
+def public_readme(readme):
+    """Drop developer-only file paths from the principles before publishing."""
+    readme = readme.replace("（`assets/map/night_style.json`），由 `tool/build_night_map_style.py` 從", "，從")
+    readme = readme.replace("要調整顏色就改腳本再重新產生。", "")
+    assert "assets/" not in readme and "tool/" not in readme, "README still mentions a file path"
+    return readme
+
+
 def build_index(tokens, readme, comps):
     colors = "".join(
         f'<div class="sw"><i style="background:{t["value"]}"></i><div><b>{t["name"]}</b>'
@@ -435,7 +443,7 @@ def main():
 
     order = [g for g, _ in GROUPS]
     comps.sort(key=lambda c: (order.index(c["group"]) if c["group"] in order else 99, c["name"]))
-    build_index(tokens, (SRC / "README.md").read_text(encoding="utf-8"), comps)
+    build_index(tokens, public_readme((SRC / "README.md").read_text(encoding="utf-8")), comps)
     for i, c in enumerate(comps):
         build_component(c, comps[i - 1] if i else None, comps[i + 1] if i + 1 < len(comps) else None)
     print(f"built {len(comps)} components into {OUT.relative_to(ROOT)}")

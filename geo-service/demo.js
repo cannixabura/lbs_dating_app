@@ -19,6 +19,8 @@ const TAIPEI_CENTER = { lat: 25.0418, lng: 121.5440 }; // 忠孝復興一帶
 const TAIPEI_RADIUS_KM = 4;
 const TAIPEI_BOT_COUNT = 200;
 const PUBLIC_MAX_RESULTS = 12;          // 一次最多顯示最近的 12 位，避免示範對象蓋過真人
+const CROWDED_REAL_USERS = 3;           // 附近已有這麼多真人時，示範對象減量
+const CROWDED_MAX_RESULTS = 4;          // 減量後最多顯示的示範對象
 
 const isDemoUid = (uid) => typeof uid === 'string' && uid.startsWith(DEMO_PREFIX);
 const isReviewCode = (mood) => String(mood || '').trim().toLowerCase() === REVIEW_CODE;
@@ -114,6 +116,6 @@ function distanceKm(a, b) {
 }
 
 module.exports = {
-    DEMO_PREFIX, PUBLIC_GEO_KEY, PUBLIC_MAX_RESULTS, REVIEWERS_KEY, REVIEW_CODE, REVIEW_MOOD, REVIEW_REANCHOR_KM,
+    DEMO_PREFIX, PUBLIC_GEO_KEY, PUBLIC_MAX_RESULTS, CROWDED_REAL_USERS, CROWDED_MAX_RESULTS, REVIEWERS_KEY, REVIEW_CODE, REVIEW_MOOD, REVIEW_REANCHOR_KM,
     isDemoUid, isReviewCode, taipeiBots, reviewBots, reviewBotProfiles, chatReply, distanceKm,
 };

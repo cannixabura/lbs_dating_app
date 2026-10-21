@@ -139,13 +139,15 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
 /**
  * 附近的示範對象：台北示範（所有人）＋審核示範（只給輸入過通關碼的帳號）。
  * 不計入密度，也不在 city_users 裡，所以不影響殘影留存與城市心情天氣。
+ * realCount：附近的真人數（不含殘影）；真人多時台北示範減量，審核示範不受影響。
  */
-async function nearbyDemoBots(viewerUid, lat, lng, radiusKM) {
+async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0) {
     const here = { lat, lng };
     const found = []; // [uid, distanceKm, {lat, lng}]
     const publicHits = await sendUpstashCommand([
         "GEOSEARCH", demo.PUBLIC_GEO_KEY, "FROMLONLAT", lng.toString(), lat.toString(),
-        "BYRADIUS", radiusKM.toString(), "km", "ASC", "COUNT", String(demo.PUBLIC_MAX_RESULTS), "WITHDIST", "WITHCOORD",
+        "BYRADIUS", radiusKM.toString(), "km", "ASC", "COUNT",
+        String(realCount >= demo.CROWDED_REAL_USERS ? demo.CROWDED_MAX_RESULTS : demo.PUBLIC_MAX_RESULTS), "WITHDIST", "WITHCOORD",
     ]);
     for (const m of Array.isArray(publicHits) ? publicHits : []) {
         if (Array.isArray(m) && m[0]) found.push([m[0], parseFloat(m[1]), { lat: parseFloat(m[2][1]), lng: parseFloat(m[2][0]) }]);
@@ -242,7 +244,8 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           });
       }
 
-      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM));
+      const realCount = results.filter((r) => r.status !== 'shadow').length;
+      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount));
 
       // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
       if (staleUids.length > 0) {

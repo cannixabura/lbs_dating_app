@@ -156,6 +156,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Offset? _dissolveAt;
   final Map<String, Offset> _bubbleAnchors = {}; // 每顆氣泡在畫面上的位置（虛線弧的終點、粒子的起點）
 
+  // ---------- 氣泡疊層與群聚 ----------
+  String? _expandedCluster; // 展開成花瓣的群聚（以群聚最上層那顆的 uid 識別）
+  int _clusterPage = 0; // 超過一圈能放的數量時，「更多」花瓣輪到下一批
+  String? _focusUid; // 剛按住或雙擊的氣泡，暫時浮到最上層
+  Timer? _focusTimer;
+
   // ---------- 共鳴：送出 / 收到一道微光 ----------
   StreamSubscription<DatabaseEvent>? _resonanceSubscription;
   int _resonanceCount = -1; // 24 小時內收到的微光數；-1 = 尚未載入（第一次載入不跳提示）
@@ -1545,6 +1551,268 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     return true;
   }
 
+  // ---------- 氣泡疊層與群聚 ----------
+
+  /// 疊層規則（由下到上）：殘影 < 示範 < 休息中 < 活躍真人 < 和你有關的人（敲門中）< 剛按住的那顆。
+  /// 同一層裡越近（畫面越下方）越上面。
+  int _bubbleTier(Map<String, dynamic> user, {bool withFocus = true}) {
+    final uid = user['uid'].toString();
+    if (withFocus && uid == _focusUid) return 5;
+    if (user['isShadow'] == true) return 0;
+    if (_ritualTarget == uid || _outgoingRequests[uid] == RequestStatus.pending) return 4;
+    if (user['isDemo'] == true) return 1;
+    if (user['isInactive'] == true) return 2;
+    return 3;
+  }
+
+  static int _comparePaintOrder(_PlacedBubble a, _PlacedBubble b) =>
+      a.tier != b.tier ? a.tier.compareTo(b.tier) : a.pos.dy.compareTo(b.pos.dy);
+
+  void _focusBubble(String uid) {
+    _focusTimer?.cancel();
+    setState(() => _focusUid = uid);
+    _focusTimer = Timer(const Duration(seconds: 4), () { if (mounted) setState(() => _focusUid = null); });
+  }
+
+  void _collapseCluster() {
+    if (_expandedCluster != null) setState(() { _expandedCluster = null; _clusterPage = 0; });
+  }
+
+  List<Widget> _buildBubbleLayer(List<Map<String, dynamic>> users, double centerX, double centerY, double screenWidth, double screenHeight,
+      double pitch, double heading, double scale, double rhythm) {
+    final placed = <_PlacedBubble>[];
+    for (final user in users) {
+      final r = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, user['lat'], user['lng'], heading, user['uid'], rhythm);
+      if (r.opacity <= 0.0) continue;
+      final d = (r.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * scale;
+      final a = r.relativeAngle * pi / 180.0;
+      final rotX = d * sin(a); final rotY = -d * cos(a) * cos(pitch); final rotZ = -d * cos(a) * sin(pitch);
+      final w = max(0.01, 1.0 + (rotZ * 0.002));
+      placed.add(_PlacedBubble(user, r, Offset(centerX + rotX / w, centerY + rotY / w), _bubbleTier(user), _bubbleTier(user, withFocus: false)));
+    }
+
+    // 群聚：從最上層開始，和某個群聚核心重疊到會點錯的氣泡就歸進那個群聚。
+    // 同層用 uid 排，不用畫面位置：羅盤微動時核心才不會換來換去，點擊也不會落空。
+    // 剛按住的那顆不參與分群排序，否則長按花瓣時核心換人，展開的花瓣會自己收起來
+    placed.sort((a, b) => a.groupTier != b.groupTier ? b.groupTier.compareTo(a.groupTier) : a.uid.compareTo(b.uid));
+    final clusters = <List<_PlacedBubble>>[];
+    for (final p in placed) {
+      List<_PlacedBubble>? home;
+      for (final c in clusters) {
+        final core = c.first;
+        final s = (core.render.scale + p.render.scale) / 2;
+        if ((core.pos.dx - p.pos.dx).abs() < 88 * s && (core.pos.dy - p.pos.dy).abs() < 76 * s) { home = c; break; }
+      }
+      home == null ? clusters.add([p]) : home.add(p);
+    }
+    clusters.sort((a, b) => _comparePaintOrder(a.first, b.first));
+
+    final widgets = <Widget>[];
+    List<_PlacedBubble>? expanded;
+    for (final c in clusters) {
+      if (c.length == 1) {
+        widgets.add(_placedBubbleWidget(c.first, c.first.pos));
+      } else if (c.any((p) => p.uid == _expandedCluster)) {
+        expanded = c;
+        for (final p in c) { _bubbleAnchors[p.uid] = c.first.pos; }
+      } else {
+        widgets.add(_clusterOrb(c));
+      }
+    }
+    if (_expandedCluster != null && expanded == null) {
+      // 鏡頭拉近後群聚已散開，或成員離開：收起來
+      WidgetsBinding.instance.addPostFrameCallback((_) => _collapseCluster());
+    }
+    if (expanded != null) widgets.add(_clusterPetals(expanded, screenWidth, screenHeight));
+    return widgets;
+  }
+
+  Widget _placedBubbleWidget(_PlacedBubble p, Offset at, {double extraScale = 1.0, bool petal = false}) {
+    final user = p.user;
+    final uid = p.uid;
+    final shortId = uid.substring(uid.length - 4).toUpperCase();
+    final displayName = user['nickname'].toString().isNotEmpty ? user['nickname'] : '#$shortId';
+    final isShadow = user['isShadow'] ?? false;
+    _bubbleAnchors[uid] = at + const Offset(0, 10);
+    return Positioned(
+      key: ValueKey('bubble:$uid'), // 疊層每幀重排，固定 key 才不會在手指按下時換掉元件
+      left: at.dx - 66, top: at.dy - 60,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onLongPress: () {
+          _focusBubble(uid);
+          _showInteractionMenu(uid, isShadow ? '歷史殘影' : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
+        },
+        // 雙擊氣泡：直接送出一道微光
+        onDoubleTap: () {
+          _focusBubble(uid);
+          _sendResonance(uid, _getMoodColor(user['mood']));
+        },
+        child: Opacity(
+          // 花瓣不依距離淡出、也不縮小：展開就是為了每顆都看得清楚
+          opacity: petal ? 1.0 : p.render.opacity,
+          child: Transform.scale(
+            scale: petal ? extraScale : p.render.scale * extraScale,
+            child: _AnimatedBubbleUI(
+              key: ValueKey(uid),
+              uid: uid, // 🌟 傳入 UID 給 StreamBuilder 監聽
+              moodText: user['mood'],
+              isFavored: p.render.isFavored,
+              status: _outgoingRequests[uid] ?? RequestStatus.none,
+              displayName: displayName,
+              distanceLabel: WhisperEngine.formatDistance(p.render.distance),
+              baseColor: _getMoodColor(user['mood']),
+              isShadow: isShadow,
+              isInactive: user['isInactive'] ?? false,
+              isDemo: user['isDemo'] ?? false,
+              shadowOpacity: user['shadowOpacity'] ?? 1.0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 群聚裡最多的心情顏色，同票時取上層的
+  Color _clusterColor(List<_PlacedBubble> c) {
+    final counts = <Color, int>{};
+    for (final p in c.where((p) => p.user['isShadow'] != true)) {
+      final color = _getMoodColor(p.user['mood']);
+      counts[color] = (counts[color] ?? 0) + 1;
+    }
+    if (counts.isEmpty) return Night.shadowInk;
+    return counts.entries.reduce((a, b) => b.value > a.value ? b : a).key;
+  }
+
+  Widget _clusterOrbFace(List<_PlacedBubble> c, {double size = 64}) {
+    final color = _clusterColor(c);
+    final dots = c.map((p) => p.user['isShadow'] == true ? Night.shadowInk : _getMoodColor(p.user['mood'])).take(5).toList();
+    return Container(
+      width: size, height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Night.glassFill,
+        border: Border.all(color: color, width: 1.5),
+        boxShadow: [BoxShadow(color: color.withOpacity(0.45), blurRadius: 18, spreadRadius: 1)],
+      ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text('${c.length}', style: const TextStyle(color: Night.ink, fontSize: 20, height: 1.1, fontWeight: FontWeight.w600, fontFeatures: [FontFeature.tabularFigures()])),
+        const SizedBox(height: 3),
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          for (final d in dots)
+            Container(width: 5, height: 5, margin: const EdgeInsets.symmetric(horizontal: 1.5), decoration: BoxDecoration(shape: BoxShape.circle, color: d)),
+        ]),
+      ]),
+    );
+  }
+
+  /// 重疊的氣泡合成一顆：「這裡有 N 個心情」，點一下展開成一圈花瓣
+  Widget _clusterOrb(List<_PlacedBubble> c) {
+    final core = c.first;
+    for (final p in c) { _bubbleAnchors[p.uid] = core.pos; }
+    final opacity = c.map((p) => p.render.opacity).reduce(max);
+    return Positioned(
+      key: ValueKey('cluster:${core.uid}'),
+      left: core.pos.dx - 60, top: core.pos.dy - 44,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => setState(() { _expandedCluster = core.uid; _clusterPage = 0; }),
+        child: Opacity(
+          opacity: opacity,
+          child: SizedBox(
+            width: 120,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              _clusterOrbFace(c),
+              const SizedBox(height: 8),
+              Text('這裡有 ${c.length} 個心情', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 展開的群聚：每顆氣泡排成一圈（人多時兩圈），每顆都點得到；點空白處或中心收起
+  Widget _clusterPetals(List<_PlacedBubble> c, double screenWidth, double screenHeight) {
+    const perPage = 14; // 兩圈最多 15 個位置；超過時最後一個位置是「更多」
+    final paged = c.length > perPage + 1;
+    final pages = paged ? (c.length / perPage).ceil() : 1;
+    final page = _clusterPage % pages;
+    final shown = paged ? c.skip(page * perPage).take(perPage).toList() : c;
+    final slots = shown.length + (paged ? 1 : 0);
+
+    final inner = min(slots, 7);
+    final outer = slots - inner;
+    final r1 = outer == 0 ? max(118.0, inner * 140 / (2 * pi)) : 122.0;
+    const r2 = 226.0;
+    final maxR = outer == 0 ? r1 : r2;
+    // 氣泡比較寬，橫向拉開一點
+    final rx1 = min(r1 * 1.2, screenWidth / 2 - 62);
+    final rx2 = min(r2 * 1.1, screenWidth / 2 - 58);
+
+    // 整圈要留在畫面裡：上面避開狀態列與城市心情，下面避開底部選單
+    final pad = MediaQuery.of(context).padding;
+    double clampOr(double v, double lo, double hi, double fallback) => lo > hi ? fallback : v.clamp(lo, hi);
+    final center = Offset(
+      clampOr(c.first.pos.dx, rx1 + 66, screenWidth - rx1 - 66, screenWidth / 2),
+      clampOr(c.first.pos.dy, pad.top + 110 + maxR, screenHeight - pad.bottom - 130 - maxR, screenHeight / 2),
+    );
+
+    final targets = <Offset>[];
+    for (var i = 0; i < slots; i++) {
+      final onInner = i < inner;
+      final n = onInner ? inner : outer;
+      final k = onInner ? i : i - inner;
+      final angle = -pi / 2 + 2 * pi * k / n + (onInner ? 0 : pi / n);
+      // 錨點在頭像，氣泡本體在上方約 30pt：往下挪，讓整圈看起來以中心為圓心
+      targets.add(center + Offset((onInner ? rx1 : rx2) * cos(angle), (onInner ? r1 : r2) * sin(angle) + 30));
+    }
+    final color = _clusterColor(c);
+
+    return Positioned.fill(
+      key: const ValueKey('petals'),
+      child: TweenAnimationBuilder<double>(
+        key: ValueKey('${c.first.uid}#$page'),
+        tween: Tween(begin: 0, end: 1),
+        duration: MediaQuery.of(context).disableAnimations ? Duration.zero : const Duration(milliseconds: 280),
+        curve: Curves.easeOutBack,
+        builder: (context, t, _) {
+          final at = [for (final p in targets) Offset.lerp(center, p, t)!];
+          return Stack(clipBehavior: Clip.none, children: [
+            // 背景變暗一點；點空白處收起
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _collapseCluster,
+                child: ColoredBox(color: Night.night900.withOpacity(0.72 * t.clamp(0.0, 1.0))),
+              ),
+            ),
+            Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: _PetalStemPainter(center, at, color.withOpacity(0.35))))),
+            Positioned(
+              left: center.dx - 32, top: center.dy - 32,
+              child: GestureDetector(onTap: _collapseCluster, child: _clusterOrbFace(c)),
+            ),
+            for (var i = 0; i < shown.length; i++) _placedBubbleWidget(shown[i], at[i], extraScale: 0.9, petal: true),
+            if (paged)
+              Positioned(
+                left: at.last.dx - 30, top: at.last.dy - 30,
+                child: GestureDetector(
+                  onTap: () => setState(() => _clusterPage = page + 1),
+                  child: Container(
+                    width: 60, height: 60,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: Night.glassFill, border: Border.all(color: Night.glassLine)),
+                    alignment: Alignment.center,
+                    child: Text(page + 1 < pages ? '更多\n+${c.length - (page + 1) * perPage}' : '回到\n第一批',
+                        textAlign: TextAlign.center, style: Night.caption.copyWith(color: Night.ink)),
+                  ),
+                ),
+              ),
+          ]);
+        },
+      ),
+    );
+  }
+
   void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, Color moodColor = Night.moodDefault}) {
     Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
           onTap: onTap,
@@ -1825,7 +2093,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose(); _introFade.dispose();
     _knockTicker?.cancel(); _knockSecondsLeft.dispose(); _arcFlow.dispose(); _dissolve.dispose();
-    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel();
+    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel(); _focusTimer?.cancel();
     // 刪除帳號後已登出，不再寫入
     if (FirebaseAuth.instance.currentUser != null) _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();
@@ -1847,7 +2115,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         behavior: HitTestBehavior.opaque,
         onScaleStart: (details) => _baseScale = _scaleNotifier.value,
         onScaleUpdate: (details) {
-          _scaleNotifier.value = (_baseScale * details.scale).clamp(0.2, 5.0);
+          _scaleNotifier.value = (_baseScale * details.scale).clamp(0.2, 8.0);
           _updateMapCamera();
         },
         child: Stack(
@@ -1953,55 +2221,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
-                      ...activeUsers.map((user) {
-                        BubbleRenderData renderData = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, user['lat'], user['lng'], currentHeading, user['uid'], currentRhythmScore);
-                        
-                        if (renderData.opacity <= 0.0) return const SizedBox.shrink();
-
-                        double zoomedDistance = (renderData.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
-                        double angleRad = renderData.relativeAngle * pi / 180.0;
-                        double rotX = zoomedDistance * sin(angleRad); double rotY = -zoomedDistance * cos(angleRad) * cos(smoothPitch); double rotZ = -zoomedDistance * cos(angleRad) * sin(smoothPitch);
-                        double w = max(0.01, 1.0 + (rotZ * 0.002));
-                        
-                        String shortId = user['uid'].toString().substring(user['uid'].toString().length - 4).toUpperCase();
-                        String displayName = user['nickname'].toString().isNotEmpty ? user['nickname'] : '#$shortId';
-                        bool isShadow = user['isShadow'] ?? false; 
-
-                        _bubbleAnchors[user['uid'].toString()] = Offset(centerX + (rotX / w), centerY + (rotY / w) + 10);
-                        return Positioned(
-                          left: (centerX + (rotX / w)) - 66, top: (centerY + (rotY / w)) - 60,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent, 
-                            onLongPress: () {
-                              _showInteractionMenu(user['uid'], isShadow ? '歷史殘影' : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
-                            },
-                            // 雙擊氣泡：直接送出一道微光
-                            onDoubleTap: () {
-                              _sendResonance(user['uid'].toString(), _getMoodColor(user['mood']));
-                            },
-                            child: Opacity(
-                              opacity: renderData.opacity, 
-                              child: Transform.scale(
-                                scale: renderData.scale, 
-                                child: _AnimatedBubbleUI(
-                                  key: ValueKey(user['uid']), 
-                                  uid: user['uid'].toString(), // 🌟 傳入 UID 給 StreamBuilder 監聽
-                                  moodText: user['mood'], 
-                                  isFavored: renderData.isFavored, 
-                                  status: _outgoingRequests[user['uid']] ?? RequestStatus.none, 
-                                  displayName: displayName, 
-                                  distanceLabel: WhisperEngine.formatDistance(renderData.distance), 
-                                  baseColor: _getMoodColor(user['mood']), 
-                                  isShadow: isShadow,
-                                  isInactive: user['isInactive'] ?? false,
-                                  isDemo: user['isDemo'] ?? false,
-                                  shadowOpacity: user['shadowOpacity'] ?? 1.0, 
-                                )
-                              )
-                            ),
-                          ),
-                        );
-                      }),
+                      ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
                       Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
                       // 被婉拒、逾時或對方略過：光在對方的位置化成粒子散去
@@ -2238,6 +2458,34 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
       }
     );
   }
+}
+
+/// 一顆已經算好畫面位置的氣泡
+class _PlacedBubble {
+  final Map<String, dynamic> user;
+  final BubbleRenderData render;
+  final Offset pos;
+  final int tier; // 疊層（含剛按住的那顆）
+  final int groupTier; // 分群用（不含剛按住的那顆）
+  _PlacedBubble(this.user, this.render, this.pos, this.tier, this.groupTier);
+  String get uid => user['uid'].toString();
+}
+
+/// 展開的群聚：從中心連到每片花瓣的細線
+class _PetalStemPainter extends CustomPainter {
+  final Offset center;
+  final List<Offset> petals;
+  final Color color;
+  _PetalStemPainter(this.center, this.petals, this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color..strokeWidth = 1..style = PaintingStyle.stroke;
+    for (final p in petals) { canvas.drawLine(center, p + const Offset(0, 8), paint); }
+  }
+
+  @override
+  bool shouldRepaint(_PetalStemPainter old) => old.center != center || old.petals != petals || old.color != color;
 }
 
 class SpeechBubblePainter extends CustomPainter {

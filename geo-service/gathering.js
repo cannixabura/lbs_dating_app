@@ -17,6 +17,9 @@ const MAX_ANNOUNCEMENT_LENGTH = 200;
 const MAX_QUESTION_LENGTH = 40;
 const MAX_ANSWER_LENGTH = 20;
 const MIN_ANSWERS = citymood.MIN_PEOPLE; // 少於 10 人回答不給比例，和城市心情天氣同一條規則
+// 檢舉：只隱藏被檢舉的那則公告，活動本身不自動結束（避免選舉等場合被對手惡意檢舉下架）
+const REPORT_MIN_REPORTERS = 10;
+const REPORT_PARTICIPANT_SHARE = 0.1;
 
 const segmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
 const graphemes = (text) => Array.from(segmenter.segment(String(text || '')), (s) => s.segment);
@@ -117,7 +120,19 @@ function tally(moodKeys) {
     return { total, quiet: false, moods };
 }
 
+/** 隱藏一則公告需要的有效檢舉人數：10 人或參加人數的 10%，取較大者 */
+function reportThreshold(participants) {
+    return Math.max(REPORT_MIN_REPORTERS, Math.ceil(participants * REPORT_PARTICIPANT_SHARE));
+}
+
+/** 檢舉目標："gathering:<gid>:<announcementId>"（公告）或 "gathering:<gid>"（整場，只進人工審查） */
+function parseReportTarget(target) {
+    const m = /^gathering:([^:]+)(?::([^:]+))?$/.exec(String(target || ''));
+    return m ? { gid: m[1], aid: m[2] || null } : null;
+}
+
 module.exports = {
+    REPORT_MIN_REPORTERS, reportThreshold, parseReportTarget,
     PARTICIPANT_RADIUS_KM, UNIQUE_RADIUS_KM, MAX_DURATION_MS, MIN_ANSWERS,
     MAX_NAME_LENGTH, MAX_ANNOUNCEMENT_LENGTH, MAX_QUESTION_LENGTH, MAX_ANSWER_LENGTH,
     isEmoji, emojiKey, emojiKeysIn, validateEmoji, validateName, validateAnnouncement, validateQuestion, validateAnswer,

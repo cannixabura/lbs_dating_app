@@ -30,8 +30,10 @@
       ".indexOn": ["status", "emojiKey"]
     },
     "gatheringAnnouncements": {
-      "$gid": { ".read": "auth != null" }
+      "$gid": { ".read": "auth != null", ".indexOn": ["at"] }
     },
+    // 集會檢舉的人工審查標記：只有 Cloud Function 與主控台讀寫
+    "gatheringReview": { ".read": false, ".write": false },
     // 全場提問的比例：只有主持人看得到；主持人看不到任何人的回答內容與身分
     "gatheringTally": {
       "$gid": { ".read": "auth != null && root.child('gatherings/' + $gid + '/hostUid').val() === auth.uid" }

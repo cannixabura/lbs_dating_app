@@ -408,17 +408,9 @@ exports.onReportCreated = functionsV1.database.ref('/reports/{reportId}')
     const report = snapshot.val();
     if (!report || !report.target) return null;
     const target = report.target;
-    // 集會廣播的檢舉：target = "gathering:<id>"，3 個不同的人檢舉就結束這場活動
-    if (report.context === 'gathering' && String(target).startsWith('gathering:')) {
-        try {
-            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
-            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
-            console.log(`[檢舉] 集會 ${target} 被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
-            if (hide) {
-                await endGathering(target.slice(10), 'reported');
-                console.warn(`[檢舉] 集會 ${target} 已自動結束，請到 Firebase 主控台審查`);
-            }
-        } catch (e) { console.error(`[檢舉] 集會處理失敗 (${target}):`, e); }
+    // 集會的檢舉：一律進人工審查；達到門檻只隱藏那一則公告，活動不自動結束
+    if (report.context === 'gathering') {
+        try { await handleGatheringReport(target, report); } catch (e) { console.error(`[檢舉] 集會處理失敗 (${target}):`, e); }
         return null;
     }
     // 低語的檢舉：target = "whisper:<id>"，3 個不同的人檢舉就隱藏這則低語
@@ -800,7 +792,6 @@ const GATHERING_END_MESSAGES = {
     host: '活動結束了，謝謝你今晚一起在這裡。',
     expired: '活動時間到了，謝謝你今晚一起在這裡。',
     host_left: '主持人已離開，活動結束。',
-    reported: '這場活動因多人檢舉而結束。',
 };
 
 /** 結束活動：主持人變回一般使用者，圖標釋出給下一位；通知參加的人 */
@@ -883,8 +874,9 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
         if (!isHost) return fail(403, "只有主持人可以發公告。");
         const checked = gathering.validateAnnouncement(req.body.text);
         if (checked.error) return fail(400, checked.error);
-        const latest = { text: checked.text, at: now };
-        await db.ref(`gatheringAnnouncements/${gid}`).push(latest);
+        const aRef = db.ref(`gatheringAnnouncements/${gid}`).push();
+        const latest = { id: aRef.key, text: checked.text, at: now };
+        await aRef.set({ text: checked.text, at: now });
         await db.ref(`gatherings/${gid}/latest`).set(latest);
         await notifyGathering(gid, g, checked.text);
         return res.status(200).json({ success: true });
@@ -931,6 +923,53 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
     }
   });
 });
+
+/**
+ * 集會檢舉的三層防護（防止選舉造勢等場合被對手惡意檢舉）：
+ *   1. 檢舉針對單則公告；達門檻只隱藏那一則，活動照常進行。整場活動不因檢舉自動結束。
+ *   2. 門檻 = max(10, 參加人數 10%)。
+ *   3. 只計算「活動開始前就存在的帳號」且「此刻是參加者」的檢舉人；其他檢舉仍留紀錄給人工審查。
+ * 每一則檢舉都會在 gatheringReview/<gid> 標記，24 小時內人工處理。
+ */
+async function handleGatheringReport(target, report) {
+    const parsed = gathering.parseReportTarget(target);
+    if (!parsed) return;
+    const { gid, aid } = parsed;
+    const db = admin.database();
+    const g = await readGathering(gid);
+    if (!g) return;
+    await db.ref(`gatheringReview/${gid}`).update({ flagged: true, lastReportAt: Date.now(), name: g.name, emoji: g.emoji, hostUid: g.hostUid });
+    console.warn(`[檢舉] 集會 ${gid}${aid ? ` 公告 ${aid}` : '（整場）'} 被檢舉（${report.reason}），已標記人工審查`);
+    if (!aid || g.status !== 'active') return;
+
+    const all = Object.values((await db.ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {});
+    const reporters = [...new Set(all.map((r) => r.reporter).filter(Boolean))];
+    const audience = new Set(await gatheringAudience(g));
+    const threshold = gathering.reportThreshold(audience.size);
+    let valid = 0;
+    for (const uid of reporters) {
+        if (!audience.has(uid)) continue;
+        try {
+            const created = Date.parse((await admin.auth().getUser(uid)).metadata.creationTime);
+            if (created < g.startAt) valid++;
+        } catch (e) { /* 帳號已刪除：不計入 */ }
+    }
+    console.log(`[檢舉] 公告 ${gid}/${aid}：有效檢舉 ${valid}/${threshold}（共 ${reporters.length} 人檢舉，參加者 ${audience.size} 人）`);
+    if (valid < threshold) return;
+    await hideAnnouncement(gid, aid);
+    console.warn(`[檢舉] 公告 ${gid}/${aid} 已自動隱藏，請到 Firebase 主控台審查 gatheringReview/${gid}`);
+}
+
+/** 隱藏一則公告；若它是置頂的那則，改成前一則沒被隱藏的公告 */
+async function hideAnnouncement(gid, aid) {
+    const db = admin.database();
+    await db.ref(`gatheringAnnouncements/${gid}/${aid}/hidden`).set(true);
+    const latest = (await db.ref(`gatherings/${gid}/latest`).once('value')).val();
+    if (!latest || latest.id !== aid) return;
+    const items = (await db.ref(`gatheringAnnouncements/${gid}`).orderByChild('at').once('value')).val() || {};
+    const visible = Object.entries(items).filter(([, a]) => !a.hidden).sort((a, b) => b[1].at - a[1].at);
+    await db.ref(`gatherings/${gid}/latest`).set(visible.length ? { id: visible[0][0], text: visible[0][1].text, at: visible[0][1].at } : null);
+}
 
 // 時間到的活動自動結束（每 5 分鐘檢查一次）
 exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {

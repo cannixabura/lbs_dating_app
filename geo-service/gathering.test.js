@@ -49,3 +49,16 @@ test('question tally hides ratios under 10 answers', () => {
     assert.strictEqual(t.quiet, false);
     assert.deepStrictEqual(t.moods.map((m) => [m.label, m.percent]), [['開心', 60], ['平靜', 40]]);
 });
+
+test('report threshold: 10 people or 10% of participants, whichever is larger', () => {
+    assert.strictEqual(g.reportThreshold(0), 10);
+    assert.strictEqual(g.reportThreshold(80), 10);
+    assert.strictEqual(g.reportThreshold(500), 50);
+    assert.strictEqual(g.reportThreshold(501), 51);
+});
+
+test('report targets name an announcement or the whole event', () => {
+    assert.deepStrictEqual(g.parseReportTarget('gathering:-Pabc:-Pxyz'), { gid: '-Pabc', aid: '-Pxyz' });
+    assert.deepStrictEqual(g.parseReportTarget('gathering:-Pabc'), { gid: '-Pabc', aid: null });
+    assert.strictEqual(g.parseReportTarget('whisper:1'), null);
+});

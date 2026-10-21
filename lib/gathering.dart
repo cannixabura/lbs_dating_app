@@ -30,6 +30,7 @@ class Gathering {
   final String hostUid;
   final double lat;
   final double lng;
+  final String? latestId;
   final String? latestText;
   final DateTime? latestAt;
   final String? questionId;
@@ -44,6 +45,7 @@ class Gathering {
         hostUid = (m['hostUid'] ?? '').toString(),
         lat = ((m['lat'] ?? 0) as num).toDouble(),
         lng = ((m['lng'] ?? 0) as num).toDouble(),
+        latestId = (m['latest'] as Map?)?['id']?.toString(),
         latestText = (m['latest'] as Map?)?['text']?.toString(),
         latestAt = (m['latest'] as Map?)?['at'] == null ? null : DateTime.fromMillisecondsSinceEpoch(((m['latest'] as Map)['at'] as num).toInt()),
         questionId = (m['question'] as Map?)?['id']?.toString(),
@@ -370,7 +372,10 @@ class _HostPanelState extends State<_HostPanel> {
                 for (final a in items)
                   Padding(
                     padding: const EdgeInsets.only(bottom: Night.space2),
-                    child: Text('${_ago(DateTime.fromMillisecondsSinceEpoch((a['at'] as num).toInt()))}　${a['text']}', style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5)),
+                    child: Text(
+                      '${_ago(DateTime.fromMillisecondsSinceEpoch((a['at'] as num).toInt()))}　${a['text']}${a['hidden'] == true ? '（已因多人檢舉隱藏）' : ''}',
+                      style: Night.caption.copyWith(color: a['hidden'] == true ? Night.danger : Night.inkMuted, height: 1.5),
+                    ),
                   ),
               ]),
             );
@@ -512,9 +517,11 @@ class _GatheringBannerState extends State<GatheringBanner> {
     }
   }
 
+  /// 檢舉針對目前置頂的那則公告（沒有公告時檢舉整場，只進人工審查）
   void _report() {
     final g = widget.gathering;
-    showReportSheet(context, myUid: widget.myUid, targetUid: 'gathering:${g.id}', targetName: '${g.emoji} ${g.name}', reportContext: ReportContext.gathering, allowBlock: false);
+    final target = g.latestId == null ? 'gathering:${g.id}' : 'gathering:${g.id}:${g.latestId}';
+    showReportSheet(context, myUid: widget.myUid, targetUid: target, targetName: '${g.emoji} ${g.name}', reportContext: ReportContext.gathering, allowBlock: false);
   }
 
   @override
@@ -536,7 +543,7 @@ class _GatheringBannerState extends State<GatheringBanner> {
       if (widget.isHost)
         _iconButton(Icons.tune, '管理活動', widget.onManage)
       else
-        _iconButton(Icons.flag_outlined, '檢舉這場活動', _report, color: Night.danger),
+        _iconButton(Icons.flag_outlined, '檢舉這則公告', _report, color: Night.danger),
       _iconButton(_collapsed ? Icons.expand_more : Icons.expand_less, _collapsed ? '展開公告' : '收起公告', () => setState(() => _collapsed = !_collapsed)),
     ]);
 

@@ -1,4 +1,5 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const functionsV1 = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { defineSecret } = require("firebase-functions/params");
@@ -13,6 +14,7 @@ const whisper = require("./whisper");
 const { maskBlockedTerms } = require("./contentfilter");
 const demo = require("./demo");
 const betasignup = require("./betasignup");
+const gathering = require("./gathering");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -122,12 +124,17 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
           const pub = fuzzLocation(lat, lng, uid, previousCell, timestamp);
           fuzzFields.push("flat", pub.lat.toString(), "flng", pub.lng.toString(), "cellRow", String(pub.row), "cellCol", String(pub.col));
       }
-      await sendUpstashPipeline([
+      const [, , hostingGid] = await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
           // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
           ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString(),
               "state", "active", "stateAt", timestamp.toString(), ...fuzzFields],
+          ["HGET", `user_data:${uid}`, "host"],
       ]);
+      // 集會的中心跟著主持人走（遊行隊伍會移動）
+      if (hostingGid) {
+          await admin.database().ref(`gatherings/${hostingGid}`).update(gathering.publicCenter(lat, lng)).catch((e) => console.error('gathering centre update failed:', e));
+      }
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
       console.error('updateLocation failed:', error);
@@ -200,14 +207,14 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
 
       // 1 次請求：以 pipeline 一口氣取回所有人的資料
       const profiles = await sendUpstashPipeline(
-          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden", "flat", "flng"])
+          members.map(([memberUid]) => ["HMGET", `user_data:${memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden", "flat", "flng", "hostEmoji"])
       );
 
       const now = Date.now();
       const staleUids = [];
       const candidates = [];
       members.forEach(([memberUid, dist, coord], i) => {
-          const [mood, nickname, timestamp, state, stateAt, hidden, flat, flng] = profiles[i] || [];
+          const [mood, nickname, timestamp, state, stateAt, hidden, flat, flng, hostEmoji] = profiles[i] || [];
           if (hidden === "1") return; // 被檢舉自動隱藏或人工隱藏，不出現在任何人的雷達上
           const lastSeen = parseInt(timestamp || "0", 10);
           if (!lastSeen) { staleUids.push(memberUid); return; }
@@ -219,7 +226,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           const pub = !FUZZ_LOCATION ? precise
               : flat && flng ? { lat: parseFloat(flat), lng: parseFloat(flng) }
               : fuzzLocation(precise.lat, precise.lng, memberUid, null, now);
-          candidates.push({ memberUid, dist: parseFloat(dist), pub, mood, nickname, lastSeen, presence });
+          candidates.push({ memberUid, dist: parseFloat(dist), pub, mood, nickname, lastSeen, presence, hostEmoji });
       });
 
       // 密度：觀看者周圍 1 公里內的人數，決定殘影能留存多久
@@ -241,6 +248,8 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
               status,
               shadowAge, // 0 = 剛成為殘影，1 = 即將消失；供 App 計算淡出程度
               timestamp: c.lastSeen,
+              // 正在主持集會：雷達上顯示「主持」光環與活動圖標（殘影不顯示）
+              ...(c.hostEmoji && status !== 'shadow' ? { hostEmoji: c.hostEmoji } : {}),
           });
       }
 
@@ -399,6 +408,19 @@ exports.onReportCreated = functionsV1.database.ref('/reports/{reportId}')
     const report = snapshot.val();
     if (!report || !report.target) return null;
     const target = report.target;
+    // 集會廣播的檢舉：target = "gathering:<id>"，3 個不同的人檢舉就結束這場活動
+    if (report.context === 'gathering' && String(target).startsWith('gathering:')) {
+        try {
+            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+            console.log(`[檢舉] 集會 ${target} 被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+            if (hide) {
+                await endGathering(target.slice(10), 'reported');
+                console.warn(`[檢舉] 集會 ${target} 已自動結束，請到 Firebase 主控台審查`);
+            }
+        } catch (e) { console.error(`[檢舉] 集會處理失敗 (${target}):`, e); }
+        return null;
+    }
     // 低語的檢舉：target = "whisper:<id>"，3 個不同的人檢舉就隱藏這則低語
     if (report.context === 'whisper' && String(target).startsWith('whisper:')) {
         try {
@@ -454,6 +476,9 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
 
     const db = admin.database();
     try {
+      // 正在主持的集會先結束（通知參加的人），再刪資料
+      const hostingGid = (await db.ref(`hosting/${uid}`).once("value")).val();
+      if (hostingGid) await endGathering(hostingGid, 'host_left');
       await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`]]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
@@ -708,3 +733,212 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
   });
 });
 
+
+// ============================================================================
+// API 11: 集會 —— action: create / end / announce / ask / answer
+//   任何人都能開；以主持人的位置為中心 5 公里；用一個表情符號識別。
+//   稱呼裡有這個符號、又在範圍內的人就是參加者：看得到置頂公告、收得到推播、可以回答提問。
+//   主持人看不到參加者是誰；提問只回傳比例（少於 10 人不給比例）。
+// ============================================================================
+const GATHERING_AUDIENCE_MAX = 3000;
+const GATHERING_AUDIENCE_FRESH_MS = 12 * 60 * 60 * 1000; // 12 小時內出現過的人才推播
+
+async function readGathering(gid) {
+    return (await admin.database().ref(`gatherings/${gid}`).once('value')).val();
+}
+
+/** 參加者：主持人 5 公里內、稱呼裡有活動圖標、沒有和主持人互相封鎖、沒有被隱藏 */
+async function gatheringAudience(g) {
+    const found = await sendUpstashCommand([
+        "GEOSEARCH", "city_users", "FROMLONLAT", String(g.lng), String(g.lat),
+        "BYRADIUS", String(gathering.PARTICIPANT_RADIUS_KM), "km", "COUNT", String(GATHERING_AUDIENCE_MAX),
+    ]);
+    const uids = (Array.isArray(found) ? found : []).filter((u) => u && u !== g.hostUid && !u.startsWith(demo.DEMO_PREFIX));
+    if (uids.length === 0) return [];
+    const rows = await sendUpstashPipeline(uids.map((u) => ["HMGET", `user_data:${u}`, "nickname", "timestamp", "hidden"]));
+    const blocked = await blockedUidsFor(g.hostUid);
+    const now = Date.now();
+    return uids.filter((u, i) => {
+        const [nickname, ts, hidden] = rows[i] || [];
+        if (hidden === "1" || blocked.has(u)) return false;
+        if (now - parseInt(ts || "0", 10) > GATHERING_AUDIENCE_FRESH_MS) return false;
+        return gathering.emojiKeysIn(nickname).has(g.emojiKey);
+    });
+}
+
+/** 一次推給很多人：每批 500 則 */
+async function pushToMany(uids, title, body, data) {
+    if (uids.length === 0) return 0;
+    const tokenSnaps = await Promise.all(uids.map((u) => admin.database().ref(`tokens/${u}`).once('value')));
+    const tokens = tokenSnaps.map((s) => s.val()).filter(Boolean);
+    let sent = 0;
+    for (let i = 0; i < tokens.length; i += 500) {
+        const messages = tokens.slice(i, i + 500).map((token) => ({
+            token,
+            notification: { title, body },
+            data,
+            android: { priority: 'high', notification: { sound: 'default' } },
+            apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: 'default' } } },
+        }));
+        try {
+            const result = await admin.messaging().sendEach(messages);
+            sent += result.successCount;
+        } catch (e) { console.error('gathering push batch failed:', e); }
+    }
+    return sent;
+}
+
+async function notifyGathering(gid, g, body) {
+    try {
+        const audience = await gatheringAudience(g);
+        const sent = await pushToMany(audience, `${g.emoji} ${g.name}`, body, { type: 'gathering', gid });
+        console.log(`[集會] ${gid} 推播 ${sent}/${audience.length} 人`);
+    } catch (e) { console.error(`[集會] ${gid} 推播失敗:`, e); }
+}
+
+const GATHERING_END_MESSAGES = {
+    host: '活動結束了，謝謝你今晚一起在這裡。',
+    expired: '活動時間到了，謝謝你今晚一起在這裡。',
+    host_left: '主持人已離開，活動結束。',
+    reported: '這場活動因多人檢舉而結束。',
+};
+
+/** 結束活動：主持人變回一般使用者，圖標釋出給下一位；通知參加的人 */
+async function endGathering(gid, reason) {
+    const ref = admin.database().ref(`gatherings/${gid}`);
+    const before = (await ref.once('value')).val();
+    if (!before || before.status !== 'active') return false;
+    // 交易的第一次執行常拿到本地快取的 null：當成還在進行中，伺服器會用真實值再跑一次
+    const result = await ref.child('status').transaction((status) => (status === 'active' || status === null ? 'ended' : undefined));
+    if (!result.committed) return false;
+    const g = before;
+    await Promise.all([
+        ref.update({ endedAt: Date.now(), endedReason: reason }),
+        admin.database().ref(`hosting/${g.hostUid}`).remove(),
+        sendUpstashCommand(["HDEL", `user_data:${g.hostUid}`, "host", "hostEmoji"]).catch(() => {}),
+    ]);
+    await notifyGathering(gid, g, GATHERING_END_MESSAGES[reason] || GATHERING_END_MESSAGES.host);
+    return true;
+}
+
+exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    const { action, gid } = req.body || {};
+    const db = admin.database();
+    const now = Date.now();
+    const fail = (code, error) => res.status(code).json({ success: false, error });
+    try {
+      if (action === "create") {
+        const { lat, lng } = req.body;
+        if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
+        if ((await db.ref(`moderation/${uid}/hidden`).once('value')).val() === true) return fail(403, "你的帳號正在審查中，暫時無法主持活動。");
+        const current = (await db.ref(`hosting/${uid}`).once('value')).val();
+        if (current) {
+            const g = await readGathering(current);
+            if (g && g.status === 'active') return fail(409, "你已經在主持一場活動了，先結束它再開新的。");
+        }
+        const name = gathering.validateName(req.body.name);
+        if (name.error) return fail(400, name.error);
+        const emoji = gathering.validateEmoji(req.body.emoji);
+        if (emoji.error) return fail(400, emoji.error);
+        const times = gathering.validateTimes(Number(req.body.startAt), Number(req.body.endAt), now);
+        if (times.error) return fail(400, times.error);
+
+        const center = gathering.publicCenter(lat, lng);
+        const sameEmoji = Object.values((await db.ref('gatherings').orderByChild('emojiKey').equalTo(emoji.key).once('value')).val() || {})
+            .filter((g) => g.status === 'active');
+        if (gathering.conflicts(sameEmoji, center)) {
+            return fail(409, `附近已經有人用 ${emoji.emoji} 開了活動，等它結束或換一個圖標吧。`);
+        }
+
+        const newGid = db.ref('gatherings').push().key;
+        await db.ref().update({
+            [`gatherings/${newGid}`]: {
+                name: name.text, emoji: emoji.emoji, emojiKey: emoji.key,
+                startAt: times.startAt, endAt: times.endAt, createdAt: now,
+                hostUid: uid, status: 'active', ...center,
+            },
+            [`hosting/${uid}`]: newGid,
+        });
+        await sendUpstashCommand(["HSET", `user_data:${uid}`, "host", newGid, "hostEmoji", emoji.emoji]);
+        console.log(`[集會] ${uid} 開了 ${newGid} ${emoji.emoji} ${name.text}`);
+        return res.status(200).json({ success: true, data: { gid: newGid } });
+      }
+
+      const g = gid ? await readGathering(gid) : null;
+      if (!g) return fail(404, "找不到這場活動。");
+      if (g.status !== 'active') return fail(410, "這場活動已經結束了。");
+      const isHost = g.hostUid === uid;
+
+      if (action === "end") {
+        if (!isHost) return fail(403, "只有主持人可以結束活動。");
+        if (!(await endGathering(gid, 'host'))) return fail(409, "活動沒有結束成功，請再試一次。");
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "announce") {
+        if (!isHost) return fail(403, "只有主持人可以發公告。");
+        const checked = gathering.validateAnnouncement(req.body.text);
+        if (checked.error) return fail(400, checked.error);
+        const latest = { text: checked.text, at: now };
+        await db.ref(`gatheringAnnouncements/${gid}`).push(latest);
+        await db.ref(`gatherings/${gid}/latest`).set(latest);
+        await notifyGathering(gid, g, checked.text);
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "ask") {
+        if (!isHost) return fail(403, "只有主持人可以提問。");
+        const checked = gathering.validateQuestion(req.body.text);
+        if (checked.error) return fail(400, checked.error);
+        const qid = `${now.toString(36)}`;
+        await db.ref().update({
+            [`gatherings/${gid}/question`]: { id: qid, text: checked.text, at: now },
+            [`gatheringTally/${gid}`]: { qid, total: 0, quiet: true },
+        });
+        await notifyGathering(gid, g, `主持人問：${checked.text}`);
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "answer") {
+        const q = g.question;
+        if (!q || q.id !== req.body.qid) return fail(410, "這個問題已經換了。");
+        const checked = gathering.validateAnswer(req.body.text);
+        if (checked.error) return fail(400, checked.error);
+        // 只有參加者能回答：稱呼裡有圖標、人在範圍內
+        const [[nickname], pos] = await sendUpstashPipeline([
+            ["HMGET", `user_data:${uid}`, "nickname"],
+            ["GEOPOS", "city_users", uid],
+        ]);
+        const here = Array.isArray(pos) && pos[0] ? { lng: parseFloat(pos[0][0]), lat: parseFloat(pos[0][1]) } : null;
+        if (!gathering.emojiKeysIn(nickname).has(g.emojiKey)) return fail(403, `把 ${g.emoji} 加進你的城市稱呼，就能參加這場活動。`);
+        if (!here || gathering.distanceKm(here, g) > gathering.PARTICIPANT_RADIUS_KM) return fail(403, "你離活動有點遠，靠近一點再回答吧。");
+
+        const answersRef = db.ref(`gatheringAnswers/${gid}/${q.id}`);
+        await answersRef.child(uid).set(citymood.classifyMood(checked.text));
+        const all = Object.values((await answersRef.once('value')).val() || {});
+        await db.ref(`gatheringTally/${gid}`).set({ qid: q.id, ...gathering.tally(all) });
+        return res.status(200).json({ success: true });
+      }
+
+      return fail(400, "未知的操作");
+    } catch (error) {
+      console.error(`gathering ${action} failed:`, error);
+      res.status(500).json({ success: false, error: "活動功能暫時無法使用，請稍後再試。" });
+    }
+  });
+});
+
+// 時間到的活動自動結束（每 5 分鐘檢查一次）
+exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+    const active = (await admin.database().ref('gatherings').orderByChild('status').equalTo('active').once('value')).val() || {};
+    const now = Date.now();
+    for (const [gid, g] of Object.entries(active)) {
+        if (g.endAt <= now) {
+            try { await endGathering(gid, 'expired'); } catch (e) { console.error(`[集會] ${gid} 自動結束失敗:`, e); }
+        }
+    }
+});

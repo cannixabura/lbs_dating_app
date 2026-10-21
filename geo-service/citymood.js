@@ -53,4 +53,4 @@ function cacheKey(lat, lng) {
     return `city_mood:${Math.round(lat / 0.05)}:${Math.round(lng / 0.05)}`;
 }
 
-module.exports = { CITY_RADIUS_KM, MIN_PEOPLE, classifyMood, summarize, cacheKey };
+module.exports = { CITY_RADIUS_KM, MIN_PEOPLE, CATEGORIES, OTHER, classifyMood, summarize, cacheKey };

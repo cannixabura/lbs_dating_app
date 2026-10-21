@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'ui/night.dart';
 
 /// 檢舉的來源，對應資料庫規則允許的值。
-enum ReportContext { bubble, knock, chat, whisper }
+enum ReportContext { bubble, knock, chat, whisper, gathering }
 
 class _Reason {
   final String code;

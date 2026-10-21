@@ -28,6 +28,7 @@ import 'firebase_options.dart';
 import 'legal.dart';
 import 'mood_card.dart';
 import 'mood_trail.dart';
+import 'gathering.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
@@ -155,6 +156,46 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   late final AnimationController _dissolve = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
   Offset? _dissolveAt;
   final Map<String, Offset> _bubbleAnchors = {}; // 每顆氣泡在畫面上的位置（虛線弧的終點、粒子的起點）
+
+  // ---------- 集會 ----------
+  StreamSubscription<List<Gathering>>? _gatheringSub;
+  List<Gathering> _gatherings = [];
+  final Map<String, Gathering> _shownGatherings = {}; // 曾經出現在我雷達上的活動：結束時提示一聲
+
+  /// 我正在主持的活動
+  Gathering? get _hostedGathering {
+    for (final g in _gatherings) { if (g.hostUid == widget.uid) return g; }
+    return null;
+  }
+
+  /// 我參加中的活動：稱呼裡有圖標、在 5 公里內、沒有和主持人互相封鎖（最近的那場）
+  Gathering? get _joinedGathering {
+    final pos = _currentPosition;
+    if (pos == null) return null;
+    final joined = _gatherings.where((g) => g.hostUid != widget.uid && !_blockedUids.contains(g.hostUid) && !_blockedByUids.contains(g.hostUid) && g.includes(_myNickname, pos.latitude, pos.longitude)).toList()
+      ..sort((a, b) => a.distanceKmFrom(pos.latitude, pos.longitude).compareTo(b.distanceKmFrom(pos.latitude, pos.longitude)));
+    return joined.isEmpty ? null : joined.first;
+  }
+
+  void _listenToGatherings() {
+    _gatheringSub?.cancel();
+    _gatheringSub = activeGatherings().listen((list) {
+      if (!mounted) return;
+      final activeIds = list.map((g) => g.id).toSet();
+      for (final ended in _shownGatherings.values.where((g) => !activeIds.contains(g.id)).toList()) {
+        _shownGatherings.remove(ended.id);
+        if (ended.hostUid != widget.uid) showGlassToast(context, '${ended.emoji} ${ended.name} 已結束', icon: Icons.nights_stay_outlined);
+      }
+      setState(() => _gatherings = list);
+      for (final g in [_hostedGathering, _joinedGathering]) { if (g != null) _shownGatherings[g.id] = g; }
+    }, onError: (e) => debugPrint('gatherings listen failed: $e'));
+  }
+
+  void _openGatheringHost() {
+    final pos = _currentPosition;
+    if (pos == null) return;
+    showGatheringHostSheet(context, hosting: _hostedGathering, lat: pos.latitude, lng: pos.longitude);
+  }
 
   // ---------- 氣泡疊層與群聚 ----------
   String? _expandedCluster; // 展開成花瓣的群聚（以群聚最上層那顆的 uid 識別）
@@ -334,6 +375,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   void _listenToBlockLists() {
+    _listenToGatherings();
     _blockSubscription = _dbRef.child('blocks/${widget.uid}').onValue.listen((event) {
       if (!mounted) return;
       
@@ -826,6 +868,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'isInactive': status == 'inactive',
         // 示範對象（導覽員機器人）：名字前一律標示「示範」
         'isDemo': user['demo'] == true,
+        // 正在主持集會：「主持」光環與活動圖標
+        'hostEmoji': user['hostEmoji'],
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -1245,6 +1289,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
                   item(Icons.timeline, '我的心情軌跡', subtitle: '只存在你的手機上', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
+                  section('集會'),
+                  item(Icons.campaign_outlined, '集會主持人',
+                      subtitle: _hostedGathering == null ? '以你為中心 5 公里，開一場活動' : '你正在主持 ${_hostedGathering!.emoji} ${_hostedGathering!.name}',
+                      onTap: () => go(_openGatheringHost)),
                   section('分享'),
                   item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
@@ -1560,6 +1608,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (withFocus && uid == _focusUid) return 5;
     if (user['isShadow'] == true) return 0;
     if (_ritualTarget == uid || _outgoingRequests[uid] == RequestStatus.pending) return 4;
+    if (user['hostEmoji'] != null) return 4; // 集會主持人浮在一般人上面
     if (user['isDemo'] == true) return 1;
     if (user['isInactive'] == true) return 2;
     return 3;
@@ -1665,6 +1714,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               isShadow: isShadow,
               isInactive: user['isInactive'] ?? false,
               isDemo: user['isDemo'] ?? false,
+              hostEmoji: user['hostEmoji'] as String?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
             ),
           ),
@@ -2093,7 +2143,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose(); _introFade.dispose();
     _knockTicker?.cancel(); _knockSecondsLeft.dispose(); _arcFlow.dispose(); _dissolve.dispose();
-    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel(); _focusTimer?.cancel();
+    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel(); _focusTimer?.cancel(); _gatheringSub?.cancel();
     // 刪除帳號後已登出，不再寫入
     if (FirebaseAuth.instance.currentUser != null) _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();
@@ -2249,15 +2299,23 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
                       // 等待回音的倒數條
-                      if (_ritualTarget != null)
+                      // 集會的置頂公告，以及等待回音的倒數條（依序排在城市心情下方）
+                      if (_ritualTarget != null || _hostedGathering != null || _joinedGathering != null)
                         Positioned(
-                          top: MediaQuery.of(context).padding.top + 64, left: Night.space4, right: Night.space4,
-                          child: Center(
-                            child: ValueListenableBuilder<int>(
-                              valueListenable: _knockSecondsLeft,
-                              builder: (context, left, _) => KnockCountdownPill(secondsLeft: left, totalSeconds: _knockSeconds, targetName: _ritualTargetName),
-                            ),
-                          ),
+                          top: MediaQuery.of(context).padding.top + 56, left: Night.space4, right: Night.space4,
+                          child: Column(mainAxisSize: MainAxisSize.min, children: [
+                            if ((_hostedGathering ?? _joinedGathering) case final g?)
+                              GatheringBanner(key: ValueKey('gathering:${g.id}'), gathering: g, myUid: widget.uid, isHost: g.hostUid == widget.uid, onManage: _openGatheringHost),
+                            if (_ritualTarget != null) ...[
+                              const SizedBox(height: Night.space2),
+                              Center(
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable: _knockSecondsLeft,
+                                  builder: (context, left, _) => KnockCountdownPill(secondsLeft: left, totalSeconds: _knockSeconds, targetName: _ritualTargetName),
+                                ),
+                              ),
+                            ],
+                          ]),
                         ),
                       // 城市心情天氣
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
@@ -2289,6 +2347,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isShadow; 
   final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
   final bool isDemo; // 示範對象：名字前面加上「示範」
+  final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -2303,6 +2362,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isShadow = false, 
     this.isInactive = false,
     this.isDemo = false,
+    this.hostEmoji,
     this.shadowOpacity = 1.0
   });
 
@@ -2424,6 +2484,16 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                           ),
                         ),
                       ),
+                      // 集會主持人：頭像外一圈亮漸層光環
+                      if (widget.hostEmoji != null && !widget.isShadow)
+                        Container(
+                          width: avatarSize + 10, height: avatarSize + 10,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: SweepGradient(colors: [Night.auroraViolet, Night.auroraBlue, Night.auroraViolet]),
+                            boxShadow: [BoxShadow(color: Color(0x734FC3F7), blurRadius: 14)],
+                          ),
+                        ),
                       Container(
                         width: avatarSize, height: avatarSize,
                         decoration: BoxDecoration(
@@ -2450,7 +2520,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
 
                 const SizedBox(height: 10),
-                Text('${widget.isDemo ? '示範 · ' : ''}${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                Text('${widget.hostEmoji != null ? '主持 ${widget.hostEmoji} · ' : ''}${widget.isDemo ? '示範 · ' : ''}${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

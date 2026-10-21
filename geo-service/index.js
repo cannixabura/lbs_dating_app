@@ -176,13 +176,13 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0) {
     }
     if (found.length === 0) return [];
 
-    const profiles = await sendUpstashPipeline(found.map(([botUid]) => ["HMGET", `user_data:${botUid}`, "mood", "nickname", "hidden"]));
+    const profiles = await sendUpstashPipeline(found.map(([botUid]) => ["HMGET", `user_data:${botUid}`, "mood", "nickname", "hidden", "hostEmoji"]));
     const now = Date.now();
     const bots = [];
     found.forEach(([botUid, , pos], i) => {
-        const [mood, nickname, hidden] = profiles[i] || [];
+        const [mood, nickname, hidden, hostEmoji] = profiles[i] || [];
         if (hidden === "1" || !nickname) return; // 被檢舉隱藏，或尚未建立資料
-        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: now, demo: true });
+        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
     });
     return bots;
 }

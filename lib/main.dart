@@ -29,6 +29,7 @@ import 'legal.dart';
 import 'mood_card.dart';
 import 'mood_trail.dart';
 import 'gathering.dart';
+import 'guide_screen.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
@@ -1297,6 +1298,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
                   section('關於'),
+                  item(Icons.menu_book_outlined, '使用說明', subtitle: '雷達、敲門、微光、低語、集會怎麼用', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
                   item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
                   item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),
                   item(Icons.mail_outline, '聯絡我們', subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),
@@ -1647,8 +1649,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final clusters = <List<_PlacedBubble>>[];
     for (final p in placed) {
       List<_PlacedBubble>? home;
+      // 集會主持人永遠單獨顯示（疊在最上層），參加者才找得到他
+      if (p.user['hostEmoji'] != null) { clusters.add([p]); continue; }
       for (final c in clusters) {
         final core = c.first;
+        if (core.user['hostEmoji'] != null) continue;
         final s = (core.render.scale + p.render.scale) / 2;
         if ((core.pos.dx - p.pos.dx).abs() < 88 * s && (core.pos.dy - p.pos.dy).abs() < 76 * s) { home = c; break; }
       }

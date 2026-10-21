@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="城市低語的集會功能：以主持人為中心 5 公里，一個表情符號就能參加；即時公告、推播與全場提問，主持人看不到參加者是誰。適合遊行、集會、音樂祭與造勢活動。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語 集會指南">
+<meta property="og:description" content="讓隊伍裡的每個人都收得到你的公告——一個表情符號就能參加，匿名、免費。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/gathering/3.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/gathering.html">
+<title>城市低語 集會指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+  --glass-line: rgba(196, 170, 255, 0.38);
+  --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+  --aurora-violet: #b44cff; --aurora-blue: #4fc3f7;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--night-900); color: var(--ink); font: 400 16px/1.75 var(--font-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; overflow-x: clip; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--aurora-blue); }
+:focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; border-radius: 6px; }
+.top { display: flex; justify-content: space-between; gap: 12px; padding-block: 20px; font-size: 13px; color: var(--ink-faint); }
+.top a { color: var(--ink-muted); text-decoration: none; }
+.hero { padding-block: 32px 40px; display: grid; gap: 18px; position: relative; isolation: isolate; }
+.hero::before { content: ""; position: absolute; inset: -40px 0 auto; height: 360px; z-index: -1; background: radial-gradient(60% 70% at 30% 20%, rgba(142,45,226,.35), transparent 70%); }
+.eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--ink-faint); }
+.hero h1 { font-size: clamp(30px, 5.5vw, 50px); line-height: 1.25; font-weight: 700; letter-spacing: 2px; }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { color: var(--ink-muted); max-width: 38em; font-size: 17px; }
+.uses { display: flex; flex-wrap: wrap; gap: 8px; }
+.uses span { border: 1px solid var(--glass-line); border-radius: 999px; padding: 4px 14px; font-size: 14px; color: var(--ink-muted); }
+section { padding-block: 40px 8px; display: grid; gap: 20px; border-top: 1px solid var(--night-600); }
+section > h2 { font-size: 24px; letter-spacing: 1.5px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.steps figure { margin: 0; display: grid; gap: 10px; }
+.steps img { width: 100%; height: auto; border-radius: 20px; border: 1px solid var(--night-600); display: block; }
+.steps figcaption { color: var(--ink-muted); font-size: 15px; }
+.steps figcaption b { color: var(--ink); font-weight: 500; }
+.points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.point { background: var(--night-800); border: 1px solid var(--night-600); border-radius: 18px; padding: 18px 20px; display: grid; gap: 6px; min-width: 0; }
+.point h3 { font-size: 17px; font-weight: 500; }
+.point p { color: var(--ink-muted); font-size: 15px; }
+dl { margin: 0; display: grid; gap: 18px; max-width: 46em; }
+dt { font-weight: 500; }
+dd { margin: 4px 0 0; color: var(--ink-muted); }
+.cta { display: grid; gap: 12px; background: var(--night-800); border: 1px solid var(--glass-line); border-radius: 22px; padding: 24px; }
+.cta a.btn { justify-self: start; display: inline-block; padding: 12px 22px; border-radius: 999px; color: #fff; text-decoration: none; font-weight: 600; letter-spacing: 1px; background: linear-gradient(90deg, #8e2de2, #2a63d4); box-shadow: 0 0 24px rgba(180, 76, 255, 0.45); }
+.note { color: var(--ink-faint); font-size: 14px; }
+footer { margin-top: 48px; padding-block: 28px 0; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+footer a { color: var(--ink-muted); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="./">← 城市低語</a><span>集會指南</span></div>
+
+  <header class="hero">
+    <p class="eyebrow">MOOD WHISPER · GATHERINGS</p>
+    <h1>讓隊伍裡的每個人，<br><em>都收得到你的公告</em></h1>
+    <p>城市低語的「集會」以主持人的手機為中心，涵蓋 5 公里；參加的人只要把活動圖標加進自己的稱呼。公告即時置頂、推播送達，全場提問看得到大家此刻的心情，而主持人永遠看不到參加者是誰。</p>
+    <div class="uses"><span>遊行</span><span>集會</span><span>造勢活動</span><span>音樂祭</span><span>校園活動</span><span>路跑</span></div>
+  </header>
+
+  <section>
+    <h2>六個畫面看懂集會</h2>
+    <div class="steps">
+      <figure><img src="img/gathering/1.jpg" alt="設定畫面中的「集會主持人」選項" width="1080" height="1500" loading="lazy"><figcaption><b>1. 設定 → 集會主持人。</b>任何人都能開，不用申請、不用密碼。</figcaption></figure>
+      <figure><img src="img/gathering/2.jpg" alt="開一場集會的表單：活動名稱、圖標、開始與結束時間" width="1080" height="1500" loading="lazy"><figcaption><b>2. 填名稱、選一個圖標。</b>以你為中心 5 公里，最長 24 小時；你走到哪，範圍就跟到哪。</figcaption></figure>
+      <figure><img src="img/gathering/3.jpg" alt="參加者雷達上方的置頂公告與主持人提問" width="1080" height="1500" loading="lazy"><figcaption><b>3. 把圖標加進稱呼就參加。</b>參加者的雷達上方出現置頂公告，鎖住螢幕也收得到推播。</figcaption></figure>
+      <figure><img src="img/gathering/4.jpg" alt="雷達上帶著漸層光環與「主持」標示的主持人" width="1080" height="1500" loading="lazy"><figcaption><b>4. 一眼找到主持人。</b>頭像外的光環與「主持」標示，人再多也不會被蓋住。</figcaption></figure>
+      <figure><img src="img/gathering/5.jpg" alt="主持人的管理畫面：發布公告與全場提問的心情比例" width="1080" height="1500" loading="lazy"><figcaption><b>5. 發公告、全場提問。</b>主持人只看得到全場的心情比例，看不到誰回答了什麼。</figcaption></figure>
+      <figure><img src="img/gathering/6.jpg" alt="擁擠的心情氣泡展開成一圈" width="1080" height="1500" loading="lazy"><figcaption><b>6. 人再多也點得到。</b>擠在一起的心情合成一顆光球，點一下展開成一圈。</figcaption></figure>
+    </div>
+    <p class="note">畫面為示範情境，活動名稱與公告內容僅供說明。</p>
+  </section>
+
+  <section>
+    <h2>為什麼適合集會</h2>
+    <div class="points">
+      <div class="point"><h3>範圍跟著隊伍走</h3><p>中心點是主持人的手機，遊行隊伍移動時，5 公里的範圍也跟著移動。</p></div>
+      <div class="point"><h3>不用加好友、不用報名</h3><p>把圖標加進稱呼就參加，拿掉就退出；不需要電話、Email 或真名。</p></div>
+      <div class="point"><h3>匿名，保護每一位參與者</h3><p>主持人看不到參加者是誰。全場提問只呈現比例，少於 10 人回答時連比例都不顯示。</p></div>
+      <div class="point"><h3>不怕惡意檢舉</h3><p>每則公告都能檢舉，但只有在場參加者、且帳號在活動開始前就存在的檢舉才計入；門檻是參加人數的 10%（至少 10 人），只會隱藏那一則公告。整場活動不會因檢舉被自動下架，所有檢舉 24 小時內人工審查。</p></div>
+      <div class="point"><h3>內容過濾</h3><p>活動名稱、公告與提問都會經過不當字詞與聯絡方式的過濾。</p></div>
+      <div class="point"><h3>立場中立</h3><p>城市低語只提供工具，不是任何活動的主辦單位，也不代表支持任何團體或政治立場。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>常見問題</h2>
+    <dl>
+      <div><dt>需要申請或付費嗎？</dt><dd>不用。年滿 18 歲的使用者都可以在 App 裡直接開活動，完全免費。</dd></div>
+      <div><dt>圖標可以用什麼？</dt><dd>任何一個表情符號。同一個圖標在範圍重疊的區域同時只能有一場活動；建議活動前一天就先開好活動、把開始時間設在活動當天，先保留你的圖標。</dd></div>
+      <div><dt>參加的人要做什麼？</dt><dd>安裝城市低語，在「編輯個人狀態」把活動圖標加進城市稱呼即可，例如「遊蕩的貓🌈」。</dd></div>
+      <div><dt>可以發幾則公告？</dt><dd>不限次數。每則公告最多 200 字，會置頂在參加者的雷達上並以推播通知。</dd></div>
+      <div><dt>活動怎麼結束？</dt><dd>主持人可以隨時按「結束活動」，或在設定的結束時間自動結束；參加者會收到結束通知。活動資料在結束 30 天後刪除。</dd></div>
+      <div><dt>主持人知道誰參加了嗎？</dt><dd>不知道。是否參加只由伺服器依稱呼與位置判斷，主持人看不到名單，也看不到任何人的回答。</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <div class="cta">
+      <h2>加入公測，現在就能用</h2>
+      <p>城市低語正在公開測試中：iPhone 透過 Apple TestFlight、Android 透過 Google Play 封閉測試安裝。主辦單位想先演練一次，歡迎來信，我們可以協助設定。</p>
+      <a class="btn" href="beta.html">報名公測</a>
+      <p class="note">聯絡我們：service.softchip@gmail.com</p>
+    </div>
+  </section>
+
+  <footer>
+    <a href="./">城市低語</a><a href="terms.html">使用條款</a><a href="privacy.html">隱私權政策</a><a href="design/">設計系統</a>
+    <span>© 2026 Softchip · 城市低語</span>
+  </footer>
+</div>
+</body>
+</html>

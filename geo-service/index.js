@@ -403,7 +403,7 @@ exports.syncPresence = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databas
 // ============================================================================
 // API 6: 檢舉 —— 24 小時內被 3 個不同的人檢舉，自動從雷達隱藏並等待人工審查
 // ============================================================================
-exports.onReportCreated = functionsV1.database.ref('/reports/{reportId}')
+exports.onReportCreated = functionsV1.runWith({ secrets: UPSTASH_SECRETS, timeoutSeconds: 300 }).database.ref('/reports/{reportId}')
   .onCreate(async (snapshot) => {
     const report = snapshot.val();
     if (!report || !report.target) return null;
@@ -732,7 +732,8 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
 //   稱呼裡有這個符號、又在範圍內的人就是參加者：看得到置頂公告、收得到推播、可以回答提問。
 //   主持人看不到參加者是誰；提問只回傳比例（少於 10 人不給比例）。
 // ============================================================================
-const GATHERING_AUDIENCE_MAX = 3000;
+const GATHERING_AUDIENCE_MAX = 100000; // 遊行等大型集會：5 公里內所有人都要能篩到
+const GATHERING_LOOKUP_CHUNK = 1000;
 const GATHERING_AUDIENCE_FRESH_MS = 12 * 60 * 60 * 1000; // 12 小時內出現過的人才推播
 
 async function readGathering(gid) {
@@ -747,7 +748,10 @@ async function gatheringAudience(g) {
     ]);
     const uids = (Array.isArray(found) ? found : []).filter((u) => u && u !== g.hostUid && !u.startsWith(demo.DEMO_PREFIX));
     if (uids.length === 0) return [];
-    const rows = await sendUpstashPipeline(uids.map((u) => ["HMGET", `user_data:${u}`, "nickname", "timestamp", "hidden"]));
+    const rows = [];
+    for (let i = 0; i < uids.length; i += GATHERING_LOOKUP_CHUNK) {
+        rows.push(...await sendUpstashPipeline(uids.slice(i, i + GATHERING_LOOKUP_CHUNK).map((u) => ["HMGET", `user_data:${u}`, "nickname", "timestamp", "hidden"])));
+    }
     const blocked = await blockedUidsFor(g.hostUid);
     const now = Date.now();
     return uids.filter((u, i) => {
@@ -761,8 +765,11 @@ async function gatheringAudience(g) {
 /** 一次推給很多人：每批 500 則 */
 async function pushToMany(uids, title, body, data) {
     if (uids.length === 0) return 0;
-    const tokenSnaps = await Promise.all(uids.map((u) => admin.database().ref(`tokens/${u}`).once('value')));
-    const tokens = tokenSnaps.map((s) => s.val()).filter(Boolean);
+    const tokens = [];
+    for (let i = 0; i < uids.length; i += GATHERING_LOOKUP_CHUNK) {
+        const snaps = await Promise.all(uids.slice(i, i + GATHERING_LOOKUP_CHUNK).map((u) => admin.database().ref(`tokens/${u}`).once('value')));
+        tokens.push(...snaps.map((snap) => snap.val()).filter(Boolean));
+    }
     let sent = 0;
     for (let i = 0; i < tokens.length; i += 500) {
         const messages = tokens.slice(i, i + 500).map((token) => ({
@@ -812,7 +819,7 @@ async function endGathering(gid, reason) {
     return true;
 }
 
-exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS, timeoutSeconds: 300, memory: "512MiB" }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
@@ -974,7 +981,7 @@ async function hideAnnouncement(gid, aid) {
 // 時間到的活動自動結束（每 5 分鐘檢查一次）；結束滿 30 天的活動連同公告、提問與回答一併刪除（隱私權政策第 2 節）
 const GATHERING_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
-exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS, timeoutSeconds: 300, memory: "512MiB" }, async () => {
     const db = admin.database();
     const active = (await db.ref('gatherings').orderByChild('status').equalTo('active').once('value')).val() || {};
     const now = Date.now();

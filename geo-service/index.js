@@ -971,13 +971,26 @@ async function hideAnnouncement(gid, aid) {
     await db.ref(`gatherings/${gid}/latest`).set(visible.length ? { id: visible[0][0], text: visible[0][1].text, at: visible[0][1].at } : null);
 }
 
-// 時間到的活動自動結束（每 5 分鐘檢查一次）
+// 時間到的活動自動結束（每 5 分鐘檢查一次）；結束滿 30 天的活動連同公告、提問與回答一併刪除（隱私權政策第 2 節）
+const GATHERING_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
 exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
-    const active = (await admin.database().ref('gatherings').orderByChild('status').equalTo('active').once('value')).val() || {};
+    const db = admin.database();
+    const active = (await db.ref('gatherings').orderByChild('status').equalTo('active').once('value')).val() || {};
     const now = Date.now();
     for (const [gid, g] of Object.entries(active)) {
         if (g.endAt <= now) {
             try { await endGathering(gid, 'expired'); } catch (e) { console.error(`[集會] ${gid} 自動結束失敗:`, e); }
         }
+    }
+    const ended = (await db.ref('gatherings').orderByChild('status').equalTo('ended').once('value')).val() || {};
+    const updates = {};
+    for (const [gid, g] of Object.entries(ended)) {
+        if (now - (g.endedAt || g.endAt || 0) < GATHERING_RETENTION_MS) continue;
+        for (const path of ['gatherings', 'gatheringAnnouncements', 'gatheringTally', 'gatheringAnswers']) updates[`${path}/${gid}`] = null;
+    }
+    if (Object.keys(updates).length) {
+        await db.ref().update(updates);
+        console.log(`[集會] 刪除 ${Object.keys(updates).length / 4} 場結束滿 30 天的活動`);
     }
 });

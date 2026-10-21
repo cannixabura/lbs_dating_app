@@ -1,17 +1,18 @@
-# 公測發布步驟（目標：週五 10/23 21:00 第一場點亮之夜）
+# 公測發布步驟（目標：週五 10/30 21:00 第一場點亮之夜；10/31 臺灣同志遊行）
 
-版本：`1.0.0 (2)`。檔案：
+版本：`1.0.0 (3)`（新增集會功能、條款版本 2026-10.3）。檔案：
 - iOS：`build/ios/archive/Runner.xcarchive`（用 Xcode Organizer 上傳，見 A2）
 - Android：`build/app/outputs/bundle/release/app-release.aab`
 
 ## 時程
 | 日期 | 要做的事 |
 |---|---|
-| **週一 10/19（今天）** | 上傳 iOS 與 Android，兩邊都送審（外部測試／封閉測試） |
+| **週二 10/27 前** | 上傳 `1.0.0 (3)`，iOS 與 Android 都送審（外部測試／封閉測試） |
 | 週二–週三 | 等審核；同時發社群貼文招募，請大家先到報名頁登記 |
-| **週四 10/22** | 審核通過 → 匯出報名名單、寄邀請、在 LINE 社群發安裝連結 |
+| **週四 10/29** | 審核通過 → 匯出報名名單、寄邀請、在 LINE 社群發安裝連結 |
 | 週四晚上 | 若審核還沒過：改用「內部測試」先邀核心成員（下方 Plan B） |
-| **週五 10/23 21:00** | 第一場點亮之夜 |
+| **週五 10/30 21:00** | 第一場點亮之夜 |
+| **週六 10/31** | 臺灣同志遊行：可用 🌈 開集會 |
 
 ---
 
@@ -27,18 +28,18 @@ App Store Connect（ccabura@icloud.com）→「App」→「＋」→「新增 Ap
 這台 Mac 還沒有「iOS Distribution」憑證，所以第一次要用 Xcode 上傳，Xcode 會自動建立憑證與包含推播的描述檔：
 1. Xcode › Settings › Accounts：確認已登入 ccabura@icloud.com（團隊 JCFN9LMAXF）
 2. 打開封存檔：`open build/ios/archive/Runner.xcarchive`（會開啟 Organizer）
-3. 選 `Runner 1.0.0 (2)` → **Distribute App** → **App Store Connect** → **Upload**
+3. 選 `Runner 1.0.0 (3)` → **Distribute App** → **App Store Connect** → **Upload**
 4. 簽署選「**Automatically manage signing**」→ 一路「Next」→「Upload」
 
 之後的版本就能直接用 `flutter build ipa` 產生 `.ipa`，再用 Transporter 上傳。
 
-上傳後約 10–30 分鐘，App Store Connect →「TestFlight」會出現 `1.0.0 (2)`。若顯示「缺少出口合規資訊」，選「否，不使用加密」（Info.plist 已宣告）。
+上傳後約 10–30 分鐘，App Store Connect →「TestFlight」會出現 `1.0.0 (3)`。若顯示「缺少出口合規資訊」，選「否，不使用加密」（Info.plist 已宣告）。
 
 ### A3. 內部測試（立刻可用，不需審核，最多 100 人）
 TestFlight →「內部測試」→ 新增群組「核心成員」→ 加入你的帳號與核心成員（他們要先被加為 App Store Connect 使用者）。
 
 ### A4. 外部測試（需要 Beta 版審核，通常 1–2 天）
-TestFlight →「外部測試」→ 新增群組「公測」→ 加入建置版本 `1.0.0 (2)` → 填寫：
+TestFlight →「外部測試」→ 新增群組「公測」→ 加入建置版本 `1.0.0 (3)` → 填寫：
 - **測試資訊 › 測試內容**（貼下面「What to Test」）
 - **Beta 版 App 審核資訊**：聯絡人、電話、service.softchip@gmail.com；「需要登入」**不勾**；備註貼 `docs/store-submission.md` 的英文審核備註（含 `#review`）
 - 送出審核 → 通過後開啟「**公開連結**」，把連結貼到 LINE 社群與 Email
@@ -71,7 +72,7 @@ Play Console（cannixmusic@gmail.com）→「建立應用程式」
 簡短說明、完整說明、圖示 512×512、主題圖片 `store_screenshots/android/feature_graphic.png`、手機截圖 `store_screenshots/android/1–5.png`。
 
 ### B4. 內部測試（立刻可用，最多 100 人）
-「測試」›「內部測試」→ 建立版本 → 上傳 `app-release.aab` → 版本名稱 `1.0.0 (2)` → 測試人員加入 Email 清單 → 推出。通常幾分鐘內就能安裝。
+「測試」›「內部測試」→ 建立版本 → 上傳 `app-release.aab` → 版本名稱 `1.0.0 (3)` → 測試人員加入 Email 清單 → 推出。通常幾分鐘內就能安裝。
 
 ### B5. 封閉測試（需要審核，新 App 可能要幾天）
 「測試」›「封閉測試」→ 建立測試群組「公測」：

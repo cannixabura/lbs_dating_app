@@ -264,7 +264,7 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
               style: const TextStyle(fontSize: 26),
               cursorColor: Night.auroraViolet,
               onChanged: (_) => setState(() {}),
-              decoration: _nightInput('🌈').copyWith(hintStyle: const TextStyle(fontSize: 26, color: Night.inkFaint)),
+              decoration: _nightInput('圖標'), // 不放預設圖標，避免大家都用同一個
             ),
           ),
           const SizedBox(width: Night.space3),

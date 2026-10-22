@@ -253,7 +253,7 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
         const SizedBox(height: Night.space2),
         const Text('以你的位置為中心 5 公里。你走到哪，範圍就跟到哪。', style: Night.body, textAlign: TextAlign.center),
         const SizedBox(height: Night.space6),
-        TextField(controller: _name, maxLength: 20, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput('活動名稱，例如：彩虹遊行南線')),
+        TextField(controller: _name, maxLength: 20, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput('活動名稱，例如：台北101跨年煙火秀')),
         const SizedBox(height: Night.space2),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(

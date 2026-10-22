@@ -1298,7 +1298,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
                   section('關於'),
-                  item(Icons.menu_book_outlined, '使用說明', subtitle: '雷達、敲門、微光、低語、集會怎麼用', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
+                  item(Icons.menu_book_outlined, '操作說明', subtitle: '從寫下心情到開一場集會，一次看懂', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
                   item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
                   item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),
                   item(Icons.mail_outline, '聯絡我們', subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),

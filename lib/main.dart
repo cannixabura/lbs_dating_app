@@ -21,6 +21,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_storage/firebase_storage.dart'; // 🌟 新增：雲端儲存
 import 'package:image_picker/image_picker.dart'; // 🌟 新增：圖片選擇器
 import 'dart:io' show Platform;
@@ -82,6 +84,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // 當機回報：Flutter 與平台層未處理的錯誤都送到 Firebase Crashlytics（除錯模式不送）
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   final prefs = await SharedPreferences.getInstance();

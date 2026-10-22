@@ -72,17 +72,19 @@
 **App Review 備註（英文，貼到 App Store Connect →「App 審核資訊」→「備註」）**
 
 ```
-City Whisper is an anonymous, location-based app. No account or password is needed: tapping "走進城市低語" (Enter) signs in anonymously.
+Mood Whisper (城市低語) is an anonymous, location-based app for adults (18+). No account or password is needed: entering the app signs in anonymously.
 
 Because the radar only shows people within 5 km, we added a review mode so you can test every social feature alone:
-1. On the first screen, type #review in the mood field (此時此刻，你想對城市說什麼？), tick the 18+ terms box, and tap the button.
-2. 20 demo people ("示範對象 01–20") appear around your location, 200 m apart. They are labelled 示範 (demo) and are only visible to accounts that entered the code.
-3. Knock: long-press a bubble → 敲門. The demo person accepts in about 3 seconds and a 10-minute chat opens; it replies automatically.
-4. Report: chat header flag icon, the bubble long-press menu (檢舉), or the knock card. Block: bubble long-press menu → 封鎖.
-5. Glimmer (resonance): double-tap a bubble; the demo person sends one back.
-6. Delete account: Settings (sliders icon, bottom right) → 刪除帳號與資料 at the bottom.
+1. Swipe through or skip (略過) the intro, answer the age question with 已滿 18 歲 (I am 18 or older), and allow precise location while using the app.
+2. Type #review in the mood field (此時此刻，你想對城市說什麼？), tick the terms box, and tap 走進城市低語.
+3. 20 demo people appear around your location, 200 m apart. They are labelled 示範 (demo) and are only visible to accounts that entered the code. Pinch to zoom; overlapping bubbles merge into a glowing orb — tap it to fan them out.
+4. Knock: long-press a bubble → 敲門. The demo person accepts in about 3 seconds and a 10-minute chat opens; it replies automatically.
+5. Report: chat header flag icon, the bubble long-press menu (檢舉), or the knock card. Block: bubble long-press menu → 封鎖.
+6. Glimmer (resonance): double-tap a bubble; the demo person sends one back.
+7. Gatherings: Settings (sliders icon, bottom right) → 集會主持人 creates a 5 km event identified by one emoji. People who add that emoji to their name receive the host's announcements; every announcement has a report button.
+8. Guide: Settings → 操作說明. Delete account: Settings → 刪除帳號與資料 at the bottom.
 
-User-generated content: moods, nicknames and whispers pass a server-side word and contact-info filter; reported users or whispers are hidden automatically after 3 reports and reviewed by us within 24 hours. Users must accept the terms (18+, zero tolerance for objectionable content) before entering.
+User-generated content: moods, nicknames, whispers and gathering announcements pass a server-side word and contact-info filter. Reported users or whispers are hidden automatically after 3 reports; gathering announcements are hidden after reports from 10% of participants (at least 10). All reports are reviewed by us within 24 hours. Users must confirm they are 18+ and accept the terms (zero tolerance for objectionable content) before entering.
 ```
 
 **Google Play（Play Console →「應用程式內容」→「應用程式存取權」）**

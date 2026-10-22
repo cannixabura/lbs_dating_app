@@ -131,9 +131,13 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
               "state", "active", "stateAt", timestamp.toString(), ...fuzzFields],
           ["HGET", `user_data:${uid}`, "host"],
       ]);
-      // 集會的中心跟著主持人走（遊行隊伍會移動）
+      // 集會的中心跟著主持人走（遊行隊伍會移動）；活動已被結束（例如人工審查）就移除「主持」標記
       if (hostingGid) {
-          await admin.database().ref(`gatherings/${hostingGid}`).update(gathering.publicCenter(lat, lng)).catch((e) => console.error('gathering centre update failed:', e));
+          try {
+              const status = (await admin.database().ref(`gatherings/${hostingGid}/status`).once('value')).val();
+              if (status === 'active') await admin.database().ref(`gatherings/${hostingGid}`).update(gathering.publicCenter(lat, lng));
+              else await sendUpstashCommand(["HDEL", `user_data:${uid}`, "host", "hostEmoji"]);
+          } catch (e) { console.error('gathering centre update failed:', e); }
       }
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {

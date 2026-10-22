@@ -1291,9 +1291,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               padding: const EdgeInsets.fromLTRB(Night.space4, Night.space3, Night.space4, Night.space4),
               child: SingleChildScrollView(
                 child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: Night.night600, borderRadius: BorderRadius.circular(2)))),
-                  const SizedBox(height: Night.space3),
-                  const Text('設定', style: Night.title, textAlign: TextAlign.center),
+                  // 設定比螢幕還高時點不到外面，標題列右邊一定要有關閉鈕
+                  Stack(alignment: Alignment.center, children: [
+                    const Text('設定', style: Night.title, textAlign: TextAlign.center),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        tooltip: '關閉設定',
+                        icon: const Icon(Icons.close, color: Night.inkMuted),
+                        onPressed: () => Navigator.pop(sheetContext),
+                      ),
+                    ),
+                  ]),
                   section('我'),
                   item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),

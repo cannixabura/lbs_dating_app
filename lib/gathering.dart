@@ -151,10 +151,21 @@ Future<void> showGatheringHostSheet(BuildContext context, {required Gathering? h
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Night.space4),
-          child: GlassCard(
-            padding: const EdgeInsets.fromLTRB(Night.space6, Night.space4, Night.space6, Night.space6),
-            child: hosting == null ? _CreateGatheringForm(lat: lat, lng: lng) : _HostPanel(gathering: hosting),
-          ),
+          child: Stack(children: [
+            GlassCard(
+              padding: const EdgeInsets.fromLTRB(Night.space6, Night.space4, Night.space6, Night.space6),
+              child: hosting == null ? _CreateGatheringForm(lat: lat, lng: lng) : _HostPanel(gathering: hosting),
+            ),
+            // 面板比螢幕還高時點不到外面，右上角一定要有關閉鈕
+            Positioned(
+              top: Night.space1, right: Night.space1,
+              child: Builder(builder: (sheetContext) => IconButton(
+                tooltip: '關閉',
+                icon: const Icon(Icons.close, color: Night.inkMuted),
+                onPressed: () => Navigator.pop(sheetContext),
+              )),
+            ),
+          ]),
         ),
       ),
     ),

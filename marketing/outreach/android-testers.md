@@ -7,6 +7,22 @@ Google Play 規定：個人開發者帳號要有 **12 位測試者連續加入�
 
 ---
 
+## 0. 精簡版（Android 開發者封測互助會用）
+
+> 【Android 封測｜可互測】城市低語：匿名心情地圖 🌙
+>
+> 寫下一句此刻的心情，看見附近的人此刻的感受，不用真名、不用加好友。
+>
+> 請用同一個 Google 帳號完成：
+> ① 加入測試群組：https://groups.google.com/g/{{群組名稱}}
+> ② 成為測試人員：https://play.google.com/apps/testing/com.softchip.moodwhisper
+> ③ 下載安裝：https://play.google.com/store/apps/details?id=com.softchip.moodwhisper
+>
+> 🙏 請保留 15 天以上，有空打開看看就好
+> 🤝 留言貼你的測試連結，我一定回測並保留 15 天
+
+---
+
 ## 1. 給親友（LINE／Messenger 私訊）
 
 > 嗨～我做了一個 App「城市低語」，要上架 Google Play 前，Google 規定要先有 12 個人幫忙測試 14 天，想請你幫個忙 🙏

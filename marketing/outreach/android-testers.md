@@ -2,7 +2,7 @@
 
 Google Play 規定：個人開發者帳號要有 **12 位測試者連續加入封閉測試 14 天**，才能申請上架正式版。人數一旦少於 12，14 天可能重新計算，所以建議找 **15～20 位**當緩衝。
 
-寄出前把 `https://groups.google.com/g/moodwhisper-beta 加入群組，再開 https://play.google.com/apps/testing/com.softchip.moodwhisper` 換成 Play Console →「測試」→「封閉測試」→「測試人員」頁面上的「加入測試的網址」。
+加入測試要兩個網址，都已填好：先加入群組 https://groups.google.com/g/moodwhisper-beta ，再開 https://play.google.com/apps/testing/com.softchip.moodwhisper 按「成為測試人員」。
 封閉測試的測試人員是 Google 群組 moodwhisper-beta@googlegroups.com（https://groups.google.com/g/moodwhisper-beta），測試者要**先加入群組**，再開加入測試的網址。
 
 ---
@@ -26,10 +26,11 @@ Google Play 規定：個人開發者帳號要有 **12 位測試者連續加入�
 ## 1. 給親友（LINE／Messenger 私訊）
 
 > 嗨～我做了一個 App「城市低語」，要上架 Google Play 前，Google 規定要先有 12 個人幫忙測試 14 天，想請你幫個忙 🙏
-> 只要 3 步驟，大約 2 分鐘：
-> 1. 用手機開這個網址，按「成為測試人員」：https://groups.google.com/g/moodwhisper-beta 加入群組，再開 https://play.google.com/apps/testing/com.softchip.moodwhisper
-> 2. 按頁面上的「在 Google Play 下載」安裝
-> 3. **14 天內不要解除安裝**，有空打開看看就好（每天點開一次最好）
+> 只要 4 步驟，大約 2 分鐘：（請用同一個 Google 帳號）
+> 1. 先加入測試群組：https://groups.google.com/g/moodwhisper-beta
+> 2. 再開這個網址，按「成為測試人員」：https://play.google.com/apps/testing/com.softchip.moodwhisper
+> 3. 按頁面上的「在 Google Play 下載」安裝
+> 4. **14 天內不要解除安裝**，有空打開看看就好（每天點開一次最好）
 > 只有 Android 手機可以喔。謝謝你！上架那天請你喝飲料 🧋
 
 ---
@@ -39,7 +40,7 @@ Google Play 規定：個人開發者帳號要有 **12 位測試者連續加入�
 > 【徵 Android 測試者・14 天・互測歡迎】
 > 我是獨立開發者，做了一款匿名心情地圖 App「城市低語」：寫下一句此刻的心情，看見附近的人此刻的感受，不用真名、不用加好友。
 > Google Play 要求上架前要有 12 人封閉測試 14 天，想請大家幫忙：
-> ✅ 用 Android 手機開 https://groups.google.com/g/moodwhisper-beta 加入群組，再開 https://play.google.com/apps/testing/com.softchip.moodwhisper → 成為測試人員 → 從 Play 商店安裝
+> ✅ 用 Android 手機先加入群組 https://groups.google.com/g/moodwhisper-beta → 再開 https://play.google.com/apps/testing/com.softchip.moodwhisper 成為測試人員 → 從 Play 商店安裝
 > ✅ 14 天內保留 App，偶爾打開看看
 > 🔁 你也在湊 12 人嗎？留言貼你的測試連結，我一定回測、一樣保留 14 天
 > 有任何問題或建議，歡迎寫信到 service.softchip@gmail.com
@@ -50,9 +51,10 @@ Google Play 規定：個人開發者帳號要有 **12 位測試者連續加入�
 
 > **[Test exchange] Mood Whisper – anonymous mood map (14 days, will test back)**
 > Hi! I'm a solo dev from Taiwan. Mood Whisper lets you write one line about how you feel right now and see the moods of people nearby, anonymously (UI is in Traditional Chinese, but you only need to install and open it).
-> 1. Join: https://groups.google.com/g/moodwhisper-beta 加入群組，再開 https://play.google.com/apps/testing/com.softchip.moodwhisper
-> 2. Install from Google Play and keep it installed for 14 days
-> 3. Open it once in a while
+> 1. Join the group: https://groups.google.com/g/moodwhisper-beta
+> 2. Opt in: https://play.google.com/apps/testing/com.softchip.moodwhisper
+> 3. Install from Google Play and keep it installed for 14 days
+> 4. Open it once in a while
 > Drop your opt-in link in the comments and I'll join your test and keep your app installed for the full 14 days. Thanks!
 
 ---

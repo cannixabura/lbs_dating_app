@@ -1,0 +1,18 @@
+{
+  "_note": "跨年篇《一起倒數》。素材在 footage/nye/（不進 git）；App 畫面用 outreach/gathering-guide-nye/raw 的示範截圖。執行：python3 tool/make_story_short.py marketing/shorts/nye.json",
+  "out": "marketing/shorts/out/nye_countdown",
+  "crossfade": 0.5,
+  "audio": true,
+  "wide": false,
+  "shots": [
+    {"src": "footage/nye/shot1.mov", "dur": 5, "caption": "今年，一個人跨年"},
+    {"src": "footage/nye/shot2.mov", "dur": 5.5, "caption": "跟著公告，\n找到最好的位置",
+     "app": {"image": "../outreach/gathering-guide-nye/raw/3_participant_banner.png", "crop": [0, 0, 1320, 2868], "in": 0.8, "y": 760}},
+    {"src": "footage/nye/shot3.mov", "dur": 5, "caption": "十、九、八……"},
+    {"src": "footage/nye/shot4.mov", "dur": 5, "caption": "新年快樂", "caption_in": 1.5},
+    {"src": "footage/nye/shot5.mov", "dur": 5.5, "caption": "原來整座城市，\n都和我一起",
+     "app": {"image": "../outreach/gathering-guide-nye/raw/5_host_panel.png", "crop": [0, 2150, 1320, 2868], "in": 0.8, "y": 1180}},
+    {"end": true, "dur": 4.5, "title": "在城市的某個角落，有人和你一起倒數。", "subtitle": "城市低語｜公測報名中\nmood-whisper-f7de9.web.app/beta.html",
+     "note": "影片中的 App 畫面為示範情境"}
+  ]
+}

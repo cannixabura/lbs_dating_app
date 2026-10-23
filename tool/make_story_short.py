@@ -15,6 +15,7 @@ JSON：
   ]
 }
 - 真人鏡頭會延展或剪短到 dur（setpts 慢動作），統一 1080×1920、30fps。
+- "wide": false 只輸出直式；同時 "audio": true 時只留一個有環境音的 <out>.mp4。
 - "audio": true 時另外輸出 *_ambient 版本：保留 AI 片段自帶的環境音（跟著慢動作拉長、鏡頭間交叉淡化，結尾卡靜音淡出）。
 - App 畫面放在右下方的圓角手機框裡，88% 不透明，淡入 0.4 秒（app.y 可調高度）；字幕在上方三分之一的半透明膠囊裡。
 """
@@ -92,8 +93,11 @@ def end_card(shot, path):
     ImageDraw.Draw(m).rounded_rectangle((0, 0, 259, 259), radius=58, fill=255)
     img.paste(icon, ((W - 260) // 2, 520), m)
     d = ImageDraw.Draw(img)
+    title_size = 60
+    while font(title_size).getlength(shot["title"]) > W * 0.86 and title_size > 36:
+        title_size -= 2  # 標題太長時縮小，左右至少留 7%
     for text, y, f, color in [
-        (shot["title"], 880, font(60), (243, 240, 255)),
+        (shot["title"], 880, font(title_size), (243, 240, 255)),
         (shot["subtitle"], 990, font(46, TC_REGULAR), (185, 182, 214)),
         (shot.get("note", ""), 1600, font(30, TC_REGULAR), (140, 137, 176)),
     ]:
@@ -220,6 +224,12 @@ def main():
             run([*a_in, "-filter_complex", ";".join(a_chain) + f";[{a_last}]loudnorm=I=-20:TP=-2[o]", "-map", "[o]", "-c:a", "aac", "-b:a", "192k", mix])
             cfg["_mix"] = mix
             run(["-i", vertical, "-i", mix, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "copy", "-shortest", "-movflags", "+faststart", out + "_ambient_9x16.mp4"])
+        if cfg.get("wide") is False:
+            if cfg.get("audio"):
+                os.replace(out + "_ambient_9x16.mp4", out + ".mp4")
+                os.remove(vertical)
+                print(out + ".mp4")
+            return
         # 16:9：中間放直式畫面，兩側用同一段畫面放大模糊當背景
         run(["-i", vertical, "-filter_complex",
              "[0:v]split[a][b];[a]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=40:2,eq=brightness=-0.12[bg];"

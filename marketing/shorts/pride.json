@@ -2,6 +2,7 @@
   "_note": "彩虹篇《第一次》。素材在 footage/pride/（不進 git）。執行：python3 tool/make_story_short.py marketing/shorts/pride.json",
   "out": "marketing/shorts/out/pride_first_time",
   "crossfade": 0.5,
+  "audio": true,
   "shots": [
     {"src": "footage/pride/shot1.mov", "dur": 5, "caption": "第一次來，一個人"},
     {"src": "footage/pride/shot2.mov", "dur": 5, "caption": "還不敢讓任何人知道"},
@@ -19,7 +20,7 @@
      "app": {"src": "footage/pride/app_part2.mov", "start": 20, "dur": 12, "in": 0.4}},
     {"src": "footage/pride/shot9.mov", "dur": 6,
      "app": {"image": "footage/pride/app_tally.png", "crop": [0, 2150, 1320, 2868], "in": 1.0}},
-    {"end": true, "dur": 4.5, "title": "在城市的某個角落，有人看見你。", "subtitle": "城市低語｜App Store 搜尋「城市低語」",
+    {"end": true, "dur": 4.5, "title": "在城市的某個角落，有人看見你。", "subtitle": "城市低語｜公測報名中\nmood-whisper-f7de9.web.app/beta.html",
      "note": "影片中的 App 畫面為示範情境"}
   ]
 }

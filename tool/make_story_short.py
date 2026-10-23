@@ -15,6 +15,7 @@ JSON：
   ]
 }
 - 真人鏡頭會延展或剪短到 dur（setpts 慢動作），統一 1080×1920、30fps。
+- "audio": true 時另外輸出 *_ambient 版本：保留 AI 片段自帶的環境音（跟著慢動作拉長、鏡頭間交叉淡化，結尾卡靜音淡出）。
 - App 畫面放在右下方的圓角手機框裡，88% 不透明，淡入 0.4 秒（app.y 可調高度）；字幕在上方三分之一的半透明膠囊裡。
 """
 import json
@@ -99,6 +100,23 @@ def end_card(shot, path):
         for i, line in enumerate(text.split("\n")):
             d.text(((W - f.getlength(line)) / 2, y + i * int(f.size * 1.4)), line, font=f, fill=color)
     img.save(path)
+
+
+def build_audio(i, shot, base, tmp):
+    """這一鏡的環境音：跟影片同樣的放慢比例，長度補齊到 dur；結尾卡是靜音。"""
+    out = os.path.join(tmp, f"a{i:02d}.wav")
+    dur = shot["dur"]
+    if shot.get("end"):
+        run(["-f", "lavfi", "-t", str(dur), "-i", "anullsrc=r=48000:cl=stereo", out])
+        return out
+    src = os.path.join(base, shot["src"])
+    probe = subprocess.run([FFMPEG, "-i", src], capture_output=True, text=True).stderr
+    hms = probe.split("Duration: ")[1].split(",")[0].split(":")
+    src_dur = float(hms[0]) * 3600 + float(hms[1]) * 60 + float(hms[2])
+    speed = max(0.5, min(1.0, src_dur / dur))
+    run(["-i", src, "-af", f"atempo={speed},aresample=48000,apad,atrim=duration={dur},afade=in:d=0.3,afade=out:st={dur - 0.5}:d=0.5",
+         "-ac", "2", out])
+    return out
 
 
 def build_shot(i, shot, base, tmp):
@@ -189,11 +207,26 @@ def main():
             last = f"x{k}"
         vertical = out + "_9x16.mp4"
         run([*inputs, "-filter_complex", ";".join(chain), "-map", f"[{last}]", "-an", "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", vertical])
+        if cfg.get("audio"):
+            # 環境音：每鏡一段，鏡頭交界用與畫面相同長度的交叉淡化
+            auds = [build_audio(i, s, base, tmp) for i, s in enumerate(cfg["shots"])]
+            a_in, a_chain, a_last = [], [], "0:a"
+            for a in auds:
+                a_in += ["-i", a]
+            for k in range(1, len(auds)):
+                a_chain.append(f"[{a_last}][{k}:a]acrossfade=d={xf}:c1=tri:c2=tri[y{k}]")
+                a_last = f"y{k}"
+            mix = os.path.join(tmp, "ambient.m4a")
+            run([*a_in, "-filter_complex", ";".join(a_chain) + f";[{a_last}]loudnorm=I=-20:TP=-2[o]", "-map", "[o]", "-c:a", "aac", "-b:a", "192k", mix])
+            cfg["_mix"] = mix
+            run(["-i", vertical, "-i", mix, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "copy", "-shortest", "-movflags", "+faststart", out + "_ambient_9x16.mp4"])
         # 16:9：中間放直式畫面，兩側用同一段畫面放大模糊當背景
         run(["-i", vertical, "-filter_complex",
              "[0:v]split[a][b];[a]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=40:2,eq=brightness=-0.12[bg];"
              "[b]scale=-2:1080[fg];[bg][fg]overlay=(W-w)/2:0,format=yuv420p[v]",
              "-map", "[v]", "-an", "-c:v", "libx264", "-crf", "19", "-movflags", "+faststart", out + "_16x9.mp4"])
+        if cfg.get("audio"):
+            run(["-i", out + "_16x9.mp4", "-i", cfg["_mix"], "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "copy", "-shortest", "-movflags", "+faststart", out + "_ambient_16x9.mp4"])
     print(vertical)
     print(out + "_16x9.mp4")
 

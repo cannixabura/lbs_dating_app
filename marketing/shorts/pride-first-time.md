@@ -2,7 +2,7 @@
 
 **一句話**：一個還沒出櫃的年輕人，第一次一個人去彩虹遊行。她不敢說，城市低語讓她被看見，卻不用被認出來。
 
-**角色**：阿澄，24 歲，台灣女生，偏中性的打扮：耳下短髮、戴細框眼鏡、不化妝，米色寬版外套、白色 T 恤、直筒褲，裡面別著一枚小小的彩虹別針（一開始藏在外套裡）。
+**角色**：阿澄，20 多歲的上班族女生（你提供的角色，見 `footage/pride/lead_ref_*.jpg`）：黑色及肩鮑伯頭、齊瀏海，米白色襯衫、深灰色寬版西裝外套、黑色寬褲，黑色托特包。彩虹別針一開始別在襯衫上、被西裝外套蓋住。
 **場景**：台北市府一帶的遊行路線，傍晚到入夜。只用彩虹旗與人群呈現，**不出現任何主辦單位的標誌、布條文字或真人名人**。
 
 ## 分鏡
@@ -28,21 +28,23 @@
 2. **每一鏡**：用 Gen-4 影片（圖＋文字），長度 5 秒（第 4、7、8、9 鏡 10 秒再剪短），直式 9:16。
 3. 每次按「產生」前我會先告訴你要花多少點數，你同意才產生。
 
-**角色參考圖提示詞**
-> Portrait of a Taiwanese woman, 24 years old, androgynous style, short black chin-length hair, thin metal-frame glasses, no makeup, gentle shy expression, oversized beige jacket over a plain white t-shirt and straight-leg trousers, standing on a Taipei street at dusk, soft cinematic lighting, natural skin texture, 35mm film look, vertical composition.
+**角色參考圖**：使用你提供的畫面（`footage/pride/lead_ref_face.jpg` 正面、`lead_ref_half.jpg` 半身、`lead_ref_profile.jpg` 側臉），每一鏡都上傳為 Reference。之前用文字生成的兩批角色圖不採用。
+
+**每鏡共用的角色描述**
+> the same young Taiwanese woman from the reference image: black shoulder-length bob with straight bangs, cream silk blouse, oversized charcoal-grey blazer, black wide-leg trousers, black leather tote bag
 
 **鏡頭提示詞**（每鏡都附上角色參考圖）
-1. Vertical 9:16 cinematic shot, dusk at a Taipei MRT station exit, the young woman in a beige jacket stands at the edge of a crowd, distant rainbow flags blurred in the background, she pulls her jacket closer, hesitant, cool blue dusk light with warm street lamps, shallow depth of field, slow push-in, film grain.
-2. Vertical 9:16 extreme close-up, her hand inside the beige jacket touching a small rainbow enamel pin on her shirt, keeping it hidden, soft dusk light, shallow depth of field, gentle and quiet, film grain.
+1. Vertical 9:16 cinematic shot, dusk at a Taipei MRT station exit, the young woman in a charcoal-grey blazer stands at the edge of a crowd, distant rainbow flags blurred in the background, she pulls her jacket closer, hesitant, cool blue dusk light with warm street lamps, shallow depth of field, slow push-in, film grain.
+2. Vertical 9:16 extreme close-up, her hand inside the charcoal-grey blazer touching a small rainbow enamel pin on her shirt, keeping it hidden, soft dusk light, shallow depth of field, gentle and quiet, film grain.
 3. Vertical 9:16 medium shot, the young woman leans on a street railing and takes out her smartphone, the screen glow lights her face, crowd and flags blurred behind him, blue-violet evening tones, static camera, film grain. (Screen content not visible.)
 4. Vertical 9:16 cinematic shot, a joyful parade crowd with rainbow flags passes in front of the young woman who stands still at the roadside watching, laughter and movement around him, golden hour turning to blue hour, slow motion, shallow depth of field, film grain.
 5. Vertical 9:16 close-up, the young woman looks down at her phone, pauses, then a small surprised smile appears, soft screen glow on her face, bokeh of rainbow flags behind, warm and tender, film grain.
 6. Vertical 9:16 close-up, her thumb typing on the phone, then she looks up and takes a deep breath, evening street lights, bokeh, calm resolve, film grain. (Screen content not visible.)
 7. Vertical 9:16 wide shot, night falls over the parade street in Taipei, hundreds of people raise their phone flashlights, a sea of small lights and rainbow flags, the young woman among them in the foreground seen from behind, magical and emotional, slow crane up, film grain.
-8. Vertical 9:16 close-up, the young woman takes the small rainbow pin from inside her jacket and pins it onto the outside of her beige jacket, her fingers slightly trembling, night lights bokeh, emotional, slow motion, film grain.
+8. Vertical 9:16 close-up, the young woman takes the small rainbow pin from inside her jacket and pins it onto the outside of her charcoal-grey blazer, her fingers slightly trembling, night lights bokeh, emotional, slow motion, film grain.
 9. Vertical 9:16 wide shot from behind, the young woman walks forward into the glowing crowd with rainbow flags and phone lights, she slowly merges into the crowd, hopeful, warm night tones, slow tracking shot, film grain.
 
-**避免**：手機螢幕內容（AI 會畫出亂碼，螢幕一律換成真實 App 畫面）、可辨識的真實品牌與主辦單位標誌、文字布條。
+**避免**：手機螢幕內容（AI 會畫出亂碼，螢幕一律換成真實 App 畫面）、可辨識的真實品牌（例如精品店招牌）與主辦單位標誌、文字布條。每鏡提示詞結尾加上：no readable text on screens, no brand logos.
 
 ## 我接下來會做的 App 畫面（模擬器錄製）
 - 寫心情「第一次來，有點害怕」→ 走進城市

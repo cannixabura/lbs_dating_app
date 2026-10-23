@@ -487,7 +487,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       }
 
       const updates = {};
-      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush"]) {
+      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs"]) {
           updates[`${path}/${uid}`] = null;
       }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
@@ -870,6 +870,28 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
         return res.status(200).json({ success: true, data: { gid: newGid } });
       }
 
+      // 被邀請接下主持的人：接受或婉拒（不需要是主持人，也不從 body 帶 gid）
+      if (action === "accept-handoff" || action === "decline-handoff") {
+        const offerRef = db.ref(`gatheringHandoffs/${uid}`);
+        const offer = (await offerRef.once('value')).val();
+        if (!offer || offer.expiresAt < now) {
+            await offerRef.remove();
+            return fail(410, "這個邀請已經失效了。");
+        }
+        const og = await readGathering(offer.gid);
+        const stillValid = og && og.status === 'active' && og.hostUid === offer.fromUid;
+        await Promise.all([offerRef.remove(), db.ref(`gatherings/${offer.gid}/pendingHandoff`).remove()]);
+        if (!stillValid) return fail(410, "這場活動已經結束或換了主持人。");
+        if (action === "decline-handoff") {
+            await sendPush(offer.fromUid, `${og.emoji} ${og.name}`, "對方婉拒了接下主持。", { type: 'gathering_handoff', gid: offer.gid });
+            return res.status(200).json({ success: true });
+        }
+        const problem = gathering.handoffProblem(og, await handoffCandidate(og, uid));
+        if (problem) return fail(409, problem);
+        await transferHost(offer.gid, og, uid, offer.quiet === true);
+        return res.status(200).json({ success: true });
+      }
+
       const g = gid ? await readGathering(gid) : null;
       if (!g) return fail(404, "找不到這場活動。");
       if (g.status !== 'active') return fail(410, "這場活動已經結束了。");
@@ -878,6 +900,32 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       if (action === "end") {
         if (!isHost) return fail(403, "只有主持人可以結束活動。");
         if (!(await endGathering(gid, 'host'))) return fail(409, "活動沒有結束成功，請再試一次。");
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "handoff") {
+        if (!isHost) return fail(403, "只有主持人可以轉移活動。");
+        const toUid = String(req.body.toUid || '');
+        if (!toUid || toUid === uid || toUid.startsWith(demo.DEMO_PREFIX)) return fail(400, "無法把活動交給這位使用者。");
+        const problem = gathering.handoffProblem(g, await handoffCandidate(g, toUid));
+        if (problem) return fail(409, problem);
+        const quiet = req.body.quiet === true;
+        const expiresAt = now + gathering.HANDOFF_TTL_MS;
+        const toName = (await getNicknameFromRedis(toUid)) || '';
+        await db.ref().update({
+            [`gatheringHandoffs/${toUid}`]: { gid, fromUid: uid, quiet, name: g.name, emoji: g.emoji, at: now, expiresAt },
+            [`gatherings/${gid}/pendingHandoff`]: { toName, expiresAt },
+        });
+        await sendPush(toUid, `${g.emoji} ${g.name}`, "主持人想把這場活動交給你主持，打開 App 回覆。", { type: 'gathering_handoff', gid });
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "cancel-handoff") {
+        if (!isHost) return fail(403, "只有主持人可以取消。");
+        const pending = (await db.ref('gatheringHandoffs').orderByChild('gid').equalTo(gid).once('value')).val() || {};
+        const updates = { [`gatherings/${gid}/pendingHandoff`]: null };
+        for (const target of Object.keys(pending)) updates[`gatheringHandoffs/${target}`] = null;
+        await db.ref().update(updates);
         return res.status(200).json({ success: true });
       }
 
@@ -982,6 +1030,44 @@ async function hideAnnouncement(gid, aid) {
     await db.ref(`gatherings/${gid}/latest`).set(visible.length ? { id: visible[0][0], text: visible[0][1].text, at: visible[0][1].at } : null);
 }
 
+/** 交棒對象目前的狀態（給 gathering.handoffProblem 判斷） */
+async function handoffCandidate(g, uid) {
+    const [[nickname, hidden], pos] = await sendUpstashPipeline([
+        ["HMGET", `user_data:${uid}`, "nickname", "hidden"],
+        ["GEOPOS", "city_users", uid],
+    ]);
+    const hostingGid = (await admin.database().ref(`hosting/${uid}`).once('value')).val();
+    const hostingActive = hostingGid ? ((await readGathering(hostingGid)) || {}).status === 'active' : false;
+    const blocked = (await blockedUidsFor(g.hostUid)).has(uid);
+    const here = Array.isArray(pos) && pos[0] ? { lng: parseFloat(pos[0][0]), lat: parseFloat(pos[0][1]) } : null;
+    return { nickname, hidden, pos: here, hosting: hostingActive ? hostingGid : null, blocked };
+}
+
+/** 交棒：活動不變，只換主持人；中心改跟著新主持人。公開交棒才通知參加者。 */
+async function transferHost(gid, g, toUid, quiet) {
+    const db = admin.database();
+    const fromUid = g.hostUid;
+    const [pos] = await sendUpstashPipeline([["GEOPOS", "city_users", toUid]]);
+    const center = Array.isArray(pos) && pos[0] ? gathering.publicCenter(parseFloat(pos[0][1]), parseFloat(pos[0][0])) : {};
+    const now = Date.now();
+    await db.ref().update({
+        [`gatherings/${gid}/hostUid`]: toUid,
+        ...Object.fromEntries(Object.entries(center).map(([k, v]) => [`gatherings/${gid}/${k}`, v])),
+        [`gatherings/${gid}/pendingHandoff`]: null,
+        ...(quiet ? {} : { [`gatherings/${gid}/handoffAt`]: now }),
+        [`gatheringHandoffLog/${gid}/${now}`]: { from: fromUid, to: toUid, quiet },
+        [`hosting/${fromUid}`]: null,
+        [`hosting/${toUid}`]: gid,
+    });
+    await sendUpstashPipeline([
+        ["HDEL", `user_data:${fromUid}`, "host", "hostEmoji"],
+        ["HSET", `user_data:${toUid}`, "host", gid, "hostEmoji", g.emoji],
+    ]);
+    console.log(`[集會] ${gid} 主持人 ${fromUid} → ${toUid}${quiet ? '（安靜交棒）' : ''}`);
+    await sendPush(fromUid, `${g.emoji} ${g.name}`, "對方接下了主持，你回到了城市裡。", { type: 'gathering_handoff', gid });
+    if (!quiet) await notifyGathering(gid, { ...g, ...center, hostUid: toUid }, "主持人已交棒，活動繼續進行。");
+}
+
 // 時間到的活動自動結束（每 5 分鐘檢查一次）；結束滿 30 天的活動連同公告、提問與回答一併刪除（隱私權政策第 2 節）
 const GATHERING_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -998,10 +1084,10 @@ exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region:
     const updates = {};
     for (const [gid, g] of Object.entries(ended)) {
         if (now - (g.endedAt || g.endAt || 0) < GATHERING_RETENTION_MS) continue;
-        for (const path of ['gatherings', 'gatheringAnnouncements', 'gatheringTally', 'gatheringAnswers']) updates[`${path}/${gid}`] = null;
+        for (const path of ['gatherings', 'gatheringAnnouncements', 'gatheringTally', 'gatheringAnswers', 'gatheringHandoffLog', 'gatheringReview']) updates[`${path}/${gid}`] = null;
     }
     if (Object.keys(updates).length) {
         await db.ref().update(updates);
-        console.log(`[集會] 刪除 ${Object.keys(updates).length / 4} 場結束滿 30 天的活動`);
+        console.log(`[集會] 刪除 ${Object.keys(updates).length / 6} 場結束滿 30 天的活動`);
     }
 });

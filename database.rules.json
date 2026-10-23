@@ -42,6 +42,13 @@
     "gatheringAnswers": {
       "$gid": { "$qid": { "$uid": { ".read": "auth != null && auth.uid === $uid" } } }
     },
+    // 交棒邀請：只有被邀請的人讀得到自己的邀請（由 Cloud Function 寫入）
+    "gatheringHandoffs": {
+      ".indexOn": ["gid"],
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
+    // 交棒紀錄：只有 Cloud Function 與主控台讀寫（處理檢舉用）
+    "gatheringHandoffLog": { ".read": false, ".write": false },
     "hosting": {
       "$uid": { ".read": "auth != null && auth.uid === $uid" }
     },

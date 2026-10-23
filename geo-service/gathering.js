@@ -16,6 +16,7 @@ const MAX_NAME_LENGTH = 20;
 const MAX_ANNOUNCEMENT_LENGTH = 200;
 const MAX_QUESTION_LENGTH = 40;
 const MAX_ANSWER_LENGTH = 20;
+const HANDOFF_TTL_MS = 5 * 60 * 1000; // 交棒邀請 5 分鐘內沒回應就失效
 const MIN_ANSWERS = citymood.MIN_PEOPLE; // 少於 10 人回答不給比例，和城市心情天氣同一條規則
 // 檢舉：只隱藏被檢舉的那則公告，活動本身不自動結束（避免選舉等場合被對手惡意檢舉下架）
 const REPORT_MIN_REPORTERS = 10;
@@ -131,7 +132,22 @@ function parseReportTarget(target) {
     return m ? { gid: m[1], aid: m[2] || null } : null;
 }
 
+/**
+ * 交棒對象的資格（主持人只能交給現場的參加者）
+ * @param {{nickname?: string, hidden?: string, pos?: {lat, lng} | null, hosting?: string | null, blocked?: boolean}} b
+ * @returns {string|null} 不符合時的原因
+ */
+function handoffProblem(g, b) {
+    if (b.blocked) return '無法把活動交給這位使用者。';
+    if (b.hidden === '1') return '這位使用者目前無法接下主持。';
+    if (!emojiKeysIn(b.nickname).has(g.emojiKey)) return `對方還沒加入這場活動（稱呼裡沒有 ${g.emoji}）。`;
+    if (!b.pos || distanceKm(b.pos, g) > PARTICIPANT_RADIUS_KM) return '對方不在活動範圍 5 公里內。';
+    if (b.hosting) return '對方正在主持另一場活動。';
+    return null;
+}
+
 module.exports = {
+    HANDOFF_TTL_MS, handoffProblem,
     REPORT_MIN_REPORTERS, reportThreshold, parseReportTarget,
     PARTICIPANT_RADIUS_KM, UNIQUE_RADIUS_KM, MAX_DURATION_MS, MIN_ANSWERS,
     MAX_NAME_LENGTH, MAX_ANNOUNCEMENT_LENGTH, MAX_QUESTION_LENGTH, MAX_ANSWER_LENGTH,

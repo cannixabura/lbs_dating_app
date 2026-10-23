@@ -30,7 +30,9 @@ import 'firebase_options.dart';
 import 'legal.dart';
 import 'mood_card.dart';
 import 'mood_trail.dart';
+import 'package:characters/characters.dart';
 import 'gathering.dart';
+import 'gathering_keys.dart';
 import 'guide_screen.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
@@ -169,6 +171,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   // ---------- 集會 ----------
   StreamSubscription<List<Gathering>>? _gatheringSub;
+  StreamSubscription<DatabaseEvent>? _handoffOfferSub;
+  bool _handoffOfferShowing = false;
+  String? _lastHostedGid; // 上一次我主持的活動：被交棒出去時自動把圖標補進稱呼
   List<Gathering> _gatherings = [];
   final Map<String, Gathering> _shownGatherings = {}; // 曾經出現在我雷達上的活動：結束時提示一聲
 
@@ -197,8 +202,51 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         if (ended.hostUid != widget.uid) showGlassToast(context, '${ended.emoji} ${ended.name} 已結束', icon: Icons.nights_stay_outlined);
       }
       setState(() => _gatherings = list);
+      _checkHandedOff(list);
       for (final g in [_hostedGathering, _joinedGathering]) { if (g != null) _shownGatherings[g.id] = g; }
     }, onError: (e) => debugPrint('gatherings listen failed: $e'));
+  }
+
+  /// 我主持的活動還在、但主持人換成別人：我交棒出去了 → 把圖標補進稱呼，繼續當參加者
+  void _checkHandedOff(List<Gathering> list) {
+    final hosted = _hostedGathering;
+    final previous = _lastHostedGid;
+    _lastHostedGid = hosted?.id;
+    if (hosted != null || previous == null) return;
+    final g = list.where((e) => e.id == previous).firstOrNull;
+    if (g == null) return; // 活動結束了，不是交棒
+    if (emojiKeysIn(_myNickname).contains(g.emojiKey)) {
+      showGlassToast(context, '你已把 ${g.emoji} ${g.name} 交棒，現在是參加者。', icon: Icons.campaign_outlined);
+      return;
+    }
+    final updated = '$_myNickname${g.emoji}';
+    if (updated.characters.length > 10) {
+      showGlassToast(context, '你已交棒。稱呼已滿 10 個字，請自己把 ${g.emoji} 加進稱呼，才能繼續收到公告。', icon: Icons.campaign_outlined);
+      return;
+    }
+    _saveNickname(updated);
+    showGlassToast(context, '你已交棒，稱呼補上了 ${g.emoji}，你現在是參加者。', icon: Icons.campaign_outlined);
+  }
+
+  Future<void> _saveNickname(String nickname) async {
+    setState(() => _myNickname = nickname);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_nickname', nickname);
+    try { await _dbRef.child('profiles/${widget.uid}/nickname').set(nickname); } catch (e) { debugPrint('nickname write failed: $e'); }
+    if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
+  }
+
+  /// 有人邀請我接下主持
+  void _listenToHandoffOffers() {
+    _handoffOfferSub?.cancel();
+    _handoffOfferSub = _dbRef.child('gatheringHandoffs/${widget.uid}').onValue.listen((event) {
+      final offer = event.snapshot.value;
+      if (offer is! Map || !mounted || _handoffOfferShowing) return;
+      final expiresAt = (offer['expiresAt'] as num?)?.toInt() ?? 0;
+      if (expiresAt < DateTime.now().millisecondsSinceEpoch) return;
+      _handoffOfferShowing = true;
+      showHandoffOffer(context, offer).whenComplete(() => _handoffOfferShowing = false);
+    }, onError: (e) => debugPrint('handoff offers listen failed: $e'));
   }
 
   void _openGatheringHost() {
@@ -386,6 +434,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _listenToBlockLists() {
     _listenToGatherings();
+    _listenToHandoffOffers();
     _blockSubscription = _dbRef.child('blocks/${widget.uid}').onValue.listen((event) {
       if (!mounted) return;
       
@@ -1918,6 +1967,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               if (!isShadow) ...[
                 item(Icons.waving_hand_outlined, Night.knockPink, '敲門 (產生交集)', () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
                 item(Icons.block, Night.danger, '封鎖 (沒入黑暗)', () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
+                // 我正在主持：可以把活動交給這位參加者
+                if (!isDemo && _hostedGathering != null)
+                  item(Icons.swap_horiz, Night.auroraBlue, '轉移主持人', () {
+                    Navigator.pop(dialogContext);
+                    showHandoffDialog(context, gathering: _hostedGathering!, toUid: targetUid, toName: displayName);
+                  }),
               ],
               item(Icons.flag_outlined, Night.danger, '檢舉', () {
                 Navigator.pop(dialogContext);
@@ -2167,7 +2222,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose(); _introFade.dispose();
     _knockTicker?.cancel(); _knockSecondsLeft.dispose(); _arcFlow.dispose(); _dissolve.dispose();
-    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel(); _focusTimer?.cancel(); _gatheringSub?.cancel();
+    _resonanceSubscription?.cancel(); _sparkle.dispose(); _cityMoodTimer?.cancel(); _focusTimer?.cancel(); _gatheringSub?.cancel(); _handoffOfferSub?.cancel();
     // 刪除帳號後已登出，不再寫入
     if (FirebaseAuth.instance.currentUser != null) _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     WidgetsBinding.instance.removeObserver(this); super.dispose();

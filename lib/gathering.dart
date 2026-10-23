@@ -35,6 +35,9 @@ class Gathering {
   final DateTime? latestAt;
   final String? questionId;
   final String? questionText;
+  final DateTime? handoffAt; // 公開交棒的時間（安靜交棒不記）
+  final String? pendingHandoffTo; // 等待對方回覆中的交棒對象
+  final DateTime? pendingHandoffUntil;
 
   Gathering.fromMap(this.id, Map m)
       : name = (m['name'] ?? '').toString(),
@@ -49,7 +52,15 @@ class Gathering {
         latestText = (m['latest'] as Map?)?['text']?.toString(),
         latestAt = (m['latest'] as Map?)?['at'] == null ? null : DateTime.fromMillisecondsSinceEpoch(((m['latest'] as Map)['at'] as num).toInt()),
         questionId = (m['question'] as Map?)?['id']?.toString(),
-        questionText = (m['question'] as Map?)?['text']?.toString();
+        questionText = (m['question'] as Map?)?['text']?.toString(),
+        handoffAt = m['handoffAt'] == null ? null : DateTime.fromMillisecondsSinceEpoch((m['handoffAt'] as num).toInt()),
+        pendingHandoffTo = (m['pendingHandoff'] as Map?)?['toName']?.toString(),
+        pendingHandoffUntil = (m['pendingHandoff'] as Map?)?['expiresAt'] == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(((m['pendingHandoff'] as Map)['expiresAt'] as num).toInt());
+
+  /// 等待對方回覆中（還沒過期）
+  bool get handoffPending => pendingHandoffUntil != null && pendingHandoffUntil!.isAfter(DateTime.now());
 
   double distanceKmFrom(double fromLat, double fromLng) {
     const r = 6371.0;
@@ -96,6 +107,10 @@ class GatheringApi {
   static Future<String?> announce(String gid, String text) async => (await _call({'action': 'announce', 'gid': gid, 'text': text})).$2;
   static Future<String?> ask(String gid, String text) async => (await _call({'action': 'ask', 'gid': gid, 'text': text})).$2;
   static Future<String?> answer(String gid, String qid, String text) async => (await _call({'action': 'answer', 'gid': gid, 'qid': qid, 'text': text})).$2;
+  static Future<String?> handoff(String gid, String toUid, {required bool quiet}) async => (await _call({'action': 'handoff', 'gid': gid, 'toUid': toUid, 'quiet': quiet})).$2;
+  static Future<String?> cancelHandoff(String gid) async => (await _call({'action': 'cancel-handoff', 'gid': gid})).$2;
+  static Future<String?> acceptHandoff() async => (await _call({'action': 'accept-handoff'})).$2;
+  static Future<String?> declineHandoff() async => (await _call({'action': 'decline-handoff'})).$2;
 }
 
 /// 所有進行中的活動（數量不多，直接整份監聽）
@@ -412,6 +427,14 @@ class _HostPanelState extends State<_HostPanel> {
           },
         ),
 
+        _section('交棒'),
+        if (g.handoffPending)
+          Row(children: [
+            Expanded(child: Text('已邀請 ${g.pendingHandoffTo?.isNotEmpty == true ? g.pendingHandoffTo : '對方'} 接下主持，等待回覆中…', style: Night.body.copyWith(fontSize: 14))),
+            NightButton('取消', kind: NightButtonKind.text, onPressed: _busy ? null : () => _run(() => GatheringApi.cancelHandoff(g.id), done: '已取消交棒邀請')),
+          ])
+        else
+          Text('長按雷達上參加者的氣泡 →「轉移主持人」，對方同意後就由他主持，活動與公告都不會中斷。', style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5)),
         if (_error != null) ...[
           const SizedBox(height: Night.space4),
           Text(_error!, style: const TextStyle(color: Night.danger, fontSize: 13)),
@@ -575,6 +598,10 @@ class _GatheringBannerState extends State<GatheringBanner> {
         Padding(
           padding: const EdgeInsets.only(right: Night.space3),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
+            if (g.handoffAt != null && DateTime.now().difference(g.handoffAt!) < const Duration(minutes: 30)) ...[
+              Text('主持人已交棒 · ${_ago(g.handoffAt!)}', style: Night.caption.copyWith(color: Night.auroraBlue)),
+              const SizedBox(height: 4),
+            ],
             if (g.latestText != null) ...[
               Text(g.latestText!, style: const TextStyle(color: Night.ink, fontSize: 15, height: 1.5), maxLines: 4, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 2),
@@ -629,4 +656,144 @@ class _GatheringBannerState extends State<GatheringBanner> {
         ),
         child: child,
       );
+}
+
+
+// ============================================================================
+// 交棒：主持人把活動交給現場的另一位參加者
+// ============================================================================
+
+/// 主持人長按參加者的氣泡 →「轉移主持人」：選公開或安靜交棒，送出邀請
+Future<void> showHandoffDialog(BuildContext context, {required Gathering gathering, required String toUid, required String toName}) {
+  return showDialog(
+    context: context,
+    barrierColor: const Color(0x99070B1F),
+    builder: (_) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(Night.space6),
+      child: GlassCard(child: _HandoffForm(gathering: gathering, toUid: toUid, toName: toName)),
+    ),
+  );
+}
+
+class _HandoffForm extends StatefulWidget {
+  final Gathering gathering;
+  final String toUid;
+  final String toName;
+  const _HandoffForm({required this.gathering, required this.toUid, required this.toName});
+  @override
+  State<_HandoffForm> createState() => _HandoffFormState();
+}
+
+class _HandoffFormState extends State<_HandoffForm> {
+  bool _quiet = false;
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _send() async {
+    setState(() { _busy = true; _error = null; });
+    final error = await GatheringApi.handoff(widget.gathering.id, widget.toUid, quiet: _quiet);
+    if (!mounted) return;
+    if (error != null) return setState(() { _busy = false; _error = error; });
+    Navigator.of(context).pop();
+    showGlassToast(context, '已邀請 ${widget.toName} 接下主持，等對方回覆（5 分鐘內有效）。', icon: Icons.campaign_outlined);
+  }
+
+  Widget _option(bool quiet, String title, String subtitle) => InkWell(
+        onTap: _busy ? null : () => setState(() => _quiet = quiet),
+        borderRadius: BorderRadius.circular(Night.radiusSm),
+        child: Container(
+          padding: const EdgeInsets.all(Night.space3),
+          decoration: BoxDecoration(
+            color: Night.night700,
+            borderRadius: BorderRadius.circular(Night.radiusSm),
+            border: Border.all(color: _quiet == quiet ? Night.auroraViolet : Night.glassLine, width: _quiet == quiet ? 2 : 1),
+          ),
+          child: Row(children: [
+            Icon(_quiet == quiet ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: _quiet == quiet ? Night.auroraViolet : Night.inkFaint, size: 20),
+            const SizedBox(width: Night.space3),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5)),
+              ]),
+            ),
+          ]),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final g = widget.gathering;
+    return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text(g.emoji, style: const TextStyle(fontSize: 32), textAlign: TextAlign.center),
+      const SizedBox(height: Night.space2),
+      Text('把活動交給 ${widget.toName}', style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
+      const SizedBox(height: Night.space2),
+      const Text('對方同意後，由他主持這場活動；名稱、公告與提問都會留著。你會變回參加者。', style: Night.body, textAlign: TextAlign.center),
+      const SizedBox(height: Night.space4),
+      _option(false, '公開交棒', '通知所有參加者「主持人已交棒」'),
+      const SizedBox(height: Night.space2),
+      _option(true, '安靜交棒', '不通知任何人，只有雷達上的「主持」光環換人'),
+      if (_error != null) ...[
+        const SizedBox(height: Night.space3),
+        Text(_error!, style: const TextStyle(color: Night.danger, fontSize: 13), textAlign: TextAlign.center),
+      ],
+      const SizedBox(height: Night.space4),
+      Row(children: [
+        Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop())),
+        const SizedBox(width: Night.space2),
+        Expanded(child: NightButton(_busy ? '送出中…' : '送出邀請', onPressed: _busy ? null : _send)),
+      ]),
+    ]);
+  }
+}
+
+/// 被邀請接下主持：同意或婉拒
+Future<void> showHandoffOffer(BuildContext context, Map offer) {
+  final emoji = (offer['emoji'] ?? '').toString();
+  final name = (offer['name'] ?? '').toString();
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: const Color(0x99070B1F),
+    builder: (dialogContext) {
+      var busy = false;
+      return StatefulBuilder(builder: (context, setState) {
+        Future<void> reply(bool accept) async {
+          setState(() => busy = true);
+          final error = accept ? await GatheringApi.acceptHandoff() : await GatheringApi.declineHandoff();
+          if (!dialogContext.mounted) return;
+          Navigator.of(dialogContext).pop();
+          if (error != null) {
+            showGlassToast(context, error, icon: Icons.error_outline, danger: true);
+          } else if (accept) {
+            showGlassToast(context, '你現在是 $emoji $name 的主持人。', icon: Icons.campaign_outlined);
+          }
+        }
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(Night.space6),
+          child: GlassCard(
+            glow: true,
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text(emoji, style: const TextStyle(fontSize: 36), textAlign: TextAlign.center),
+              const SizedBox(height: Night.space2),
+              const Text('想請你接下主持', style: Night.title, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space2),
+              Text('主持人想把「$name」交給你。接下後，你可以發公告、提問與結束活動，也要對公告內容負責。', style: Night.body, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space4),
+              Row(children: [
+                Expanded(child: NightButton('婉拒', kind: NightButtonKind.ghost, onPressed: busy ? null : () => reply(false))),
+                const SizedBox(width: Night.space2),
+                Expanded(child: NightButton(busy ? '處理中…' : '接下主持', onPressed: busy ? null : () => reply(true))),
+              ]),
+            ]),
+          ),
+        );
+      });
+    },
+  );
 }

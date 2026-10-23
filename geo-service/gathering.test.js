@@ -62,3 +62,16 @@ test('report targets name an announcement or the whole event', () => {
     assert.deepStrictEqual(g.parseReportTarget('gathering:-Pabc'), { gid: '-Pabc', aid: null });
     assert.strictEqual(g.parseReportTarget('whisper:1'), null);
 });
+
+test('handoff goes only to a participant in range who is not hosting', () => {
+    const g = { emoji: '🎆', emojiKey: g_key('🎆'), lat: 25.034, lng: 121.5645 };
+    const near = { lat: 25.04, lng: 121.56 };
+    assert.strictEqual(g_problem(g, { nickname: '跨年的貓🎆', pos: near }), null);
+    assert.match(g_problem(g, { nickname: '跨年的貓', pos: near }), /還沒加入/);
+    assert.match(g_problem(g, { nickname: '🎆', pos: { lat: 22.6, lng: 120.3 } }), /5 公里/);
+    assert.match(g_problem(g, { nickname: '🎆', pos: near, hosting: '-other' }), /另一場/);
+    assert.match(g_problem(g, { nickname: '🎆', pos: near, hidden: '1' }), /無法接下/);
+    assert.match(g_problem(g, { nickname: '🎆', pos: near, blocked: true }), /無法把活動/);
+});
+function g_key(e) { return g.emojiKey(e); }
+function g_problem(gg, b) { return g.handoffProblem(gg, b); }

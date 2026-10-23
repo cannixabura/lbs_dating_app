@@ -1,0 +1,25 @@
+{
+  "_note": "彩虹篇《第一次》。素材在 footage/pride/（不進 git）。執行：python3 tool/make_story_short.py marketing/shorts/pride.json",
+  "out": "marketing/shorts/out/pride_first_time",
+  "crossfade": 0.5,
+  "shots": [
+    {"src": "footage/pride/shot1.mov", "dur": 5, "caption": "第一次來，一個人"},
+    {"src": "footage/pride/shot2.mov", "dur": 5, "caption": "還不敢讓任何人知道"},
+    {"src": "footage/pride/shot3.mov", "dur": 5.5, "caption": "那就先，只告訴這座城市",
+     "app": {"src": "footage/pride/app_part1.mov", "start": 13, "dur": 9, "in": 0.8}},
+    {"src": "footage/pride/shot4.mov", "dur": 6, "caption": "原來附近，\n有好多人跟我一樣",
+     "app": {"src": "footage/pride/app_part1.mov", "start": 54, "dur": 6, "in": 0.6}},
+    {"src": "footage/pride/shot5.mov", "dur": 6, "caption": "有人看見我了\n不知道是誰，也沒關係",
+     "app": {"src": "footage/pride/app_part1.mov", "start": 124, "dur": 14, "in": 0.6, "y": 880}},
+    {"src": "footage/pride/shot6.mov", "dur": 6, "caption": "把彩虹，放進名字裡",
+     "app": {"src": "footage/pride/app_part1.mov", "start": 244, "dur": 6, "in": 0.6}},
+    {"src": "footage/pride/shot7.mov", "dur": 6,
+     "app": {"src": "footage/pride/app_part2.mov", "start": 14, "dur": 6, "in": 0.8}},
+    {"src": "footage/pride/shot8.mov", "dur": 6, "caption": "不再一個人", "caption_in": 2.5,
+     "app": {"src": "footage/pride/app_part2.mov", "start": 20, "dur": 12, "in": 0.4}},
+    {"src": "footage/pride/shot9.mov", "dur": 6,
+     "app": {"image": "footage/pride/app_tally.png", "crop": [0, 2150, 1320, 2868], "in": 1.0}},
+    {"end": true, "dur": 4.5, "title": "在城市的某個角落，有人看見你。", "subtitle": "城市低語｜App Store 搜尋「城市低語」",
+     "note": "影片中的 App 畫面為示範情境"}
+  ]
+}

@@ -8,7 +8,7 @@
 | 臺北市政府觀光傳播局 綜合行銷科 | 「臺北最High新年城」跨年晚會（市府前廣場） | 02-2720-8889 分機 2031（2025 年跨年公告上的承辦窗口，請先打電話確認並詢問收件 Email）；也可用臺北市政府「市長信箱」 |
 
 - 寄件人：service.softchip@gmail.com
-- 附件：`marketing/outreach/gathering-guide/1.png`～`6.png`，或附集會指南網址
+- 附件：`marketing/outreach/gathering-guide-nye/1.png`～`6.png`（跨年煙火情境的說明圖），或附集會指南網址
 - 寄出時間建議：12 月初以前（跨年的宣傳與現場規劃通常 11 月就定案）
 
 ---

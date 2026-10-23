@@ -1261,6 +1261,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
     showModalBottomSheet(
       context: context, backgroundColor: Colors.transparent, isScrollControlled: true, barrierColor: const Color(0x99070B1F),
+      useSafeArea: true, // 設定比螢幕高時，標題與關閉鈕不能被狀態列蓋住
       builder: (BuildContext sheetContext) {
         void go(VoidCallback action) { Navigator.pop(sheetContext); action(); }
         final reminderRow = StatefulBuilder(builder: (context, setRowState) => Padding(

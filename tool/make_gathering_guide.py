@@ -2,6 +2,7 @@
 
 用法：
   python3 tool/make_gathering_guide.py marketing/outreach/gathering-guide/raw marketing/outreach/gathering-guide
+  python3 tool/make_gathering_guide.py marketing/outreach/gathering-guide-nye/raw marketing/outreach/gathering-guide-nye --scenario nye
 
 raw/ 裡放 1_settings.png … 6_petals.png（iPhone 6.9 吋模擬器原始截圖，1320×2868）。
 輸出 1080×1500 的 PNG（寄信、社群用）與 hosting/img/gathering/ 的 JPEG（官網集會指南用）。
@@ -25,16 +26,32 @@ STEPS = [
     ("6_petals", (0, 520, 1320, 2100), "人再多也點得到", "擠在一起的心情合成一顆光球\n點一下展開成一圈"),
 ]
 
+# 跨年煙火：設定與表單是在加了 useSafeArea 之後拍的，畫面位置不同
+SCENARIOS = {
+    "pride": {"label": "", "web": True, "crops": {}},
+    "nye": {
+        "label": "台北101跨年煙火秀 · ",
+        "web": False,
+        "crops": {
+            "1_settings": (0, 1250, 1320, 2330),
+            "2_create": (0, 1080, 1320, 2760),
+            "4_host_ring": (0, 700, 1320, 2100),
+            "5_host_panel": (0, 1150, 1320, 2868),
+            "6_petals": (0, 780, 1320, 2300),
+        },
+    },
+}
+
 W, H = 1080, 1500
 INK_MUTED = (185, 182, 214)
 STEP_COLOR = (140, 137, 176)
 
 
-def card(raw_path, crop, title, subtitle, n):
+def card(raw_path, crop, title, subtitle, n, label=""):
     canvas = background(W, H)
     draw = ImageDraw.Draw(canvas)
     step_font = load_font(34)
-    label = f"步驟 {n}"
+    label = f"{label}步驟 {n}"
     draw.text(((W - step_font.getlength(label)) / 2, 70), label, font=step_font, fill=STEP_COLOR)
     top = gradient_text(canvas, title, load_font(76), W / 2, 112)
     draw = ImageDraw.Draw(canvas)
@@ -60,13 +77,16 @@ def card(raw_path, crop, title, subtitle, n):
 
 def main():
     src, dst = sys.argv[1], sys.argv[2]
+    scenario = SCENARIOS[sys.argv[sys.argv.index("--scenario") + 1] if "--scenario" in sys.argv else "pride"]
     web = os.path.join(os.path.dirname(__file__), "..", "hosting", "img", "gathering")
     os.makedirs(dst, exist_ok=True)
     os.makedirs(web, exist_ok=True)
     for n, (name, crop, title, subtitle) in enumerate(STEPS, start=1):
-        img = card(os.path.join(src, f"{name}.png"), crop, title, subtitle, n)
+        crop = scenario["crops"].get(name, crop)
+        img = card(os.path.join(src, f"{name}.png"), crop, title, subtitle, n, scenario["label"])
         img.save(os.path.join(dst, f"{n}.png"), optimize=True)
-        img.save(os.path.join(web, f"{n}.jpg"), quality=86, optimize=True)
+        if scenario["web"]:
+            img.save(os.path.join(web, f"{n}.jpg"), quality=86, optimize=True)
         print(f"{n}. {title}")
 
 

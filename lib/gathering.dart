@@ -144,6 +144,7 @@ Future<void> showGatheringHostSheet(BuildContext context, {required Gathering? h
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true, // 面板比螢幕高時，關閉鈕不能被狀態列蓋住
     backgroundColor: Colors.transparent,
     barrierColor: const Color(0x99070B1F),
     builder: (_) => Padding(

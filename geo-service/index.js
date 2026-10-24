@@ -15,6 +15,7 @@ const { maskBlockedTerms } = require("./contentfilter");
 const demo = require("./demo");
 const betasignup = require("./betasignup");
 const gathering = require("./gathering");
+const publicmood = require("./publicmood");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -1090,4 +1091,39 @@ exports.endExpiredGatherings = onSchedule({ schedule: "every 5 minutes", region:
         await db.ref().update(updates);
         console.log(`[集會] 刪除 ${Object.keys(updates).length / 6} 場結束滿 30 天的活動`);
     }
+});
+
+// ============================================================================
+// 今晚的台灣心情：每 15 分鐘把全台 24 小時內的心情匯總成比例，寫到 RTDB publicMood/（公開可讀）
+//   latest：最新一筆；hourly/<整點時間>：每小時一筆趨勢，保留 7 天
+//   只有比例，少於 10 人的區域不給比例；示範對象與被隱藏的帳號不算
+// ============================================================================
+const PUBLIC_MOOD_CHUNK = 1000;
+const PUBLIC_MOOD_KEEP_MS = 7 * 24 * 60 * 60 * 1000;
+
+exports.updatePublicMood = onSchedule({ schedule: "every 15 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS, timeoutSeconds: 300, memory: "512MiB" }, async () => {
+    const uids = ((await sendUpstashCommand(["ZRANGE", "city_users", "0", "-1"])) || []).filter((u) => u && !u.startsWith(demo.DEMO_PREFIX));
+    const people = [];
+    for (let i = 0; i < uids.length; i += PUBLIC_MOOD_CHUNK) {
+        const chunk = uids.slice(i, i + PUBLIC_MOOD_CHUNK);
+        const [positions, ...rows] = await sendUpstashPipeline([
+            ["GEOPOS", "city_users", ...chunk],
+            ...chunk.map((u) => ["HMGET", `user_data:${u}`, "mood", "timestamp", "hidden"]),
+        ]);
+        chunk.forEach((u, k) => {
+            const pos = positions && positions[k];
+            const [mood, ts, hidden] = rows[k] || [];
+            if (!pos || hidden === "1") return;
+            people.push({ lng: parseFloat(pos[0]), lat: parseFloat(pos[1]), mood, lastSeen: parseInt(ts || "0", 10) });
+        });
+    }
+    const now = Date.now();
+    const snapshot = publicmood.aggregate(people, now);
+    const hour = Math.floor(now / 3600000) * 3600000;
+    const db = admin.database();
+    const updates = { "publicMood/latest": snapshot, [`publicMood/hourly/${hour}`]: publicmood.hourlyPoint(snapshot) };
+    const old = (await db.ref("publicMood/hourly").orderByKey().endAt(String(now - PUBLIC_MOOD_KEEP_MS)).once("value")).val() || {};
+    for (const k of Object.keys(old)) updates[`publicMood/hourly/${k}`] = null;
+    await db.ref().update(updates);
+    console.log(`[台灣心情] ${people.length} 人，全台 ${snapshot.taiwan.total} 人在 24 小時內出現`);
 });

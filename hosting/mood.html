@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="今晚的台灣心情：城市低語使用者 24 小時內寫下的心情，依地區匿名統計成比例，每 15 分鐘更新。只有比例，沒有任何個人資料。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="今晚的台灣心情">
+<meta property="og:description" content="此刻，台灣各地的人是什麼心情？匿名統計，每 15 分鐘更新。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/beta_og.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/mood.html">
+<title>今晚的台灣心情</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Chakra+Petch:wght@500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+  --glass-line: rgba(196, 170, 255, 0.38);
+  --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+  --aurora-violet: #b44cff; --aurora-blue: #4fc3f7;
+  --joy: #ffd54a; --sad: #5ab8ff; --angry: #ff8a5c; --calm: #4de3a0; --passion: #ff9f45; --love: #ff6bd6; --other: #a99cff;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "Chakra Petch", "Noto Sans TC", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--night-900); color: var(--ink); font: 400 16px/1.7 var(--font-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; overflow-x: clip; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--aurora-blue); }
+:focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; border-radius: 6px; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.top { display: flex; justify-content: space-between; gap: 12px; padding-block: 20px; font-size: 13px; color: var(--ink-faint); }
+.top a { color: var(--ink-muted); text-decoration: none; }
+.hero { padding-block: 24px 32px; display: grid; gap: 14px; position: relative; isolation: isolate; }
+.hero::before { content: ""; position: absolute; inset: -40px 0 auto; height: 380px; z-index: -1; background: radial-gradient(60% 70% at 30% 20%, rgba(142,45,226,.35), transparent 70%); }
+.eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--ink-faint); }
+.hero h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.2; font-weight: 700; letter-spacing: 2px; }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.updated { color: var(--ink-faint); font-size: 14px; }
+.headline { font-size: clamp(20px, 3.4vw, 28px); font-weight: 500; }
+.headline b { font-weight: 700; }
+.card { background: var(--night-800); border: 1px solid var(--night-600); border-radius: 22px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: 3.2em minmax(0, 1fr) 3.4em; gap: 12px; align-items: center; font-size: 15px; }
+.bar .track { height: 12px; border-radius: 6px; background: var(--night-700); overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 6px; box-shadow: 0 0 12px currentColor; transition: width .6s ease; }
+.bar .pct { text-align: right; }
+section { padding-block: 36px 8px; display: grid; gap: 18px; border-top: 1px solid var(--night-600); }
+section > h2 { font-size: 22px; letter-spacing: 1.5px; }
+.note { color: var(--ink-faint); font-size: 14px; }
+.regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.region { background: var(--night-800); border: 1px solid var(--night-600); border-radius: 18px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.region h3 { font-size: 18px; font-weight: 500; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.region h3 small { font-size: 12px; color: var(--ink-faint); font-weight: 400; }
+.region .top-mood { display: flex; align-items: baseline; gap: 8px; }
+.region .top-mood .dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; flex: none; align-self: center; }
+.region .top-mood b { font-size: 22px; }
+.region .stack { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--night-700); }
+.region.quiet { opacity: .62; }
+.region.quiet p { color: var(--ink-faint); font-size: 14px; }
+.trend { width: 100%; height: 160px; display: block; }
+.trend-wrap { overflow-x: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: -1px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { appearance: none; border: 1px solid var(--glass-line); background: transparent; color: var(--ink); font: 500 15px var(--font-body); padding: 10px 18px; border-radius: 999px; cursor: pointer; text-decoration: none; }
+.btn.primary { border: 0; color: #fff; background: linear-gradient(90deg, #8e2de2, #2a63d4); box-shadow: 0 0 24px rgba(180, 76, 255, 0.45); }
+dl { margin: 0; display: grid; gap: 14px; max-width: 46em; }
+dt { font-weight: 500; }
+dd { margin: 4px 0 0; color: var(--ink-muted); }
+footer { margin-top: 40px; padding-block: 24px 0; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+footer a { color: var(--ink-muted); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="./">← 城市低語</a><span>每 15 分鐘更新</span></div>
+
+  <header class="hero">
+    <p class="eyebrow">MOOD OF TAIWAN TONIGHT</p>
+    <h1>今晚的<em>台灣心情</em></h1>
+    <p class="headline" id="headline">正在讀取城市的心情…</p>
+    <p class="updated" id="updated"></p>
+  </header>
+
+  <div class="card" id="taiwan" aria-live="polite"></div>
+
+  <section>
+    <h2>各地的心情</h2>
+    <div class="regions" id="regions"></div>
+    <p class="note">以最近的城市中心分區，邊界是概略的。少於 10 人的地區不顯示比例，避免人少時猜得出是誰。</p>
+  </section>
+
+  <section>
+    <h2>過去 24 小時</h2>
+    <div class="legend" id="legend"></div>
+    <div class="trend-wrap"><svg class="trend" id="trend" viewBox="0 0 960 160" preserveAspectRatio="none" role="img" aria-label="過去 24 小時全台各種心情的比例變化"></svg></div>
+    <p class="note" id="trend-note">每小時一筆，顯示全台各種心情所占的比例。</p>
+  </section>
+
+  <section>
+    <h2>讓城市多一點光</h2>
+    <p>這些心情，都是城市低語的使用者在 24 小時內寫下的一句話。寫下此刻的你，你也會成為這張地圖的一部分。</p>
+    <div class="actions">
+      <a class="btn primary" href="beta.html?src=mood">加入公測</a>
+      <button class="btn" id="share" type="button">複製這個網址</button>
+    </div>
+    <p class="note" id="share-msg" hidden>已複製，可以貼給朋友。</p>
+  </section>
+
+  <section>
+    <h2>關於這份統計</h2>
+    <dl>
+      <div><dt>資料怎麼來？</dt><dd>城市低語的使用者打開 App 時會寫下一句心情。我們依心情裡的關鍵字分成開心、難過、生氣、平靜、熱情、愛與其他，統計 24 小時內在各地區出現過的人。</dd></div>
+      <div><dt>會不會洩漏個人資料？</dt><dd>不會。這裡只有比例，沒有任何人的心情內容、暱稱或位置；少於 10 人的地區不顯示比例。示範對象與被檢舉隱藏的帳號不計入。</dd></div>
+      <div><dt>選舉之夜也會更新嗎？</dt><dd>會。這份統計只呈現大家的心情，不分析、也不代表任何政治立場。</dd></div>
+      <div><dt>可以引用嗎？</dt><dd>歡迎。請註明「資料來源：城市低語 Mood Whisper」，並說明這是 App 使用者的匿名心情統計，不是民調。</dd></div>
+    </dl>
+  </section>
+
+  <footer>
+    <a href="./">城市低語</a><a href="gathering.html">集會指南</a><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a>
+    <span>© 2026 Softchip · 城市低語</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const DB = 'https://mood-whisper-f7de9-default-rtdb.asia-southeast1.firebasedatabase.app/publicMood';
+  const MOODS = { joy: ['開心', 'var(--joy)'], sad: ['難過', 'var(--sad)'], angry: ['生氣', 'var(--angry)'], calm: ['平靜', 'var(--calm)'], passion: ['熱情', 'var(--passion)'], love: ['愛', 'var(--love)'], other: ['其他', 'var(--other)'] };
+  const ORDER = ['大台北', '桃園', '新竹', '苗栗', '台中', '彰化', '南投', '雲林', '嘉義', '台南', '高雄', '屏東', '宜蘭', '花蓮', '台東', '澎湖', '金門', '馬祖'];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const color = (k) => (MOODS[k] || MOODS.other)[1];
+  const label = (k) => (MOODS[k] || MOODS.other)[0];
+
+  function bars(moods) {
+    return '<div class="bars">' + moods.map((m) =>
+      `<div class="bar"><span>${esc(label(m.key))}</span><span class="track"><span class="fill" style="display:block;width:${m.percent}%;background:${color(m.key)};color:${color(m.key)}"></span></span><span class="pct num">${m.percent}%</span></div>`).join('') + '</div>';
+  }
+
+  function renderTaiwan(s) {
+    if (!s || s.quiet) {
+      $('headline').innerHTML = '台灣今晚還很安靜。';
+      $('taiwan').innerHTML = `<p>24 小時內有 <b class="num">${s ? s.total : 0}</b> 個人留下心情，還不到 10 人，先不顯示比例。</p><p class="note">多一點心情，城市就多一點光。</p>`;
+      return;
+    }
+    const top = s.moods[0];
+    $('headline').innerHTML = `此刻，台灣最多人感到<b style="color:${color(top.key)}">「${esc(label(top.key))}」</b>`;
+    $('taiwan').innerHTML = `<p>24 小時內，全台有 <b class="num">${s.total}</b> 個人留下心情</p>` + bars(s.moods);
+  }
+
+  function renderRegions(regions) {
+    $('regions').innerHTML = ORDER.map((name) => {
+      const r = regions[name] || { total: 0, quiet: true };
+      if (r.quiet) return `<div class="region quiet"><h3>${name}<small class="num">${r.total} 人</small></h3><p>${r.total ? '還很安靜' : '等待第一道光'}</p></div>`;
+      const top = r.moods[0];
+      const stack = r.moods.map((m) => `<span style="width:${m.percent}%;background:${color(m.key)}"></span>`).join('');
+      return `<div class="region"><h3>${name}<small class="num">${r.total} 人</small></h3>
+        <div class="top-mood"><span class="dot" style="background:${color(top.key)};color:${color(top.key)}"></span><b>${esc(label(top.key))}</b><span class="num">${top.percent}%</span></div>
+        <div class="stack">${stack}</div></div>`;
+    }).join('');
+  }
+
+  function renderTrend(hourly) {
+    const pts = Object.values(hourly || {}).sort((a, b) => a.at - b.at).slice(-24).filter((p) => p.taiwan && p.taiwan.moods);
+    const svg = $('trend');
+    if (pts.length < 2) {
+      svg.innerHTML = '';
+      $('trend-note').textContent = '資料累積中：至少要有兩個小時、每次 10 人以上，才畫得出趨勢。';
+      $('legend').innerHTML = '';
+      return;
+    }
+    const keys = Object.keys(MOODS).filter((k) => pts.some((p) => p.taiwan.moods.some((m) => m.key === k)));
+    const W = 960, H = 160, step = W / (pts.length - 1);
+    svg.innerHTML = keys.map((k) => {
+      const d = pts.map((p, i) => {
+        const m = p.taiwan.moods.find((x) => x.key === k);
+        const y = H - 8 - ((m ? m.percent : 0) / 100) * (H - 16);
+        return `${i ? 'L' : 'M'}${(i * step).toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      return `<path d="${d}" fill="none" stroke="${color(k)}" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
+    }).join('');
+    $('legend').innerHTML = keys.map((k) => `<span style="color:${color(k)}"><span style="color:var(--ink-muted)">${label(k)}</span></span>`).join('');
+  }
+
+  async function load() {
+    try {
+      const [latest, hourly] = await Promise.all([
+        fetch(`${DB}/latest.json`).then((r) => r.json()),
+        fetch(`${DB}/hourly.json?orderBy="$key"&limitToLast=24`).then((r) => r.json()),
+      ]);
+      if (!latest) { $('headline').textContent = '統計正在準備中，請稍後再來。'; return; }
+      renderTaiwan(latest.taiwan);
+      renderRegions(latest.regions || {});
+      renderTrend(hourly);
+      const t = new Date(latest.at);
+      $('updated').textContent = `更新於 ${t.toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}`;
+    } catch (e) {
+      $('headline').textContent = '暫時讀不到資料，請稍後重新整理。';
+    }
+  }
+
+  $('share').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(location.href.split('#')[0]); $('share-msg').hidden = false; }
+    catch (e) { $('share-msg').textContent = location.href.split('#')[0]; $('share-msg').hidden = false; }
+  });
+  load();
+  setInterval(load, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>

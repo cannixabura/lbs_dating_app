@@ -17,6 +17,7 @@ const betasignup = require("./betasignup");
 const gathering = require("./gathering");
 const publicmood = require("./publicmood");
 const timewhisper = require("./timewhisper");
+const beacon = require("./beacon");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -489,7 +490,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       }
 
       const updates = {};
-      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs", "timeWhispers"]) {
+      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs", "timeWhispers", "beaconReportsByUser"]) {
           updates[`${path}/${uid}`] = null;
       }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
@@ -503,6 +504,12 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const resonanceTargets = (await db.ref("resonance").once("value")).val() || {};
       for (const [target, senders] of Object.entries(resonanceTargets)) {
           if (target !== uid && senders && Object.prototype.hasOwnProperty.call(senders, uid)) updates[`resonance/${target}/${uid}`] = null;
+      }
+      // 城市燈塔的回報
+      const myBeaconReports = (await db.ref(`beaconReportsByUser/${uid}`).once("value")).val() || {};
+      for (const key of Object.keys(myBeaconReports)) {
+          const [siteId, reason] = key.split("~");
+          updates[`beaconReports/${siteId}/${reason}/${uid}`] = null;
       }
       // 低語穿越的解封提醒排程
       const twQueue = (await db.ref("timeWhisperQueue").orderByChild("uid").equalTo(uid).once("value")).val() || {};
@@ -1211,4 +1218,111 @@ exports.unlockTimeWhispers = onSchedule({ schedule: "every 60 minutes", region: 
         } catch (e) { console.error(`[低語穿越] ${id} 提醒失敗:`, e); }
     }
     if (Object.keys(due).length) console.log(`[低語穿越] 解封提醒 ${Object.keys(due).length} 封`);
+});
+
+// ============================================================================
+// API 13: 城市燈塔 —— 友善公廁（性別友善／無障礙／親子）
+//   資料每月從環境部「全國公廁建檔資料」同步到 Redis：
+//     beacon_toilets：地點的 geo set；beacon_toilet:{id}：地點資料（JSON）；beacon_flags:{id}：達到門檻的回報
+//   回報：beaconReports/{id}/{reason}/{uid} = 時間；beaconReportsByUser/{uid}/{id~reason}（刪帳號用）
+//   金鑰：firebase functions:secrets:set MOENV_API_KEY（到 data.moenv.gov.tw 註冊會員後免費申請）
+// ============================================================================
+const MOENV_API_KEY = defineSecret("MOENV_API_KEY");
+const BEACON_SOURCE = "https://data.moenv.gov.tw/api/v2/fac_p_07";
+const BEACON_PAGE = 1000;
+const BEACON_WRITE_CHUNK = 500;
+
+async function fetchToiletRecords() {
+    const records = [];
+    for (let offset = 0; ; offset += BEACON_PAGE) {
+        const url = `${BEACON_SOURCE}?api_key=${encodeURIComponent(cleanSecret(MOENV_API_KEY))}&limit=${BEACON_PAGE}&offset=${offset}&format=JSON`;
+        let page = null;
+        for (let attempt = 0; attempt < 3 && !page; attempt++) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) page = await response.json();
+            } catch (e) { console.warn(`[城市燈塔] offset ${offset} 第 ${attempt + 1} 次失敗:`, e.message); }
+            if (!page) await sleep(3000);
+        }
+        if (!Array.isArray(page)) throw new Error(`公廁資料下載失敗（offset ${offset}）`);
+        records.push(...page);
+        if (page.length < BEACON_PAGE) return records;
+    }
+}
+
+async function syncBeaconToilets() {
+    const records = await fetchToiletRecords();
+    const sites = beacon.buildSites(records);
+    // 資料異常（例如來源只回了一部分）就不要覆蓋舊資料
+    if (sites.length < 1000) throw new Error(`地點太少（${records.length} 筆 → ${sites.length} 個），不更新`);
+    for (let i = 0; i < sites.length; i += BEACON_WRITE_CHUNK) {
+        const chunk = sites.slice(i, i + BEACON_WRITE_CHUNK);
+        await sendUpstashPipeline([
+            ["GEOADD", "beacon_toilets", ...chunk.flatMap((s) => [String(s.lng), String(s.lat), s.id])],
+            ...chunk.map((s) => ["SET", `beacon_toilet:${s.id}`, JSON.stringify(s)]),
+        ]);
+    }
+    // 這個月的資料裡已經沒有的地點
+    const keep = new Set(sites.map((s) => s.id));
+    const stale = ((await sendUpstashCommand(["ZRANGE", "beacon_toilets", "0", "-1"])) || []).filter((id) => !keep.has(id));
+    for (let i = 0; i < stale.length; i += BEACON_WRITE_CHUNK) {
+        const chunk = stale.slice(i, i + BEACON_WRITE_CHUNK);
+        await sendUpstashPipeline([["ZREM", "beacon_toilets", ...chunk], ...chunk.map((id) => ["DEL", `beacon_toilet:${id}`])]);
+    }
+    console.log(`[城市燈塔] ${records.length} 筆 → ${sites.length} 個地點，移除 ${stale.length} 個`);
+    return { records: records.length, sites: sites.length, removed: stale.length };
+}
+
+// 每月 2 日凌晨 4 點（環境部每月更新）
+exports.syncBeacon = onSchedule({ schedule: "0 4 2 * *", timeZone: "Asia/Taipei", region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, MOENV_API_KEY], timeoutSeconds: 540, memory: "1GiB" }, async () => {
+    await syncBeaconToilets();
+});
+
+exports.beacon = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    const { action, lat, lng, id, reason } = req.body || {};
+    const fail = (code, error) => res.status(code).json({ success: false, error });
+    try {
+      if (action === "nearby") {
+        if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
+        const found = (await sendUpstashCommand(["GEOSEARCH", "beacon_toilets", "FROMLONLAT", String(lng), String(lat), "BYRADIUS", String(beacon.SEARCH_RADIUS_M), "m", "ASC", "COUNT", String(beacon.MAX_RESULTS), "WITHDIST"])) || [];
+        if (found.length === 0) return res.status(200).json({ success: true, data: [] });
+        const ids = found.map(([siteId]) => siteId);
+        const [sites, flags] = await sendUpstashPipeline([
+            ["MGET", ...ids.map((s) => `beacon_toilet:${s}`)],
+            ["MGET", ...ids.map((s) => `beacon_flags:${s}`)],
+        ]);
+        const data = [];
+        found.forEach(([, dist], k) => {
+            if (!sites[k]) return;
+            data.push({ ...JSON.parse(sites[k]), distance: Math.round(parseFloat(dist)), flags: flags[k] ? flags[k].split(",") : [] });
+        });
+        return res.status(200).json({ success: true, data });
+      }
+
+      if (action === "report") {
+        const siteId = String(id || "");
+        if (!/^[A-Za-z0-9.,_-]{1,40}$/.test(siteId) || !beacon.validateReason(reason)) return fail(400, "回報格式錯誤");
+        if (!(await sendUpstashCommand(["EXISTS", `beacon_toilet:${siteId}`]))) return fail(404, "找不到這個地點");
+        const db = admin.database();
+        const now = Date.now();
+        await db.ref().update({
+            [`beaconReports/${siteId}/${reason}/${uid}`]: now,
+            [`beaconReportsByUser/${uid}/${siteId}~${reason}`]: now,
+        });
+        const reports = (await db.ref(`beaconReports/${siteId}`).once("value")).val() || {};
+        const flagged = beacon.flagsFrom(reports, now);
+        await sendUpstashCommand(flagged.length ? ["SET", `beacon_flags:${siteId}`, flagged.join(",")] : ["DEL", `beacon_flags:${siteId}`]);
+        return res.status(200).json({ success: true, data: { flags: flagged } });
+      }
+
+      return fail(400, "未知的操作");
+    } catch (error) {
+      console.error(`beacon ${action} failed:`, error);
+      res.status(500).json({ success: false, error: "城市燈塔暫時無法使用，請稍後再試。" });
+    }
+  });
 });

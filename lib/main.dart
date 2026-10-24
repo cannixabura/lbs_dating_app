@@ -33,6 +33,7 @@ import 'mood_trail.dart';
 import 'package:characters/characters.dart';
 import 'gathering.dart';
 import 'time_whisper.dart';
+import 'beacon.dart';
 import 'gathering_keys.dart';
 import 'guide_screen.dart';
 import 'whispers.dart';
@@ -279,6 +280,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   List<TimeWhisper> _timeWhispers = [];
   final Set<String> _timeWhisperTried = {}; // 這次開啟期間已嘗試打開的，避免重複跳出
   bool _timeWhisperShowing = false;
+  // 城市燈塔：附近的友善公廁（開關與篩選記在手機上）
+  bool _beaconOn = false;
+  final Set<BeaconFeature> _beaconFilters = {};
+  List<BeaconToilet> _beaconToilets = [];
+  Position? _beaconFetchedAt;
+  bool _beaconLoading = false;
   final Set<String> _seenWhisperIds = {};
   bool _whispersLoaded = false;
   int _radarTick = 0;
@@ -315,6 +322,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _myMood = widget.initialMood; 
     _loadProfileData(); 
     _coolingSystem.loadRejections();
+    _loadBeaconPrefs();
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
@@ -681,6 +689,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         _updateMapCamera();
         _startLocationServices();
         _checkTimeWhispers();
+        _maybeFetchBeacon();
       },
       onError: (dynamic error) => debugPrint('position stream error: $error'),
       cancelOnError: false,
@@ -841,6 +850,61 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _fetchTimeWhispers();
     }
   }
+
+  // ---------- 城市燈塔 ----------
+  static const _beaconRefetchMeters = 300.0;
+
+  Future<void> _loadBeaconPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final filters = prefs.getStringList('beacon_filters') ?? const [];
+    if (!mounted) return;
+    setState(() {
+      _beaconOn = prefs.getBool('beacon_on') ?? false;
+      _beaconFilters.addAll(BeaconFeature.values.where((f) => filters.contains(f.name)));
+    });
+    _maybeFetchBeacon();
+  }
+
+  Future<void> _saveBeaconPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('beacon_on', _beaconOn);
+    await prefs.setStringList('beacon_filters', _beaconFilters.map((f) => f.name).toList());
+  }
+
+  /// 打開時才抓；走超過 300 公尺再抓一次
+  Future<void> _maybeFetchBeacon({bool force = false}) async {
+    final pos = _currentPosition;
+    if (!_beaconOn || pos == null || _beaconLoading || !_isInForeground) return;
+    final last = _beaconFetchedAt;
+    if (!force && last != null && Geolocator.distanceBetween(last.latitude, last.longitude, pos.latitude, pos.longitude) < _beaconRefetchMeters) return;
+    _beaconLoading = true;
+    final list = await BeaconApi.nearby(pos.latitude, pos.longitude);
+    _beaconLoading = false;
+    if (!mounted || list == null) return;
+    _beaconFetchedAt = pos;
+    setState(() => _beaconToilets = list);
+  }
+
+  void _toggleBeacon() {
+    HapticFeedback.selectionClick();
+    setState(() => _beaconOn = !_beaconOn);
+    _saveBeaconPrefs();
+    if (_beaconOn) {
+      _maybeFetchBeacon(force: true);
+    } else {
+      setState(() { _beaconToilets = []; _beaconFetchedAt = null; });
+    }
+  }
+
+  void _toggleBeaconFilter(BeaconFeature f) {
+    HapticFeedback.selectionClick();
+    setState(() => _beaconFilters.contains(f) ? _beaconFilters.remove(f) : _beaconFilters.add(f));
+    _saveBeaconPrefs();
+  }
+
+  /// 沒選篩選就全部顯示；有選就顯示符合任一種的
+  List<BeaconToilet> get _visibleBeaconToilets =>
+      _beaconFilters.isEmpty ? _beaconToilets : _beaconToilets.where((t) => _beaconFilters.any(t.has)).toList();
 
   // ---------- 低語穿越 ----------
   Future<void> _fetchTimeWhispers() async {
@@ -2397,7 +2461,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
 
-                      // 我的低語穿越（只有自己看得到）：最底層，在信封與氣泡下面
+                      // 城市燈塔的友善公廁：最底層，在低語穿越、信封與氣泡下面
+                      if (_beaconOn)
+                        ..._visibleBeaconToilets.map((t) {
+                          final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, t.lat, t.lng, currentHeading, t.id, currentRhythmScore);
+                          if (v.opacity <= 0.0) return const SizedBox.shrink();
+                          final d = (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
+                          final a = v.relativeAngle * pi / 180.0;
+                          final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
+                          final ww = max(0.01, 1.0 + (rz * 0.002));
+                          return Positioned(left: centerX + rx / ww - 20, top: centerY + ry / ww - 20, child: BeaconMarker(toilet: t, onTap: () => showBeaconSheet(context, t)));
+                        }),
+                      // 我的低語穿越（只有自己看得到）：在信封與氣泡下面
                       ..._timeWhispers.map((w) {
                         final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
                         if (v.opacity <= 0.0) return const SizedBox.shrink();
@@ -2478,7 +2553,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
                       if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
-                        Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 112, child: _buildEmptyRadarCard()),
+                        Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildEmptyRadarCard()),
+                      // 城市燈塔開關與篩選（底部選單右上方）
+                      Positioned(
+                        right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
+                        child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
+                      ),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
                     ],
                   );

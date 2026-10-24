@@ -150,16 +150,18 @@ def build_shot(i, shot, base, tmp):
         if not os.path.exists(mask):
             phone_frame_mask(APP_W, app_h, mask)
             phone_border(APP_W, app_h, border)
+        aw = app.get("w", APP_W)  # 橫向的 App 畫面（公告卡、面板）可以放寬，字才看得清楚
+        ax = app.get("x", W - aw - 44)
         if "image" in app:
             img = Image.open(os.path.join(base, app["image"])).convert("RGB")
             if "crop" in app:
                 img = img.crop(tuple(app["crop"]))
-            img = img.resize((APP_W, int(APP_W * img.height / img.width)), Image.LANCZOS)
+            img = img.resize((aw, int(aw * img.height / img.width)), Image.LANCZOS)
             app_h = img.height
             mask = os.path.join(tmp, f"mask{i}.png")
             border = os.path.join(tmp, f"border{i}.png")
-            phone_frame_mask(APP_W, app_h, mask)
-            phone_border(APP_W, app_h, border)
+            phone_frame_mask(aw, app_h, mask)
+            phone_border(aw, app_h, border)
             still = os.path.join(tmp, f"app{i}.png")
             img.save(still)
             inputs += ["-loop", "1", "-t", str(dur), "-i", still]
@@ -167,13 +169,13 @@ def build_shot(i, shot, base, tmp):
         else:
             inputs += ["-ss", str(app["start"]), "-t", str(app["dur"]), "-i", os.path.join(base, app["src"])]
             sp = app["dur"] / dur
-            app_chain = f"[{n}:v]setpts=PTS/{sp},fps={FPS},scale={APP_W}:{app_h},format=rgba"
+            app_chain = f"[{n}:v]setpts=PTS/{sp},fps={FPS},scale={aw}:{app_h},format=rgba"
         inputs += ["-loop", "1", "-i", mask, "-loop", "1", "-i", border]
         a_in = app.get("in", 0.4)
-        graph.append(f"{app_chain}[a{i}];[{n + 1}:v]format=gray,scale={APP_W}:{app_h}[m{i}];[a{i}][m{i}]alphamerge,fade=in:st={a_in}:d=0.4:alpha=1[am{i}]")
+        graph.append(f"{app_chain}[a{i}];[{n + 1}:v]format=gray,scale={aw}:{app_h}[m{i}];[a{i}][m{i}]alphamerge,fade=in:st={a_in}:d=0.4:alpha=1[am{i}]")
         graph.append(f"[{n + 2}:v]format=rgba,fade=in:st={a_in}:d=0.4:alpha=1[b{i}]")
         y = app.get("y", APP_Y)  # 特寫鏡頭可以把手機框放低，避開臉
-        graph.append(f"[{last}][b{i}]overlay={APP_X - 20}:{y - 20}:shortest=1[t1];[t1][am{i}]overlay={APP_X}:{y}:shortest=1[withapp]")
+        graph.append(f"[{last}][b{i}]overlay={ax - 20}:{y - 20}:shortest=1[t1];[t1][am{i}]overlay={ax}:{y}:shortest=1[withapp]")
         last = "withapp"
         n += 3
     if shot.get("caption"):

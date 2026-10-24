@@ -1,0 +1,20 @@
+{
+  "_note": "領隊篇《全員到齊》。素材在 footage/tour/（不進 git）；App 畫面用 outreach/gathering-guide-tour/raw 的示範截圖。執行：python3 tool/make_story_short.py marketing/shorts/tour.json",
+  "out": "marketing/shorts/out/tour_all_here",
+  "crossfade": 0.5,
+  "audio": true,
+  "wide": false,
+  "shots": [
+    {"src": "footage/tour/shot1.mov", "dur": 5, "caption": "自由活動，一小時"},
+    {"src": "footage/tour/shot2.mov", "dur": 5.5, "caption": "一則公告，全團都收到",
+     "app": {"image": "../outreach/gathering-guide-tour/raw/host_panel_typed.png", "crop": [0, 888, 1320, 1662], "in": 0.8, "y": 1180, "w": 760, "x": 160}},
+    {"src": "footage/tour/shot3.mov", "dur": 5, "caption": "19:30，停車場集合",
+     "app": {"image": "../outreach/gathering-guide-tour/raw/member_radar.png", "crop": [0, 330, 1320, 750], "in": 0.8, "y": 1380, "w": 900, "x": 90}},
+    {"src": "footage/tour/shot4.mov", "dur": 5, "caption": "人太多，找不到領隊"},
+    {"src": "footage/tour/shot5.mov", "dur": 5.5, "caption": "雷達上，領隊在這裡",
+     "app": {"image": "../outreach/gathering-guide-tour/raw/member_radar.png", "crop": [0, 860, 1320, 2010], "in": 0.8, "y": 1060, "w": 620, "x": 400}},
+    {"src": "footage/tour/shot6.mov", "dur": 5, "caption": "全員到齊", "caption_in": 1.2},
+    {"end": true, "dur": 4.5, "title": "帶團，不用再一個一個打電話。", "subtitle": "城市低語｜集會功能免費使用\nmood-whisper-f7de9.web.app/gathering.html",
+     "note": "影片中的 App 畫面為示範情境"}
+  ]
+}

@@ -23,9 +23,7 @@
 
 我們做了一支 30 秒的短片，模擬跨年夜在 101 前使用的樣子：
 
-▶ https://youtube.com/shorts/CbGeKL5vdG8
-
-（另一個場景是今年的臺灣同志遊行：https://youtube.com/shorts/U8BErNq85dI ）
+▶ https://www.youtube.com/shorts/CbGeKL5vdG8
 
 **集會可以做什麼**
 

@@ -89,10 +89,11 @@ class TimeWhisperApi {
   static Future<String?> delete(String id) async => (await _call({'action': 'delete', 'id': id})).$2;
 }
 
-/// 打開（或重讀）一封低語穿越。回傳 true 表示刪除了它。
-Future<bool> showTimeWhisperReader(BuildContext context, TimeWhisper w, {bool justOpened = false}) async {
-  final deleted = await showDialog<bool>(
+/// 打開一封低語穿越：只讀這一次，關掉後就不見了（伺服器在打開時已刪除）
+Future<void> showTimeWhisperReader(BuildContext context, TimeWhisper w) {
+  return showDialog(
     context: context,
+    barrierDismissible: false,
     barrierColor: const Color(0xCC070B1F),
     builder: (dialogContext) => Dialog(
       backgroundColor: Colors.transparent,
@@ -100,9 +101,9 @@ Future<bool> showTimeWhisperReader(BuildContext context, TimeWhisper w, {bool ju
       child: GlassCard(
         glow: true,
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Icon(Icons.hourglass_bottom, color: Night.auroraViolet, size: 32),
+          const Icon(Icons.lock_open, color: Night.auroraViolet, size: 32),
           const SizedBox(height: Night.space2),
-          Text(justOpened ? '${timeWhisperAgo(w)}的你，在這裡說' : '你在這裡留下的低語穿越', style: Night.title, textAlign: TextAlign.center),
+          Text('${timeWhisperAgo(w)}的你，在這裡說', style: Night.title, textAlign: TextAlign.center),
           const SizedBox(height: Night.space1),
           Text('寫於 ${timeWhisperDate(w.createdAt)}', style: Night.caption, textAlign: TextAlign.center),
           const SizedBox(height: Night.space4),
@@ -116,27 +117,14 @@ Future<bool> showTimeWhisperReader(BuildContext context, TimeWhisper w, {bool ju
             ),
             child: Text(w.text ?? '', style: const TextStyle(color: Night.ink, fontSize: 18, height: 1.7), textAlign: TextAlign.center),
           ),
-          const SizedBox(height: Night.space4),
-          Row(children: [
-            Expanded(
-              child: NightButton('刪除', kind: NightButtonKind.ghost, icon: Icons.delete_outline, onPressed: () async {
-                final error = await TimeWhisperApi.delete(w.id);
-                if (!dialogContext.mounted) return;
-                if (error == null) {
-                  Navigator.pop(dialogContext, true);
-                } else {
-                  showGlassToast(dialogContext, error, icon: Icons.error_outline, danger: true);
-                }
-              }),
-            ),
-            const SizedBox(width: Night.space2),
-            Expanded(child: NightButton('收好', onPressed: () => Navigator.pop(dialogContext, false))),
-          ]),
+          const SizedBox(height: Night.space3),
+          const Text('這封信只會出現這一次。', style: Night.caption, textAlign: TextAlign.center),
+          const SizedBox(height: Night.space3),
+          NightButton('收進心裡', onPressed: () => Navigator.pop(dialogContext), expand: true),
         ]),
       ),
     ),
   );
-  return deleted == true;
 }
 
 /// 設定 › 我的低語穿越：所有寫給未來的信
@@ -177,7 +165,6 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
   }
 
   String _status(TimeWhisper w) {
-    if (w.opened) return '已打開 · 寫於 ${timeWhisperDate(w.createdAt)}';
     if (!w.isUnlocked) return '${timeWhisperDate(w.unlockAt)} 解封 · 寫於 ${timeWhisperDate(w.createdAt)}';
     final m = widget.lat == null ? null : w.metersFrom(widget.lat!, widget.lng!);
     return m == null ? '已解封，回到那裡就能打開' : '已解封 · 距離你 ${m < 1000 ? '${m.round()} 公尺' : '${(m / 1000).toStringAsFixed(1)} 公里'}';
@@ -191,7 +178,7 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
         const Text('我的低語穿越', style: Night.title, textAlign: TextAlign.center),
         Align(alignment: Alignment.centerRight, child: IconButton(tooltip: '關閉', icon: const Icon(Icons.close, color: Night.inkMuted), onPressed: () => Navigator.pop(context))),
       ]),
-      const Text('寫給未來的自己，只有你看得到。時間到了，回到那裡 100 公尺內就能打開。', style: Night.body, textAlign: TextAlign.center),
+      const Text('寫給未來的自己，只有你看得到。時間到了，回到那裡 100 公尺內就會打開；讀過一次就會消失。', style: Night.body, textAlign: TextAlign.center),
       const SizedBox(height: Night.space3),
       if (items == null)
         const Padding(padding: EdgeInsets.all(Night.space6), child: Center(child: CircularProgressIndicator(color: Night.auroraViolet)))
@@ -206,18 +193,10 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
             for (final w in items)
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: Night.space2),
-                leading: Icon(w.opened ? Icons.drafts_outlined : (w.isUnlocked ? Icons.mark_email_unread_outlined : Icons.lock_clock), color: w.isUnlocked ? Night.auroraViolet : Night.inkMuted),
-                title: Text(w.opened ? (w.text ?? '') : (w.isUnlocked ? '已經可以打開了' : '封存中'), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Night.ink, fontSize: 15)),
+                leading: Icon(w.isUnlocked ? Icons.lock_open : Icons.lock_clock, color: w.isUnlocked ? Night.auroraViolet : Night.inkMuted),
+                title: Text(w.isUnlocked ? '已經可以打開了' : '封存中', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Night.ink, fontSize: 15)),
                 subtitle: Text(_status(w), style: Night.caption),
-                onTap: w.opened
-                    ? () async {
-                        final deleted = await showTimeWhisperReader(context, w);
-                        if (deleted) _load();
-                      }
-                    : null,
-                trailing: w.opened
-                    ? null
-                    : IconButton(
+                trailing: IconButton(
                         tooltip: '刪除',
                         icon: const Icon(Icons.delete_outline, color: Night.inkFaint),
                         onPressed: () async {

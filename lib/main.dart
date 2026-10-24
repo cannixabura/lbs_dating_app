@@ -868,60 +868,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         continue;
       }
       HapticFeedback.mediumImpact();
-      final deleted = await showTimeWhisperReader(context, opened, justOpened: true);
+      setState(() => _timeWhispers.removeWhere((x) => x.id == w.id)); // 伺服器已刪除：只讀一次
+      await showTimeWhisperReader(context, opened);
       _timeWhisperShowing = false;
-      if (!mounted) return;
-      setState(() {
-        final i = _timeWhispers.indexWhere((x) => x.id == w.id);
-        if (deleted) {
-          _timeWhispers.removeAt(i);
-        } else if (i >= 0) {
-          _timeWhispers[i] = opened;
-        }
-      });
       return;
     }
   }
 
-  void _tapTimeWhisper(TimeWhisper w) async {
-    if (w.opened) {
-      final deleted = await showTimeWhisperReader(context, w);
-      if (deleted && mounted) setState(() => _timeWhispers.removeWhere((x) => x.id == w.id));
-      return;
-    }
-    showGlassToast(
-      context,
-      w.isUnlocked ? '已經可以打開了，走近 100 公尺內。' : '封存中，${timeWhisperDate(w.unlockAt)} 解封。',
-      icon: Icons.hourglass_bottom,
-    );
-  }
-
-  /// 雷達上我的低語穿越：上鎖的信封與解封日期（只有我看得到）
+  /// 雷達上我的低語穿越（只有我看得到）：上鎖／解鎖的沙漏，畫在最底層、不能按，也不擋別人的訊息
   Widget _buildTimeWhisperMarker(TimeWhisper w) {
-    final color = w.isUnlocked ? Night.auroraViolet : Night.inkMuted;
-    return Semantics(
-      button: true,
-      label: w.opened ? '你打開過的低語穿越' : (w.isUnlocked ? '已解封的低語穿越' : '封存中的低語穿越，${timeWhisperDate(w.unlockAt)} 解封'),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _tapTimeWhisper(w),
-        child: SizedBox(
-          width: 110, height: 70,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              width: 32, height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Night.night700,
-                border: Border.all(color: color, width: 1.5),
-                boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 14, spreadRadius: 1)],
-              ),
-              child: Icon(w.opened ? Icons.drafts_outlined : (w.isUnlocked ? Icons.mark_email_unread_outlined : Icons.lock_clock), color: color, size: 17),
-            ),
-            const SizedBox(height: 4),
-            Text(w.opened ? '已打開' : (w.isUnlocked ? '可以打開了' : '${timeWhisperDate(w.unlockAt)} 開啟'),
-                style: Night.caption.copyWith(fontSize: 11, color: color, shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
-          ]),
+    final color = w.isUnlocked ? Night.auroraViolet : Night.inkFaint;
+    return IgnorePointer(
+      child: Opacity(
+        opacity: 0.75,
+        child: Container(
+          width: 26, height: 26,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Night.night800,
+            border: Border.all(color: color, width: 1.2),
+            boxShadow: w.isUnlocked ? [BoxShadow(color: color.withOpacity(0.45), blurRadius: 10)] : null,
+          ),
+          child: Icon(w.isUnlocked ? Icons.lock_open : Icons.lock_clock, color: color, size: 14),
         ),
       ),
     );
@@ -2429,6 +2397,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
 
+                      // 我的低語穿越（只有自己看得到）：最底層，在信封與氣泡下面
+                      ..._timeWhispers.map((w) {
+                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
+                        if (v.opacity <= 0.0) return const SizedBox.shrink();
+                        final d = (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
+                        final a = v.relativeAngle * pi / 180.0;
+                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
+                        final ww = max(0.01, 1.0 + (rz * 0.002));
+                        return Positioned(left: centerX + rx / ww - 13, top: centerY + ry / ww - 13, child: _buildTimeWhisperMarker(w));
+                      }),
                       // 低語信封（畫在氣泡底下）
                       ..._whispers.map((w) {
                         final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
@@ -2437,16 +2415,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
                         final ww = max(0.01, 1.0 + (rz * 0.002));
                         return Positioned(left: centerX + rx / ww - 22, top: centerY + ry / ww - 22, child: _buildWhisperMarker(w));
-                      }),
-                      // 我的低語穿越（只有自己看得到）
-                      ..._timeWhispers.map((w) {
-                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
-                        if (v.opacity <= 0.0) return const SizedBox.shrink();
-                        final d = (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
-                        final a = v.relativeAngle * pi / 180.0;
-                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
-                        final ww = max(0.01, 1.0 + (rz * 0.002));
-                        return Positioned(left: centerX + rx / ww - 55, top: centerY + ry / ww - 16, child: _buildTimeWhisperMarker(w));
                       }),
                       // 敲門中：從自己到對方的流動虛線弧（畫在氣泡底下）
                       if (_ritualTarget != null && _bubbleAnchors[_ritualTarget] != null)

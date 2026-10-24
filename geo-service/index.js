@@ -1134,7 +1134,7 @@ exports.updatePublicMood = onSchedule({ schedule: "every 15 minutes", region: "a
 
 // ============================================================================
 // API 12: 低語穿越 —— action: create / list / open / delete
-//   寫給未來的自己：只有作者讀得到；一個月或一年後解封，回到 100 公尺內才能打開。
+//   寫給未來的自己：只有作者讀得到；一個月或一年後解封，回到 100 公尺內才能打開，讀過一次就刪除。
 //   timeWhispers/{uid}/{id}：內容與精確位置（只有伺服器讀寫）
 //   timeWhisperQueue/{id}：{uid, unlockAt}，解封時推播一次
 // ============================================================================
@@ -1178,8 +1178,9 @@ exports.timeWhisper = onRequest({ region: "asia-southeast1" }, (req, res) => {
         const here = isValidCoordinate(lat, lng) ? { lat, lng } : null;
         const problem = timewhisper.openProblem(w, here, now);
         if (problem) return fail(403, problem);
-        if (!w.openedAt) await mine.child(`${id}/openedAt`).set(now);
-        return res.status(200).json({ success: true, data: timewhisper.forOwner(id, { ...w, openedAt: w.openedAt || now }, now) });
+        // 只讀一次：回傳內容後立刻刪除
+        await db.ref().update({ [`timeWhispers/${uid}/${id}`]: null, [`timeWhisperQueue/${id}`]: null });
+        return res.status(200).json({ success: true, data: timewhisper.forOwner(id, { ...w, openedAt: now }, now) });
       }
 
       if (action === "delete") {

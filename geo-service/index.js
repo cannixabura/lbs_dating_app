@@ -16,6 +16,7 @@ const demo = require("./demo");
 const betasignup = require("./betasignup");
 const gathering = require("./gathering");
 const publicmood = require("./publicmood");
+const timewhisper = require("./timewhisper");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -488,7 +489,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       }
 
       const updates = {};
-      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs"]) {
+      for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs", "timeWhispers"]) {
           updates[`${path}/${uid}`] = null;
       }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
@@ -503,6 +504,9 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       for (const [target, senders] of Object.entries(resonanceTargets)) {
           if (target !== uid && senders && Object.prototype.hasOwnProperty.call(senders, uid)) updates[`resonance/${target}/${uid}`] = null;
       }
+      // 低語穿越的解封提醒排程
+      const twQueue = (await db.ref("timeWhisperQueue").orderByChild("uid").equalTo(uid).once("value")).val() || {};
+      for (const id of Object.keys(twQueue)) updates[`timeWhisperQueue/${id}`] = null;
       const rooms = (await db.ref("chats").once("value")).val() || {};
       for (const roomId of Object.keys(rooms)) {
           if (roomId.split("_").includes(uid)) updates[`chats/${roomId}`] = null;
@@ -1126,4 +1130,84 @@ exports.updatePublicMood = onSchedule({ schedule: "every 15 minutes", region: "a
     for (const k of Object.keys(old)) updates[`publicMood/hourly/${k}`] = null;
     await db.ref().update(updates);
     console.log(`[台灣心情] ${people.length} 人，全台 ${snapshot.taiwan.total} 人在 24 小時內出現`);
+});
+
+// ============================================================================
+// API 12: 低語穿越 —— action: create / list / open / delete
+//   寫給未來的自己：只有作者讀得到；一個月或一年後解封，回到 100 公尺內才能打開。
+//   timeWhispers/{uid}/{id}：內容與精確位置（只有伺服器讀寫）
+//   timeWhisperQueue/{id}：{uid, unlockAt}，解封時推播一次
+// ============================================================================
+exports.timeWhisper = onRequest({ region: "asia-southeast1" }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    const { action, id, lat, lng } = req.body || {};
+    const db = admin.database();
+    const mine = db.ref(`timeWhispers/${uid}`);
+    const now = Date.now();
+    const fail = (code, error) => res.status(code).json({ success: false, error });
+    try {
+      if (action === "create") {
+        if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
+        const checked = timewhisper.validateText(req.body.text);
+        if (checked.error) return fail(400, checked.error);
+        const unlockAt = timewhisper.unlockAtFor(req.body.delay, now);
+        if (!unlockAt) return fail(400, "請選一個月後或一年後。");
+        const all = (await mine.once("value")).val() || {};
+        if (Object.values(all).filter((w) => !w.openedAt).length >= timewhisper.MAX_ACTIVE) {
+            return fail(429, `你已經有 ${timewhisper.MAX_ACTIVE} 封還沒打開的低語穿越了，先讀完一封再寫吧。`);
+        }
+        const ref = mine.push();
+        await db.ref().update({
+            [`timeWhispers/${uid}/${ref.key}`]: { text: checked.text, lat, lng, createdAt: now, unlockAt },
+            [`timeWhisperQueue/${ref.key}`]: { uid, unlockAt },
+        });
+        return res.status(200).json({ success: true, data: timewhisper.forOwner(ref.key, { lat, lng, createdAt: now, unlockAt }, now) });
+      }
+
+      if (action === "list") {
+        const all = (await mine.once("value")).val() || {};
+        const data = Object.entries(all).map(([k, w]) => timewhisper.forOwner(k, w, now)).sort((a, b) => a.unlockAt - b.unlockAt);
+        return res.status(200).json({ success: true, data });
+      }
+
+      if (action === "open") {
+        const w = (await mine.child(String(id || "")).once("value")).val();
+        const here = isValidCoordinate(lat, lng) ? { lat, lng } : null;
+        const problem = timewhisper.openProblem(w, here, now);
+        if (problem) return fail(403, problem);
+        if (!w.openedAt) await mine.child(`${id}/openedAt`).set(now);
+        return res.status(200).json({ success: true, data: timewhisper.forOwner(id, { ...w, openedAt: w.openedAt || now }, now) });
+      }
+
+      if (action === "delete") {
+        await db.ref().update({ [`timeWhispers/${uid}/${id}`]: null, [`timeWhisperQueue/${id}`]: null });
+        return res.status(200).json({ success: true });
+      }
+
+      return fail(400, "未知的操作");
+    } catch (error) {
+      console.error(`timeWhisper ${action} failed:`, error);
+      res.status(500).json({ success: false, error: "低語穿越暫時無法使用，請稍後再試。" });
+    }
+  });
+});
+
+// 每小時：解封的低語穿越推播給作者一次
+exports.unlockTimeWhispers = onSchedule({ schedule: "every 60 minutes", region: "asia-southeast1" }, async () => {
+    const db = admin.database();
+    const due = (await db.ref("timeWhisperQueue").orderByChild("unlockAt").endAt(Date.now()).once("value")).val() || {};
+    for (const [id, q] of Object.entries(due)) {
+        try {
+            const w = (await db.ref(`timeWhispers/${q.uid}/${id}`).once("value")).val();
+            if (w && !w.openedAt) {
+                const ago = Math.round((w.unlockAt - w.createdAt) / 86400000) >= 365 ? "一年前" : "一個月前";
+                await sendPush(q.uid, "低語穿越", `${ago}的你，在某個地方留下了一句話。回到那裡，就能讀到。`, { type: "time_whisper", id });
+            }
+            await db.ref(`timeWhisperQueue/${id}`).remove();
+        } catch (e) { console.error(`[低語穿越] ${id} 提醒失敗:`, e); }
+    }
+    if (Object.keys(due).length) console.log(`[低語穿越] 解封提醒 ${Object.keys(due).length} 封`);
 });

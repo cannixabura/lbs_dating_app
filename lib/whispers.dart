@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'report_sheet.dart';
+import 'time_whisper.dart';
 import 'ui/night.dart';
 
 /// 低語（城市漂流瓶）：在某個地方留一句話，之後經過的人會收到。
@@ -81,13 +82,12 @@ String _ago(DateTime t) {
   return '${d.inDays} 天前';
 }
 
-/// 留下低語。成功回傳 true。
-Future<bool> showWhisperComposer(BuildContext context, {required double lat, required double lng, required String mood}) async {
-  final posted = await showModalBottomSheet<bool>(
+/// 留下低語，或寄一封低語穿越給未來的自己。回傳 'whisper'、'month'、'year'，取消則回傳 null。
+Future<String?> showWhisperComposer(BuildContext context, {required double lat, required double lng, required String mood}) {
+  return showModalBottomSheet<String>(
     context: context, isScrollControlled: true, backgroundColor: Colors.transparent, barrierColor: const Color(0x99070B1F),
     builder: (_) => _WhisperComposer(lat: lat, lng: lng, mood: mood),
   );
-  return posted == true;
 }
 
 /// 輸入框的 controller 由這個 widget 持有，等面板關閉動畫結束、真正移除時才釋放。
@@ -105,6 +105,8 @@ class _WhisperComposer extends StatefulWidget {
 class _WhisperComposerState extends State<_WhisperComposer> {
   final TextEditingController controller = TextEditingController();
   bool sending = false;
+  bool future = false; // 寄給未來的自己（低語穿越） // 寄給未來的自己（低語穿越）
+  String delay = 'month';
 
   @override
   void dispose() {
@@ -116,10 +118,12 @@ class _WhisperComposerState extends State<_WhisperComposer> {
     final text = controller.text.trim();
     if (text.isEmpty || sending) return;
     setState(() => sending = true);
-    final error = await WhisperApi.post(widget.lat, widget.lng, text, widget.mood);
+    final error = future
+        ? await TimeWhisperApi.create(widget.lat, widget.lng, text, delay)
+        : await WhisperApi.post(widget.lat, widget.lng, text, widget.mood);
     if (!mounted) return;
     if (error == null) {
-      Navigator.pop(context, true);
+      Navigator.pop(context, future ? delay : 'whisper');
     } else {
       setState(() => sending = false);
       showGlassToast(context, error, icon: Icons.mail_outline, danger: true);
@@ -136,23 +140,29 @@ class _WhisperComposerState extends State<_WhisperComposer> {
           child: GlassCard(
             glow: true,
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              const Icon(Icons.mail_outline, color: Night.auroraBlue, size: 30),
+              Icon(future ? Icons.hourglass_bottom : Icons.mail_outline, color: future ? Night.auroraViolet : Night.auroraBlue, size: 30),
               const SizedBox(height: Night.space2),
-              const Text('留下一則低語', style: Night.title, textAlign: TextAlign.center),
+              Text(future ? '低語穿越' : '留下一則低語', style: Night.title, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              const Text('寫給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
+              Text(future ? '寫給未來的自己。時間到了，回到這裡才能打開。' : '寫給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space3),
+              _segment([('給經過的人', false), ('寄給未來的自己', true)], future, (v) => setState(() => future = v)),
+              if (future) ...[
+                const SizedBox(height: Night.space2),
+                _segment([('一個月後', 'month'), ('一年後', 'year')], delay, (v) => setState(() => delay = v)),
+              ],
               const SizedBox(height: Night.space4),
               TextField(
                 controller: controller,
                 autofocus: true,
-                maxLength: whisperMaxLength,
+                maxLength: future ? timeWhisperMaxLength : whisperMaxLength,
                 minLines: 2,
                 maxLines: 4,
                 onChanged: (_) => setState(() {}),
                 cursorColor: Night.auroraViolet,
                 style: const TextStyle(color: Night.ink, fontSize: 16, height: 1.6),
                 decoration: InputDecoration(
-                  hintText: '例如：這裡的夕陽很美，記得抬頭看看。',
+                  hintText: future ? '例如：明年此地再見。希望那時的你，過得比現在好。' : '例如：這裡的夕陽很美，記得抬頭看看。',
                   hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 14),
                   counterStyle: Night.caption,
                   filled: true,
@@ -163,12 +173,13 @@ class _WhisperComposerState extends State<_WhisperComposer> {
                 ),
               ),
               const SizedBox(height: Night.space2),
-              const Text('7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶', style: Night.caption, textAlign: TextAlign.center),
+              Text(future ? '只有你看得到 · ${delay == 'year' ? '一年' : '一個月'}後解封並通知你 · 回到 100 公尺內打開' : '7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶',
+                  style: Night.caption, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
                 Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context, false))),
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton(sending ? '送出中…' : '留在這裡', onPressed: controller.text.trim().isEmpty || sending ? null : send)),
+                Expanded(child: NightButton(sending ? '送出中…' : (future ? '封存在這裡' : '留在這裡'), onPressed: controller.text.trim().isEmpty || sending ? null : send)),
               ]),
             ]),
           ),
@@ -177,6 +188,29 @@ class _WhisperComposerState extends State<_WhisperComposer> {
     );
   }
 }
+
+Widget _segment<T>(List<(String, T)> options, T value, ValueChanged<T> onChanged) => Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(color: Night.night700, borderRadius: BorderRadius.circular(999), border: Border.all(color: Night.glassLine)),
+      child: Row(children: [
+        for (final (label, v) in options)
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(v),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                constraints: const BoxConstraints(minHeight: 40),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: v == value ? Night.deepGradient : null,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(label, style: TextStyle(color: v == value ? Night.onDeep : Night.inkMuted, fontSize: 14, fontWeight: FontWeight.w500)),
+              ),
+            ),
+          ),
+      ]),
+    );
 
 /// 閱讀一則低語。回傳 true 表示作者收回了它。
 Future<bool> showWhisperReader(BuildContext context, Whisper w, {required Color color, required String myUid}) async {

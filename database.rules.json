@@ -26,6 +26,10 @@
     // 今晚的台灣心情：公開網頁 mood.html 直接讀取（只有匿名比例），只由 Cloud Function 寫入
     "publicMood": { ".read": true },
 
+    // 低語穿越：內容與精確位置只由 Cloud Function 讀寫（作者透過 timeWhisper 端點取得）
+    "timeWhispers": { ".read": false, ".write": false },
+    "timeWhisperQueue": { ".indexOn": ["unlockAt", "uid"], ".read": false, ".write": false },
+
     // 集會：只由 Cloud Function（geo-service 的 gathering）寫入
     // 活動本身與公告：登入者都能讀（App 依自己的稱呼與位置判斷是否參加）
     "gatherings": {

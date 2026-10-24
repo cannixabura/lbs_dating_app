@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Legal {
   Legal._();
 
-  static const termsVersion = '2026-10.4'; // .1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒
+  static const termsVersion = '2026-10.5'; // .1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒；.5：低語穿越、今晚的台灣心情
   static const contactEmail = 'service.softchip@gmail.com';
   static final termsUrl = Uri.parse('https://mood-whisper-f7de9.web.app/terms.html');
   static final privacyUrl = Uri.parse('https://mood-whisper-f7de9.web.app/privacy.html');

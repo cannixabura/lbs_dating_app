@@ -32,6 +32,7 @@ import 'mood_card.dart';
 import 'mood_trail.dart';
 import 'package:characters/characters.dart';
 import 'gathering.dart';
+import 'time_whisper.dart';
 import 'gathering_keys.dart';
 import 'guide_screen.dart';
 import 'whispers.dart';
@@ -274,6 +275,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   // ---------- 低語（城市漂流瓶） ----------
   List<Whisper> _whispers = [];
+  // 低語穿越：寫給未來的自己，只有我看得到
+  List<TimeWhisper> _timeWhispers = [];
+  final Set<String> _timeWhisperTried = {}; // 這次開啟期間已嘗試打開的，避免重複跳出
+  bool _timeWhisperShowing = false;
   final Set<String> _seenWhisperIds = {};
   bool _whispersLoaded = false;
   int _radarTick = 0;
@@ -675,6 +680,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         _updateMyLocationToServer(newPosition);
         _updateMapCamera();
         _startLocationServices();
+        _checkTimeWhispers();
       },
       onError: (dynamic error) => debugPrint('position stream error: $error'),
       cancelOnError: false,
@@ -799,8 +805,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _radarTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _fetchNearbyUsers();
       if (++_radarTick % 3 == 0) _fetchWhispers(); // 低語每 30 秒更新一次
+      if (_radarTick % 30 == 0) _fetchTimeWhispers(); // 低語穿越每 5 分鐘更新一次
     });
     _fetchWhispers();
+    _fetchTimeWhispers();
     _fetchCityMood();
     _cityMoodTimer?.cancel();
     _cityMoodTimer = Timer.periodic(const Duration(minutes: 5), (_) => _fetchCityMood());
@@ -823,10 +831,100 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   Future<void> _composeWhisper() async {
     if (_currentPosition == null) return;
-    final posted = await showWhisperComposer(context, lat: _currentPosition!.latitude, lng: _currentPosition!.longitude, mood: _myMood);
-    if (!posted || !mounted) return;
-    showGlassToast(context, '你的低語留在這裡了，7 天後消散。', icon: Icons.mail_outline);
-    _fetchWhispers();
+    final result = await showWhisperComposer(context, lat: _currentPosition!.latitude, lng: _currentPosition!.longitude, mood: _myMood);
+    if (result == null || !mounted) return;
+    if (result == 'whisper') {
+      showGlassToast(context, '你的低語留在這裡了，7 天後消散。', icon: Icons.mail_outline);
+      _fetchWhispers();
+    } else {
+      showGlassToast(context, '已封存。${result == 'year' ? '一年' : '一個月'}後，回到這裡就能打開。', icon: Icons.hourglass_bottom);
+      _fetchTimeWhispers();
+    }
+  }
+
+  // ---------- 低語穿越 ----------
+  Future<void> _fetchTimeWhispers() async {
+    if (!_isInForeground) return;
+    final list = await TimeWhisperApi.list();
+    if (!mounted) return;
+    setState(() => _timeWhispers = list);
+    _checkTimeWhispers();
+  }
+
+  /// 解封、還沒打開、人在 100 公尺內 → 打開並跳出來
+  Future<void> _checkTimeWhispers() async {
+    final pos = _currentPosition;
+    if (pos == null || _timeWhisperShowing || !_isInForeground) return;
+    for (final w in _timeWhispers) {
+      if (w.opened || !w.isUnlocked || _timeWhisperTried.contains(w.id)) continue;
+      if (w.metersFrom(pos.latitude, pos.longitude) > timeWhisperOpenMeters) continue;
+      _timeWhisperTried.add(w.id);
+      _timeWhisperShowing = true;
+      final (opened, error) = await TimeWhisperApi.open(w.id, pos.latitude, pos.longitude);
+      if (!mounted) return;
+      if (opened == null) {
+        _timeWhisperShowing = false;
+        debugPrint('time whisper open failed: $error');
+        continue;
+      }
+      HapticFeedback.mediumImpact();
+      final deleted = await showTimeWhisperReader(context, opened, justOpened: true);
+      _timeWhisperShowing = false;
+      if (!mounted) return;
+      setState(() {
+        final i = _timeWhispers.indexWhere((x) => x.id == w.id);
+        if (deleted) {
+          _timeWhispers.removeAt(i);
+        } else if (i >= 0) {
+          _timeWhispers[i] = opened;
+        }
+      });
+      return;
+    }
+  }
+
+  void _tapTimeWhisper(TimeWhisper w) async {
+    if (w.opened) {
+      final deleted = await showTimeWhisperReader(context, w);
+      if (deleted && mounted) setState(() => _timeWhispers.removeWhere((x) => x.id == w.id));
+      return;
+    }
+    showGlassToast(
+      context,
+      w.isUnlocked ? '已經可以打開了，走近 100 公尺內。' : '封存中，${timeWhisperDate(w.unlockAt)} 解封。',
+      icon: Icons.hourglass_bottom,
+    );
+  }
+
+  /// 雷達上我的低語穿越：上鎖的信封與解封日期（只有我看得到）
+  Widget _buildTimeWhisperMarker(TimeWhisper w) {
+    final color = w.isUnlocked ? Night.auroraViolet : Night.inkMuted;
+    return Semantics(
+      button: true,
+      label: w.opened ? '你打開過的低語穿越' : (w.isUnlocked ? '已解封的低語穿越' : '封存中的低語穿越，${timeWhisperDate(w.unlockAt)} 解封'),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _tapTimeWhisper(w),
+        child: SizedBox(
+          width: 110, height: 70,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 32, height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Night.night700,
+                border: Border.all(color: color, width: 1.5),
+                boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 14, spreadRadius: 1)],
+              ),
+              child: Icon(w.opened ? Icons.drafts_outlined : (w.isUnlocked ? Icons.mark_email_unread_outlined : Icons.lock_clock), color: color, size: 17),
+            ),
+            const SizedBox(height: 4),
+            Text(w.opened ? '已打開' : (w.isUnlocked ? '可以打開了' : '${timeWhisperDate(w.unlockAt)} 開啟'),
+                style: Night.caption.copyWith(fontSize: 11, color: color, shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
+          ]),
+        ),
+      ),
+    );
   }
 
   Future<void> _openWhisper(Whisper w) async {
@@ -1356,6 +1454,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   section('我'),
                   item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
                   item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
+                  item(Icons.hourglass_bottom, '我的低語穿越', subtitle: '寫給未來的自己，只有你看得到',
+                      onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),
                   item(Icons.timeline, '我的心情軌跡', subtitle: '只存在你的手機上', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
                   section('集會'),
@@ -2337,6 +2437,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
                         final ww = max(0.01, 1.0 + (rz * 0.002));
                         return Positioned(left: centerX + rx / ww - 22, top: centerY + ry / ww - 22, child: _buildWhisperMarker(w));
+                      }),
+                      // 我的低語穿越（只有自己看得到）
+                      ..._timeWhispers.map((w) {
+                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
+                        if (v.opacity <= 0.0) return const SizedBox.shrink();
+                        final d = (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale;
+                        final a = v.relativeAngle * pi / 180.0;
+                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
+                        final ww = max(0.01, 1.0 + (rz * 0.002));
+                        return Positioned(left: centerX + rx / ww - 55, top: centerY + ry / ww - 16, child: _buildTimeWhisperMarker(w));
                       }),
                       // 敲門中：從自己到對方的流動虛線弧（畫在氣泡底下）
                       if (_ritualTarget != null && _bubbleAnchors[_ritualTarget] != null)

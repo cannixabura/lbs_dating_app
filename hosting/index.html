@@ -14,6 +14,8 @@
 <meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/intro_1.jpg">
 <meta property="og:url" content="https://mood-whisper-f7de9.web.app/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
@@ -64,6 +66,13 @@
   .card figcaption { margin-top: 12px; color: var(--ink-muted); font-size: 15px; line-height: 1.7; }
   .card figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 17px; margin-bottom: 2px; }
 
+  .more-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .more-grid a { display: block; padding: 18px 20px; border-radius: 20px; background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); text-decoration: none; }
+  .more-grid a:hover, .more-grid a:focus-visible { border-color: var(--aurora-violet); }
+  .more-grid b { display: block; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .more-grid span { color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
+  .guide-link { margin-top: 18px; font-size: 15px; }
+
   .safe { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .safe div { padding: 18px 20px; border-radius: 20px; background: var(--glass-fill); border: 1px solid var(--glass-line); }
   .safe b { display: block; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
@@ -80,6 +89,7 @@
     .hero .text { order: -1; }
     .gallery { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; }
     .safe { grid-template-columns: repeat(4, 1fr); }
+    .more-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -115,6 +125,20 @@
     </div>
   </section>
 
+  <section aria-labelledby="more">
+    <h2 id="more">城市裡還有這些</h2>
+    <p class="sub">除了心情氣泡與敲門，夜裡的城市還藏著更多溫柔的角落。</p>
+    <div class="more-grid">
+      <a href="guide.html#s5"><b>✦ 微光</b><span>雙擊別人的氣泡，讓對方知道有人看見了。不用開口，對方也不會知道是誰。</span></a>
+      <a href="guide.html#s6"><b>✉ 低語</b><span>在你走過的地方留下一句話，接下來 7 天經過的人都讀得到。</span></a>
+      <a href="guide.html#s6"><b>⌛ 低語穿越</b><span>寫給一個月或一年後的自己。時間到了，回到那裡才能打開，讀過一次就消失。</span></a>
+      <a href="mood.html"><b>◐ 今晚的台灣心情</b><span>全台各區此刻最多的心情，只有比例、沒有任何個人資料。</span></a>
+      <a href="gathering.html"><b>📣 集會</b><span>遊行、跨年、帶團都適用：主持人一則公告，5 公里內的參加者都收得到。</span></a>
+      <a href="guide.html#s9"><b>🚻 城市燈塔</b><span>找到附近的性別友善、無障礙與親子廁所，資料來自環境部，每月更新。</span></a>
+    </div>
+    <p class="guide-link"><a href="guide.html">看完整的操作說明 →</a></p>
+  </section>
+
   <section aria-labelledby="safe">
     <h2 id="safe">安心，是最重要的事</h2>
     <p class="sub">我們對騷擾、色情與仇恨內容零容忍。</p>
@@ -128,6 +152,7 @@
 
   <footer>
     <nav aria-label="法律與聯絡">
+      <a href="guide.html">操作說明</a>
       <a href="terms.html">使用條款</a>
       <a href="privacy.html">隱私權政策</a>
       <a href="delete-account.html">刪除帳號</a>

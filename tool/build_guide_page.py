@@ -1,0 +1,151 @@
+"""把 App 的操作說明（lib/guide_screen.dart）輸出成官網的 hosting/guide.html。
+
+App 是唯一的來源：改了 guide_screen.dart 之後重新執行這支程式，網站就會一致。
+用法：python3 tool/build_guide_page.py
+"""
+import html
+import os
+import re
+
+ROOT = os.path.join(os.path.dirname(__file__), "..")
+SRC = os.path.join(ROOT, "lib", "guide_screen.dart")
+OUT = os.path.join(ROOT, "hosting", "guide.html")
+
+# 網頁上每一節的小圖示（App 用 Material Icons，網頁用相近的符號）
+ICONS = {
+    "edit_outlined": "✎", "space_dashboard_outlined": "▤", "radar": "◎", "back_hand_outlined": "✋",
+    "auto_awesome": "✦", "mail_outline": "✉", "wb_twilight": "◐", "campaign_outlined": "📣",
+    "wc": "🚻", "ios_share": "⇪", "tune": "⚙", "flag_outlined": "⚑", "lock_outline": "🔒",
+}
+
+
+def parse(source):
+    intro = re.search(r"child: Text\('([^']+)', style: Night\.body\)", source).group(1)
+    body = source[source.index("_sections"):source.index("];", source.index("_sections"))]
+    sections = []
+    for icon, title, lines in re.findall(r"\(Icons\.(\w+), '([^']+)', \[(.*?)\]\)", body, re.S):
+        items = re.findall(r"'((?:[^'\\]|\\.)*)'", lines)
+        sections.append((icon, title, [i.replace("\\'", "'") for i in items]))
+    return intro, sections
+
+
+def link_terms(text):
+    """《使用條款》《隱私權政策》在網頁上連到對應頁面"""
+    text = text.replace("《使用條款》", '<a href="terms.html">《使用條款》</a>')
+    return text.replace("《隱私權政策》", '<a href="privacy.html">《隱私權政策》</a>')
+
+
+def render(intro, sections):
+    toc = "\n".join(
+        f'      <li><a href="#s{n}">{html.escape(title)}</a></li>' for n, (_, title, _) in enumerate(sections, 1)
+    )
+    blocks = []
+    for n, (icon, title, lines) in enumerate(sections, 1):
+        items = "\n".join(f"        <li>{link_terms(html.escape(l))}</li>" for l in lines)
+        extra = ""
+        if "集會" in title:
+            extra = '\n      <p class="more"><a href="gathering.html">集會指南：情境、畫面與常見問題 →</a></p>'
+        if "城市心情天氣" in title:
+            extra = '\n      <p class="more"><a href="mood.html">今晚的台灣心情：全台各區的心情地圖 →</a></p>'
+        blocks.append(f"""    <section class="sec" id="s{n}">
+      <h2><span class="ico" aria-hidden="true">{ICONS.get(icon, "•")}</span>{html.escape(title)}</h2>
+      <ul>
+{items}
+      </ul>{extra}
+    </section>""")
+    return TEMPLATE.replace("{{INTRO}}", html.escape(intro)).replace("{{TOC}}", toc).replace("{{SECTIONS}}", "\n".join(blocks))
+
+
+TEMPLATE = """<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>城市低語 操作說明</title>
+<meta name="description" content="城市低語的完整操作說明：雷達與氣泡、敲門與聊天、微光、低語與低語穿越、城市心情天氣、集會、城市燈塔、檢舉與隱私。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語 操作說明">
+<meta property="og:description" content="從走進城市到敲門、低語、集會與城市燈塔，一次看懂城市低語怎麼用。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/intro_1.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/guide.html">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<!-- 這個檔案由 tool/build_guide_page.py 從 lib/guide_screen.dart 產生，請改 App 的內容後重新產生，不要直接改這裡 -->
+<style>
+  :root {
+    color-scheme: dark;
+    --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+    --glass-line: rgba(196, 170, 255, 0.38);
+    --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+    --aurora-violet: #b44cff; --aurora-blue: #4fc3f7;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; background: var(--night-900); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--aurora-blue); }
+  .wrap { max-width: 760px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-block: 24px 56px; }
+  .back { color: var(--ink-muted); text-decoration: none; font-size: 14px; }
+  h1 { margin: 28px 0 0; font-size: clamp(30px, 6vw, 42px); letter-spacing: 3px; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rule { width: 112px; height: 2px; margin: 18px 0; border-radius: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); }
+  .lead { margin: 0; color: var(--ink-muted); line-height: 1.85; font-size: 16px; }
+  .note { margin: 10px 0 0; color: var(--ink-faint); font-size: 13px; }
+  .toc { margin: 28px 0 8px; padding: 18px 20px; border-radius: 20px; background: var(--night-800); border: 1px solid var(--night-600); }
+  .toc ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 24px; }
+  .toc li { break-inside: avoid; line-height: 2.1; font-size: 15px; }
+  .toc a { color: var(--ink-muted); text-decoration: none; }
+  .toc a:hover, .toc a:focus-visible { color: var(--ink); text-decoration: underline; }
+  .sec { margin-top: 16px; padding: 20px 22px 8px; border-radius: 20px; background: var(--night-800); border: 1px solid var(--night-600); scroll-margin-top: 16px; }
+  .sec h2 { margin: 0 0 10px; font-size: 19px; font-weight: 500; letter-spacing: 1px; display: flex; gap: 10px; align-items: center; }
+  .ico { width: 32px; height: 32px; flex: none; display: inline-grid; place-items: center; border-radius: 10px; background: var(--night-700); color: var(--aurora-violet); font-size: 16px; }
+  .sec ul { margin: 0; padding: 0 0 8px; list-style: none; }
+  .sec li { position: relative; padding-left: 16px; margin-bottom: 10px; color: var(--ink-muted); line-height: 1.8; font-size: 15px; }
+  .sec li::before { content: ""; position: absolute; left: 0; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--aurora-blue); }
+  .more { margin: 0 0 14px; font-size: 14px; }
+  footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; }
+  @media (max-width: 480px) { .toc ol { columns: 1; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="back" href="./">← 城市低語</a>
+  <h1><em>操作說明</em></h1>
+  <div class="rule"></div>
+  <p class="lead">{{INTRO}}</p>
+  <p class="note">與 App 內「設定 › 關於 › 操作說明」的內容相同。</p>
+  <nav class="toc" aria-label="目錄">
+    <ol>
+{{TOC}}
+    </ol>
+  </nav>
+{{SECTIONS}}
+  <footer>
+    <nav aria-label="更多">
+      <a href="./">首頁</a>
+      <a href="gathering.html">集會指南</a>
+      <a href="mood.html">今晚的台灣心情</a>
+      <a href="terms.html">使用條款</a>
+      <a href="privacy.html">隱私權政策</a>
+      <a href="delete-account.html">刪除帳號</a>
+      <a href="mailto:service.softchip@gmail.com">聯絡我們</a>
+    </nav>
+    © 2026 Softchip · 城市低語
+  </footer>
+</main>
+</body>
+</html>
+"""
+
+
+if __name__ == "__main__":
+    intro, sections = parse(open(SRC, encoding="utf-8").read())
+    assert len(sections) >= 10, f"只讀到 {len(sections)} 節，guide_screen.dart 的格式可能變了"
+    open(OUT, "w", encoding="utf-8").write(render(intro, sections))
+    print(f"{OUT}：{len(sections)} 節，{sum(len(s[2]) for s in sections)} 條")

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mood-whisper-f7de9.web.app/sitemap.xml

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>城市低語 操作說明</title>
+<meta name="description" content="城市低語的完整操作說明：雷達與氣泡、敲門與聊天、微光、低語與低語穿越、城市心情天氣、集會、城市燈塔、檢舉與隱私。">
+<meta name="theme-color" content="#070b1f">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="城市低語">
+<meta property="og:title" content="城市低語 操作說明">
+<meta property="og:description" content="從走進城市到敲門、低語、集會與城市燈塔，一次看懂城市低語怎麼用。">
+<meta property="og:image" content="https://mood-whisper-f7de9.web.app/img/intro_1.jpg">
+<meta property="og:url" content="https://mood-whisper-f7de9.web.app/guide.html">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<!-- 這個檔案由 tool/build_guide_page.py 從 lib/guide_screen.dart 產生，請改 App 的內容後重新產生，不要直接改這裡 -->
+<style>
+  :root {
+    color-scheme: dark;
+    --night-900: #070b1f; --night-800: #0e1433; --night-700: #1a1f4a; --night-600: #2a2f66;
+    --glass-line: rgba(196, 170, 255, 0.38);
+    --ink: #f3f0ff; --ink-muted: #b9b6d6; --ink-faint: #8c89b0;
+    --aurora-violet: #b44cff; --aurora-blue: #4fc3f7;
+    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; background: var(--night-900); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--aurora-blue); }
+  .wrap { max-width: 760px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-block: 24px 56px; }
+  .back { color: var(--ink-muted); text-decoration: none; font-size: 14px; }
+  h1 { margin: 28px 0 0; font-size: clamp(30px, 6vw, 42px); letter-spacing: 3px; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .rule { width: 112px; height: 2px; margin: 18px 0; border-radius: 2px; background: linear-gradient(90deg, var(--aurora-violet), var(--aurora-blue)); }
+  .lead { margin: 0; color: var(--ink-muted); line-height: 1.85; font-size: 16px; }
+  .note { margin: 10px 0 0; color: var(--ink-faint); font-size: 13px; }
+  .toc { margin: 28px 0 8px; padding: 18px 20px; border-radius: 20px; background: var(--night-800); border: 1px solid var(--night-600); }
+  .toc ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 24px; }
+  .toc li { break-inside: avoid; line-height: 2.1; font-size: 15px; }
+  .toc a { color: var(--ink-muted); text-decoration: none; }
+  .toc a:hover, .toc a:focus-visible { color: var(--ink); text-decoration: underline; }
+  .sec { margin-top: 16px; padding: 20px 22px 8px; border-radius: 20px; background: var(--night-800); border: 1px solid var(--night-600); scroll-margin-top: 16px; }
+  .sec h2 { margin: 0 0 10px; font-size: 19px; font-weight: 500; letter-spacing: 1px; display: flex; gap: 10px; align-items: center; }
+  .ico { width: 32px; height: 32px; flex: none; display: inline-grid; place-items: center; border-radius: 10px; background: var(--night-700); color: var(--aurora-violet); font-size: 16px; }
+  .sec ul { margin: 0; padding: 0 0 8px; list-style: none; }
+  .sec li { position: relative; padding-left: 16px; margin-bottom: 10px; color: var(--ink-muted); line-height: 1.8; font-size: 15px; }
+  .sec li::before { content: ""; position: absolute; left: 0; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--aurora-blue); }
+  .more { margin: 0 0 14px; font-size: 14px; }
+  footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; }
+  @media (max-width: 480px) { .toc ol { columns: 1; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="back" href="./">← 城市低語</a>
+  <h1><em>操作說明</em></h1>
+  <div class="rule"></div>
+  <p class="lead">城市低語是一座夜裡的城市：寫下一句此刻的心情，看見附近的人此刻的感受。</p>
+  <p class="note">與 App 內「設定 › 關於 › 操作說明」的內容相同。</p>
+  <nav class="toc" aria-label="目錄">
+    <ol>
+      <li><a href="#s1">1. 走進城市</a></li>
+      <li><a href="#s2">2. 底部選單</a></li>
+      <li><a href="#s3">3. 雷達與氣泡</a></li>
+      <li><a href="#s4">4. 敲門與聊天</a></li>
+      <li><a href="#s5">5. 微光</a></li>
+      <li><a href="#s6">6. 低語</a></li>
+      <li><a href="#s7">7. 城市心情天氣</a></li>
+      <li><a href="#s8">8. 集會</a></li>
+      <li><a href="#s9">9. 城市燈塔（友善廁所）</a></li>
+      <li><a href="#s10">10. 心情卡與心情軌跡</a></li>
+      <li><a href="#s11">11. 設定與通知</a></li>
+      <li><a href="#s12">12. 檢舉與封鎖</a></li>
+      <li><a href="#s13">13. 隱私與帳號</a></li>
+    </ol>
+  </nav>
+    <section class="sec" id="s1">
+      <h2><span class="ico" aria-hidden="true">✎</span>1. 走進城市</h2>
+      <ul>
+        <li>第一次開啟時，請確認你已年滿 18 歲，並允許「使用 App 時」取得精確位置；沒有精確位置，雷達無法運作。</li>
+        <li>寫下一句此刻的心情（最多 20 個字），勾選同意<a href="terms.html">《使用條款》</a>與<a href="privacy.html">《隱私權政策》</a>，按「走進城市低語」。</li>
+        <li>不需要手機號碼、Email 或真名。帳號是匿名的，綁定在這支手機上。</li>
+        <li>心情的顏色由字裡的關鍵字決定：「開心、笑」金黃，「難過、哭」藍，「生氣、怒」橘紅，「平靜、發呆」綠，「熱情」橘，「愛、心」粉紅，其他是淡紫。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s2">
+      <h2><span class="ico" aria-hidden="true">▤</span>2. 底部選單</h2>
+      <ul>
+        <li>點左邊自己的頭像：編輯大頭貼、城市稱呼（最多 10 個字）與心情。</li>
+        <li>筆記圖示：在這裡留下一則低語。</li>
+        <li>分享圖示：把此刻的心情做成一張夜景卡片。</li>
+        <li>最右邊的調整圖示：打開設定。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s3">
+      <h2><span class="ico" aria-hidden="true">◎</span>3. 雷達與氣泡</h2>
+      <ul>
+        <li>雷達上會浮現 5 公里內其他人的心情氣泡，只顯示分級的距離（例如「100m 內」），不顯示地址。</li>
+        <li>會呼吸的氣泡代表對方正在使用；變暗並標示「休息中」代表對方鎖了螢幕，仍可以敲門；灰色、沒有名字的是「歷史殘影」，是剛離開的人留下的，會慢慢淡去。</li>
+        <li>雙指可以放大縮小地圖。轉動手機，雷達會跟著你面向的方向轉。</li>
+        <li>氣泡太密集時會合成一顆光球「這裡有 N 個心情」，點一下就展開成一圈，每顆都點得到；點中間或空白處收起。</li>
+        <li>名字前有「示範」的是示範對象，由程式自動回應，不是真人，可以用來體驗所有功能。</li>
+        <li>附近都沒有人時，畫面下方會出現「你是今晚第一道光」，可以邀請朋友一起點亮街區。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s4">
+      <h2><span class="ico" aria-hidden="true">✋</span>4. 敲門與聊天</h2>
+      <ul>
+        <li>長按別人的氣泡 →「敲門」。對方有 5 分鐘可以回應：同意、婉拒或略過。等待時，你會看到一道光從你流向對方。</li>
+        <li>對方同意後開始對話，倒數 10 分鐘；任何一方傳新訊息就重新倒數，安靜下來就結束。</li>
+        <li>對話結束後，訊息會從伺服器刪除。對方仍可能截圖，請斟酌分享的內容。</li>
+        <li>有人敲你的門時，會跳出敲門卡片，可以同意、婉拒、略過，或直接檢舉。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s5">
+      <h2><span class="ico" aria-hidden="true">✦</span>5. 微光</h2>
+      <ul>
+        <li>雙擊別人的氣泡，或長按選「送出一道微光」，讓對方知道有人看見了，不需要開口。</li>
+        <li>對方只會看到「今晚 N 道微光與你共鳴」，永遠不知道是誰送的。同一個人 24 小時內只能送一次。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s6">
+      <h2><span class="ico" aria-hidden="true">✉</span>6. 低語</h2>
+      <ul>
+        <li>按底部選單的筆記圖示，在你所在的地方留下一句話（最多 60 個字）。</li>
+        <li>接下來 7 天，經過那一帶 300 公尺內的人會在雷達上看到信封，打開就能讀到。</li>
+        <li>低語永遠匿名；每人同時最多留 3 則、每 10 分鐘最多 1 則，可以隨時收回。</li>
+        <li>低語穿越：寫低語時選「寄給未來的自己」，再選一個月後或一年後。只有你看得到；時間到了會通知你，回到那裡 100 公尺內就會自動打開，讀過一次就會消失。雷達上只有你看得到一個小沙漏（上鎖／解鎖），不能點。每人同時最多 5 封，設定 →「我的低語穿越」可以查看或刪除。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s7">
+      <h2><span class="ico" aria-hidden="true">◐</span>7. 城市心情天氣</h2>
+      <ul>
+        <li>左上角的標籤顯示 20 公里內、24 小時內大家最多的心情；點一下看完整比例。</li>
+        <li>少於 10 人時不顯示比例，避免猜得出是誰。</li>
+      </ul>
+      <p class="more"><a href="mood.html">今晚的台灣心情：全台各區的心情地圖 →</a></p>
+    </section>
+    <section class="sec" id="s8">
+      <h2><span class="ico" aria-hidden="true">📣</span>8. 集會</h2>
+      <ul>
+        <li>開活動：設定 → 集會主持人 → 填活動名稱、一個表情符號當圖標、開始與結束時間（最長 24 小時）→ 開始活動。</li>
+        <li>範圍是以主持人為中心 5 公里，主持人走到哪，範圍就跟到哪。主持人在雷達上有一圈光環和「主持」標示。</li>
+        <li>主持人可以發公告（不限次數）、提出全場提問，也可以隨時結束活動。</li>
+        <li>參加：把活動的圖標加進你的城市稱呼（例如「遊蕩的貓🌈」），人在範圍內就會看到雷達上方的置頂公告，並收到推播。把圖標移除就退出。</li>
+        <li>全場提問：用一句心情回答；主持人只看得到全場的心情比例，看不到誰回答了什麼，少於 10 人時不顯示比例。</li>
+        <li>同一個圖標在同一區域同時只能有一場活動；活動結束後，任何人都可以用。</li>
+        <li>交棒：主持人長按某位參加者的氣泡 →「轉移主持人」，選公開交棒（通知所有人）或安靜交棒（不通知），對方 5 分鐘內同意就由他主持，公告與提問都會留著；原主持人變回參加者，稱呼會自動補上圖標。</li>
+      </ul>
+      <p class="more"><a href="gathering.html">集會指南：情境、畫面與常見問題 →</a></p>
+    </section>
+    <section class="sec" id="s9">
+      <h2><span class="ico" aria-hidden="true">🚻</span>9. 城市燈塔（友善廁所）</h2>
+      <ul>
+        <li>點地圖右下角的「燈塔」，雷達上會出現 2 公里內的性別友善、無障礙與親子廁所；可以再點上方的篩選，只看其中幾種。</li>
+        <li>點一下標記可以看樓層、設施與距離，按「走路過去」用手機的地圖 App 導航。</li>
+        <li>資料來自環境部「全國公廁建檔資料」，每月更新；沒有開放時間，「晚上可能有開」是依場所推估的。</li>
+        <li>資料不對時可以回報（不是性別友善、晚上沒開、找不到）；同一種問題有 3 個人回報，標記會變灰並註明。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s10">
+      <h2><span class="ico" aria-hidden="true">⇪</span>10. 心情卡與心情軌跡</h2>
+      <ul>
+        <li>底部選單的分享鈕可以把此刻的心情做成一張夜景卡片，適合 IG 限時動態；卡片上不會有你的位置。</li>
+        <li>設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s11">
+      <h2><span class="ico" aria-hidden="true">⚙</span>11. 設定與通知</h2>
+      <ul>
+        <li>「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。</li>
+        <li>敲門、新訊息、微光與集會公告會以推播通知你；可以在手機的系統設定裡關閉。</li>
+        <li>每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s12">
+      <h2><span class="ico" aria-hidden="true">⚑</span>12. 檢舉與封鎖</h2>
+      <ul>
+        <li>長按氣泡、敲門卡片、聊天室右上角、低語與集會公告都可以檢舉。我們會在 24 小時內處理。</li>
+        <li>封鎖後，雙方會從彼此的雷達上消失，也不能再敲門或送微光。設定 →「管理封鎖名單」可以解除。</li>
+        <li>遇到立即的危險，請直接撥打 110。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s13">
+      <h2><span class="ico" aria-hidden="true">🔒</span>13. 隱私與帳號</h2>
+      <ul>
+        <li>附近的人看得到你的心情、城市稱呼、大頭貼與大概的距離；只有在你使用 App 時才會取得位置。</li>
+        <li>設定 →「刪除帳號與資料」可以隨時永久刪除你在城市留下的一切。</li>
+        <li>有任何問題，設定 →「聯絡我們」或寫信到 service.softchip@gmail.com。</li>
+      </ul>
+    </section>
+  <footer>
+    <nav aria-label="更多">
+      <a href="./">首頁</a>
+      <a href="gathering.html">集會指南</a>
+      <a href="mood.html">今晚的台灣心情</a>
+      <a href="terms.html">使用條款</a>
+      <a href="privacy.html">隱私權政策</a>
+      <a href="delete-account.html">刪除帳號</a>
+      <a href="mailto:service.softchip@gmail.com">聯絡我們</a>
+    </nav>
+    © 2026 Softchip · 城市低語
+  </footer>
+</main>
+</body>
+</html>

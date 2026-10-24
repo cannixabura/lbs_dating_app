@@ -105,7 +105,7 @@ class _WhisperComposer extends StatefulWidget {
 class _WhisperComposerState extends State<_WhisperComposer> {
   final TextEditingController controller = TextEditingController();
   bool sending = false;
-  bool future = false; // 寄給未來的自己（低語穿越） // 寄給未來的自己（低語穿越）
+  bool future = false; // 寄給未來的自己（低語穿越）
   String delay = 'month';
 
   @override
@@ -177,7 +177,7 @@ class _WhisperComposerState extends State<_WhisperComposer> {
                   style: Night.caption, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
-                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context, false))),
+                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context))), // 面板回傳 String?，取消回傳 null
                 const SizedBox(width: Night.space2),
                 Expanded(child: NightButton(sending ? '送出中…' : (future ? '封存在這裡' : '留在這裡'), onPressed: controller.text.trim().isEmpty || sending ? null : send)),
               ]),

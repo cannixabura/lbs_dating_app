@@ -239,6 +239,7 @@ def head(title, desc, path, extra_style=""):
 <meta property="og:image" content="{SITE}/img/beta_og.jpg">
 <meta property="og:url" content="{SITE}/design/{path}">
 <title>{html.escape(title)}</title>
+<link rel="icon" href="../img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="{FONTS}">
 <style>{STYLE}{extra_style}</style>

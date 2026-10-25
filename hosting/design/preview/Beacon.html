@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Beacon</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px">
+  <div class="cw-map" style="position:relative;width:300px;height:420px;border-radius:24px">
+    <span class="cw-beacon" style="left:58px;top:60px"><span class="cw-ico i-people"></span></span>
+    <span class="cw-beacon" style="left:190px;top:84px"><span class="cw-ico i-accessible"></span></span>
+    <span class="cw-beacon" style="left:110px;top:140px"><span class="cw-ico i-stroller"></span></span>
+    <span class="cw-beacon cw-beacon--flagged" style="left:220px;top:180px"><span class="cw-ico i-people"></span></span>
+    <span class="cw-beacon" style="left:40px;top:200px"><span class="cw-ico i-accessible"></span></span>
+    <span class="cw-me" style="left:139px;top:240px"></span>
+    <div style="position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+      <button class="cw-beacon-filter" type="button" aria-pressed="true"><span class="cw-ico i-people"></span>性別友善</button>
+      <button class="cw-beacon-filter" type="button" aria-pressed="false"><span class="cw-ico i-accessible"></span>無障礙</button>
+      <button class="cw-beacon-filter" type="button" aria-pressed="false"><span class="cw-ico i-stroller"></span>親子</button>
+      <button class="cw-beacon-toggle" type="button" aria-pressed="true"><span class="cw-ico i-wc"></span>燈塔 · 5</button>
+    </div>
+    <div style="position:absolute;left:12px;bottom:12px">
+      <button class="cw-beacon-toggle" type="button" aria-pressed="false"><span class="cw-ico i-wc"></span>燈塔</button>
+    </div>
+  </div>
+
+  <div class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <h3 class="cw-glass__title" style="margin:0">台北101購物中心B1東</h3>
+    <p class="cw-caption">61 公尺 · 臺北市信義區信義路五段7號</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+      <span class="cw-feature"><span class="cw-ico i-people"></span>性別友善</span>
+      <span class="cw-feature"><span class="cw-ico i-accessible"></span>無障礙</span>
+      <span class="cw-feature"><span class="cw-ico i-stroller"></span>親子</span>
+    </div>
+    <p class="cw-glass__body" style="text-align:center;display:flex;gap:6px;justify-content:center;align-items:center"><span class="cw-ico cw-ico--sm i-moon" style="color:var(--city-amber)"></span>晚上可能有開（推估）</p>
+    <p class="cw-caption">性別友善廁所、無障礙廁所、親子廁所</p>
+    <button class="cw-btn" type="button"><span class="cw-ico cw-ico--sm i-walk"></span>走路過去</button>
+    <p class="cw-caption">資料不對嗎？</p>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px">
+      <button class="cw-btn cw-btn--text" type="button">不是性別友善</button>
+      <button class="cw-btn cw-btn--text" type="button">晚上沒開</button>
+      <button class="cw-btn cw-btn--text" type="button">找不到這間廁所</button>
+    </div>
+    <p class="cw-caption">資料來源：環境部「全國公廁建檔資料」，每月更新。開放時間是依場所推估的。</p>
+  </div>
+
+  <div class="cw-glass" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <h3 class="cw-glass__title" style="margin:0">新莊區公所</h3>
+    <p class="cw-caption">1.2 公里 · 新北市新莊區中正路</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+      <span class="cw-feature"><span class="cw-ico i-people"></span>性別友善</span>
+    </div>
+    <p class="cw-glass__body" style="text-align:center">可能只在白天開（推估）</p>
+    <p class="cw-caption" style="color:var(--danger)">有人回報：晚上沒開</p>
+    <button class="cw-btn" type="button"><span class="cw-ico cw-ico--sm i-walk"></span>走路過去</button>
+    <p class="cw-caption" style="color:var(--ink-muted)">謝謝你，已經收到「晚上沒開」的回報。</p>
+  </div>
+</div>
+</body>
+</html>

@@ -27,6 +27,7 @@ NAMES = {
     "ProfileEdit": "編輯個人狀態", "ReportSheet": "檢舉", "BlockList": "封鎖名單",
     "DeleteAccount": "刪除帳號", "GlassCard": "玻璃卡片", "GlassToast": "玻璃提示",
     "GradientButton": "漸層按鈕",
+    "Gathering": "集會", "Beacon": "城市燈塔", "TimeWhisper": "低語穿越",
 }
 SUBTITLES = {
     "RadarScreen": "雷達上所有氣泡狀態、提示條與底部選單",
@@ -51,11 +52,14 @@ SUBTITLES = {
     "GlassCard": "一般卡片與空的封鎖名單",
     "GlassToast": "新訊息、敲門已送出，以及失敗",
     "GradientButton": "主要、次要、暖色、危險、文字、停用",
+    "Gathering": "雷達上的主持人光環、參加者與主持人看到的置頂公告、主持人面板，以及交棒",
+    "Beacon": "雷達上的友善廁所標記、燈塔開關與篩選、被回報的地點，以及詳細資訊與回報",
+    "TimeWhisper": "寫給未來的自己、封存與解封的標記、只讀一次的信，以及設定裡的列表",
 }
 GROUPS = [
     ("Screens", "完整畫面"), ("Onboarding", "引導"), ("Radar", "雷達"),
     ("Knocking", "敲門"), ("Chat", "聊天"), ("Resonance", "共鳴"),
-    ("Whispers", "低語"), ("City", "城市"), ("Sharing", "分享"),
+    ("Whispers", "低語"), ("Gathering", "集會"), ("City", "城市"), ("Sharing", "分享"),
     ("Profile", "個人"), ("Safety", "安全"), ("Surfaces", "表面"),
     ("Actions", "按鈕"), ("Feedback", "回饋"),
 ]

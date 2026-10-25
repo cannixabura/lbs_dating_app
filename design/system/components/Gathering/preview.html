@@ -1,0 +1,51 @@
+<!-- @dsCard group="Gathering" height=760 subtitle="The host ring on the radar, the pinned banner for participants and host, the host panel, and the handoff choice" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Gathering</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px">
+  <div class="cw-map" style="position:relative;width:300px;height:360px;border-radius:24px">
+    <div style="position:absolute;left:12px;right:12px;top:12px">
+      <div class="cw-banner">
+        <div class="cw-banner__head"><span>🌈</span><b>彩虹遊行</b><small>· 主持人公告</small><span class="cw-ico cw-ico--sm i-flag" style="color:var(--danger)"></span></div>
+        <div class="cw-banner__text">隊伍正在轉進凱達格蘭大道，請跟著工作人員的手勢前進 🌈</div>
+        <span class="cw-caption" style="text-align:left">2 分鐘前</span>
+        <div class="cw-banner__ask">主持人問：走完這段路，此刻的你？</div>
+      </div>
+    </div>
+    <div class="cw-host" style="position:absolute;left:84px;top:200px">
+      <span class="cw-host__ring"><span><span class="cw-ico cw-ico--sm i-person"></span></span></span>
+      <span class="cw-host__caption"><b>主持 🌈</b> · 工作人員 · 80m</span>
+    </div>
+    <span class="cw-me" style="left:139px;top:316px"></span>
+  </div>
+
+  <div class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:30px;text-align:center">🌈</span>
+    <h3 class="cw-glass__title" style="margin:0">彩虹遊行</h3>
+    <p class="cw-caption">14:00 – 20:00 · 你正在主持</p>
+    <p class="cw-glass__body">5 公里內、稱呼裡有 🌈 的人會看到公告並收到推播。你看不到他們是誰。</p>
+    <label class="cw-field"><span class="cw-field__label">發布公告</span>
+      <textarea class="cw-textarea" maxlength="200">天色暗了，請大家打開手機手電筒，讓城市看見我們 🌈</textarea></label>
+    <button class="cw-btn" type="button">發布公告</button>
+    <p class="cw-caption" style="text-align:left">全場提問 · 812 人回答</p>
+    <div class="cw-bars">
+      <div class="cw-bar" style="--m:var(--mood-joy)"><span>開心</span><span class="cw-bar__track"><span class="cw-bar__fill" style="display:block;width:41%"></span></span><span class="cw-bar__pct">41%</span></div>
+      <div class="cw-bar" style="--m:var(--mood-love)"><span>愛</span><span class="cw-bar__track"><span class="cw-bar__fill" style="display:block;width:27%"></span></span><span class="cw-bar__pct">27%</span></div>
+      <div class="cw-bar" style="--m:var(--mood-passion)"><span>熱情</span><span class="cw-bar__track"><span class="cw-bar__fill" style="display:block;width:17%"></span></span><span class="cw-bar__pct">17%</span></div>
+    </div>
+    <button class="cw-btn cw-btn--danger" type="button">結束活動</button>
+  </div>
+
+  <div class="cw-glass" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <span class="cw-ico cw-ico--lg i-handoff" style="color:var(--aurora-blue);margin:0 auto"></span>
+    <h3 class="cw-glass__title" style="margin:0">把主持人交給「小雨🌈」？</h3>
+    <p class="cw-glass__body">對方 5 分鐘內同意就由他主持，公告與提問都會留著，你會變回參加者。</p>
+    <button class="cw-btn" type="button">公開交棒（通知所有人）</button>
+    <button class="cw-btn cw-btn--ghost" type="button">安靜交棒（不通知）</button>
+    <button class="cw-btn cw-btn--text" type="button">取消</button>
+  </div>
+</div>
+</body>
+</html>

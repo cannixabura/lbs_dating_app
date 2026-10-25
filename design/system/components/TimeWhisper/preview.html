@@ -1,0 +1,48 @@
+<!-- @dsCard group="Whispers" height=760 subtitle="Writing to your future self, the sealed and unsealed markers, the read-once reader, and the list in settings" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>TimeWhisper</title></head>
+<body>
+
+<div class="cw-stage cw-stage--center" style="gap:16px">
+  <form class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px" onsubmit="event.preventDefault()">
+    <span class="cw-ico cw-ico--lg i-hourglass" style="color:var(--aurora-violet);margin:0 auto"></span>
+    <h3 class="cw-glass__title" style="margin:0">低語穿越</h3>
+    <p class="cw-glass__body">寫給未來的自己。時間到了，回到這裡才能打開。</p>
+    <div class="cw-segment"><button type="button" aria-pressed="false">給經過的人</button><button type="button" aria-pressed="true">寄給未來的自己</button></div>
+    <div class="cw-segment"><button type="button" aria-pressed="true">一個月後</button><button type="button" aria-pressed="false">一年後</button></div>
+    <label class="cw-field"><span class="cw-field__label">寫給未來的自己</span>
+      <textarea class="cw-textarea" maxlength="120">希望那時的你，已經不用再加班到這麼晚。</textarea></label>
+    <span class="cw-field__count">19/120</span>
+    <p class="cw-caption">只有你看得到 · 一個月後解封並通知你 · 回到 100 公尺內打開</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="cw-btn cw-btn--ghost" type="button">取消</button>
+      <button class="cw-btn" type="submit">封存在這裡</button>
+    </div>
+  </form>
+
+  <div style="display:flex;flex-direction:column;gap:16px;width:300px">
+    <div class="cw-map" style="position:relative;width:300px;height:220px;border-radius:24px">
+      <span class="cw-sealed" style="left:60px;top:50px"><span class="cw-ico i-lock"></span></span>
+      <span class="cw-sealed cw-sealed--open" style="left:200px;top:70px"><span class="cw-ico i-unlock"></span></span>
+      <span class="cw-envelope" style="left:120px;top:96px;--m:var(--mood-calm)"><span class="cw-ico i-mail"></span></span>
+      <span class="cw-me" style="left:139px;top:170px"></span>
+    </div>
+    <div class="cw-glass" style="display:flex;flex-direction:column;gap:4px">
+      <h3 class="cw-glass__title" style="margin:0 0 8px">我的低語穿越</h3>
+      <div class="cw-row"><span class="cw-ico i-lock" style="color:var(--ink-faint)"></span><span class="cw-row__text">封存中<span class="cw-row__sub">2026/11/23 解封 · 寫於 2026/10/24</span></span><span class="cw-ico cw-ico--sm i-trash" style="color:var(--ink-faint)"></span></div>
+      <div class="cw-row"><span class="cw-ico i-unlock" style="color:var(--aurora-violet)"></span><span class="cw-row__text">已經可以打開了<span class="cw-row__sub">已解封 · 距離你 350 公尺</span></span><span class="cw-ico cw-ico--sm i-trash" style="color:var(--ink-faint)"></span></div>
+    </div>
+  </div>
+
+  <div class="cw-glass cw-glass--glow" style="width:300px;display:flex;flex-direction:column;gap:12px">
+    <span class="cw-ico cw-ico--lg i-unlock" style="color:var(--aurora-violet);margin:0 auto"></span>
+    <h3 class="cw-glass__title" style="margin:0">一個月前的你，在這裡說</h3>
+    <p class="cw-caption">寫於 2026/10/24</p>
+    <div class="cw-whisper" style="--m:var(--aurora-violet);box-shadow:0 0 18px rgba(180,76,255,.25)">希望那時的你，已經不用再加班到這麼晚。</div>
+    <p class="cw-caption">這封信只會出現這一次。</p>
+    <button class="cw-btn" type="button">收進心裡</button>
+  </div>
+</div>
+</body>
+</html>

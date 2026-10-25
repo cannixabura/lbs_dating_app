@@ -342,3 +342,57 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
   .cw-burst { display: none; }
   .cw-ring { transition: none; }
 }
+
+/* ---------- icons added with Gathering, Beacon and TimeWhisper ---------- */
+.i-lock { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'><rect x='5' y='10.5' width='14' height='10' rx='2'/><path d='M8 10.5V8a4 4 0 0 1 8 0v2.5'/><path d='M12 14.5v2.5' stroke-linecap='round'/></svg>"); }
+.i-unlock { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'><rect x='5' y='10.5' width='14' height='10' rx='2'/><path d='M8 10.5V8a4 4 0 0 1 7.6-1.7'/><path d='M12 14.5v2.5' stroke-linecap='round'/></svg>"); }
+.i-megaphone { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'><path d='M4 10v4h3l8 4.5v-13L7 10z'/><path d='M7 14l1.5 5h2.5l-1-4.4'/><path d='M18 9.5a3.5 3.5 0 0 1 0 5' stroke-linecap='round'/></svg>"); }
+.i-wc { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='7' cy='4.5' r='1.5'/><circle cx='17' cy='4.5' r='1.5'/><path d='M7 8v12M4.5 8h5v6M4.5 8v6'/><path d='M17 8l-3 8h6l-3-8zM15.5 16v4M18.5 16v4'/></svg>"); }
+.i-people { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='2.5'/><circle cx='16' cy='8' r='2.5'/><path d='M3.5 19a4.5 4.5 0 0 1 9 0M11.5 19a4.5 4.5 0 0 1 9 0'/></svg>"); }
+.i-accessible { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='4' r='1.5'/><path d='M10 7v6h6l2 5'/><path d='M10 9.5h5'/><path d='M7.5 10.5a5 5 0 1 0 7 6.5'/></svg>"); }
+.i-stroller { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 5h2.5l2 9h10l2-6H7'/><circle cx='9' cy='18.5' r='1.5'/><circle cx='16' cy='18.5' r='1.5'/></svg>"); }
+.i-walk { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='13' cy='4' r='1.5'/><path d='M9 21l3-7 3 3v4M12 14l1-6-4 2-1 3M13 8l2 3h3'/></svg>"); }
+.i-handoff { --i: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 8h12l-3-3M20 16H8l3 3'/></svg>"); }
+
+/* ---------- Gathering: host ring, pinned banner, host panel ---------- */
+.cw-host { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: 132px; }
+.cw-host__ring { width: 46px; height: 46px; border-radius: 50%; padding: 5px;
+  background: conic-gradient(var(--aurora-violet), var(--aurora-blue), var(--aurora-violet)); box-shadow: 0 0 14px rgba(79, 195, 247, 0.45); }
+.cw-host__ring > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--night-700); color: var(--ink-muted); }
+.cw-host__caption { margin-top: var(--space-2); font-size: 12px; line-height: 16px; letter-spacing: 1px; color: var(--ink-faint); white-space: nowrap; }
+.cw-host__caption b { font-weight: 500; color: var(--aurora-blue); }
+.cw-banner { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--glass-fill); border: 1px solid var(--glass-line);
+  box-shadow: var(--lift); display: flex; flex-direction: column; gap: var(--space-1); }
+.cw-banner__head { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 20px; }
+.cw-banner__head b { font-weight: 600; color: var(--ink); }
+.cw-banner__head small { flex: 1; color: var(--ink-faint); font-size: 12px; letter-spacing: 1px; }
+.cw-banner__text { font-size: 15px; line-height: 1.6; color: var(--ink); overflow-wrap: anywhere; }
+.cw-banner__ask { font-size: 14px; line-height: 1.6; color: var(--aurora-blue); }
+
+/* ---------- Beacon: toilet markers, toggle and filters ---------- */
+.cw-beacon { position: absolute; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px;
+  background: var(--night-800); border: 1.2px solid var(--aurora-blue); color: var(--aurora-blue); box-shadow: 0 0 8px rgba(79, 195, 247, 0.35); }
+.cw-beacon .cw-ico { width: 15px; height: 15px; }
+.cw-beacon--flagged { border-color: var(--ink-faint); color: var(--ink-faint); box-shadow: none; }
+.cw-beacon-toggle, .cw-beacon-filter { display: inline-flex; align-items: center; gap: var(--space-1); border-radius: var(--radius-pill);
+  background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink-muted); font: 400 13px/1 var(--font-sans); letter-spacing: 1px; }
+.cw-beacon-toggle { height: 44px; padding: 0 var(--space-3); }
+.cw-beacon-toggle .cw-ico, .cw-beacon-filter .cw-ico { width: 17px; height: 17px; }
+.cw-beacon-toggle[aria-pressed="true"] { border-color: var(--aurora-blue); color: var(--ink); box-shadow: 0 0 14px rgba(79, 195, 247, 0.4); }
+.cw-beacon-toggle[aria-pressed="true"] .cw-ico { color: var(--aurora-blue); }
+.cw-beacon-filter { height: 36px; padding: 0 var(--space-3); }
+.cw-beacon-filter[aria-pressed="true"] { background: rgba(79, 195, 247, 0.22); border-color: var(--aurora-blue); color: var(--ink); }
+.cw-beacon-filter[aria-pressed="true"] .cw-ico { color: var(--aurora-blue); }
+.cw-feature { display: inline-flex; align-items: center; gap: var(--space-1); padding: 6px var(--space-3); border-radius: var(--radius-pill);
+  border: 1px solid var(--aurora-blue); color: var(--ink); font-size: 13px; }
+.cw-feature .cw-ico { width: 16px; height: 16px; color: var(--aurora-blue); }
+
+/* ---------- TimeWhisper: segments and the sealed marker ---------- */
+.cw-segment { display: flex; padding: 3px; border-radius: var(--radius-pill); background: var(--night-700); border: 1px solid var(--glass-line); }
+.cw-segment button { flex: 1; min-height: 40px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--ink-muted);
+  font: 500 14px/1 var(--font-sans); letter-spacing: 1px; cursor: pointer; }
+.cw-segment button[aria-pressed="true"] { background: linear-gradient(90deg, var(--deep-violet), var(--deep-blue)); color: var(--on-deep); }
+.cw-sealed { position: absolute; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; opacity: .75; pointer-events: none;
+  background: var(--night-800); border: 1.2px solid var(--ink-faint); color: var(--ink-faint); }
+.cw-sealed .cw-ico { width: 14px; height: 14px; }
+.cw-sealed--open { border-color: var(--aurora-violet); color: var(--aurora-violet); box-shadow: 0 0 10px rgba(180, 76, 255, 0.45); }

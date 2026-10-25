@@ -104,6 +104,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/cards/
     - assets/audio/knock.mp3
     - assets/map/night_style.json
   # 🌟 新增這裡：宣告我們要使用的 Fragment Shader 檔案

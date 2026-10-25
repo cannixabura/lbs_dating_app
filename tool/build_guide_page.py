@@ -19,6 +19,26 @@ ICONS = {
 }
 
 
+# 每一節搭配的插畫（hosting/img/features/），依標題關鍵字對應
+IMAGES = [
+    ("雷達", "radar", "男生坐在高處看著城市，手機雷達上浮著不同心情的氣泡"),
+    ("敲門", "knock", "河堤步道上，男生對前方走過的女生輕輕敲門"),
+    ("微光", "resonance", "女生坐在長椅上，一顆粉紅色的光心從手機飄向夜空"),
+    ("低語", "whisper", "女生在河堤欄杆上放下一封發光的信"),
+    ("城市心情天氣", "mood-weather", "城市上空浮著一朵由不同心情顏色組成的雲"),
+    ("集會", "gathering", "一群人圍坐在河邊聊天，頭上浮著集會的圖示"),
+    ("城市燈塔", "beacon", "河濱公園的無障礙廁所，上方有發光的定位標記"),
+    ("心情卡", "mood-card", "女生拿著一張發光的城市明信片"),
+]
+
+
+def image_for(title):
+    for key, name, alt in IMAGES:
+        if key in title:
+            return name, alt
+    return None
+
+
 def parse(source):
     intro = re.search(r"child: Text\('([^']+)', style: Night\.body\)", source).group(1)
     body = source[source.index("_sections"):source.index("];", source.index("_sections"))]
@@ -47,7 +67,9 @@ def render(intro, sections):
             extra = '\n      <p class="more"><a href="gathering.html">集會指南：情境、畫面與常見問題 →</a></p>'
         if "城市心情天氣" in title:
             extra = '\n      <p class="more"><a href="mood.html">今晚的台灣心情：全台各區的心情地圖 →</a></p>'
-        blocks.append(f"""    <section class="sec" id="s{n}">
+        img = image_for(title)
+        figure = f'\n      <img class="art" src="img/features/{img[0]}.webp" alt="{html.escape(img[1])}" loading="lazy" width="720" height="1280">' if img else ""
+        blocks.append(f"""    <section class="sec{' has-art' if img else ''}" id="s{n}">{figure}
       <h2><span class="ico" aria-hidden="true">{ICONS.get(icon, "•")}</span>{html.escape(title)}</h2>
       <ul>
 {items}
@@ -106,6 +128,9 @@ TEMPLATE = """<!doctype html>
   .sec li { position: relative; padding-left: 16px; margin-bottom: 10px; color: var(--ink-muted); line-height: 1.8; font-size: 15px; }
   .sec li::before { content: ""; position: absolute; left: 0; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--aurora-blue); }
   .more { margin: 0 0 14px; font-size: 14px; }
+  .art { display: block; width: 100%; height: auto; max-width: 240px; margin: 0 auto 16px; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 16px; border: 1px solid var(--glass-line); }
+  .sec::after { content: ""; display: block; clear: both; }
+  @media (min-width: 640px) { .art { float: right; width: 180px; margin: 0 0 12px 20px; } }
   footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
   footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
   footer a { color: var(--ink-muted); text-decoration: none; }

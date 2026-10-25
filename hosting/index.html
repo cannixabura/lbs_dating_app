@@ -67,7 +67,9 @@
   .card figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 17px; margin-bottom: 2px; }
 
   .more-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .more-grid a { display: block; padding: 18px 20px; border-radius: 20px; background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); text-decoration: none; }
+  .more-grid a { display: block; border-radius: 20px; overflow: hidden; background: var(--glass-fill); border: 1px solid var(--glass-line); color: var(--ink); text-decoration: none; }
+  .more-grid img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: cover; }
+  .more-grid .txt { display: block; padding: 14px 18px 18px; }
   .more-grid a:hover, .more-grid a:focus-visible { border-color: var(--aurora-violet); }
   .more-grid b { display: block; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
   .more-grid span { color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
@@ -129,12 +131,12 @@
     <h2 id="more">城市裡還有這些</h2>
     <p class="sub">除了心情氣泡與敲門，夜裡的城市還藏著更多溫柔的角落。</p>
     <div class="more-grid">
-      <a href="guide.html#s5"><b>✦ 微光</b><span>雙擊別人的氣泡，讓對方知道有人看見了。不用開口，對方也不會知道是誰。</span></a>
-      <a href="guide.html#s6"><b>✉ 低語</b><span>在你走過的地方留下一句話，接下來 7 天經過的人都讀得到。</span></a>
-      <a href="guide.html#s6"><b>⌛ 低語穿越</b><span>寫給一個月或一年後的自己。時間到了，回到那裡才能打開，讀過一次就消失。</span></a>
-      <a href="mood.html"><b>◐ 今晚的台灣心情</b><span>全台各區此刻最多的心情，只有比例、沒有任何個人資料。</span></a>
-      <a href="gathering.html"><b>📣 集會</b><span>遊行、跨年、帶團都適用：主持人一則公告，5 公里內的參加者都收得到。</span></a>
-      <a href="guide.html#s9"><b>🚻 城市燈塔</b><span>找到附近的性別友善、無障礙與親子廁所，資料來自環境部，每月更新。</span></a>
+      <a href="guide.html#s5"><img src="img/features/resonance.webp" alt="女生坐在河堤長椅上，一顆粉紅色的光心從手機飄向夜空" loading="lazy" width="720" height="1280"><span class="txt"><b>✦ 微光</b><span>雙擊別人的氣泡，讓對方知道有人看見了。不用開口，對方也不會知道是誰。</span></span></a>
+      <a href="guide.html#s6"><img src="img/features/whisper.webp" alt="女生在河堤欄杆上放下一封發光的信" loading="lazy" width="720" height="1280"><span class="txt"><b>✉ 低語</b><span>在你走過的地方留下一句話，接下來 7 天經過的人都讀得到。</span></span></a>
+      <a href="guide.html#s6"><img src="img/features/time-whisper.webp" alt="女生坐在銀杏樹下，捧著裝著信的玻璃瓶" loading="lazy" width="720" height="1280"><span class="txt"><b>⌛ 低語穿越</b><span>寫給一個月或一年後的自己。時間到了，回到那裡才能打開，讀過一次就消失。</span></span></a>
+      <a href="mood.html"><img src="img/features/mood-weather.webp" alt="城市上空浮著一朵由不同心情顏色組成的雲" loading="lazy" width="720" height="1280"><span class="txt"><b>◐ 今晚的台灣心情</b><span>全台各區此刻最多的心情，只有比例、沒有任何個人資料。</span></span></a>
+      <a href="gathering.html"><img src="img/features/gathering.webp" alt="一群人圍坐在河邊的戶外座位聊天，頭上浮著集會的圖示" loading="lazy" width="720" height="1280"><span class="txt"><b>📣 集會</b><span>遊行、跨年、帶團都適用：主持人一則公告，5 公里內的參加者都收得到。</span></span></a>
+      <a href="guide.html#s9"><img src="img/features/beacon.webp" alt="河濱公園的無障礙廁所，上方有發光的定位標記" loading="lazy" width="720" height="1280"><span class="txt"><b>🚻 城市燈塔</b><span>找到附近的性別友善、無障礙與親子廁所，資料來自環境部，每月更新。</span></span></a>
     </div>
     <p class="guide-link"><a href="guide.html">看完整的操作說明 →</a></p>
   </section>

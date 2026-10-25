@@ -154,7 +154,7 @@ class BeaconMarker extends StatelessWidget {
   }
 }
 
-/// 地圖右下角的燈塔開關；打開時上方列出三種篩選
+/// 地圖左下角的燈塔開關：關閉時只有圖示與橢圓外框，打開後顯示圖示與數量，上方列出三種篩選（只有圖示）
 class BeaconControls extends StatelessWidget {
   final bool on;
   final Set<BeaconFeature> filters;
@@ -165,21 +165,21 @@ class BeaconControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
-      if (on) ...[
+    return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
+      if (on)
         for (final f in BeaconFeature.values) ...[
-          _FilterChip(feature: f, selected: filters.contains(f), onTap: () => onFilter(f)),
+          _FilterButton(feature: f, selected: filters.contains(f), onTap: () => onFilter(f)),
           const SizedBox(height: Night.space2),
         ],
-      ],
       Semantics(
         button: true,
         toggled: on,
-        label: on ? '關閉城市燈塔（友善廁所）' : '打開城市燈塔（友善廁所）',
+        label: on ? '關閉城市燈塔（友善廁所），附近 $count 間' : '打開城市燈塔（友善廁所）',
         child: GestureDetector(
           onTap: onToggle,
           child: Container(
             height: 44,
+            constraints: const BoxConstraints(minWidth: 56),
             padding: const EdgeInsets.symmetric(horizontal: Night.space3),
             decoration: BoxDecoration(
               color: Night.glassFill,
@@ -187,10 +187,12 @@ class BeaconControls extends StatelessWidget {
               border: Border.all(color: on ? beaconColor : Night.glassLine),
               boxShadow: on ? [BoxShadow(color: beaconColor.withOpacity(0.4), blurRadius: 14)] : null,
             ),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.wc, size: 18, color: on ? beaconColor : Night.inkMuted),
-              const SizedBox(width: Night.space1),
-              Text(on ? '燈塔 · $count' : '燈塔', style: TextStyle(color: on ? Night.ink : Night.inkMuted, fontSize: 13, letterSpacing: 1)),
+            child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.wc, size: 20, color: on ? beaconColor : Night.inkMuted),
+              if (on) ...[
+                const SizedBox(width: Night.space1),
+                Text('· $count', style: const TextStyle(color: Night.ink, fontSize: 14, letterSpacing: 1)),
+              ],
             ]),
           ),
         ),
@@ -199,11 +201,11 @@ class BeaconControls extends StatelessWidget {
   }
 }
 
-class _FilterChip extends StatelessWidget {
+class _FilterButton extends StatelessWidget {
   final BeaconFeature feature;
   final bool selected;
   final VoidCallback onTap;
-  const _FilterChip({required this.feature, required this.selected, required this.onTap});
+  const _FilterButton({required this.feature, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -211,21 +213,19 @@ class _FilterChip extends StatelessWidget {
       button: true,
       selected: selected,
       label: '只看${feature.label}',
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 36,
-          padding: const EdgeInsets.symmetric(horizontal: Night.space3),
-          decoration: BoxDecoration(
-            color: selected ? beaconColor.withOpacity(0.22) : Night.glassFill,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? beaconColor : Night.glassLine),
+      child: Tooltip(
+        message: feature.label,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: 44, height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: selected ? beaconColor.withOpacity(0.22) : Night.glassFill,
+              border: Border.all(color: selected ? beaconColor : Night.glassLine),
+            ),
+            child: Icon(feature.icon, size: 20, color: selected ? beaconColor : Night.inkMuted),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(feature.icon, size: 16, color: selected ? beaconColor : Night.inkMuted),
-            const SizedBox(width: Night.space1),
-            Text(feature.label, style: TextStyle(color: selected ? Night.ink : Night.inkMuted, fontSize: 13)),
-          ]),
         ),
       ),
     );

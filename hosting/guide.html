@@ -48,6 +48,9 @@
   .sec li { position: relative; padding-left: 16px; margin-bottom: 10px; color: var(--ink-muted); line-height: 1.8; font-size: 15px; }
   .sec li::before { content: ""; position: absolute; left: 0; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--aurora-blue); }
   .more { margin: 0 0 14px; font-size: 14px; }
+  .art { display: block; width: 100%; height: auto; max-width: 240px; margin: 0 auto 16px; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 16px; border: 1px solid var(--glass-line); }
+  .sec::after { content: ""; display: block; clear: both; }
+  @media (min-width: 640px) { .art { float: right; width: 180px; margin: 0 0 12px 20px; } }
   footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--night-600); color: var(--ink-faint); font-size: 13px; line-height: 2; }
   footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
   footer a { color: var(--ink-muted); text-decoration: none; }
@@ -97,7 +100,8 @@
         <li>最右邊的調整圖示：打開設定。</li>
       </ul>
     </section>
-    <section class="sec" id="s3">
+    <section class="sec has-art" id="s3">
+      <img class="art" src="img/features/radar.webp" alt="男生坐在高處看著城市，手機雷達上浮著不同心情的氣泡" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">◎</span>3. 雷達與氣泡</h2>
       <ul>
         <li>雷達上會浮現 5 公里內其他人的心情氣泡，只顯示分級的距離（例如「100m 內」），不顯示地址。</li>
@@ -108,7 +112,8 @@
         <li>附近都沒有人時，畫面下方會出現「你是今晚第一道光」，可以邀請朋友一起點亮街區。</li>
       </ul>
     </section>
-    <section class="sec" id="s4">
+    <section class="sec has-art" id="s4">
+      <img class="art" src="img/features/knock.webp" alt="河堤步道上，男生對前方走過的女生輕輕敲門" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">✋</span>4. 敲門與聊天</h2>
       <ul>
         <li>長按別人的氣泡 →「敲門」。對方有 5 分鐘可以回應：同意、婉拒或略過。等待時，你會看到一道光從你流向對方。</li>
@@ -117,14 +122,16 @@
         <li>有人敲你的門時，會跳出敲門卡片，可以同意、婉拒、略過，或直接檢舉。</li>
       </ul>
     </section>
-    <section class="sec" id="s5">
+    <section class="sec has-art" id="s5">
+      <img class="art" src="img/features/resonance.webp" alt="女生坐在長椅上，一顆粉紅色的光心從手機飄向夜空" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">✦</span>5. 微光</h2>
       <ul>
         <li>雙擊別人的氣泡，或長按選「送出一道微光」，讓對方知道有人看見了，不需要開口。</li>
         <li>對方只會看到「今晚 N 道微光與你共鳴」，永遠不知道是誰送的。同一個人 24 小時內只能送一次。</li>
       </ul>
     </section>
-    <section class="sec" id="s6">
+    <section class="sec has-art" id="s6">
+      <img class="art" src="img/features/whisper.webp" alt="女生在河堤欄杆上放下一封發光的信" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">✉</span>6. 低語</h2>
       <ul>
         <li>按底部選單的筆記圖示，在你所在的地方留下一句話（最多 60 個字）。</li>
@@ -133,7 +140,8 @@
         <li>低語穿越：寫低語時選「寄給未來的自己」，再選一個月後或一年後。只有你看得到；時間到了會通知你，回到那裡 100 公尺內就會自動打開，讀過一次就會消失。雷達上只有你看得到一個小沙漏（上鎖／解鎖），不能點。每人同時最多 5 封，設定 →「我的低語穿越」可以查看或刪除。</li>
       </ul>
     </section>
-    <section class="sec" id="s7">
+    <section class="sec has-art" id="s7">
+      <img class="art" src="img/features/mood-weather.webp" alt="城市上空浮著一朵由不同心情顏色組成的雲" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">◐</span>7. 城市心情天氣</h2>
       <ul>
         <li>左上角的標籤顯示 20 公里內、24 小時內大家最多的心情；點一下看完整比例。</li>
@@ -141,7 +149,8 @@
       </ul>
       <p class="more"><a href="mood.html">今晚的台灣心情：全台各區的心情地圖 →</a></p>
     </section>
-    <section class="sec" id="s8">
+    <section class="sec has-art" id="s8">
+      <img class="art" src="img/features/gathering.webp" alt="一群人圍坐在河邊聊天，頭上浮著集會的圖示" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">📣</span>8. 集會</h2>
       <ul>
         <li>開活動：設定 → 集會主持人 → 填活動名稱、一個表情符號當圖標、開始與結束時間（最長 24 小時）→ 開始活動。</li>
@@ -154,16 +163,18 @@
       </ul>
       <p class="more"><a href="gathering.html">集會指南：情境、畫面與常見問題 →</a></p>
     </section>
-    <section class="sec" id="s9">
+    <section class="sec has-art" id="s9">
+      <img class="art" src="img/features/beacon.webp" alt="河濱公園的無障礙廁所，上方有發光的定位標記" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">🚻</span>9. 城市燈塔（友善廁所）</h2>
       <ul>
-        <li>點地圖右下角的「燈塔」，雷達上會出現 2 公里內的性別友善、無障礙與親子廁所；可以再點上方的篩選，只看其中幾種。</li>
+        <li>點地圖左下角的廁所圖示打開燈塔，雷達上會出現 2 公里內的性別友善、無障礙與親子廁所，圖示旁會顯示數量；可以再點上方的三個圓形篩選，只看其中幾種。</li>
         <li>點一下標記可以看樓層、設施與距離，按「走路過去」用手機的地圖 App 導航。</li>
         <li>資料來自環境部「全國公廁建檔資料」，每月更新；沒有開放時間，「晚上可能有開」是依場所推估的。</li>
         <li>資料不對時可以回報（不是性別友善、晚上沒開、找不到）；同一種問題有 3 個人回報，標記會變灰並註明。</li>
       </ul>
     </section>
-    <section class="sec" id="s10">
+    <section class="sec has-art" id="s10">
+      <img class="art" src="img/features/mood-card.webp" alt="女生拿著一張發光的城市明信片" loading="lazy" width="720" height="1280">
       <h2><span class="ico" aria-hidden="true">⇪</span>10. 心情卡與心情軌跡</h2>
       <ul>
         <li>底部選單的分享鈕可以把此刻的心情做成一張夜景卡片，適合 IG 限時動態；卡片上不會有你的位置。</li>

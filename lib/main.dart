@@ -1495,7 +1495,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       subtitle: _hostedGathering == null ? '以你為中心 5 公里，開一場活動' : '你正在主持 ${_hostedGathering!.emoji} ${_hostedGathering!.name}',
                       onTap: () => go(_openGatheringHost)),
                   section('分享'),
-                  item(Icons.ios_share, '分享我的心情卡', subtitle: '一張夜景心情卡，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
+                  item(Icons.ios_share, '分享我的心情卡', subtitle: '十一張夜景插畫隨機出現，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
                   section('關於'),
                   item(Icons.menu_book_outlined, '操作說明', subtitle: '從寫下心情到開一場集會，一次看懂', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
@@ -2505,7 +2505,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         ),
                       ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
-                      Positioned(left: 20, bottom: MediaQuery.of(context).padding.bottom + 96, child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      // 放在底部選單下方的空間，不佔地圖
+                      Positioned(left: 20, bottom: max(1.0, MediaQuery.of(context).padding.bottom - 14), child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
                       // 被婉拒、逾時或對方略過：光在對方的位置化成粒子散去
                       if (_dissolveAt != null)
                         Positioned.fill(
@@ -2554,9 +2555,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
                       if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildEmptyRadarCard()),
-                      // 城市燈塔開關與篩選（底部選單右上方）
+                      // 城市燈塔開關與篩選（底部選單左上方）
                       Positioned(
-                        right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
+                        left: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
                         child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
                       ),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),

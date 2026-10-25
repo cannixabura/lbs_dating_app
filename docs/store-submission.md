@@ -84,7 +84,14 @@ Because the radar only shows people within 5 km, we added a review mode so you c
 7. Gatherings: Settings (sliders icon, bottom right) → 集會主持人 creates a 5 km event identified by one emoji. People who add that emoji to their name receive the host's announcements; every announcement has a report button.
 8. Guide: Settings → 操作說明. Delete account: Settings → 刪除帳號與資料 at the bottom.
 
-User-generated content: moods, nicknames, whispers and gathering announcements pass a server-side word and contact-info filter. Reported users or whispers are hidden automatically after 3 reports; gathering announcements are hidden after reports from 10% of participants (at least 10). All reports are reviewed by us within 24 hours. Users must confirm they are 18+ and accept the terms (zero tolerance for objectionable content) before entering.
+User-generated content (Guideline 1.2):
+- Age rating 18+. Users confirm they are 18+ and must accept the terms (EULA) before entering; the terms state zero tolerance for objectionable content and abusive users, with an English summary at the top: https://mood-whisper-f7de9.web.app/terms.html
+- Filtering: moods, nicknames, whispers, chat messages and gathering announcements are filtered for objectionable words and contact details (on the device and again on the server).
+- Flag: every bubble, knock, chat, whisper and gathering announcement has a report button.
+- Block: bubble long-press menu → 封鎖, or the report sheet.
+- Immediate removal: once a report is sent, that person or post disappears from the reporter's screen at once, and a reported chat ends immediately.
+- 24-hour action: reported users or whispers are hidden for everyone after 3 reports; we review every report within 24 hours, remove the content and eject the user.
+- Contact: Settings → 聯絡我們 (service.softchip@gmail.com).
 ```
 
 **Google Play（Play Console →「應用程式內容」→「應用程式存取權」）**

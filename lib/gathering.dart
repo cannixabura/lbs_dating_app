@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import 'gathering_keys.dart';
 import 'report_sheet.dart';
+import 'hidden_content.dart';
 import 'ui/night.dart';
 
 /// 集會：任何人都能以自己的位置為中心，開一場 5 公里內的活動，用一個表情符號識別。
@@ -508,12 +509,14 @@ class GatheringBanner extends StatefulWidget {
 class _GatheringBannerState extends State<GatheringBanner> {
   bool _collapsed = false;
   final _answer = TextEditingController();
+
+  void _refresh() { if (mounted) setState(() {}); }
   bool _busy = false;
   String? _answeredQid; // 這次開啟期間已回答的問題
   StreamSubscription<DatabaseEvent>? _answeredSub;
 
   @override
-  void initState() { super.initState(); _watchAnswered(); }
+  void initState() { super.initState(); _watchAnswered(); HiddenContent.instance.addListener(_refresh); }
 
   @override
   void didUpdateWidget(GatheringBanner old) {
@@ -533,7 +536,7 @@ class _GatheringBannerState extends State<GatheringBanner> {
   }
 
   @override
-  void dispose() { _answeredSub?.cancel(); _answer.dispose(); super.dispose(); }
+  void dispose() { HiddenContent.instance.removeListener(_refresh); _answeredSub?.cancel(); _answer.dispose(); super.dispose(); }
 
   Future<void> _send() async {
     final g = widget.gathering;
@@ -603,7 +606,9 @@ class _GatheringBannerState extends State<GatheringBanner> {
               const SizedBox(height: 4),
             ],
             if (g.latestText != null) ...[
-              Text(g.latestText!, style: const TextStyle(color: Night.ink, fontSize: 15, height: 1.5), maxLines: 4, overflow: TextOverflow.ellipsis),
+              HiddenContent.instance.isAnnouncementHidden(g.id, g.latestId)
+                  ? const Text('你檢舉了這則公告，已從你的畫面移除。', style: Night.caption)
+                  : Text(g.latestText!, style: const TextStyle(color: Night.ink, fontSize: 15, height: 1.5), maxLines: 4, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 2),
               Text(g.latestAt == null ? '' : _ago(g.latestAt!), style: Night.caption),
             ] else

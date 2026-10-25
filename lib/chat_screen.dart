@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'content_filter.dart';
 import 'report_sheet.dart';
 import 'ui/night.dart';
 
@@ -157,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final msgData = {
       'sender': widget.myUid,
       'senderName': widget.myName, 
-      'text': _messageController.text.trim(),
+      'text': maskBlockedTerms(_messageController.text.trim()), // 不當字詞與聯絡方式先遮掉，伺服器會再檢查一次
       'timestamp': ServerValue.timestamp,
     };
 
@@ -225,8 +226,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       targetName: widget.targetName,
       reportContext: ReportContext.chat,
     );
-    // 選擇同時封鎖時，立刻結束這場交集
-    if (result != null && result.blocked && mounted) _manualLeave(reason: '已封鎖對方，交集結束。');
+    // 檢舉後立刻結束這場交集，對方的訊息從畫面消失（App Store 1.2）
+    if (result != null && mounted) _manualLeave(reason: result.blocked ? '已封鎖對方，交集結束。' : '已檢舉對方，交集結束。');
   }
 
   void _cancelAllTimers() {

@@ -39,6 +39,7 @@ import 'guide_screen.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
+import 'hidden_content.dart';
 import 'ui/knock_ritual.dart';
 import 'ui/night.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -189,7 +190,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Gathering? get _joinedGathering {
     final pos = _currentPosition;
     if (pos == null) return null;
-    final joined = _gatherings.where((g) => g.hostUid != widget.uid && !_blockedUids.contains(g.hostUid) && !_blockedByUids.contains(g.hostUid) && g.includes(_myNickname, pos.latitude, pos.longitude)).toList()
+    final joined = _gatherings.where((g) => g.hostUid != widget.uid && !_blockedUids.contains(g.hostUid) && !_blockedByUids.contains(g.hostUid) && !HiddenContent.instance.users.contains(g.hostUid) && g.includes(_myNickname, pos.latitude, pos.longitude)).toList()
       ..sort((a, b) => a.distanceKmFrom(pos.latitude, pos.longitude).compareTo(b.distanceKmFrom(pos.latitude, pos.longitude)));
     return joined.isEmpty ? null : joined.first;
   }
@@ -323,6 +324,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _loadProfileData(); 
     _coolingSystem.loadRejections();
     _loadBeaconPrefs();
+    HiddenContent.instance.addListener(_onHiddenContentChanged);
+    HiddenContent.instance.load();
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
@@ -825,7 +828,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   Future<void> _fetchWhispers() async {
     if (_currentPosition == null || !_isInForeground) return;
-    final list = await WhisperApi.list(_currentPosition!.latitude, _currentPosition!.longitude);
+    final list = (await WhisperApi.list(_currentPosition!.latitude, _currentPosition!.longitude))
+        .where((w) => !HiddenContent.instance.whispers.contains(w.id)) // 檢舉過的低語不再出現
+        .toList();
     if (!mounted) return;
     final fresh = list.where((w) => !w.mine && !_seenWhisperIds.contains(w.id)).toList();
     _seenWhisperIds.addAll(list.map((w) => w.id));
@@ -849,6 +854,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       showGlassToast(context, '已封存。${result == 'year' ? '一年' : '一個月'}後，回到這裡就能打開。', icon: Icons.hourglass_bottom);
       _fetchTimeWhispers();
     }
+  }
+
+  /// 檢舉後立刻把那個人、那則低語從畫面移除，不等下一次更新
+  void _onHiddenContentChanged() {
+    if (!mounted) return;
+    final hidden = HiddenContent.instance;
+    _activeUsersNotifier.value = _activeUsersNotifier.value.where((u) => !hidden.users.contains(u['uid'])).toList();
+    setState(() {
+      _whispers = _whispers.where((w) => !hidden.whispers.contains(w.id)).toList(); // 集會的置頂公告由 build 依隱藏清單重新判斷
+    });
   }
 
   // ---------- 城市燈塔 ----------
@@ -1041,6 +1056,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     for (var user in rawData) {
       if (user['uid'] == widget.uid) continue;
       if (_blockedUids.contains(user['uid']) || _blockedByUids.contains(user['uid'])) continue;
+      if (HiddenContent.instance.users.contains(user['uid'])) continue; // 檢舉過的人，立刻從自己的雷達移除
 
       // 狀態由伺服器判定（active / inactive / shadow），殘影留存時間依當地密度而定
       final String status = user['status'] ?? 'active';
@@ -1101,6 +1117,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       data.forEach((senderUidRaw, requestData) {
         final String senderUid = senderUidRaw.toString();
         if (_blockedUids.contains(senderUid) || _blockedByUids.contains(senderUid)) return;
+        if (HiddenContent.instance.users.contains(senderUid)) return;
         
         String status = '';
         String knockerName = '';
@@ -2349,6 +2366,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   @override
   void dispose() {
+    HiddenContent.instance.removeListener(_onHiddenContentChanged);
     _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();

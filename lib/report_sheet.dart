@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+import 'hidden_content.dart';
 import 'ui/night.dart';
 
 /// 檢舉的來源，對應資料庫規則允許的值。
@@ -51,8 +52,10 @@ Future<ReportResult?> showReportSheet(
     barrierColor: const Color(0x99070B1F),
     builder: (_) => _ReportSheet(myUid: myUid, targetUid: targetUid, targetName: targetName, reportContext: reportContext, allowBlock: allowBlock),
   );
-  if (result != null && context.mounted) {
-    showGlassToast(context, '已收到你的檢舉，我們會在 24 小時內處理。', icon: Icons.flag_outlined);
+  if (result != null) {
+    // 檢舉送出就立刻從自己的畫面移除，不必等審查
+    await HiddenContent.instance.hideReported(targetUid);
+    if (context.mounted) showGlassToast(context, '已收到檢舉，已從你的畫面移除。我們會在 24 小時內處理。', icon: Icons.flag_outlined);
   }
   return result;
 }

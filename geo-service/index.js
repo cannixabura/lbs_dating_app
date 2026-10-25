@@ -11,7 +11,7 @@ const { evaluateReports } = require("./moderation");
 const { fuzzLocation } = require("./fuzz");
 const citymood = require("./citymood");
 const whisper = require("./whisper");
-const { maskBlockedTerms } = require("./contentfilter");
+const { maskBlockedTerms, isDisallowed } = require("./contentfilter");
 const demo = require("./demo");
 const betasignup = require("./betasignup");
 const gathering = require("./gathering");
@@ -358,6 +358,11 @@ exports.notifyOnKnock = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databa
 exports.notifyOnChat = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).database.ref('/chats/{roomId}/messages/{msgId}')
   .onCreate(async (snapshot, context) => {
     const msg = snapshot.val(); if (!msg) return null;
+    // 第二道過濾：舊版 App 或繞過 App 寫入的訊息，在這裡遮掉不當字詞與聯絡方式
+    if (isDisallowed(msg.text)) {
+        msg.text = maskBlockedTerms(String(msg.text || ''));
+        await snapshot.ref.child('text').set(msg.text);
+    }
     const senderUid = msg.sender;
     const roomId = context.params.roomId;
     const targetUid = roomId.split('_').find(id => id !== senderUid);

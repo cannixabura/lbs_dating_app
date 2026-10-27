@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
@@ -18,28 +19,28 @@ class _IntroScreenState extends State<IntroScreen> {
   final List<Map<String, String>> _introData = [
     {
       "image": "assets/images/intro_1.png",
-      "title": "沒入這座城市",
-      "description": "拋開繁雜的社交標籤，在極簡的暗黑畫布上，只留下你最真實的情緒與座標。"
+      "title": tr.intro1Title,
+      "description": tr.intro1Body
     },
     {
       "image": "assets/images/intro_2.png",
-      "title": "片刻的交集",
-      "description": "看見附近浮動的心情氣泡？輕輕敲門，與擦肩而過的人產生一期一會的對話。"
+      "title": tr.intro2Title,
+      "description": tr.intro2Body
     },
     {
       "image": "assets/images/intro_3.png",
-      "title": "城市的節奏",
-      "description": "我們在意你的感受。發送敲門後請靜待回音，若無緣交集，300 秒後氣泡將悄悄消散。"
+      "title": tr.intro3Title,
+      "description": tr.intro3Body
     },
     {
       "image": "assets/images/intro_4.png",
-      "title": "溫柔的距離",
-      "description": "不想被打擾？點擊婉拒或封鎖。專屬的冷卻系統會為你隔絕喧囂，還你安靜的角落。"
+      "title": tr.intro4Title,
+      "description": tr.intro4Body
     },
     {
       "image": "assets/images/intro_5.png",
-      "title": "準備好相遇了嗎？",
-      "description": "閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，走進城市低語。"
+      "title": tr.intro5Title,
+      "description": tr.intro5Body
     },
   ];
 
@@ -82,7 +83,7 @@ class _IntroScreenState extends State<IntroScreen> {
                             color: Colors.white12,
                             borderRadius: BorderRadius.circular(20)
                           ),
-                          child: const Center(child: Text("等待載入高清圖片...", style: TextStyle(color: Colors.white38))),
+                          child: Center(child: Text(tr.loadingImage, style: TextStyle(color: Colors.white38))),
                         ),
                       ),
                     ),
@@ -120,7 +121,7 @@ class _IntroScreenState extends State<IntroScreen> {
               top: 50, right: 20,
               child: TextButton(
                 onPressed: _completeIntro,
-                child: const Text("略過", style: TextStyle(color: Night.inkMuted, fontSize: 16)),
+                child: Text(tr.skip, style: TextStyle(color: Night.inkMuted, fontSize: 16)),
               ),
             ),
 
@@ -149,12 +150,12 @@ class _IntroScreenState extends State<IntroScreen> {
                 ),
                 // 按鈕
                 _currentPage == _introData.length - 1
-                    ? NightButton('開始探索', onPressed: _completeIntro)
+                    ? NightButton(tr.startExploring, onPressed: _completeIntro)
                     : IconButton(
                         onPressed: () {
                           _pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.ease);
                         },
-                        tooltip: '下一頁',
+                        tooltip: tr.nextPage,
                         icon: const Icon(Icons.arrow_forward_ios, color: Night.auroraBlue),
                       ),
               ],

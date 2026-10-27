@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
@@ -13,13 +14,13 @@ class _Reason {
   const _Reason(this.code, this.label);
 }
 
-const _reasons = [
-  _Reason('harassment', '騷擾或霸凌'),
-  _Reason('sexual', '色情或性暗示'),
-  _Reason('scam', '詐騙或廣告'),
-  _Reason('hate', '仇恨或暴力言論'),
-  _Reason('impersonation', '冒充他人'),
-  _Reason('other', '其他'),
+List<_Reason> get _reasons => [
+  _Reason('harassment', tr.reasonHarassment),
+  _Reason('sexual', tr.reasonSexual),
+  _Reason('scam', tr.reasonScam),
+  _Reason('hate', tr.reasonHate),
+  _Reason('impersonation', tr.reasonImpersonation),
+  _Reason('other', tr.reasonOther),
 ];
 
 /// 檢舉結果：送出後是否同時封鎖了對方。
@@ -55,7 +56,7 @@ Future<ReportResult?> showReportSheet(
   if (result != null) {
     // 檢舉送出就立刻從自己的畫面移除，不必等審查
     await HiddenContent.instance.hideReported(targetUid);
-    if (context.mounted) showGlassToast(context, '已收到檢舉，已從你的畫面移除。我們會在 24 小時內處理。', icon: Icons.flag_outlined);
+    if (context.mounted) showGlassToast(context, tr.reportReceived, icon: Icons.flag_outlined);
   }
   return result;
 }
@@ -102,7 +103,7 @@ class _ReportSheetState extends State<_ReportSheet> {
       debugPrint('report failed: $e');
       if (mounted) {
         setState(() => _sending = false);
-        showGlassToast(context, '檢舉沒有送出，請檢查網路後再試一次。', icon: Icons.error_outline, danger: true);
+        showGlassToast(context, tr.reportNotSent, icon: Icons.error_outline, danger: true);
       }
     }
   }
@@ -123,29 +124,29 @@ class _ReportSheetState extends State<_ReportSheet> {
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     const Icon(Icons.flag_outlined, color: Night.danger),
                     const SizedBox(width: Night.space2),
-                    Flexible(child: Text('檢舉 ${widget.targetName}', style: Night.title, overflow: TextOverflow.ellipsis)),
+                    Flexible(child: Text(tr.reportTarget(widget.targetName), style: Night.title, overflow: TextOverflow.ellipsis)),
                   ]),
                   const SizedBox(height: Night.space2),
-                  const Text('你的檢舉不會讓對方知道。請選擇原因：', style: Night.body, textAlign: TextAlign.center),
+                  Text(tr.reportPrivate, style: Night.body, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space3),
                   for (final r in _reasons) _option(r),
                   const SizedBox(height: Night.space4),
-                  const Text('補充說明（選填）', style: Night.caption),
+                  Text(tr.reportDetails, style: Night.caption),
                   const SizedBox(height: Night.space2),
                   TextField(
                     controller: _detail,
                     maxLength: 500,
                     maxLines: 2,
                     style: const TextStyle(color: Night.ink, fontSize: 15),
-                    decoration: _inputDecoration('發生了什麼事？'),
+                    decoration: _inputDecoration(tr.reportWhatHappened),
                   ),
                   if (widget.allowBlock) _blockToggle(),
                   const SizedBox(height: Night.space4),
                   Row(children: [
-                    Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: _sending ? null : () => Navigator.of(context).pop())),
+                    Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: _sending ? null : () => Navigator.of(context).pop())),
                     const SizedBox(width: Night.space2),
                     Expanded(
-                      child: NightButton(_sending ? '送出中…' : '送出檢舉',
+                      child: NightButton(_sending ? tr.sending : tr.sendReport,
                           kind: NightButtonKind.danger, onPressed: _reason == null || _sending ? null : _submit),
                     ),
                   ]),
@@ -188,7 +189,7 @@ class _ReportSheetState extends State<_ReportSheet> {
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _mark(_alsoBlock, round: false),
             const SizedBox(width: Night.space3),
-            const Expanded(child: Text('同時封鎖對方，雙方將從彼此的城市中消失', style: TextStyle(color: Night.inkMuted, fontSize: 14, height: 1.5))),
+            Expanded(child: Text(tr.alsoBlock, style: TextStyle(color: Night.inkMuted, fontSize: 14, height: 1.5))),
           ]),
         ),
       ),

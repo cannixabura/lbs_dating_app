@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ class KnockCountdownPill extends StatelessWidget {
     final ss = (secondsLeft % 60).toString().padLeft(2, '0');
     return Semantics(
       liveRegion: false,
-      label: '正在等待 $targetName 回音，剩下 $mm 分 $ss 秒',
+      label: tr.knockWaitingSemantic(targetName, mm, ss),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space2),
         decoration: BoxDecoration(
@@ -119,7 +120,7 @@ class KnockCountdownPill extends StatelessWidget {
           Icon(Icons.hourglass_bottom_rounded, color: c, size: 18),
           const SizedBox(width: Night.space2),
           Flexible(
-            child: Text('等待 $targetName 回音', style: const TextStyle(color: Night.inkMuted, fontSize: 13), overflow: TextOverflow.ellipsis),
+            child: Text(tr.knockWaiting(targetName), style: const TextStyle(color: Night.inkMuted, fontSize: 13), overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: Night.space2),
           Text('$mm:$ss', style: TextStyle(color: c, fontSize: 16, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()])),

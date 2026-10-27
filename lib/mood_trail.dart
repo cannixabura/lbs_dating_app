@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:convert';
 import 'dart:math';
 
@@ -131,14 +132,14 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
         backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
         child: GlassCard(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const Text('清除心情軌跡', style: Night.title, textAlign: TextAlign.center),
+            Text(tr.clearMoodTrail, style: Night.title, textAlign: TextAlign.center),
             const SizedBox(height: Night.space2),
-            const Text('這支手機上的所有心情軌跡都會刪除，無法復原。', style: Night.body, textAlign: TextAlign.center),
+            Text(tr.clearMoodTrailBody, style: Night.body, textAlign: TextAlign.center),
             const SizedBox(height: Night.space4),
             Row(children: [
-              Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(c, false))),
+              Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(c, false))),
               const SizedBox(width: Night.space2),
-              Expanded(child: NightButton('清除', kind: NightButtonKind.danger, onPressed: () => Navigator.pop(c, true))),
+              Expanded(child: NightButton(tr.clear, kind: NightButtonKind.danger, onPressed: () => Navigator.pop(c, true))),
             ]),
           ]),
         ),
@@ -155,7 +156,7 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
     final recap = MoodTrail.weeklyRecap(_entries);
     final byDay = <String, List<MoodTrailEntry>>{};
     for (final e in _entries.reversed) {
-      byDay.putIfAbsent('${e.at.month} 月 ${e.at.day} 日', () => []).add(e);
+      byDay.putIfAbsent(tr.monthDay(e.at.month, e.at.day), () => []).add(e);
     }
 
     return Scaffold(
@@ -164,30 +165,30 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
         backgroundColor: Night.night900,
         foregroundColor: Night.ink,
         elevation: 0,
-        title: const Text('我的心情軌跡', style: TextStyle(fontSize: 17, letterSpacing: 1)),
+        title: Text(tr.myMoodTrail, style: TextStyle(fontSize: 17, letterSpacing: 1)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Night.space4, 0, Night.space4, Night.space8),
         children: [
-          const Text('只存在你的手機上，不會上傳到任何地方。', style: Night.caption, textAlign: TextAlign.center),
+          Text(tr.moodTrailLocalOnly, style: Night.caption, textAlign: TextAlign.center),
           const SizedBox(height: Night.space4),
           GlassCard(
             child: recap.total == 0
-                ? const Text('這週還沒有心情軌跡。每次寫下心情、或走到新的地方，這裡都會多一道光。', style: Night.body, textAlign: TextAlign.center)
+                ? Text(tr.moodTrailEmpty, style: Night.body, textAlign: TextAlign.center)
                 : Column(children: [
-                    const Text('這週的你', style: Night.caption),
+                    Text(tr.thisWeekYou, style: Night.caption),
                     const SizedBox(height: Night.space2),
                     Text.rich(
                       TextSpan(style: const TextStyle(color: Night.ink, fontSize: 17, height: 1.6), children: [
-                        const TextSpan(text: '最常感到「'),
+                        TextSpan(text: tr.topMoodPrefix),
                         TextSpan(text: recap.topMood, style: TextStyle(color: moodStyleOf(recap.topMood ?? '').$2, fontWeight: FontWeight.w600)),
-                        TextSpan(text: '」，共 ${recap.topCount} 次'),
+                        TextSpan(text: tr.topMoodSuffix(recap.topCount)),
                       ]),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: Night.space1),
-                    Text('在 ${recap.places} 個不同的地方，留下了 ${recap.total} 道心情', style: Night.body, textAlign: TextAlign.center),
+                    Text(tr.weekPlacesMoods(recap.places, recap.total), style: Night.body, textAlign: TextAlign.center),
                   ]),
           ),
           const SizedBox(height: Night.space4),
@@ -231,11 +232,11 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
           GlassCard(
             padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space2),
             child: Row(children: [
-              const Expanded(
+              Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('記錄我的心情軌跡', style: TextStyle(color: Night.ink, fontSize: 15)),
+                  Text(tr.recordMoodTrail, style: TextStyle(color: Night.ink, fontSize: 15)),
                   SizedBox(height: 2),
-                  Text('關閉後不再記錄新的軌跡', style: Night.caption),
+                  Text(tr.recordMoodTrailOff, style: Night.caption),
                 ]),
               ),
               Switch(
@@ -249,7 +250,7 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
           ),
           if (_entries.isNotEmpty) ...[
             const SizedBox(height: Night.space3),
-            NightButton('清除心情軌跡', kind: NightButtonKind.danger, icon: Icons.delete_outline, onPressed: _confirmClear),
+            NightButton(tr.clearMoodTrail, kind: NightButtonKind.danger, icon: Icons.delete_outline, onPressed: _confirmClear),
           ],
         ],
       ),

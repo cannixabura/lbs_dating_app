@@ -1,14 +1,17 @@
-"""把 App 的操作說明（lib/guide_screen.dart）輸出成官網的 hosting/guide.html。
+"""把 App 的操作說明輸出成官網的 hosting/guide.html。
 
-App 是唯一的來源：改了 guide_screen.dart 之後重新執行這支程式，網站就會一致。
+App 是唯一的來源：文字在 lib/l10n/app_zh.arb（guideIntro、guideS<節>Title、guideS<節>L<句>），
+每一節的圖示在 lib/guide_screen.dart。改了之後重新執行這支程式，網站就會一致。
 用法：python3 tool/build_guide_page.py
 """
 import html
+import json
 import os
 import re
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 SRC = os.path.join(ROOT, "lib", "guide_screen.dart")
+ARB = os.path.join(ROOT, "lib", "l10n", "app_zh.arb")
 OUT = os.path.join(ROOT, "hosting", "guide.html")
 
 # 網頁上每一節的小圖示（App 用 Material Icons，網頁用相近的符號）
@@ -40,13 +43,16 @@ def image_for(title):
 
 
 def parse(source):
-    intro = re.search(r"child: Text\('([^']+)', style: Night\.body\)", source).group(1)
+    arb = json.load(open(ARB, encoding="utf-8"))
     body = source[source.index("_sections"):source.index("];", source.index("_sections"))]
     sections = []
-    for icon, title, lines in re.findall(r"\(Icons\.(\w+), '([^']+)', \[(.*?)\]\)", body, re.S):
-        items = re.findall(r"'((?:[^'\\]|\\.)*)'", lines)
-        sections.append((icon, title, [i.replace("\\'", "'") for i in items]))
-    return intro, sections
+    for icon, n in re.findall(r"\(Icons\.(\w+), tr\.guideS(\d+)Title,", body):
+        lines, i = [], 1
+        while f"guideS{n}L{i}" in arb:
+            lines.append(arb[f"guideS{n}L{i}"])
+            i += 1
+        sections.append((icon, arb[f"guideS{n}Title"], lines))
+    return arb["guideIntro"], sections
 
 
 def link_terms(text):

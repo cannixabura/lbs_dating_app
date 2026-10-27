@@ -1,0 +1,7 @@
+/* 系統權限說明與 App 名稱（Info.plist 的翻譯） */
+"CFBundleDisplayName" = "Mood Whisper";
+"NSPhotoLibraryUsageDescription" = "Mood Whisper reads the photo you choose to set your profile picture.";
+"NSPhotoLibraryAddUsageDescription" = "Mood Whisper saves your mood card to your photo library so you can share it elsewhere.";
+"NSCameraUsageDescription" = "Mood Whisper uses the camera so you can take a photo for your profile picture.";
+"NSLocationWhenInUseUsageDescription" = "Mood Whisper uses your location while you use the app to show people within 5 km on the radar and let people nearby see your mood bubble.";
+"Radar" = "The radar needs your precise location to tell who is near you. Others only see a rough distance, never your address.";

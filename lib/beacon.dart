@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
@@ -18,9 +19,9 @@ enum BeaconFeature { gender, accessible, family }
 
 extension BeaconFeatureInfo on BeaconFeature {
   String get label => switch (this) {
-        BeaconFeature.gender => '性別友善',
-        BeaconFeature.accessible => '無障礙',
-        BeaconFeature.family => '親子',
+        BeaconFeature.gender => tr.beaconGender,
+        BeaconFeature.accessible => tr.beaconAccessible,
+        BeaconFeature.family => tr.beaconFamily,
       };
   IconData get icon => switch (this) {
         BeaconFeature.gender => Icons.diversity_3,
@@ -29,16 +30,16 @@ extension BeaconFeatureInfo on BeaconFeature {
       };
 }
 
-const beaconReportReasons = {
-  'not_gender': '不是性別友善',
-  'closed': '晚上沒開',
-  'missing': '找不到這間廁所',
+Map<String, String> get beaconReportReasons => {
+  'not_gender': tr.beaconReportNotGender,
+  'closed': tr.beaconReportClosed,
+  'missing': tr.beaconReportMissing,
 };
 
-const _flagText = {
-  'not_gender': '有人回報：不是性別友善',
-  'closed': '有人回報：晚上沒開',
-  'missing': '有人回報：找不到',
+Map<String, String> get _flagText => {
+  'not_gender': tr.beaconFlagNotGender,
+  'closed': tr.beaconFlagClosed,
+  'missing': tr.beaconFlagMissing,
 };
 
 class BeaconToilet {
@@ -57,7 +58,7 @@ class BeaconToilet {
 
   BeaconToilet.fromJson(Map<String, dynamic> j)
       : id = j['id'],
-        name = j['name'] ?? '公廁',
+        name = j['name'] ?? tr.beaconDefaultName,
         address = j['address'] ?? '',
         lat = (j['lat'] as num).toDouble(),
         lng = (j['lng'] as num).toDouble(),
@@ -81,7 +82,7 @@ class BeaconToilet {
   IconData get icon => features.first.icon;
 }
 
-String beaconDistance(int m) => m < 1000 ? '$m 公尺' : '${(m / 1000).toStringAsFixed(1)} 公里';
+String beaconDistance(int m) => m < 1000 ? tr.meters(m) : tr.kilometers((m / 1000).toStringAsFixed(1));
 
 class BeaconApi {
   BeaconApi._();
@@ -91,14 +92,14 @@ class BeaconApi {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
       final response = await http.post(
         Uri.parse(_beaconUrl),
-        headers: {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'},
+        headers: {'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'},
         body: jsonEncode(body),
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['success'] == true) return (data, null);
-      return (null, (data['error'] as String?) ?? '城市燈塔暫時無法使用，請稍後再試。');
+      return (null, (data['error'] as String?) ?? tr.beaconUnavailable);
     } catch (_) {
-      return (null, '沒有連上，請檢查網路後再試一次。');
+      return (null, tr.notConnectedCheckNetwork);
     }
   }
 
@@ -130,7 +131,7 @@ class BeaconMarker extends StatelessWidget {
     final color = toilet.flags.isEmpty ? beaconColor : Night.inkFaint;
     return Semantics(
       button: true,
-      label: '${toilet.features.map((f) => f.label).join('、')}廁所，${toilet.name}，${beaconDistance(toilet.distance)}',
+      label: tr.beaconMarkerLabel(toilet.features.map((f) => f.label).join(tr.listSeparator), toilet.name, beaconDistance(toilet.distance)),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
@@ -174,7 +175,7 @@ class BeaconControls extends StatelessWidget {
       Semantics(
         button: true,
         toggled: on,
-        label: on ? '關閉城市燈塔（友善廁所），附近 $count 間' : '打開城市燈塔（友善廁所）',
+        label: on ? tr.beaconToggleOff(count) : tr.beaconToggleOn,
         child: GestureDetector(
           onTap: onToggle,
           child: Container(
@@ -212,7 +213,7 @@ class _FilterButton extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: '只看${feature.label}',
+      label: tr.beaconFilterOnly(feature.label),
       child: Tooltip(
         message: feature.label,
         child: GestureDetector(
@@ -279,7 +280,7 @@ class _BeaconDetailState extends State<_BeaconDetail> {
             padding: const EdgeInsets.symmetric(horizontal: 44),
             child: Text(t.name, style: Night.title, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
           ),
-          Align(alignment: Alignment.centerRight, child: IconButton(tooltip: '關閉', icon: const Icon(Icons.close, color: Night.inkMuted), onPressed: () => Navigator.pop(context))),
+          Align(alignment: Alignment.centerRight, child: IconButton(tooltip: tr.close, icon: const Icon(Icons.close, color: Night.inkMuted), onPressed: () => Navigator.pop(context))),
         ]),
         Text('${beaconDistance(t.distance)} · ${t.address}', style: Night.caption, textAlign: TextAlign.center),
         const SizedBox(height: Night.space3),
@@ -299,23 +300,23 @@ class _BeaconDetailState extends State<_BeaconDetail> {
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(t.night ? Icons.nightlight_round : Icons.wb_sunny_outlined, size: 16, color: t.night ? Night.cityAmber : Night.inkFaint),
           const SizedBox(width: Night.space1),
-          Text(t.night ? '晚上可能有開（推估）' : '可能只在白天開（推估）', style: Night.body.copyWith(fontSize: 14)),
+          Text(t.night ? tr.beaconMaybeOpenNight : tr.beaconMaybeDaytime, style: Night.body.copyWith(fontSize: 14)),
         ]),
         if (t.rooms.isNotEmpty) ...[
           const SizedBox(height: Night.space2),
-          Text(t.rooms.join('、'), style: Night.caption, textAlign: TextAlign.center),
+          Text(t.rooms.join(tr.listSeparator), style: Night.caption, textAlign: TextAlign.center),
         ],
         for (final f in t.flags) ...[
           const SizedBox(height: Night.space2),
           Text(_flagText[f] ?? '', style: Night.caption.copyWith(color: Night.danger), textAlign: TextAlign.center),
         ],
         const SizedBox(height: Night.space4),
-        NightButton('走路過去', icon: Icons.directions_walk, expand: true, onPressed: () => openBeaconDirections(t)),
+        NightButton(tr.walkThere, icon: Icons.directions_walk, expand: true, onPressed: () => openBeaconDirections(t)),
         const SizedBox(height: Night.space4),
-        const Text('資料不對嗎？', style: Night.caption, textAlign: TextAlign.center),
+        Text(tr.beaconWrongData, style: Night.caption, textAlign: TextAlign.center),
         const SizedBox(height: Night.space1),
         if (_reported != null)
-          Text('謝謝你，已經收到「${beaconReportReasons[_reported]}」的回報。', style: Night.caption.copyWith(color: Night.inkMuted), textAlign: TextAlign.center)
+          Text(tr.beaconThanks(beaconReportReasons[_reported] ?? ''), style: Night.caption.copyWith(color: Night.inkMuted), textAlign: TextAlign.center)
         else
           Wrap(alignment: WrapAlignment.center, spacing: Night.space2, children: [
             for (final e in beaconReportReasons.entries)
@@ -326,7 +327,7 @@ class _BeaconDetailState extends State<_BeaconDetail> {
                 ),
           ]),
         const SizedBox(height: Night.space2),
-        const Text('資料來源：環境部「全國公廁建檔資料」，每月更新。開放時間是依場所推估的。', style: Night.caption, textAlign: TextAlign.center),
+        Text(tr.beaconSource, style: Night.caption, textAlign: TextAlign.center),
       ]),
     );
   }

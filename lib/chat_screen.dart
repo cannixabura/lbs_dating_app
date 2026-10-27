@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -135,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         setState(() {
           _remainingSeconds = 0;
         });
-        _manualLeave(reason: '時間已盡，交集消散...');
+        _manualLeave(reason: tr.chatTimeUp);
       }
     });
   }
@@ -188,15 +189,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     setState(() {
       _showLeaveOverlay = true;
-      _leaveMessage = '對方已沒入城市...';
+      _leaveMessage = tr.chatOtherLeft;
     });
 
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(Duration(seconds: 2), () {
       if (mounted && Navigator.canPop(context)) Navigator.pop(context);
     });
   }
 
-  void _manualLeave({String reason = '交集已結束...'}) {
+  void _manualLeave({String? reason}) {
     if (_isClosing) return;
     _isClosing = true;
     _cancelAllTimers();
@@ -206,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     setState(() {
       _showLeaveOverlay = true;
-      _leaveMessage = reason;
+      _leaveMessage = reason ?? tr.chatEnded;
     });
 
     Future.delayed(const Duration(seconds: 1), () {
@@ -227,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       reportContext: ReportContext.chat,
     );
     // 檢舉後立刻結束這場交集，對方的訊息從畫面消失（App Store 1.2）
-    if (result != null && mounted) _manualLeave(reason: result.blocked ? '已封鎖對方，交集結束。' : '已檢舉對方，交集結束。');
+    if (result != null && mounted) _manualLeave(reason: result.blocked ? tr.chatBlockedEnded : tr.chatReportedEnded);
   }
 
   void _cancelAllTimers() {
@@ -250,7 +251,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    String displayTitle = widget.targetName.startsWith('#') ? '匿名' : widget.targetName;
+    String displayTitle = widget.targetName.startsWith('#') ? tr.anonymous : widget.targetName;
 
     String minutesStr = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     String secondsStr = (_remainingSeconds % 60).toString().padLeft(2, '0');
@@ -275,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     ),
                     child: Row(children: [
                       IconButton(
-                        tooltip: '離開對話',
+                        tooltip: tr.leaveChat,
                         icon: const Icon(Icons.arrow_back_ios_new, color: Night.inkMuted, size: 20),
                         onPressed: () => _manualLeave(),
                       ),
@@ -297,20 +298,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       const SizedBox(width: Night.space3),
                       Expanded(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('與 $displayTitle 的交集', style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(tr.chatWith(displayTitle), style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 2),
                           Text.rich(TextSpan(style: Night.caption, children: [
-                            const TextSpan(text: '倒數 '),
+                            TextSpan(text: tr.countdownPrefix),
                             TextSpan(
                               text: '$minutesStr:$secondsStr',
                               style: TextStyle(color: lastMinute ? Night.danger : Night.knockPink, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()]),
                             ),
-                            const TextSpan(text: ' 消散'),
+                            TextSpan(text: tr.countdownSuffix),
                           ])),
                         ]),
                       ),
                       IconButton(
-                        tooltip: '檢舉',
+                        tooltip: tr.report,
                         icon: const Icon(Icons.flag_outlined, color: Night.inkMuted),
                         onPressed: _isClosing ? null : _report,
                       ),
@@ -320,9 +321,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
                 // 示範對話：對方是自動回覆的示範對象，要讓使用者一眼知道
                 if (widget.targetUid.startsWith('demo-'))
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.fromLTRB(Night.space4, Night.space2, Night.space4, 0),
-                    child: Text('示範對話：對方由程式自動回覆，不是真人。', style: Night.caption, textAlign: TextAlign.center),
+                    child: Text(tr.demoChatNotice, style: Night.caption, textAlign: TextAlign.center),
                   ),
 
                 // ---------- 訊息 ----------
@@ -380,7 +381,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(left: Night.space6, bottom: 4),
                   child: _isTargetTyping 
-                    ? const Text('對方正在輸入中…', style: TextStyle(color: Night.inkFaint, fontSize: 12, fontStyle: FontStyle.italic)) 
+                    ? Text(tr.typing, style: TextStyle(color: Night.inkFaint, fontSize: 12, fontStyle: FontStyle.italic)) 
                     : const SizedBox.shrink(),
                 ),
 
@@ -399,7 +400,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           minLines: 1,
                           maxLines: 4,
                           decoration: InputDecoration(
-                            hintText: '輕聲說點什麼…',
+                            hintText: tr.chatHint,
                             hintStyle: const TextStyle(color: Night.inkFaint),
                             counterText: '',
                             filled: true,
@@ -414,7 +415,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       const SizedBox(width: Night.space3),
                       Semantics(
                         button: true,
-                        label: '送出',
+                        label: tr.send,
                         child: GestureDetector(
                           onTap: _sendMessage,
                           child: Container(

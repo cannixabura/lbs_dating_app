@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:convert';
 import 'dart:math';
 
@@ -49,7 +50,7 @@ class TimeWhisper {
 String timeWhisperDate(DateTime t) => '${t.year}/${t.month}/${t.day}';
 
 /// 「一年前」「一個月前」：依寫下到解封的間隔
-String timeWhisperAgo(TimeWhisper w) => w.unlockAt.difference(w.createdAt).inDays >= 365 ? '一年前' : '一個月前';
+String timeWhisperAgo(TimeWhisper w) => w.unlockAt.difference(w.createdAt).inDays >= 365 ? tr.aYearAgo : tr.aMonthAgo;
 
 class TimeWhisperApi {
   TimeWhisperApi._();
@@ -59,14 +60,14 @@ class TimeWhisperApi {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
       final response = await http.post(
         Uri.parse(_timeWhisperUrl),
-        headers: {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'},
+        headers: {'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'},
         body: jsonEncode(body),
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['success'] == true) return (data, null);
-      return (null, (data['error'] as String?) ?? '低語穿越暫時無法使用，請稍後再試。');
+      return (null, (data['error'] as String?) ?? tr.timeWhisperUnavailable);
     } catch (_) {
-      return (null, '沒有送出，請檢查網路後再試一次。');
+      return (null, tr.notSentCheckNetwork);
     }
   }
 
@@ -103,9 +104,9 @@ Future<void> showTimeWhisperReader(BuildContext context, TimeWhisper w) {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const Icon(Icons.lock_open, color: Night.auroraViolet, size: 32),
           const SizedBox(height: Night.space2),
-          Text('${timeWhisperAgo(w)}的你，在這裡說', style: Night.title, textAlign: TextAlign.center),
+          Text(tr.timeWhisperYouSaid(timeWhisperAgo(w)), style: Night.title, textAlign: TextAlign.center),
           const SizedBox(height: Night.space1),
-          Text('寫於 ${timeWhisperDate(w.createdAt)}', style: Night.caption, textAlign: TextAlign.center),
+          Text(tr.writtenOn(timeWhisperDate(w.createdAt)), style: Night.caption, textAlign: TextAlign.center),
           const SizedBox(height: Night.space4),
           Container(
             padding: const EdgeInsets.all(Night.space4),
@@ -118,9 +119,9 @@ Future<void> showTimeWhisperReader(BuildContext context, TimeWhisper w) {
             child: Text(w.text ?? '', style: const TextStyle(color: Night.ink, fontSize: 18, height: 1.7), textAlign: TextAlign.center),
           ),
           const SizedBox(height: Night.space3),
-          const Text('這封信只會出現這一次。', style: Night.caption, textAlign: TextAlign.center),
+          Text(tr.timeWhisperOnce, style: Night.caption, textAlign: TextAlign.center),
           const SizedBox(height: Night.space3),
-          NightButton('收進心裡', onPressed: () => Navigator.pop(dialogContext), expand: true),
+          NightButton(tr.keepInHeart, onPressed: () => Navigator.pop(dialogContext), expand: true),
         ]),
       ),
     ),
@@ -165,9 +166,9 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
   }
 
   String _status(TimeWhisper w) {
-    if (!w.isUnlocked) return '${timeWhisperDate(w.unlockAt)} 解封 · 寫於 ${timeWhisperDate(w.createdAt)}';
+    if (!w.isUnlocked) return tr.unsealsOn(timeWhisperDate(w.unlockAt), timeWhisperDate(w.createdAt));
     final m = widget.lat == null ? null : w.metersFrom(widget.lat!, widget.lng!);
-    return m == null ? '已解封，回到那裡就能打開' : '已解封 · 距離你 ${m < 1000 ? '${m.round()} 公尺' : '${(m / 1000).toStringAsFixed(1)} 公里'}';
+    return m == null ? tr.unsealedGoBack : tr.unsealedDistance(m < 1000 ? tr.meters(m.round()) : tr.kilometers((m / 1000).toStringAsFixed(1)));
   }
 
   @override
@@ -175,17 +176,17 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
     final items = _items;
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Stack(alignment: Alignment.center, children: [
-        const Text('我的低語穿越', style: Night.title, textAlign: TextAlign.center),
-        Align(alignment: Alignment.centerRight, child: IconButton(tooltip: '關閉', icon: const Icon(Icons.close, color: Night.inkMuted), onPressed: () => Navigator.pop(context))),
+        Text(tr.myTimeWhispers, style: Night.title, textAlign: TextAlign.center),
+        Align(alignment: Alignment.centerRight, child: IconButton(tooltip: tr.close, icon: const Icon(Icons.close, color: Night.inkMuted), onPressed: () => Navigator.pop(context))),
       ]),
-      const Text('寫給未來的自己，只有你看得到。時間到了，回到那裡 100 公尺內就會打開；讀過一次就會消失。', style: Night.body, textAlign: TextAlign.center),
+      Text(tr.timeWhisperListLead, style: Night.body, textAlign: TextAlign.center),
       const SizedBox(height: Night.space3),
       if (items == null)
         const Padding(padding: EdgeInsets.all(Night.space6), child: Center(child: CircularProgressIndicator(color: Night.auroraViolet)))
       else if (items.isEmpty)
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(vertical: Night.space6),
-          child: Text('還沒有寫給未來的信。按底部選單的筆記圖示，選「寄給未來的自己」。', style: Night.caption, textAlign: TextAlign.center),
+          child: Text(tr.timeWhisperListEmpty, style: Night.caption, textAlign: TextAlign.center),
         )
       else
         Flexible(
@@ -194,10 +195,10 @@ class _TimeWhisperListState extends State<_TimeWhisperList> {
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: Night.space2),
                 leading: Icon(w.isUnlocked ? Icons.lock_open : Icons.lock_clock, color: w.isUnlocked ? Night.auroraViolet : Night.inkMuted),
-                title: Text(w.isUnlocked ? '已經可以打開了' : '封存中', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Night.ink, fontSize: 15)),
+                title: Text(w.isUnlocked ? tr.readyToOpen : tr.sealed, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Night.ink, fontSize: 15)),
                 subtitle: Text(_status(w), style: Night.caption),
                 trailing: IconButton(
-                        tooltip: '刪除',
+                        tooltip: tr.delete,
                         icon: const Icon(Icons.delete_outline, color: Night.inkFaint),
                         onPressed: () async {
                           final error = await TimeWhisperApi.delete(w.id);

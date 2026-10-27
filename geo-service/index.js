@@ -18,6 +18,7 @@ const gathering = require("./gathering");
 const publicmood = require("./publicmood");
 const timewhisper = require("./timewhisper");
 const beacon = require("./beacon");
+const { langOf, localize } = require("./i18n");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -76,6 +77,11 @@ async function getNicknameFromRedis(uid) {
     return null;
 }
 
+// 使用者的語言（App 每次更新位置時回報；查不到就用繁中）
+async function getLangFromRedis(uid) {
+    try { return await sendUpstashCommand(["HGET", `user_data:${uid}`, "lang"]); } catch (e) { return null; }
+}
+
 // 驗證 Firebase ID Token，回傳真實的 uid；失敗則回傳 null
 async function verifyCaller(req) {
     const match = (req.headers.authorization || '').match(/^Bearer (.+)$/);
@@ -107,10 +113,10 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     // 🔐 uid 只信任 ID Token，不再接受 body 傳入，防止冒用他人身分
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
 
     const { lat, lng } = req.body;
-    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: localize(langOf(req), "座標格式錯誤") });
     // 不當字詞替換成「＊」（App Store 1.2 的內容過濾）
     // 審核通關碼：心情欄輸入後開啟審核示範對象，通關碼本身不會出現在雷達上
     const reviewCode = demo.isReviewCode(req.body.mood);
@@ -130,7 +136,7 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
       const [, , hostingGid] = await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
           // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
-          ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "timestamp", timestamp.toString(),
+          ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", langOf(req), "timestamp", timestamp.toString(),
               "state", "active", "stateAt", timestamp.toString(), ...fuzzFields],
           ["HGET", `user_data:${uid}`, "host"],
       ]);
@@ -145,7 +151,7 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
       res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
       console.error('updateLocation failed:', error);
-      res.status(500).json({ success: false, error: "更新失敗" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "更新失敗") });
     }
   });
 });
@@ -155,7 +161,7 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
  * 不計入密度，也不在 city_users 裡，所以不影響殘影留存與城市心情天氣。
  * realCount：附近的真人數（不含殘影）；真人多時台北示範減量，審核示範不受影響。
  */
-async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0) {
+async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang = null) {
     const here = { lat, lng };
     const found = []; // [uid, distanceKm, {lat, lng}]
     const publicHits = await sendUpstashCommand([
@@ -189,7 +195,7 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0) {
     found.forEach(([botUid, , pos], i) => {
         const [mood, nickname, hidden, hostEmoji] = profiles[i] || [];
         if (hidden === "1" || !nickname) return; // 被檢舉隱藏，或尚未建立資料
-        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
+        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
     });
     return bots;
 }
@@ -198,10 +204,10 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
 
     const { lat, lng } = req.body;
-    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: localize(langOf(req), "座標格式錯誤") });
     const radiusKM = Math.min(Math.max(Number(req.body.radiusKM) || MAX_RADIUS_KM, 0.1), MAX_RADIUS_KM);
     try {
       // 1 次請求：由近到遠取出半徑內的人，座標與距離直接由地理索引帶回
@@ -261,7 +267,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       }
 
       const realCount = results.filter((r) => r.status !== 'shadow').length;
-      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount));
+      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount, langOf(req)));
 
       // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
       if (staleUids.length > 0) {
@@ -273,7 +279,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 } });
     } catch (error) {
       console.error('getNearby failed:', error);
-      res.status(500).json({ success: false, error: "掃描失敗" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "掃描失敗") });
     }
   });
 });
@@ -289,8 +295,10 @@ async function replyAsDemoBot(roomId, botUid) {
         if (status.val() !== 'active') return; // 使用者已經離開
         let botMessages = 0;
         messagesSnap.forEach((m) => { if (m.child('sender').val() === botUid) botMessages++; });
-        const botName = (await getNicknameFromRedis(botUid)) || '示範對象';
-        await room.child('messages').push({ sender: botUid, senderName: botName, text: demo.chatReply(botMessages), timestamp: Date.now() });
+        // 示範對象用對方的語言說話
+        const lang = await getLangFromRedis(roomId.split('_').find((id) => id !== botUid));
+        const botName = localize(lang, (await getNicknameFromRedis(botUid)) || '示範對象');
+        await room.child('messages').push({ sender: botUid, senderName: botName, text: localize(lang, demo.chatReply(botMessages)), timestamp: Date.now() });
     } catch (e) {
         console.error(`demo bot reply failed (${roomId}):`, e);
     } finally {
@@ -305,6 +313,9 @@ async function sendPush(targetUid, title, body, data) {
     const tokenSnap = await admin.database().ref(`/tokens/${targetUid}`).once('value');
     const token = tokenSnap.val();
     if (!token) return;
+    // 推播用收件人的語言（App 每次更新位置時回報）
+    const lang = await getLangFromRedis(targetUid);
+    title = localize(lang, title); body = localize(lang, body);
     try {
         await admin.messaging().send({
             token,
@@ -335,7 +346,7 @@ exports.notifyOnKnock = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databa
         const ref = admin.database().ref(`/requests/${targetUid}/${senderUid}`);
         const current = (await ref.once('value')).val();
         if (current && current.status === 'pending') {
-            const botName = (await getNicknameFromRedis(targetUid)) || '示範對象';
+            const botName = localize(await getLangFromRedis(senderUid), (await getNicknameFromRedis(targetUid)) || '示範對象');
             await ref.set({ status: 'accepted', nickname: botName });
         }
         return null;
@@ -476,7 +487,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
 
     const db = admin.database();
     try {
@@ -536,7 +547,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       res.status(200).json({ success: true });
     } catch (error) {
       console.error(`deleteAccount failed (${uid}):`, error);
-      res.status(500).json({ success: false, error: "刪除失敗" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "刪除失敗") });
     }
   });
 });
@@ -592,17 +603,17 @@ exports.betaSignup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SEC
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const checked = betasignup.validateSignup(req.body, Date.now());
     if (checked.error === "bot") return res.status(200).json({ success: true }); // 不讓機器人知道被擋
-    if (checked.error) return res.status(400).json({ success: false, error: checked.error });
+    if (checked.error) return res.status(400).json({ success: false, error: localize(langOf(req), checked.error) });
     try {
       const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim() || "unknown";
       const n = await sendUpstashCommand(["INCR", `beta_rl:${ip}`]);
       if (n === 1) await sendUpstashCommand(["EXPIRE", `beta_rl:${ip}`, "600"]);
-      if (n > 5) return res.status(429).json({ success: false, error: "報名太頻繁了，請稍後再試。" });
+      if (n > 5) return res.status(429).json({ success: false, error: localize(langOf(req), "報名太頻繁了，請稍後再試。") });
       await admin.database().ref(`betaSignups/${checked.key}`).set(checked.record);
       res.status(200).json({ success: true });
     } catch (e) {
       console.error("betaSignup failed:", e);
-      res.status(500).json({ success: false, error: "報名沒有送出，請稍後再試。" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "報名沒有送出，請稍後再試。") });
     }
   });
 });
@@ -611,9 +622,9 @@ exports.getCityMood = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SE
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
     const { lat, lng } = req.body;
-    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+    if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: localize(langOf(req), "座標格式錯誤") });
 
     const key = citymood.cacheKey(lat, lng);
     try {
@@ -635,7 +646,7 @@ exports.getCityMood = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SE
       res.status(200).json({ success: true, data: summary });
     } catch (error) {
       console.error('getCityMood failed:', error);
-      res.status(500).json({ success: false, error: "讀取失敗" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "讀取失敗") });
     }
   });
 });
@@ -658,16 +669,16 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
     const { action, lat, lng, id } = req.body || {};
     const now = Date.now();
     try {
       if (action === "post") {
-        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: localize(langOf(req), "座標格式錯誤") });
         const checked = whisper.validateText(req.body.text);
-        if (checked.error) return res.status(400).json({ success: false, error: checked.error });
+        if (checked.error) return res.status(400).json({ success: false, error: localize(langOf(req), checked.error) });
         const moderation = (await admin.database().ref(`moderation/${uid}/hidden`).once('value')).val();
-        if (moderation === true) return res.status(403).json({ success: false, error: "你的帳號正在審查中，暫時無法留下低語。" });
+        if (moderation === true) return res.status(403).json({ success: false, error: localize(langOf(req), "你的帳號正在審查中，暫時無法留下低語。") });
 
         // 每人同時最多 3 則（先清掉已過期的）
         const mine = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
@@ -675,11 +686,11 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const expired = mine.filter((_, i) => !alive[i]);
         if (expired.length) await sendUpstashPipeline([["SREM", `whispers_by:${uid}`, ...expired], ["ZREM", "whispers", ...expired]]);
         if (mine.length - expired.length >= whisper.MAX_ACTIVE_PER_USER) {
-            return res.status(429).json({ success: false, error: `你已經在城市裡留下 ${whisper.MAX_ACTIVE_PER_USER} 則低語了，等其中一則消散再留吧。` });
+            return res.status(429).json({ success: false, error: localize(langOf(req), `你已經在城市裡留下 ${whisper.MAX_ACTIVE_PER_USER} 則低語了，等其中一則消散再留吧。`) });
         }
         // 每 10 分鐘最多 1 則
         const ok = await sendUpstashCommand(["SET", `whisper_rl:${uid}`, "1", "EX", String(whisper.POST_COOLDOWN_SECONDS), "NX"]);
-        if (ok !== "OK") return res.status(429).json({ success: false, error: "剛剛才留過低語，過幾分鐘再來吧。" });
+        if (ok !== "OK") return res.status(429).json({ success: false, error: localize(langOf(req), "剛剛才留過低語，過幾分鐘再來吧。") });
 
         const wid = `${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
         const pos = whisper.snapToCell(lat, lng);
@@ -695,7 +706,7 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
       }
 
       if (action === "list") {
-        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: "座標格式錯誤" });
+        if (!isValidCoordinate(lat, lng)) return res.status(400).json({ success: false, error: localize(langOf(req), "座標格式錯誤") });
         const found = await sendUpstashCommand([
             "GEOSEARCH", "whispers", "FROMLONLAT", lng.toString(), lat.toString(),
             "BYRADIUS", String(whisper.DISCOVER_RADIUS_KM), "km", "ASC", "COUNT", String(whisper.MAX_RESULTS), "WITHCOORD",
@@ -722,7 +733,7 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
 
       if (action === "collect") {
         const author = await sendUpstashCommand(["HGET", `whisper:${id}`, "author"]);
-        if (!author) return res.status(404).json({ success: false, error: "這則低語已經消散了。" });
+        if (!author) return res.status(404).json({ success: false, error: localize(langOf(req), "這則低語已經消散了。") });
         if (author === uid) return res.status(200).json({ success: true });
         const added = await sendUpstashCommand(["SADD", `whisper_readers:${id}`, uid]);
         if (added === 1) {
@@ -733,15 +744,15 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
 
       if (action === "delete") {
         const author = await sendUpstashCommand(["HGET", `whisper:${id}`, "author"]);
-        if (author !== uid) return res.status(403).json({ success: false, error: "只能收回自己的低語。" });
+        if (author !== uid) return res.status(403).json({ success: false, error: localize(langOf(req), "只能收回自己的低語。") });
         await sendUpstashPipeline([["ZREM", "whispers", id], ["DEL", `whisper:${id}`, `whisper_readers:${id}`], ["SREM", `whispers_by:${uid}`, id]]);
         return res.status(200).json({ success: true });
       }
 
-      return res.status(400).json({ success: false, error: "未知的操作" });
+      return res.status(400).json({ success: false, error: localize(langOf(req), "未知的操作") });
     } catch (error) {
       console.error(`whisper ${action} failed:`, error);
-      res.status(500).json({ success: false, error: "低語暫時無法使用，請稍後再試。" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "低語暫時無法使用，請稍後再試。") });
     }
   });
 });
@@ -786,16 +797,20 @@ async function gatheringAudience(g) {
 /** 一次推給很多人：每批 500 則 */
 async function pushToMany(uids, title, body, data) {
     if (uids.length === 0) return 0;
-    const tokens = [];
+    const tokens = []; // [token, 語言]
     for (let i = 0; i < uids.length; i += GATHERING_LOOKUP_CHUNK) {
-        const snaps = await Promise.all(uids.slice(i, i + GATHERING_LOOKUP_CHUNK).map((u) => admin.database().ref(`tokens/${u}`).once('value')));
-        tokens.push(...snaps.map((snap) => snap.val()).filter(Boolean));
+        const chunk = uids.slice(i, i + GATHERING_LOOKUP_CHUNK);
+        const [snaps, langs] = await Promise.all([
+            Promise.all(chunk.map((u) => admin.database().ref(`tokens/${u}`).once('value'))),
+            sendUpstashPipeline(chunk.map((u) => ["HGET", `user_data:${u}`, "lang"])).catch(() => []),
+        ]);
+        snaps.forEach((snap, j) => { if (snap.val()) tokens.push([snap.val(), langs[j]]); });
     }
     let sent = 0;
     for (let i = 0; i < tokens.length; i += 500) {
-        const messages = tokens.slice(i, i + 500).map((token) => ({
+        const messages = tokens.slice(i, i + 500).map(([token, lang]) => ({
             token,
-            notification: { title, body },
+            notification: { title: localize(lang, title), body: localize(lang, body) },
             data,
             android: { priority: 'high', notification: { sound: 'default' } },
             apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: 'default' } } },
@@ -844,11 +859,11 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
     const { action, gid } = req.body || {};
     const db = admin.database();
     const now = Date.now();
-    const fail = (code, error) => res.status(code).json({ success: false, error });
+    const fail = (code, error) => res.status(code).json({ success: false, error: localize(langOf(req), error) });
     try {
       if (action === "create") {
         const { lat, lng } = req.body;
@@ -995,7 +1010,7 @@ exports.gathering = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       return fail(400, "未知的操作");
     } catch (error) {
       console.error(`gathering ${action} failed:`, error);
-      res.status(500).json({ success: false, error: "活動功能暫時無法使用，請稍後再試。" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "活動功能暫時無法使用，請稍後再試。") });
     }
   });
 });
@@ -1154,12 +1169,12 @@ exports.timeWhisper = onRequest({ region: "asia-southeast1" }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
     const { action, id, lat, lng } = req.body || {};
     const db = admin.database();
     const mine = db.ref(`timeWhispers/${uid}`);
     const now = Date.now();
-    const fail = (code, error) => res.status(code).json({ success: false, error });
+    const fail = (code, error) => res.status(code).json({ success: false, error: localize(langOf(req), error) });
     try {
       if (action === "create") {
         if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
@@ -1203,7 +1218,7 @@ exports.timeWhisper = onRequest({ region: "asia-southeast1" }, (req, res) => {
       return fail(400, "未知的操作");
     } catch (error) {
       console.error(`timeWhisper ${action} failed:`, error);
-      res.status(500).json({ success: false, error: "低語穿越暫時無法使用，請稍後再試。" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "低語穿越暫時無法使用，請稍後再試。") });
     }
   });
 });
@@ -1287,9 +1302,9 @@ exports.beacon = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);
-    if (!uid) return res.status(401).json({ success: false, error: "未授權" });
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
     const { action, lat, lng, id, reason } = req.body || {};
-    const fail = (code, error) => res.status(code).json({ success: false, error });
+    const fail = (code, error) => res.status(code).json({ success: false, error: localize(langOf(req), error) });
     try {
       if (action === "nearby") {
         if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
@@ -1327,7 +1342,7 @@ exports.beacon = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS
       return fail(400, "未知的操作");
     } catch (error) {
       console.error(`beacon ${action} failed:`, error);
-      res.status(500).json({ success: false, error: "城市燈塔暫時無法使用，請稍後再試。" });
+      res.status(500).json({ success: false, error: localize(langOf(req), "城市燈塔暫時無法使用，請稍後再試。") });
     }
   });
 });

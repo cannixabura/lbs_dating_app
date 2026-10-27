@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,14 +45,14 @@ class WhisperApi {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
       final response = await http.post(
         Uri.parse(_whisperUrl),
-        headers: {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'},
+        headers: {'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'},
         body: jsonEncode(body),
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['success'] == true) return (data, null);
-      return (null, (data['error'] as String?) ?? '低語暫時無法使用，請稍後再試。');
+      return (null, (data['error'] as String?) ?? tr.whisperUnavailable);
     } catch (_) {
-      return (null, '低語沒有送出，請檢查網路後再試一次。');
+      return (null, tr.whisperNotSent);
     }
   }
 
@@ -76,10 +77,10 @@ class WhisperApi {
 
 String _ago(DateTime t) {
   final d = DateTime.now().difference(t);
-  if (d.inMinutes < 1) return '剛剛';
-  if (d.inHours < 1) return '${d.inMinutes} 分鐘前';
-  if (d.inDays < 1) return '${d.inHours} 小時前';
-  return '${d.inDays} 天前';
+  if (d.inMinutes < 1) return tr.justNow;
+  if (d.inHours < 1) return tr.minutesAgo(d.inMinutes);
+  if (d.inDays < 1) return tr.hoursAgo(d.inHours);
+  return tr.daysAgo(d.inDays);
 }
 
 /// 留下低語，或寄一封低語穿越給未來的自己。回傳 'whisper'、'month'、'year'，取消則回傳 null。
@@ -142,14 +143,14 @@ class _WhisperComposerState extends State<_WhisperComposer> {
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Icon(future ? Icons.hourglass_bottom : Icons.mail_outline, color: future ? Night.auroraViolet : Night.auroraBlue, size: 30),
               const SizedBox(height: Night.space2),
-              Text(future ? '低語穿越' : '留下一則低語', style: Night.title, textAlign: TextAlign.center),
+              Text(future ? tr.timeWhisperTitle : tr.leaveWhisper, style: Night.title, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              Text(future ? '寫給未來的自己。時間到了，回到這裡才能打開。' : '寫給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
+              Text(future ? tr.timeWhisperLead : tr.whisperLead, style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space3),
-              _segment([('給經過的人', false), ('寄給未來的自己', true)], future, (v) => setState(() => future = v)),
+              _segment([(tr.toPassersBy, false), (tr.toFutureSelf, true)], future, (v) => setState(() => future = v)),
               if (future) ...[
                 const SizedBox(height: Night.space2),
-                _segment([('一個月後', 'month'), ('一年後', 'year')], delay, (v) => setState(() => delay = v)),
+                _segment([(tr.inOneMonth, 'month'), (tr.inOneYear, 'year')], delay, (v) => setState(() => delay = v)),
               ],
               const SizedBox(height: Night.space4),
               TextField(
@@ -162,7 +163,7 @@ class _WhisperComposerState extends State<_WhisperComposer> {
                 cursorColor: Night.auroraViolet,
                 style: const TextStyle(color: Night.ink, fontSize: 16, height: 1.6),
                 decoration: InputDecoration(
-                  hintText: future ? '例如：明年此地再見。希望那時的你，過得比現在好。' : '例如：這裡的夕陽很美，記得抬頭看看。',
+                  hintText: future ? tr.timeWhisperHint : tr.whisperHint,
                   hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 14),
                   counterStyle: Night.caption,
                   filled: true,
@@ -173,13 +174,13 @@ class _WhisperComposerState extends State<_WhisperComposer> {
                 ),
               ),
               const SizedBox(height: Night.space2),
-              Text(future ? '只有你看得到 · ${delay == 'year' ? '一年' : '一個月'}後解封並通知你 · 回到 100 公尺內打開' : '7 天後消散 · 不會顯示你是誰 · 只透露你曾在這一帶',
+              Text(future ? (delay == 'year' ? tr.timeWhisperCaptionYear : tr.timeWhisperCaptionMonth) : tr.whisperCaption,
                   style: Night.caption, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
-                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context))), // 面板回傳 String?，取消回傳 null
+                Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: sending ? null : () => Navigator.pop(context))), // 面板回傳 String?，取消回傳 null
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton(sending ? '送出中…' : (future ? '封存在這裡' : '留在這裡'), onPressed: controller.text.trim().isEmpty || sending ? null : send)),
+                Expanded(child: NightButton(sending ? tr.sending : (future ? tr.sealHere : tr.leaveHere), onPressed: controller.text.trim().isEmpty || sending ? null : send)),
               ]),
             ]),
           ),
@@ -226,10 +227,10 @@ Future<bool> showWhisperReader(BuildContext context, Whisper w, {required Color 
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.mail_outline, color: color, size: 20),
               const SizedBox(width: Night.space2),
-              Text(w.mine ? '你留下的低語' : '一則低語', style: Night.title),
+              Text(w.mine ? tr.whisperMineLabel : tr.aWhisper, style: Night.title),
             ]),
             const SizedBox(height: Night.space1),
-            Text('${_ago(w.createdAt)}留在這一帶', style: Night.caption, textAlign: TextAlign.center),
+            Text(tr.whisperLeftAgo(_ago(w.createdAt)), style: Night.caption, textAlign: TextAlign.center),
             const SizedBox(height: Night.space4),
             Container(
               padding: const EdgeInsets.all(Night.space4),
@@ -243,9 +244,9 @@ Future<bool> showWhisperReader(BuildContext context, Whisper w, {required Color 
             ),
             const SizedBox(height: Night.space4),
             if (w.mine) ...[
-              Text(w.reads > 0 ? '已被 ${w.reads} 個人收下' : '還沒有人經過', style: Night.body, textAlign: TextAlign.center),
+              Text(w.reads > 0 ? tr.whisperCollectedBy(w.reads) : tr.whisperNobodyYet, style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space3),
-              NightButton('收回這則低語', kind: NightButtonKind.danger, icon: Icons.delete_outline, onPressed: () async {
+              NightButton(tr.withdrawWhisper, kind: NightButtonKind.danger, icon: Icons.delete_outline, onPressed: () async {
                 final error = await WhisperApi.delete(w.id);
                 if (!sheetContext.mounted) return;
                 if (error == null) {
@@ -255,16 +256,16 @@ Future<bool> showWhisperReader(BuildContext context, Whisper w, {required Color 
                 }
               }),
             ] else ...[
-              const Text('你收下了這則低語。', style: Night.body, textAlign: TextAlign.center),
+              Text(tr.whisperCollected, style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              Text(w.reads > 0 ? '在你之前，已經有 ${w.reads} 個人經過這裡。' : '你是第一個經過這裡的人。', style: Night.caption, textAlign: TextAlign.center),
+              Text(w.reads > 0 ? tr.whisperReadersBefore(w.reads) : tr.whisperFirstReader, style: Night.caption, textAlign: TextAlign.center),
               TextButton.icon(
                 style: TextButton.styleFrom(foregroundColor: Night.inkFaint, minimumSize: const Size(44, 44)),
                 icon: const Icon(Icons.flag_outlined, size: 18),
-                label: const Text('檢舉這則低語', style: Night.caption),
+                label: Text(tr.reportWhisper, style: Night.caption),
                 onPressed: () {
                   Navigator.pop(sheetContext, false);
-                  showReportSheet(context, myUid: myUid, targetUid: 'whisper:${w.id}', targetName: '這則低語',
+                  showReportSheet(context, myUid: myUid, targetUid: 'whisper:${w.id}', targetName: tr.thisWhisper,
                       reportContext: ReportContext.whisper, allowBlock: false);
                 },
               ),

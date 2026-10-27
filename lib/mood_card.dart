@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
@@ -29,17 +30,17 @@ const _invites = <(String, bool)>[
 ];
 
 /// 邀請文案：每次隨機一則，結尾都附上邀請連結
-const _inviteTexts = [
-  '我在城市低語點亮了一道光。附近的人越多，街區就越亮，一起來點亮我們的街區吧：',
-  '今晚的城市有點安靜。來城市低語寫下一句心情，讓我們的街區亮起來：',
-  '不用加好友、不用真名，只要一句此刻的心情。來城市低語找我：',
-  '我在城市低語留了一盞燈給你。打開 App，看看今晚附近的人都在想什麼：',
-  '每週五晚上九點是城市低語的點亮之夜，一起上線，讓雷達亮成一片吧：',
-  '想找個地方說說今天的心情嗎？城市低語是匿名的，說完就消散：',
-  '走在路上的時候，你會好奇擦肩而過的人在想什麼嗎？來城市低語看看：',
-  '我在這條街留下了一則低語，經過的人才讀得到。你也來留一則吧：',
-  '城市低語是一張夜裡的心情地圖。人越多越好玩，來幫我們的街區多點一道光：',
-  '今晚的你，心情是什麼顏色？來城市低語寫下來，我在附近等你的光：',
+List<String> get _inviteTexts => [
+  tr.invite1,
+  tr.invite2,
+  tr.invite3,
+  tr.invite4,
+  tr.invite5,
+  tr.invite6,
+  tr.invite7,
+  tr.invite8,
+  tr.invite9,
+  tr.invite10,
 ];
 
 /// 邀請朋友「點亮你的街區」：選好一張邀請卡後只傳文字與連結。
@@ -53,12 +54,12 @@ Future<void> shareInvite(BuildContext context) {
     random: random,
     count: _invites.length,
     image: (i) => _invites[i].$1,
-    shareLabel: '分享邀請',
+    shareLabel: tr.shareInvite,
     fileName: 'city_whisper_invite',
     build: (i) => ShareCard(image: _invites[i].$1, poster: _invites[i].$2, accent: Night.auroraBlue, at: DateTime.now(), kind: ShareCardKind.invite),
     shareText: (i) => '$text\n${_landingUrl}i/${i + 1}.html',
     asLink: true,
-    subject: '一起來點亮我們的街區',
+    subject: tr.inviteSubject,
   );
 }
 
@@ -69,12 +70,12 @@ Future<void> showMoodCard(BuildContext context, {required String mood, required 
     random: Random(),
     count: _scenes.length,
     image: (i) => _scenes[i],
-    shareLabel: '分享心情卡',
+    shareLabel: tr.shareMoodCardButton,
     fileName: 'city_whisper_mood',
     build: (i) => ShareCard(image: _scenes[i], accent: moodColor, at: DateTime.now(), mood: mood),
-    shareText: (_) => '我在城市低語留下了此刻的心情：「$mood」\n今晚，你的心情也在城市裡發光嗎？$_landingUrl?ref=card',
+    shareText: (_) => '${tr.moodShareText(mood)}$_landingUrl?ref=card',
     // LINE、Messenger 收到圖片時會丟掉文字：另外提供只傳文字與連結，預覽圖是這張插畫（hosting/m/<插畫編號>.html）
-    linkText: (i) => '我在城市低語留下了此刻的心情：「$mood」\n今晚，你的心情也在城市裡發光嗎？\n${_landingUrl}m/${_sceneNumber(_scenes[i])}.html',
+    linkText: (i) => '${tr.moodShareText(mood)}\n${_landingUrl}m/${_sceneNumber(_scenes[i])}.html',
   );
 }
 
@@ -125,7 +126,7 @@ Future<void> _showShareCard(
           ));
         } catch (e) {
           debugPrint('share card failed: $e');
-          if (dialogContext.mounted) showGlassToast(dialogContext, '沒有分享出去，請再試一次。', icon: Icons.error_outline, danger: true);
+          if (dialogContext.mounted) showGlassToast(dialogContext, tr.shareFailed, icon: Icons.error_outline, danger: true);
         } finally {
           if (dialogContext.mounted) setState(() => sharing = false);
         }
@@ -151,19 +152,19 @@ Future<void> _showShareCard(
           TextButton.icon(
             onPressed: sharing ? null : next,
             icon: const Icon(Icons.shuffle, size: 18, color: Night.inkMuted),
-            label: Text('換一張 · ${index + 1} / $count', style: const TextStyle(color: Night.inkMuted, fontSize: 14, letterSpacing: 1)),
+            label: Text(tr.shuffleCard(index + 1, count), style: const TextStyle(color: Night.inkMuted, fontSize: 14, letterSpacing: 1)),
           ),
           const SizedBox(height: Night.space2),
           Row(mainAxisSize: MainAxisSize.min, children: [
-            NightButton('關閉', kind: NightButtonKind.ghost, onPressed: sharing ? null : () => Navigator.pop(dialogContext)),
+            NightButton(tr.close, kind: NightButtonKind.ghost, onPressed: sharing ? null : () => Navigator.pop(dialogContext)),
             const SizedBox(width: Night.space3),
-            NightButton(sharing ? '準備中…' : shareLabel, icon: Icons.ios_share, onPressed: sharing ? null : share),
+            NightButton(sharing ? tr.preparing : shareLabel, icon: Icons.ios_share, onPressed: sharing ? null : share),
           ]),
           if (linkText != null)
             TextButton.icon(
               onPressed: sharing ? null : () => share(link: true),
               icon: const Icon(Icons.link, size: 18, color: Night.inkMuted),
-              label: const Text('傳連結給朋友（LINE、Messenger）', style: TextStyle(color: Night.inkMuted, fontSize: 13, letterSpacing: 0.5)),
+              label: Text(tr.sendLinkToFriends, style: TextStyle(color: Night.inkMuted, fontSize: 13, letterSpacing: 0.5)),
             ),
         ]),
       );
@@ -181,11 +182,11 @@ Rect? _shareOrigin(BuildContext context) {
 
 String _partOfDay(DateTime t) {
   final h = t.hour;
-  if (h < 5) return '深夜';
-  if (h < 11) return '早晨';
-  if (h < 17) return '午後';
-  if (h < 19) return '黃昏';
-  return '夜晚';
+  if (h < 5) return tr.partLateNight;
+  if (h < 11) return tr.partMorning;
+  if (h < 17) return tr.partAfternoon;
+  if (h < 19) return tr.partDusk;
+  return tr.partNight;
 }
 
 enum ShareCardKind { mood, invite }
@@ -236,11 +237,11 @@ class ShareCard extends StatelessWidget {
             Positioned(
               left: 28, right: 28, top: 52,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(invite ? '邀請你' : '此刻的心情', style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,
+                Text(invite ? tr.cardInviteEyebrow : tr.cardMoodEyebrow, style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,
                     shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
                 const SizedBox(height: 12),
                 Text(
-                  invite ? '一起來點亮\n我們的街區' : mood,
+                  invite ? tr.cardInviteTitle : mood,
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -252,7 +253,7 @@ class ShareCard extends StatelessWidget {
                 Container(width: 72, height: 2, decoration: BoxDecoration(color: accent, boxShadow: [BoxShadow(color: accent, blurRadius: 8)])),
                 const SizedBox(height: 12),
                 Text(
-                  invite ? '我在城市低語點亮了一道光。\n附近的人越多，街區就越亮。' : '$date · ${_partOfDay(at)}\n在城市的某個角落',
+                  invite ? tr.cardInviteBody : tr.cardMoodFooter(date, _partOfDay(at)),
                   style: const TextStyle(color: Night.ink, fontSize: 13, height: 1.7, letterSpacing: 1, shadows: [Shadow(color: Night.night900, blurRadius: 6)]),
                 ),
               ]),
@@ -262,7 +263,7 @@ class ShareCard extends StatelessWidget {
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               ShaderMask(
                 shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                child: const Text('城市低語', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
+                child: Text(tr.appName, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
               ),
               const Spacer(),
               const Text('mood-whisper-f7de9.web.app', style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5,

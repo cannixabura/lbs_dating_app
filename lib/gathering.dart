@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'gathering_keys.dart';
 import 'report_sheet.dart';
 import 'hidden_content.dart';
+import 'l10n/l10n.dart';
 import 'ui/night.dart';
 
 /// 集會：任何人都能以自己的位置為中心，開一場 5 公里內的活動，用一個表情符號識別。
@@ -85,14 +86,14 @@ class GatheringApi {
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
       final response = await http.post(
         Uri.parse(_gatheringUrl),
-        headers: {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'},
+        headers: {'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'},
         body: jsonEncode(body),
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['success'] == true) return (data, null);
-      return (null, (data['error'] as String?) ?? '活動功能暫時無法使用，請稍後再試。');
+      return (null, (data['error'] as String?) ?? tr.gatheringUnavailable);
     } catch (_) {
-      return (null, '沒有送出，請檢查網路後再試一次。');
+      return (null, tr.notSentCheckNetwork);
     }
   }
 
@@ -129,14 +130,14 @@ Stream<List<Gathering>> activeGatherings() => FirebaseDatabase.instance
 String _hm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 String _timeRange(Gathering g) {
   final sameDay = g.startAt.day == g.endAt.day;
-  return '${_hm(g.startAt)} – ${sameDay ? '' : '隔天 '}${_hm(g.endAt)}';
+  return '${_hm(g.startAt)} – ${sameDay ? '' : tr.nextDayPrefix}${_hm(g.endAt)}';
 }
 
 String _ago(DateTime t) {
   final d = DateTime.now().difference(t);
-  if (d.inMinutes < 1) return '剛剛';
-  if (d.inHours < 1) return '${d.inMinutes} 分鐘前';
-  return '${d.inHours} 小時前';
+  if (d.inMinutes < 1) return tr.justNow;
+  if (d.inHours < 1) return tr.minutesAgo(d.inMinutes);
+  return tr.hoursAgo(d.inHours);
 }
 
 InputDecoration _nightInput(String hint) => InputDecoration(
@@ -177,7 +178,7 @@ Future<void> showGatheringHostSheet(BuildContext context, {required Gathering? h
             Positioned(
               top: Night.space1, right: Night.space1,
               child: Builder(builder: (sheetContext) => IconButton(
-                tooltip: '關閉',
+                tooltip: tr.close,
                 icon: const Icon(Icons.close, color: Night.inkMuted),
                 onPressed: () => Navigator.pop(sheetContext),
               )),
@@ -246,14 +247,14 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
 
   Future<void> _submit() async {
     final emoji = singleEmoji(_emoji.text);
-    if (_name.text.trim().isEmpty) return setState(() => _error = '請幫活動取個名字。');
-    if (emoji == null) return setState(() => _error = '活動圖標要剛好是一個表情符號。');
+    if (_name.text.trim().isEmpty) return setState(() => _error = tr.gatheringNameMissing);
+    if (emoji == null) return setState(() => _error = tr.gatheringEmojiInvalid);
     setState(() { _busy = true; _error = null; });
     final error = await GatheringApi.create(name: _name.text.trim(), emoji: emoji, startAt: _start, endAt: _end, lat: widget.lat, lng: widget.lng);
     if (!mounted) return;
     if (error != null) return setState(() { _busy = false; _error = error; });
     Navigator.of(context).pop();
-    showGlassToast(context, '$emoji ${_name.text.trim()} 開始了。請參加的人把 $emoji 加進城市稱呼。', icon: Icons.campaign_outlined);
+    showGlassToast(context, tr.gatheringStarted(emoji, _name.text.trim()), icon: Icons.campaign_outlined);
   }
 
   @override
@@ -277,11 +278,11 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const Icon(Icons.campaign_outlined, color: Night.auroraViolet, size: 32),
         const SizedBox(height: Night.space2),
-        const Text('開一場集會', style: Night.title, textAlign: TextAlign.center),
+        Text(tr.startGatheringTitle, style: Night.title, textAlign: TextAlign.center),
         const SizedBox(height: Night.space2),
-        const Text('以你的位置為中心 5 公里。你走到哪，範圍就跟到哪。', style: Night.body, textAlign: TextAlign.center),
+        Text(tr.startGatheringLead, style: Night.body, textAlign: TextAlign.center),
         const SizedBox(height: Night.space6),
-        TextField(controller: _name, maxLength: 20, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput('活動名稱，例如：台北101跨年煙火秀')),
+        TextField(controller: _name, maxLength: 20, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput(tr.gatheringNameHint)),
         const SizedBox(height: Night.space2),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
@@ -292,7 +293,7 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
               style: const TextStyle(fontSize: 26),
               cursorColor: Night.auroraViolet,
               onChanged: (_) => setState(() {}),
-              decoration: _nightInput('圖標'), // 不放預設圖標，避免大家都用同一個
+              decoration: _nightInput(tr.gatheringEmojiHint), // 不放預設圖標，避免大家都用同一個
             ),
           ),
           const SizedBox(width: Night.space3),
@@ -301,25 +302,25 @@ class _CreateGatheringFormState extends State<_CreateGatheringForm> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 emoji == null
-                    ? '活動圖標：一個表情符號。附近沒人在用才能選。'
-                    : '參加的人把 $emoji 加進自己的城市稱呼，就會看到你的公告、收到推播。',
+                    ? tr.gatheringEmojiHelp
+                    : tr.gatheringEmojiJoinHelp(emoji),
                 style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5),
               ),
             ),
           ),
         ]),
         const SizedBox(height: Night.space4),
-        timeRow('開始', _start, true),
+        timeRow(tr.start, _start, true),
         const SizedBox(height: Night.space2),
-        timeRow('結束', _end, false),
+        timeRow(tr.end, _end, false),
         const SizedBox(height: Night.space1),
-        const Text('整場最長 24 小時，時間到自動結束。', style: Night.caption),
+        Text(tr.gatheringMaxDuration, style: Night.caption),
         if (_error != null) ...[
           const SizedBox(height: Night.space3),
           Text(_error!, style: const TextStyle(color: Night.danger, fontSize: 13)),
         ],
         const SizedBox(height: Night.space6),
-        NightButton(_busy ? '開始中…' : '開始活動', onPressed: _busy ? null : _submit, expand: true),
+        NightButton(_busy ? tr.starting : tr.startGathering, onPressed: _busy ? null : _submit, expand: true),
       ]),
     );
   }
@@ -364,7 +365,7 @@ class _HostPanelState extends State<_HostPanel> {
     if (!mounted) return;
     if (error != null) return setState(() { _busy = false; _error = error; });
     Navigator.of(context).pop();
-    showGlassToast(context, '${g.emoji} ${g.name} 已結束，你回到了城市裡。', icon: Icons.nights_stay_outlined);
+    showGlassToast(context, tr.gatheringEndedYouBack(g.emoji, g.name), icon: Icons.nights_stay_outlined);
   }
 
   Widget _section(String text) => Padding(
@@ -381,13 +382,13 @@ class _HostPanelState extends State<_HostPanel> {
         const SizedBox(height: Night.space1),
         Text(g.name, style: Night.title, textAlign: TextAlign.center),
         const SizedBox(height: Night.space1),
-        Text('${_timeRange(g)} · 你正在主持', style: Night.caption, textAlign: TextAlign.center),
+        Text(tr.hostingTimeRange(_timeRange(g)), style: Night.caption, textAlign: TextAlign.center),
         const SizedBox(height: Night.space2),
-        Text('5 公里內、稱呼裡有 ${g.emoji} 的人會看到公告並收到推播。你看不到他們是誰。', style: Night.body.copyWith(fontSize: 13), textAlign: TextAlign.center),
+        Text(tr.hostAudienceRule(g.emoji), style: Night.body.copyWith(fontSize: 13), textAlign: TextAlign.center),
 
-        _section('發布公告'),
-        TextField(controller: _announcement, maxLength: 200, minLines: 2, maxLines: 4, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput('例如：隊伍在忠孝東路口集合')),
-        NightButton('發布公告', onPressed: _busy ? null : () => _run(() => GatheringApi.announce(g.id, _announcement.text.trim()), clear: _announcement, done: '公告已送出'), expand: true),
+        _section(tr.postAnnouncement),
+        TextField(controller: _announcement, maxLength: 200, minLines: 2, maxLines: 4, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput(tr.announcementHint)),
+        NightButton(tr.postAnnouncement, onPressed: _busy ? null : () => _run(() => GatheringApi.announce(g.id, _announcement.text.trim()), clear: _announcement, done: tr.announcementSent), expand: true),
         StreamBuilder<DatabaseEvent>(
           stream: _recent,
           builder: (context, snap) {
@@ -401,7 +402,7 @@ class _HostPanelState extends State<_HostPanel> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: Night.space2),
                     child: Text(
-                      '${_ago(DateTime.fromMillisecondsSinceEpoch((a['at'] as num).toInt()))}　${a['text']}${a['hidden'] == true ? '（已因多人檢舉隱藏）' : ''}',
+                      tr.announcementLine(_ago(DateTime.fromMillisecondsSinceEpoch((a['at'] as num).toInt())), '${a['text']}') + (a['hidden'] == true ? tr.announcementHiddenSuffix : ''),
                       style: Night.caption.copyWith(color: a['hidden'] == true ? Night.danger : Night.inkMuted, height: 1.5),
                     ),
                   ),
@@ -410,9 +411,9 @@ class _HostPanelState extends State<_HostPanel> {
           },
         ),
 
-        _section('全場提問'),
-        TextField(controller: _question, maxLength: 40, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput('例如：此刻的你？')),
-        NightButton('送出提問', kind: NightButtonKind.ghost, onPressed: _busy ? null : () => _run(() => GatheringApi.ask(g.id, _question.text.trim()), clear: _question, done: '提問已送出，大家會用心情回答'), expand: true),
+        _section(tr.groupQuestion),
+        TextField(controller: _question, maxLength: 40, style: const TextStyle(color: Night.ink, fontSize: 15), cursorColor: Night.auroraViolet, decoration: _nightInput(tr.questionHint)),
+        NightButton(tr.sendQuestion, kind: NightButtonKind.ghost, onPressed: _busy ? null : () => _run(() => GatheringApi.ask(g.id, _question.text.trim()), clear: _question, done: tr.questionSent), expand: true),
         StreamBuilder<DatabaseEvent>(
           stream: _live,
           builder: (context, qSnap) {
@@ -428,20 +429,20 @@ class _HostPanelState extends State<_HostPanel> {
           },
         ),
 
-        _section('交棒'),
+        _section(tr.handOff),
         if (g.handoffPending)
           Row(children: [
-            Expanded(child: Text('已邀請 ${g.pendingHandoffTo?.isNotEmpty == true ? g.pendingHandoffTo : '對方'} 接下主持，等待回覆中…', style: Night.body.copyWith(fontSize: 14))),
-            NightButton('取消', kind: NightButtonKind.text, onPressed: _busy ? null : () => _run(() => GatheringApi.cancelHandoff(g.id), done: '已取消交棒邀請')),
+            Expanded(child: Text(tr.handoffPending(g.pendingHandoffTo?.isNotEmpty == true ? g.pendingHandoffTo! : tr.theOtherPerson), style: Night.body.copyWith(fontSize: 14))),
+            NightButton(tr.cancel, kind: NightButtonKind.text, onPressed: _busy ? null : () => _run(() => GatheringApi.cancelHandoff(g.id), done: tr.handoffCancelled)),
           ])
         else
-          Text('長按雷達上參加者的氣泡 →「轉移主持人」，對方同意後就由他主持，活動與公告都不會中斷。', style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5)),
+          Text(tr.handoffHelp, style: Night.caption.copyWith(color: Night.inkMuted, height: 1.5)),
         if (_error != null) ...[
           const SizedBox(height: Night.space4),
           Text(_error!, style: const TextStyle(color: Night.danger, fontSize: 13)),
         ],
         const SizedBox(height: Night.space6),
-        NightButton(_confirmEnd ? '確定結束？再按一次' : '結束活動', kind: NightButtonKind.danger, onPressed: _busy ? null : _end, expand: true),
+        NightButton(_confirmEnd ? tr.confirmEndAgain : tr.endGathering, kind: NightButtonKind.danger, onPressed: _busy ? null : _end, expand: true),
       ]),
     );
   }
@@ -464,10 +465,10 @@ class _TallyView extends StatelessWidget {
     final total = (t['total'] as num?)?.toInt() ?? 0;
     final moods = (t['moods'] as List?) ?? const [];
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text('「$question」· $total 人回答', style: const TextStyle(color: Night.ink, fontSize: 14)),
+      Text(tr.tallyHeader(question, total), style: const TextStyle(color: Night.ink, fontSize: 14)),
       const SizedBox(height: Night.space2),
       if (t['quiet'] != false || moods.isEmpty)
-        const Text('滿 10 人回答才顯示比例，避免人少時猜得出是誰。', style: Night.caption)
+        Text(tr.tallyQuiet, style: Night.caption)
       else
         for (final m in moods.cast<Map>())
           Padding(
@@ -572,17 +573,17 @@ class _GatheringBannerState extends State<GatheringBanner> {
         child: Text.rich(
           TextSpan(children: [
             TextSpan(text: g.name, style: const TextStyle(color: Night.ink, fontSize: 14, fontWeight: FontWeight.w600)),
-            TextSpan(text: widget.isHost ? '  · 你正在主持' : '  · 主持人公告', style: Night.caption),
+            TextSpan(text: widget.isHost ? tr.bannerYouHost : tr.bannerHostAnnouncement, style: Night.caption),
           ]),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       ),
       if (widget.isHost)
-        _iconButton(Icons.tune, '管理活動', widget.onManage)
+        _iconButton(Icons.tune, tr.manageGathering, widget.onManage)
       else
-        _iconButton(Icons.flag_outlined, '檢舉這則公告', _report, color: Night.danger),
-      _iconButton(_collapsed ? Icons.expand_more : Icons.expand_less, _collapsed ? '展開公告' : '收起公告', () => setState(() => _collapsed = !_collapsed)),
+        _iconButton(Icons.flag_outlined, tr.reportAnnouncement, _report, color: Night.danger),
+      _iconButton(_collapsed ? Icons.expand_more : Icons.expand_less, _collapsed ? tr.expandAnnouncement : tr.collapseAnnouncement, () => setState(() => _collapsed = !_collapsed)),
     ]);
 
     if (_collapsed) {
@@ -602,23 +603,23 @@ class _GatheringBannerState extends State<GatheringBanner> {
           padding: const EdgeInsets.only(right: Night.space3),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
             if (g.handoffAt != null && DateTime.now().difference(g.handoffAt!) < const Duration(minutes: 30)) ...[
-              Text('主持人已交棒 · ${_ago(g.handoffAt!)}', style: Night.caption.copyWith(color: Night.auroraBlue)),
+              Text(tr.hostHandedOffAgo(_ago(g.handoffAt!)), style: Night.caption.copyWith(color: Night.auroraBlue)),
               const SizedBox(height: 4),
             ],
             if (g.latestText != null) ...[
               HiddenContent.instance.isAnnouncementHidden(g.id, g.latestId)
-                  ? const Text('你檢舉了這則公告，已從你的畫面移除。', style: Night.caption)
+                  ? Text(tr.announcementReportedHidden, style: Night.caption)
                   : Text(g.latestText!, style: const TextStyle(color: Night.ink, fontSize: 15, height: 1.5), maxLines: 4, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 2),
               Text(g.latestAt == null ? '' : _ago(g.latestAt!), style: Night.caption),
             ] else
-              Text(widget.isHost ? '還沒有公告。按右上角的調整鈕發布第一則。' : '主持人還沒有發公告。', style: Night.caption),
+              Text(widget.isHost ? tr.noAnnouncementHost : tr.noAnnouncementGuest, style: Night.caption),
             if (hasQuestion && !widget.isHost) ...[
               const SizedBox(height: Night.space3),
-              Text('主持人問：${g.questionText}', style: const TextStyle(color: Night.auroraBlue, fontSize: 14)),
+              Text(tr.hostAsks(g.questionText ?? ''), style: const TextStyle(color: Night.auroraBlue, fontSize: 14)),
               const SizedBox(height: Night.space2),
               if (answered)
-                const Text('已回答。主持人只會看到全場的心情比例。', style: Night.caption)
+                Text(tr.answeredNote, style: Night.caption)
               else
                 Row(children: [
                   Expanded(
@@ -627,12 +628,12 @@ class _GatheringBannerState extends State<GatheringBanner> {
                       maxLength: 20,
                       style: const TextStyle(color: Night.ink, fontSize: 14),
                       cursorColor: Night.auroraViolet,
-                      decoration: _nightInput('用一句心情回答').copyWith(counterText: ''),
+                      decoration: _nightInput(tr.answerHint).copyWith(counterText: ''),
                       onSubmitted: (_) => _send(),
                     ),
                   ),
                   const SizedBox(width: Night.space2),
-                  _iconButton(Icons.send_rounded, '送出回答', _busy ? null : _send, color: Night.auroraViolet),
+                  _iconButton(Icons.send_rounded, tr.sendAnswer, _busy ? null : _send, color: Night.auroraViolet),
                 ]),
             ],
           ]),
@@ -701,7 +702,7 @@ class _HandoffFormState extends State<_HandoffForm> {
     if (!mounted) return;
     if (error != null) return setState(() { _busy = false; _error = error; });
     Navigator.of(context).pop();
-    showGlassToast(context, '已邀請 ${widget.toName} 接下主持，等對方回覆（5 分鐘內有效）。', icon: Icons.campaign_outlined);
+    showGlassToast(context, tr.handoffInvited(widget.toName), icon: Icons.campaign_outlined);
   }
 
   Widget _option(bool quiet, String title, String subtitle) => InkWell(
@@ -734,22 +735,22 @@ class _HandoffFormState extends State<_HandoffForm> {
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text(g.emoji, style: const TextStyle(fontSize: 32), textAlign: TextAlign.center),
       const SizedBox(height: Night.space2),
-      Text('把活動交給 ${widget.toName}', style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
+      Text(tr.handoffTitle(widget.toName), style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
       const SizedBox(height: Night.space2),
-      const Text('對方同意後，由他主持這場活動；名稱、公告與提問都會留著。你會變回參加者。', style: Night.body, textAlign: TextAlign.center),
+      Text(tr.handoffBody, style: Night.body, textAlign: TextAlign.center),
       const SizedBox(height: Night.space4),
-      _option(false, '公開交棒', '通知所有參加者「主持人已交棒」'),
+      _option(false, tr.handoffPublic, tr.handoffPublicHelp),
       const SizedBox(height: Night.space2),
-      _option(true, '安靜交棒', '不通知任何人，只有雷達上的「主持」光環換人'),
+      _option(true, tr.handoffQuiet, tr.handoffQuietHelp),
       if (_error != null) ...[
         const SizedBox(height: Night.space3),
         Text(_error!, style: const TextStyle(color: Night.danger, fontSize: 13), textAlign: TextAlign.center),
       ],
       const SizedBox(height: Night.space4),
       Row(children: [
-        Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop())),
+        Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop())),
         const SizedBox(width: Night.space2),
-        Expanded(child: NightButton(_busy ? '送出中…' : '送出邀請', onPressed: _busy ? null : _send)),
+        Expanded(child: NightButton(_busy ? tr.sending : tr.sendInvite, onPressed: _busy ? null : _send)),
       ]),
     ]);
   }
@@ -774,7 +775,7 @@ Future<void> showHandoffOffer(BuildContext context, Map offer) {
           if (error != null) {
             showGlassToast(context, error, icon: Icons.error_outline, danger: true);
           } else if (accept) {
-            showGlassToast(context, '你現在是 $emoji $name 的主持人。', icon: Icons.campaign_outlined);
+            showGlassToast(context, tr.youAreNowHost(emoji, name), icon: Icons.campaign_outlined);
           }
         }
 
@@ -786,14 +787,14 @@ Future<void> showHandoffOffer(BuildContext context, Map offer) {
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(emoji, style: const TextStyle(fontSize: 36), textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              const Text('想請你接下主持', style: Night.title, textAlign: TextAlign.center),
+              Text(tr.handoffOfferTitle, style: Night.title, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              Text('主持人想把「$name」交給你。接下後，你可以發公告、提問與結束活動，也要對公告內容負責。', style: Night.body, textAlign: TextAlign.center),
+              Text(tr.handoffOfferBody(name), style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
-                Expanded(child: NightButton('婉拒', kind: NightButtonKind.ghost, onPressed: busy ? null : () => reply(false))),
+                Expanded(child: NightButton(tr.decline, kind: NightButtonKind.ghost, onPressed: busy ? null : () => reply(false))),
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton(busy ? '處理中…' : '接下主持', onPressed: busy ? null : () => reply(true))),
+                Expanded(child: NightButton(busy ? tr.processing : tr.acceptHosting, onPressed: busy ? null : () => reply(true))),
               ]),
             ]),
           ),

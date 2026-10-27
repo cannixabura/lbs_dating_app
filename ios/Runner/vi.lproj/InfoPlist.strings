@@ -1,0 +1,7 @@
+/* 系統權限說明與 App 名稱（Info.plist 的翻譯） */
+"CFBundleDisplayName" = "Mood Whisper";
+"NSPhotoLibraryUsageDescription" = "Mood Whisper đọc ảnh bạn chọn để đặt làm ảnh đại diện.";
+"NSPhotoLibraryAddUsageDescription" = "Mood Whisper lưu thẻ tâm trạng vào thư viện ảnh để bạn chia sẻ ở nơi khác.";
+"NSCameraUsageDescription" = "Mood Whisper dùng máy ảnh để bạn chụp ảnh đại diện.";
+"NSLocationWhenInUseUsageDescription" = "Mood Whisper dùng vị trí khi bạn đang dùng ứng dụng để hiện những người trong bán kính 5 km trên radar và cho người gần đó thấy bong bóng tâm trạng của bạn.";
+"Radar" = "Radar cần vị trí chính xác để biết ai ở gần bạn. Người khác chỉ thấy khoảng cách gần đúng, không bao giờ thấy địa chỉ của bạn.";

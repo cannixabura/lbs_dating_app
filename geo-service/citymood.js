@@ -1,6 +1,6 @@
 // ============================================================================
 // 城市心情天氣：把 20 公里內、24 小時內的匿名心情彙總成百分比
-// 分類規則與 App 的氣泡顏色相同（lib/main.dart 的 _getMoodColor），先符合者優先。
+// 分類規則與 App 的氣泡顏色相同（lib/mood_keywords.dart），先符合者優先。
 // 少於 MIN_PEOPLE 人時不給百分比，避免人少時能推測出誰是什麼心情。
 // ============================================================================
 
@@ -8,20 +8,25 @@ const CITY_RADIUS_KM = 20;
 const WINDOW_MS = 24 * 60 * 60 * 1000;
 const MIN_PEOPLE = 10;
 
-const CATEGORIES = [
-    { key: 'joy', label: '開心', words: ['😊', '開心', '笑'] },
-    { key: 'sad', label: '難過', words: ['😢', '難過', '哭'] },
-    { key: 'angry', label: '生氣', words: ['😡', '生氣', '怒'] },
-    { key: 'calm', label: '平靜', words: ['🌿', '平靜', '發呆'] },
-    { key: 'passion', label: '熱情', words: ['🔥', '熱情'] },
-    { key: 'love', label: '愛', words: ['💖', '愛', '心'] },
-];
+// 各語言的關鍵字在 mood_keywords.json；label 是給舊版 App 顯示用的繁中名稱，新版 App 依 key 自己翻譯
+const KEYWORDS = require('./mood_keywords.json');
+const LABELS = { joy: '開心', sad: '難過', angry: '生氣', calm: '平靜', passion: '熱情', love: '愛' };
+const CATEGORIES = Object.keys(LABELS).map((key) => ({ key, label: LABELS[key], words: KEYWORDS[key] }));
 const OTHER = { key: 'other', label: '其他' };
+
+const LATIN = /[A-Za-z\u00C0-\u024F\u1E00-\u1EFF]/;
+const escape = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// 含拉丁字母的字詞要整個字相符、不分大小寫；中日韓文字只要出現就算
+function matches(mood, word) {
+    if (!LATIN.test(word)) return mood.includes(word);
+    return new RegExp(`(^|[^\\p{L}])${escape(word)}($|[^\\p{L}])`, 'iu').test(mood);
+}
 
 function classifyMood(text) {
     const mood = String(text || '');
     for (const c of CATEGORIES) {
-        if (c.words.some((w) => mood.includes(w))) return c.key;
+        if (c.words.some((w) => matches(mood, w))) return c.key;
     }
     return OTHER.key;
 }

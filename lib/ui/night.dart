@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+import '../mood_keywords.dart';
 import 'package:flutter/material.dart';
 
 /// 城市低語「夜光設計系統」的 Flutter 版本。
@@ -237,13 +239,13 @@ class _GlassToastState extends State<_GlassToast> with SingleTickerProviderState
   }
 }
 
-/// 心情文字 → (分類名稱, 顏色)。與氣泡顏色、城市心情天氣（geo-service/citymood.js）使用同一套關鍵字，先符合者優先。
-(String, Color) moodStyleOf(String mood) {
-  if (mood.contains('😊') || mood.contains('開心') || mood.contains('笑')) return ('開心', Night.moodJoy);
-  if (mood.contains('😢') || mood.contains('難過') || mood.contains('哭')) return ('難過', Night.moodSad);
-  if (mood.contains('😡') || mood.contains('生氣') || mood.contains('怒')) return ('生氣', Night.moodAngry);
-  if (mood.contains('🌿') || mood.contains('平靜') || mood.contains('發呆')) return ('平靜', Night.moodCalm);
-  if (mood.contains('🔥') || mood.contains('熱情')) return ('熱情', Night.moodPassion);
-  if (mood.contains('💖') || mood.contains('愛') || mood.contains('心')) return ('愛', Night.moodLove);
-  return ('其他', Night.moodDefault);
-}
+/// 心情文字 → (分類名稱, 顏色)。分類關鍵字在 mood_keywords.dart，與城市心情天氣（geo-service/citymood.js）相同。
+(String, Color) moodStyleOf(String mood) => switch (moodKeyOf(mood)) {
+      'joy' => (tr.moodJoy, Night.moodJoy),
+      'sad' => (tr.moodSad, Night.moodSad),
+      'angry' => (tr.moodAngry, Night.moodAngry),
+      'calm' => (tr.moodCalm, Night.moodCalm),
+      'passion' => (tr.moodPassion, Night.moodPassion),
+      'love' => (tr.moodLove, Night.moodLove),
+      _ => (tr.moodOther, Night.moodDefault),
+    };

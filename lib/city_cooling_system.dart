@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,7 +37,7 @@ class CityCoolingSystem {
 
     // 規則 A：全局防連點檢查
     if (_lastKnockTime != null && now.difference(_lastKnockTime!) < globalKnockCooldown) {
-      onBlocked('敲門太頻繁，請感受一下城市的呼吸...');
+      onBlocked(tr.knockTooOften);
       return false;
     }
 
@@ -49,9 +50,9 @@ class CityCoolingSystem {
       
       if (now.difference(_rejectionTimes[targetUid]!) < requiredCooldown) {
         if (tier == rejectionCooldownTiers.length - 1) {
-          onBlocked('對方目前不想被打擾，請給彼此一點空間。');
+          onBlocked(tr.otherNotNow);
         } else {
-          onBlocked('對方目前不想被打擾，請給彼此一點空間 (${requiredCooldown.inMinutes} 分鐘)。');
+          onBlocked(tr.otherNotNowMinutes(requiredCooldown.inMinutes));
         }
         return false;
       } else {
@@ -63,7 +64,7 @@ class CityCoolingSystem {
     // 🌟 規則 C：結束交集冷卻檢查 (1 分鐘)
     if (_chatEndTimes.containsKey(targetUid)) {
       if (now.difference(_chatEndTimes[targetUid]!) < postChatCooldown) {
-        onBlocked('你們才剛結束交集，讓回憶沉澱一下吧。');
+        onBlocked(tr.justEndedRest);
         return false;
       } else {
         _chatEndTimes.remove(targetUid); // 冷卻完畢，解鎖限制

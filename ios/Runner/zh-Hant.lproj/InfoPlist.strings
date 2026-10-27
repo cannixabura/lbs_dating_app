@@ -1,0 +1,7 @@
+/* 系統權限說明與 App 名稱（Info.plist 的翻譯） */
+"CFBundleDisplayName" = "城市低語";
+"NSPhotoLibraryUsageDescription" = "城市低語需要讀取你選擇的照片，用來設定你的大頭貼。";
+"NSPhotoLibraryAddUsageDescription" = "城市低語需要將你的心情卡儲存到相簿，方便你分享到其他地方。";
+"NSCameraUsageDescription" = "城市低語需要使用相機，讓你拍一張照片作為大頭貼。";
+"NSLocationWhenInUseUsageDescription" = "城市低語會在你使用 App 時取得你的位置，用來在雷達上顯示 5 公里內的人，並讓附近的人看到你的心情氣泡。";
+"Radar" = "雷達需要你的精確位置，才能判斷誰在你附近；其他人只會看到大概的距離，不會看到你的地址。";

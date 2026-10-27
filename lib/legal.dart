@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 使用條款與隱私權政策。條款內容有實質變更時，把 [termsVersion] 往後改，
@@ -12,5 +13,5 @@ class Legal {
 
   static Future<void> open(Uri url) => launchUrl(url, mode: LaunchMode.inAppBrowserView);
 
-  static Future<void> emailUs() => launchUrl(Uri(scheme: 'mailto', path: contactEmail, query: 'subject=城市低語 意見回報'));
+  static Future<void> emailUs() => launchUrl(Uri(scheme: 'mailto', path: contactEmail, query: 'subject=${Uri.encodeComponent(tr.feedbackSubject)}'));
 }

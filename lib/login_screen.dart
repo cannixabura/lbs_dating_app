@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
@@ -74,11 +75,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _enterCity() async {
     final mood = _moodController.text.trim();
     if (mood.isEmpty) {
-      showGlassToast(context, '請留下你此刻的心情，再沒入城市。', icon: Icons.edit_outlined);
+      showGlassToast(context, tr.loginNeedMood, icon: Icons.edit_outlined);
       return;
     }
     if (_needsConsent && !_agreed) {
-      showGlassToast(context, '請先閱讀並勾選同意使用條款與隱私權政策。', icon: Icons.description_outlined);
+      showGlassToast(context, tr.loginNeedAgree, icon: Icons.description_outlined);
       return;
     }
 
@@ -93,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user == null) throw Exception('anonymous sign-in returned no user');
       finalUid = user.uid;
     } catch (e) {
-      if (mounted) showGlassToast(context, '無法連上城市，請檢查網路後再試一次。', icon: Icons.wifi_off, danger: true);
+      if (mounted) showGlassToast(context, tr.loginCantConnect, icon: Icons.wifi_off, danger: true);
       return;
     }
 
@@ -144,14 +145,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return GlassCard(
       glow: true,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Text('請問你已年滿 18 歲了嗎？', style: Night.title, textAlign: TextAlign.center),
+        Text(tr.ageQuestion, style: Night.title, textAlign: TextAlign.center),
         const SizedBox(height: Night.space2),
-        const Text('城市低語會與附近的陌生人互動，僅限 18 歲以上使用。', style: Night.body, textAlign: TextAlign.center),
+        Text(tr.ageReason, style: Night.body, textAlign: TextAlign.center),
         const SizedBox(height: Night.space4),
         Row(children: [
-          Expanded(child: NightButton('未滿 18 歲', kind: NightButtonKind.ghost, onPressed: () => _answerAge(false))),
+          Expanded(child: NightButton(tr.ageUnder, kind: NightButtonKind.ghost, onPressed: () => _answerAge(false))),
           const SizedBox(width: Night.space2),
-          Expanded(child: NightButton('已滿 18 歲', kind: NightButtonKind.ghost, onPressed: () => _answerAge(true))),
+          Expanded(child: NightButton(tr.ageOver, kind: NightButtonKind.ghost, onPressed: () => _answerAge(true))),
         ]),
       ]),
     );
@@ -180,10 +181,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         baseline: TextBaseline.alphabetic,
                         child: ShaderMask(
                           shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                          child: const Text('準備好', style: TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: 2)),
+                          child: Text(tr.loginTitle1, style: TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: 2)),
                         ),
                       ),
-                      const TextSpan(text: '相遇了嗎？'),
+                      TextSpan(text: tr.loginTitle2),
                     ]),
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Night.ink, fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: 2),
@@ -191,14 +192,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: Night.space3),
                   Center(child: Container(width: 128, height: 2, decoration: BoxDecoration(gradient: Night.brightGradient, borderRadius: BorderRadius.circular(2)))),
                   const SizedBox(height: Night.space3),
-                  const Text('閉上眼睛，感受手機的震動與心跳。\n現在，寫下你此刻的心情，走進城市低語。', style: Night.body, textAlign: TextAlign.center),
+                  Text(tr.loginLead, style: Night.body, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space8),
                   if (!_ageConfirmed) _ageCard() else GlassCard(
                     glow: true,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('此時此刻，你想對城市說什麼？', style: Night.caption),
+                        Text(tr.loginPrompt, style: Night.caption),
                         const SizedBox(height: Night.space2),
                         TextField(
                           controller: _moodController,
@@ -211,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textInputAction: TextInputAction.done, 
                           onSubmitted: (_) => _enterCity(), 
                           decoration: InputDecoration(
-                            hintText: '例如：喝了一杯好咖啡😊',
+                            hintText: tr.loginHint,
                             hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 15),
                             counterStyle: Night.caption,
                             filled: true,
@@ -226,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _consentRow(),
                         ],
                         const SizedBox(height: Night.space4),
-                        NightButton('走進城市低語', expand: true, onPressed: canEnter ? _enterCity : null),
+                        NightButton(tr.enterCity, expand: true, onPressed: canEnter ? _enterCity : null),
                       ],
                     ),
                   ),
@@ -243,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
     const linkStyle = TextStyle(color: Night.auroraBlue, decoration: TextDecoration.underline, decorationColor: Night.auroraBlue);
     return Semantics(
       checked: _agreed,
-      label: '我已閱讀並同意使用條款與隱私權政策',
+      label: tr.agreeSemantic,
       child: InkWell(
         onTap: () => setState(() => _agreed = !_agreed),
         child: Padding(
@@ -263,11 +264,11 @@ class _LoginScreenState extends State<LoginScreen> {
             Expanded(
               child: Text.rich(
                 TextSpan(style: const TextStyle(color: Night.inkMuted, fontSize: 13, height: 1.6), children: [
-                  const TextSpan(text: '我已閱讀及同意'),
-                  TextSpan(text: '《使用條款》', style: linkStyle, recognizer: _termsTap),
-                  const TextSpan(text: '與'),
-                  TextSpan(text: '《隱私權政策》', style: linkStyle, recognizer: _privacyTap),
-                  const TextSpan(text: '。城市低語對騷擾、色情與仇恨等不當內容零容忍，違者將被移出城市。'),
+                  TextSpan(text: tr.agreePrefix),
+                  TextSpan(text: tr.termsLink, style: linkStyle, recognizer: _termsTap),
+                  TextSpan(text: tr.agreeAnd),
+                  TextSpan(text: tr.privacyLink, style: linkStyle, recognizer: _privacyTap),
+                  TextSpan(text: tr.agreeSuffix),
                 ]),
               ),
             ),
@@ -302,12 +303,12 @@ class AgeBlockedScreen extends StatelessWidget {
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const Icon(Icons.nights_stay_outlined, color: Night.inkMuted, size: 44),
                 const SizedBox(height: Night.space3),
-                const Text('城市低語僅限 18 歲以上使用', style: Night.title, textAlign: TextAlign.center),
+                Text(tr.under18Title, style: Night.title, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space3),
-                const Text('謝謝你的誠實。這座城市會與陌生人互動，等你滿 18 歲，我們再見。', style: Night.body, textAlign: TextAlign.center),
+                Text(tr.under18Body, style: Night.body, textAlign: TextAlign.center),
                 if (Platform.isAndroid) ...[
                   const SizedBox(height: Night.space6),
-                  NightButton('離開', kind: NightButtonKind.ghost, expand: true, onPressed: () => SystemNavigator.pop()),
+                  NightButton(tr.leaveApp, kind: NightButtonKind.ghost, expand: true, onPressed: () => SystemNavigator.pop()),
                 ],
               ]),
             ),

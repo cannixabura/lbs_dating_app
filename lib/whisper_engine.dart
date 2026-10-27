@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 
@@ -22,7 +23,7 @@ class WhisperEngine {
   /// 顯示用的距離：分級顯示，不給精確數字（對方位置本身已模糊到 100m 網格）。
   /// 100m 內一律顯示「100m 內」；1km 內以 50m 為一級；更遠以 0.1km 為一級。
   static String formatDistance(double meters) {
-    if (meters < 100) return '100m 內';
+    if (meters < 100) return tr.within100m;
     if (meters < 1000) return '${((meters / 50).round() * 50).clamp(100, 950)}m';
     return '${(meters / 1000).toStringAsFixed(1)}km';
   }

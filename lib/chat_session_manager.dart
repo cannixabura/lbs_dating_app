@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'dart:async';
 
 /// 對話消散事件的回呼定義
@@ -57,7 +58,7 @@ class ChatSessionManager {
     
     // 通知前端 UI 顯示告別語句
     if (onChatDissolved != null) {
-      onChatDissolved!("你們各自回到城市裡了");
+      onChatDissolved!(tr.chatDissolvedApart);
     }
 
     // 徹底清除本地狀態，不留痕跡

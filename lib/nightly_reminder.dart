@@ -1,3 +1,4 @@
+import 'l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -15,14 +16,14 @@ class NightlyReminder {
   static const _minute = 30;
   static const _baseId = 2100; // 2100–2106
 
-  static const _lines = [
-    '今晚的城市在想什麼？',
-    '有人在附近，正寫下此刻的心情。',
-    '夜色剛好，留一句話給這座城市吧。',
-    '今天過得怎麼樣？你的心情會在城市裡發光。',
-    '街燈亮了，附近的人也還醒著。',
-    '給今天一個結尾：此刻的你，是什麼心情？',
-    '今晚，誰會和你擦肩而過？',
+  static List<String> get _lines => [
+    tr.nightly1,
+    tr.nightly2,
+    tr.nightly3,
+    tr.nightly4,
+    tr.nightly5,
+    tr.nightly6,
+    tr.nightly7,
   ];
 
   static final _plugin = FlutterLocalNotificationsPlugin();
@@ -76,11 +77,11 @@ class NightlyReminder {
         await _plugin.zonedSchedule(
           id: _baseId + i,
           scheduledDate: when,
-          title: '城市低語',
+          title: tr.appName,
           body: _lines[(when.day + i) % _lines.length],
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          notificationDetails: const NotificationDetails(
-            android: AndroidNotificationDetails('nightly_reminder', '每晚提醒', channelDescription: '每晚一則溫和的提醒，可在 App 設定中關閉'),
+          notificationDetails: NotificationDetails(
+            android: AndroidNotificationDetails('nightly_reminder', tr.nightlyChannel, channelDescription: tr.nightlyChannelDesc),
             // App 正開著時不跳橫幅，只收進通知中心
             iOS: DarwinNotificationDetails(presentBanner: false, presentList: true, presentSound: false),
           ),

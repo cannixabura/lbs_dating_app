@@ -1,0 +1,9 @@
+{
+  "_comment": "心情分類關鍵字（各語言）。App 的 lib/mood_keywords.dart 必須一致（geo-service/citymood.test.js 會檢查）。先符合者優先；含拉丁字母的字詞要整個字相符、不分大小寫，其他字詞只要出現就算。",
+  "joy": ["😊", "開心", "笑", "开心", "happy", "glad", "joy", "laugh", "haha", "うれしい", "嬉しい", "楽しい", "기쁨", "기뻐", "행복", "웃", "gembira", "seronok", "ketawa", "senang", "bahagia", "tertawa", "vui", "hạnh phúc", "cười"],
+  "sad": ["😢", "難過", "哭", "难过", "sad", "cry", "crying", "tears", "かなしい", "悲しい", "泣", "슬픔", "슬퍼", "눈물", "울고", "울어", "sedih", "menangis", "nangis", "buồn", "khóc"],
+  "angry": ["😡", "生氣", "怒", "生气", "angry", "mad", "furious", "ムカつく", "腹立つ", "화남", "화나", "짜증", "marah", "geram", "kesal", "giận", "tức"],
+  "calm": ["🌿", "平靜", "發呆", "平静", "发呆", "calm", "chill", "peaceful", "relaxed", "おだやか", "穏やか", "落ち着", "ぼんやり", "평온", "편안", "멍때", "tenang", "santai", "bình yên", "thư giãn"],
+  "passion": ["🔥", "熱情", "热情", "fired up", "excited", "passion", "hyped", "情熱", "ワクワク", "わくわく", "열정", "신나", "설레", "bersemangat", "teruja", "semangat", "nhiệt huyết", "hào hứng"],
+  "love": ["💖", "愛", "心", "爱", "love", "heart", "❤️", "好き", "ハート", "사랑", "cinta", "sayang", "yêu", "thương"]
+}

@@ -39,6 +39,8 @@ import 'guide_screen.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
+import 'l10n/l10n.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
 import 'ui/knock_ritual.dart';
 import 'ui/night.dart';
@@ -50,16 +52,7 @@ enum RequestStatus { none, pending, accepted }
 /// 定位無法使用的原因：服務關閉、未授權、永久拒絕、只給大概位置、抓不到位置
 enum _LocationIssue { none, serviceOff, denied, deniedForever, reduced, noFix }
 
-Color _getMoodColor(String mood) {
-  if (mood.isEmpty) return Night.moodDefault;
-  if (mood.contains('😊') || mood.contains('開心') || mood.contains('笑')) return Night.moodJoy;
-  if (mood.contains('😢') || mood.contains('難過') || mood.contains('哭')) return Night.moodSad;
-  if (mood.contains('😡') || mood.contains('生氣') || mood.contains('怒')) return Night.moodAngry;
-  if (mood.contains('🌿') || mood.contains('平靜') || mood.contains('發呆')) return Night.moodCalm;
-  if (mood.contains('🔥') || mood.contains('熱情')) return Night.moodPassion;
-  if (mood.contains('💖') || mood.contains('愛') || mood.contains('心')) return Night.moodLove;
-  return Night.moodDefault;
-}
+Color _getMoodColor(String mood) => mood.isEmpty ? Night.moodDefault : moodStyleOf(mood).$2;
 
 // 夜光地圖樣式：由 tool/build_night_map_style.py 從 dark-matter 重新上色、圖資用 OpenFreeMap，內建在 App 裡
 const String _nightStyleAsset = 'assets/map/night_style.json';
@@ -69,14 +62,14 @@ const String _deleteAccountUrl = 'https://asia-southeast1-mood-whisper-f7de9.clo
 const String _cityMoodUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/getCityMood';
 
 // 城市心情天氣的分類，與伺服器 geo-service/citymood.js 一致
-const Map<String, (String, Color)> _cityMoodStyle = {
-  'joy': ('開心', Night.moodJoy),
-  'sad': ('難過', Night.moodSad),
-  'angry': ('生氣', Night.moodAngry),
-  'calm': ('平靜', Night.moodCalm),
-  'passion': ('熱情', Night.moodPassion),
-  'love': ('愛', Night.moodLove),
-  'other': ('其他', Night.moodDefault),
+Map<String, (String, Color)> get _cityMoodStyle => {
+  'joy': (tr.moodJoy, Night.moodJoy),
+  'sad': (tr.moodSad, Night.moodSad),
+  'angry': (tr.moodAngry, Night.moodAngry),
+  'calm': (tr.moodCalm, Night.moodCalm),
+  'passion': (tr.moodPassion, Night.moodPassion),
+  'love': (tr.moodLove, Night.moodLove),
+  'other': (tr.moodOther, Night.moodDefault),
 };
 
 ui.FragmentProgram? bubbleShaderProgram;
@@ -98,6 +91,7 @@ void main() async {
   };
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  await loadAppLocale();
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('has_seen_intro');
   final bool hasSeenIntro = prefs.getBool('has_seen_intro') ?? false;
@@ -113,8 +107,19 @@ class MoodWhisperApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '城市低語', 
+    return ValueListenableBuilder<Locale?>(
+      valueListenable: appLocale,
+      builder: (context, locale, _) => MaterialApp(
+      onGenerateTitle: (context) => tr.appName,
+      locale: locale,
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: resolveLocale,
+      // 語言改變時更新 tr，讓不在 widget 裡的程式也拿得到目前語言的文字
+      builder: (context, child) {
+        tr = AppLocalizations.of(context);
+        return child!;
+      },
       debugShowCheckedModeBanner: false, 
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -122,6 +127,7 @@ class MoodWhisperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      ),
     );
   }
 }
@@ -202,7 +208,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       final activeIds = list.map((g) => g.id).toSet();
       for (final ended in _shownGatherings.values.where((g) => !activeIds.contains(g.id)).toList()) {
         _shownGatherings.remove(ended.id);
-        if (ended.hostUid != widget.uid) showGlassToast(context, '${ended.emoji} ${ended.name} 已結束', icon: Icons.nights_stay_outlined);
+        if (ended.hostUid != widget.uid) showGlassToast(context, tr.gatheringEnded(ended.emoji, ended.name), icon: Icons.nights_stay_outlined);
       }
       setState(() => _gatherings = list);
       _checkHandedOff(list);
@@ -219,16 +225,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final g = list.where((e) => e.id == previous).firstOrNull;
     if (g == null) return; // 活動結束了，不是交棒
     if (emojiKeysIn(_myNickname).contains(g.emojiKey)) {
-      showGlassToast(context, '你已把 ${g.emoji} ${g.name} 交棒，現在是參加者。', icon: Icons.campaign_outlined);
+      showGlassToast(context, tr.handedOffStillJoined(g.emoji, g.name), icon: Icons.campaign_outlined);
       return;
     }
     final updated = '$_myNickname${g.emoji}';
     if (updated.characters.length > 10) {
-      showGlassToast(context, '你已交棒。稱呼已滿 10 個字，請自己把 ${g.emoji} 加進稱呼，才能繼續收到公告。', icon: Icons.campaign_outlined);
+      showGlassToast(context, tr.handedOffNicknameFull(g.emoji), icon: Icons.campaign_outlined);
       return;
     }
     _saveNickname(updated);
-    showGlassToast(context, '你已交棒，稱呼補上了 ${g.emoji}，你現在是參加者。', icon: Icons.campaign_outlined);
+    showGlassToast(context, tr.handedOffEmojiAdded(g.emoji), icon: Icons.campaign_outlined);
   }
 
   Future<void> _saveNickname(String nickname) async {
@@ -426,16 +432,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               child: GlassCard(
                 glow: true,
                 child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  const Text('城市低語 1.1 內部測試版', style: Night.title, textAlign: TextAlign.center),
+                  Text(tr.releaseNotesTitle, style: Night.title, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space2),
-                  const Text('這座城市換上了夜色。', style: Night.body, textAlign: TextAlign.center),
+                  Text(tr.releaseNotesLead, style: Night.body, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space4),
-                  line(Icons.map_outlined, '全新夜光地圖：深藍街區、微光道路、霓虹建築'),
-                  line(Icons.bubble_chart_outlined, '心情氣泡改為深色玻璃，在哪裡都看得清楚'),
-                  line(Icons.nights_stay_outlined, '休息中與歷史殘影：鎖屏也能被敲門'),
-                  line(Icons.flag_outlined, '檢舉與封鎖：讓城市保持安全'),
+                  line(Icons.map_outlined, tr.releaseNotesMap),
+                  line(Icons.bubble_chart_outlined, tr.releaseNotesBubbles),
+                  line(Icons.nights_stay_outlined, tr.releaseNotesResting),
+                  line(Icons.flag_outlined, tr.releaseNotesSafety),
                   const SizedBox(height: Night.space4),
-                  NightButton('我知道了', onPressed: () async {
+                  NightButton(tr.gotIt, onPressed: () async {
                     await prefs.setString('last_seen_version', currentVersion);
                     if (context.mounted) Navigator.pop(context);
                   }),
@@ -488,13 +494,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Future<void> _blockUser(String targetUid, String targetName) async {
     await _dbRef.child('blocks/${widget.uid}/$targetUid').set(targetName); 
     await _dbRef.child('blockedBy/$targetUid/${widget.uid}').set(true);
-    if (mounted) showGlassToast(context, '已將此人沒入黑暗。', icon: Icons.block, danger: true);
+    if (mounted) showGlassToast(context, tr.blockedToast, icon: Icons.block, danger: true);
   }
 
   Future<void> _unblockUser(String targetUid) async {
     await _dbRef.child('blocks/${widget.uid}/$targetUid').remove();
     await _dbRef.child('blockedBy/$targetUid/${widget.uid}').remove();
-    if (mounted) showGlassToast(context, '已解除封鎖，城市再次產生交集。', icon: Icons.nights_stay_outlined);
+    if (mounted) showGlassToast(context, tr.unblockedToast, icon: Icons.nights_stay_outlined);
   }
 
   Future<void> _initPushNotifications() async {
@@ -522,7 +528,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
         if (message.data['type'] == 'chat_message' && message.data['roomId'] == ChatScreen.activeRoomId) return;
         if (message.notification != null && mounted) {
-          showGlassToast(context, '${message.notification!.title}：${message.notification!.body}', icon: Icons.chat_bubble_outline);
+          showGlassToast(context, tr.notificationToast(message.notification!.title ?? '', message.notification!.body ?? ''), icon: Icons.chat_bubble_outline);
         }
       });
     }
@@ -734,13 +740,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Widget _buildLocationBlocker() {
     final issue = _locationIssue;
     final (IconData icon, String title, String body) = switch (issue) {
-      _LocationIssue.serviceOff => (Icons.location_off_outlined, '請開啟定位服務', '城市低語需要知道你在城市的哪個角落，才能讓附近的人看見你的心情。請到手機的「設定」開啟「定位服務」。'),
-      _LocationIssue.reduced => (Icons.my_location, '請開啟「精確位置」',
-          Platform.isIOS ? '你目前只分享了大概的位置，雷達無法判斷誰在你附近。請到「設定」›「城市低語」›「位置」，打開「精確位置」。'
-                         : '你目前只分享了大概的位置，雷達無法判斷誰在你附近。請在位置權限中選擇「精確」。'),
-      _LocationIssue.noFix => (Icons.gps_not_fixed, '暫時抓不到你的位置', '可能在室內或訊號較弱。請到窗邊或戶外、開啟 Wi-Fi 後再試一次。'),
-      _ => (Icons.location_off_outlined, '需要使用你的位置',
-          '城市低語只在你使用 App 時取得位置，用來顯示附近 5 公里內的心情；雷達上只顯示大概的距離，不會顯示地址。\n請在設定中允許「使用 App 期間」取用位置，並開啟「精確位置」。'),
+      _LocationIssue.serviceOff => (Icons.location_off_outlined, tr.locationServiceOffTitle, tr.locationServiceOffBody),
+      _LocationIssue.reduced => (Icons.my_location, tr.locationReducedTitle,
+          Platform.isIOS ? tr.locationReducedBodyIos
+                         : tr.locationReducedBodyAndroid),
+      _LocationIssue.noFix => (Icons.gps_not_fixed, tr.locationNoFixTitle, tr.locationNoFixBody),
+      _ => (Icons.location_off_outlined, tr.locationNeededTitle,
+          tr.locationNeededBody),
     };
     final bool needsSettings = issue != _LocationIssue.noFix;
     return Scaffold(
@@ -759,22 +765,22 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 Text(body, style: Night.body, textAlign: TextAlign.center),
                 if (kDebugMode && issue == _LocationIssue.noFix) ...[
                   const SizedBox(height: Night.space2),
-                  const Text('（開發提示：模擬器請在 Features › Location 選一個位置）', style: Night.caption, textAlign: TextAlign.center),
+                  Text(tr.locationSimulatorHint, style: Night.caption, textAlign: TextAlign.center),
                 ],
                 const SizedBox(height: Night.space6),
                 if (needsSettings)
-                  NightButton('前往設定', icon: Icons.settings_outlined, expand: true, onPressed: () {
+                  NightButton(tr.openSettings, icon: Icons.settings_outlined, expand: true, onPressed: () {
                     issue == _LocationIssue.serviceOff ? Geolocator.openLocationSettings() : Geolocator.openAppSettings();
                   }),
                 if (needsSettings) const SizedBox(height: Night.space2),
-                NightButton(needsSettings ? '我已開啟，重新檢查' : '再試一次', kind: needsSettings ? NightButtonKind.ghost : NightButtonKind.primary,
+                NightButton(needsSettings ? tr.locationRecheck : tr.tryAgain, kind: needsSettings ? NightButtonKind.ghost : NightButtonKind.primary,
                     icon: Icons.refresh, expand: true, onPressed: () {
                   if (issue == _LocationIssue.noFix) _setLocationIssue(_LocationIssue.none);
                   _checkLocation();
                 }),
                 if (Platform.isAndroid) ...[
                   const SizedBox(height: Night.space2),
-                  NightButton('離開', kind: NightButtonKind.text, expand: true, onPressed: () => SystemNavigator.pop()),
+                  NightButton(tr.leaveApp, kind: NightButtonKind.text, expand: true, onPressed: () => SystemNavigator.pop()),
                 ],
               ]),
             ),
@@ -789,6 +795,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
     return {
       'Content-Type': 'application/json',
+      'Accept-Language': currentLanguageTag,
       if (idToken != null) 'Authorization': 'Bearer $idToken',
     };
   }
@@ -838,7 +845,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (fresh.isEmpty) return;
     HapticFeedback.lightImpact();
     showGlassToast(context,
-        !_whispersLoaded && fresh.length > 1 ? '你附近有 ${fresh.length} 則低語，點信封讀讀看。' : '你經過了一則低語，點信封讀讀看。',
+        !_whispersLoaded && fresh.length > 1 ? tr.whispersNearby(fresh.length) : tr.whisperPassed,
         icon: Icons.mail_outline);
     _whispersLoaded = true;
   }
@@ -848,10 +855,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final result = await showWhisperComposer(context, lat: _currentPosition!.latitude, lng: _currentPosition!.longitude, mood: _myMood);
     if (result == null || !mounted) return;
     if (result == 'whisper') {
-      showGlassToast(context, '你的低語留在這裡了，7 天後消散。', icon: Icons.mail_outline);
+      showGlassToast(context, tr.whisperLeft, icon: Icons.mail_outline);
       _fetchWhispers();
     } else {
-      showGlassToast(context, '已封存。${result == 'year' ? '一年' : '一個月'}後，回到這裡就能打開。', icon: Icons.hourglass_bottom);
+      showGlassToast(context, (result == 'year' ? tr.timeWhisperSealedYear : tr.timeWhisperSealedMonth), icon: Icons.hourglass_bottom);
       _fetchTimeWhispers();
     }
   }
@@ -980,7 +987,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (!mounted) return;
     if (deleted) {
       setState(() => _whispers.removeWhere((x) => x.id == w.id));
-      showGlassToast(context, '低語已經收回。', icon: Icons.mail_outline);
+      showGlassToast(context, tr.whisperWithdrawn, icon: Icons.mail_outline);
     } else {
       _fetchWhispers(); // 更新「已被 N 個人收下」
     }
@@ -991,7 +998,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final color = (_cityMoodStyle[w.mood] ?? _cityMoodStyle['other']!).$2;
     return Semantics(
       button: true,
-      label: w.mine ? '你留下的低語' : '一則低語，點一下閱讀',
+      label: w.mine ? tr.whisperMineLabel : tr.whisperTapToRead,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _openWhisper(w),
@@ -1067,7 +1074,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'uid': user['uid'],
         'lat': user['lat'],
         'lng': user['lng'],
-        'mood': user['mood'] ?? '無言中...',
+        'mood': user['mood'] ?? tr.noMoodYet,
         'nickname': isShadow ? '' : (user['nickname'] ?? ''), 
         'isShadow': isShadow,
         'isInactive': status == 'inactive',
@@ -1092,7 +1099,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _pendingTimers[pendingTargetUid]?.cancel(); _requestSubscriptions[pendingTargetUid]?.cancel();
           _endKnockRitual(pendingTargetUid, dissolve: true);
           setState(() => _outgoingRequests.remove(pendingTargetUid));
-          showGlassToast(context, '對方已沒入城市，悄悄收回敲門聲…', icon: Icons.nights_stay_outlined);
+          showGlassToast(context, tr.knockWithdrawnByLeaving, icon: Icons.nights_stay_outlined);
         }
       });
     }
@@ -1194,16 +1201,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 child: const Icon(Icons.person_outline, color: Night.inkMuted, size: 30),
               ),
               const SizedBox(height: Night.space3),
-              const Text('片刻交集', style: Night.title),
+              Text(tr.knockCardTitle, style: Night.title),
               const SizedBox(height: Night.space2),
-              Text('$senderName 正在敲門，\n想與你產生交集…', style: Night.body, textAlign: TextAlign.center),
+              Text(tr.knockCardBody(senderName), style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
-                Expanded(child: NightButton('略過', kind: NightButtonKind.text, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').remove(); })),
+                Expanded(child: NightButton(tr.skip, kind: NightButtonKind.text, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').remove(); })),
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton('婉拒', kind: NightButtonKind.ghost, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'rejected'}); })),
+                Expanded(child: NightButton(tr.decline, kind: NightButtonKind.ghost, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'rejected'}); })),
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton('同意', kind: NightButtonKind.warm, onPressed: () {
+                Expanded(child: NightButton(tr.accept, kind: NightButtonKind.warm, onPressed: () {
                   close(dialogContext);
                   _dbRef.child('requests/${widget.uid}/$senderUid').set({'status': 'accepted', 'nickname': _myNickname});
                   _navigateToChatScreen(senderUid, senderName);
@@ -1212,7 +1219,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               TextButton.icon(
                 style: TextButton.styleFrom(foregroundColor: Night.inkFaint, minimumSize: const Size(44, 44)),
                 icon: const Icon(Icons.flag_outlined, size: 18),
-                label: const Text('檢舉這個人', style: Night.caption),
+                label: Text(tr.reportThisPerson, style: Night.caption),
                 onPressed: () {
                   // 檢舉時一併婉拒這次敲門，對方會進入冷卻
                   close(dialogContext);
@@ -1231,17 +1238,17 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Widget _buildCityMoodChip() {
     final mood = _cityMood;
     final bool quiet = mood == null || mood['quiet'] == true || (mood['moods'] as List?)?.isEmpty != false;
-    String text = '今晚的城市還很安靜';
+    String text = tr.cityQuietTonight;
     Color dot = Night.moodDefault;
     if (!quiet) {
       final top = (mood['moods'] as List).first;
       final style = _cityMoodStyle[top['key']] ?? _cityMoodStyle['other']!;
-      text = '今晚的城市 · ${style.$1} ${top['percent']}%';
+      text = tr.cityMoodChip(style.$1, '${top['percent']}');
       dot = style.$2;
     }
     return Semantics(
       button: true,
-      label: '$text，查看城市心情天氣',
+      label: tr.cityMoodChipLabel(text),
       child: GestureDetector(
         onTap: _showCityMoodSheet,
         child: Container(
@@ -1276,14 +1283,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               ShaderMask(
                 shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                child: const Text('今晚的城市心情', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: 2)),
+                child: Text(tr.cityMoodTitle, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: 2)),
               ),
               const SizedBox(height: Night.space2),
-              Text(quiet ? '城市還很安靜，今晚有 $total 個人留下心情。' : '20 公里內，今晚有 $total 個人留下心情',
+              Text(quiet ? tr.cityMoodQuietCount(total) : tr.cityMoodCount(total),
                   style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               if (quiet)
-                const Text('多一點心情，城市就多一點光。寫下此刻的你，成為點亮城市的人。', style: Night.body, textAlign: TextAlign.center)
+                Text(tr.cityMoodQuietInvite, style: Night.body, textAlign: TextAlign.center)
               else
                 ...moods.map((m) {
                   final style = _cityMoodStyle[m['key']] ?? _cityMoodStyle['other']!;
@@ -1310,7 +1317,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   );
                 }),
               const SizedBox(height: Night.space4),
-              const Text('匿名統計 24 小時內的心情；少於 10 人時不顯示比例。', style: Night.caption, textAlign: TextAlign.center),
+              Text(tr.cityMoodFootnote, style: Night.caption, textAlign: TextAlign.center),
             ]),
           ),
         ),
@@ -1326,7 +1333,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       Positioned(
         top: 2, right: 2,
         child: IconButton(
-          tooltip: '關閉',
+          tooltip: tr.close,
           icon: const Icon(Icons.close, color: Night.inkFaint, size: 20),
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           onPressed: () => setState(() => _emptyCardDismissed = true),
@@ -1341,19 +1348,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         ShaderMask(
           shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-          child: const Text('你是今晚第一道光', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: 2)),
+          child: Text(tr.emptyRadarTitle, style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: 2)),
         ),
         const SizedBox(height: Night.space2),
-        const Text('附近還沒有人。你的心情已經在城市裡發光，\n有人經過時，就會看見你。也可以留一則低語，給下一個經過這裡的人。', style: Night.body, textAlign: TextAlign.center),
+        Text(tr.emptyRadarBody, style: Night.body, textAlign: TextAlign.center),
         if (_cityMood != null && _cityMood!['quiet'] != true && (_cityMood!['moods'] as List?)?.isNotEmpty == true) ...[
           const SizedBox(height: Night.space2),
-          Text('今晚城市裡有 ${_cityMood!['total']} 個人，多半感到「${(_cityMoodStyle[(_cityMood!['moods'] as List).first['key']] ?? _cityMoodStyle['other']!).$1}」',
+          Text(tr.emptyRadarCityMood('${_cityMood!['total']}', (_cityMoodStyle[(_cityMood!['moods'] as List).first['key']] ?? _cityMoodStyle['other']!).$1),
               style: Night.caption, textAlign: TextAlign.center),
         ],
         const SizedBox(height: Night.space3),
-        NightButton('邀請朋友點亮街區', icon: Icons.group_add_outlined, onPressed: () => shareInvite(context)),
+        NightButton(tr.inviteFriends, icon: Icons.group_add_outlined, onPressed: () => shareInvite(context)),
         const SizedBox(height: Night.space2),
-        NightButton('分享我的心情卡', kind: NightButtonKind.ghost, icon: Icons.ios_share, onPressed: () => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood))),
+        NightButton(tr.shareMoodCard, kind: NightButtonKind.ghost, icon: Icons.ios_share, onPressed: () => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood))),
       ]),
     );
   }
@@ -1374,7 +1381,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         Expanded(
           child: Semantics(
             button: true,
-            label: '編輯你的心情',
+            label: tr.editYourMood,
             child: InkWell(
               borderRadius: BorderRadius.circular(Night.radiusMd),
               onTap: _showProfileEditDialog,
@@ -1396,8 +1403,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     const SizedBox(height: 2),
                     Text(
                       _resonanceCount > 0
-                          ? '今晚 $_resonanceCount 道微光與你共鳴'
-                          : (_myNickname.isNotEmpty ? '$_myNickname · 你的心情' : '你的心情 · 點一下修改'),
+                          ? tr.resonanceTonight(_resonanceCount)
+                          : (_myNickname.isNotEmpty ? tr.dockNicknameMood(_myNickname) : tr.dockTapToEdit),
                       style: _resonanceCount > 0 ? Night.caption.copyWith(color: Night.knockPink) : Night.caption,
                       maxLines: 1, overflow: TextOverflow.ellipsis,
                     ),
@@ -1408,24 +1415,61 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           ),
         ),
         IconButton(
-          tooltip: '留下一則低語',
+          tooltip: tr.leaveWhisper,
           onPressed: _composeWhisper,
           icon: const Icon(Icons.edit_note, color: Night.inkMuted),
           constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
         ),
         IconButton(
-          tooltip: '分享我的心情卡',
+          tooltip: tr.shareMoodCard,
           onPressed: () => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)),
           icon: const Icon(Icons.ios_share, color: Night.inkMuted),
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         ),
         IconButton(
-          tooltip: '設定',
+          tooltip: tr.settings,
           onPressed: _showSettingsPanel,
           icon: const Icon(Icons.tune_rounded, color: Night.inkMuted),
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         ),
       ]),
+    );
+  }
+
+  String _languageName(Locale? locale) =>
+      locale == null ? tr.languageSystem : languageOptions.firstWhere((o) => o.$1 == locale, orElse: () => (null, tr.languageSystem)).$2;
+
+  /// 語言選單：各語言用自己的寫法顯示，選了立刻切換
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context, backgroundColor: Colors.transparent, isScrollControlled: true, barrierColor: const Color(0x99070B1F),
+      useSafeArea: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: GlassCard(
+            padding: const EdgeInsets.fromLTRB(Night.space4, Night.space4, Night.space4, Night.space3),
+            child: SingleChildScrollView(
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(tr.language, style: Night.title, textAlign: TextAlign.center),
+                const SizedBox(height: Night.space2),
+                for (final (locale, name) in languageOptions)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(Night.radiusSm),
+                    onTap: () { Navigator.pop(sheetContext); setAppLocale(locale); },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: Night.space3, horizontal: Night.space2),
+                      child: Row(children: [
+                        Expanded(child: Text(locale == null ? tr.languageSystem : name, style: const TextStyle(color: Night.ink, fontSize: 15))),
+                        if (appLocale.value == locale) const Icon(Icons.check, color: Night.knockPink, size: 20),
+                      ]),
+                    ),
+                  ),
+              ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1465,11 +1509,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           child: Row(children: [
             const Icon(Icons.nightlight_outlined, color: Night.inkMuted, size: 22),
             const SizedBox(width: Night.space4),
-            const Expanded(
+            Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('每晚提醒', style: TextStyle(color: Night.ink, fontSize: 15)),
+                Text(tr.nightlyReminder, style: TextStyle(color: Night.ink, fontSize: 15)),
                 SizedBox(height: 2),
-                Text('每晚 21:30 一則溫和的提醒', style: Night.caption),
+                Text(tr.nightlyReminderSubtitle, style: Night.caption),
               ]),
             ),
             Switch(
@@ -1490,37 +1534,38 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   // 設定比螢幕還高時點不到外面，標題列右邊一定要有關閉鈕
                   Stack(alignment: Alignment.center, children: [
-                    const Text('設定', style: Night.title, textAlign: TextAlign.center),
+                    Text(tr.settings, style: Night.title, textAlign: TextAlign.center),
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
-                        tooltip: '關閉設定',
+                        tooltip: tr.closeSettings,
                         icon: const Icon(Icons.close, color: Night.inkMuted),
                         onPressed: () => Navigator.pop(sheetContext),
                       ),
                     ),
                   ]),
-                  section('我'),
-                  item(Icons.person_outline, '編輯個人狀態', subtitle: '大頭貼、城市稱呼與心情', onTap: () => go(_showProfileEditDialog)),
-                  item(Icons.block, '管理封鎖名單', subtitle: '查看或解除被你沒入黑暗的人', color: Night.danger, onTap: () => go(_showBlockListDialog)),
-                  item(Icons.hourglass_bottom, '我的低語穿越', subtitle: '寫給未來的自己，只有你看得到',
+                  section(tr.settingsSectionMe),
+                  item(Icons.person_outline, tr.editProfile, subtitle: tr.editProfileSubtitle, onTap: () => go(_showProfileEditDialog)),
+                  item(Icons.block, tr.manageBlockList, subtitle: tr.manageBlockListSubtitle, color: Night.danger, onTap: () => go(_showBlockListDialog)),
+                  item(Icons.hourglass_bottom, tr.myTimeWhispers, subtitle: tr.myTimeWhispersSubtitle,
                       onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),
-                  item(Icons.timeline, '我的心情軌跡', subtitle: '只存在你的手機上', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
+                  item(Icons.timeline, tr.myMoodTrail, subtitle: tr.myMoodTrailSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
-                  section('集會'),
-                  item(Icons.campaign_outlined, '集會主持人',
-                      subtitle: _hostedGathering == null ? '以你為中心 5 公里，開一場活動' : '你正在主持 ${_hostedGathering!.emoji} ${_hostedGathering!.name}',
+                  item(Icons.translate, tr.language, subtitle: _languageName(appLocale.value), onTap: () => go(_showLanguagePicker)),
+                  section(tr.settingsSectionGatherings),
+                  item(Icons.campaign_outlined, tr.gatheringHost,
+                      subtitle: _hostedGathering == null ? tr.gatheringHostSubtitle : tr.gatheringHosting(_hostedGathering!.emoji, _hostedGathering!.name),
                       onTap: () => go(_openGatheringHost)),
-                  section('分享'),
-                  item(Icons.ios_share, '分享我的心情卡', subtitle: '十一張夜景插畫隨機出現，適合 IG 限時動態', onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
-                  item(Icons.group_add_outlined, '邀請朋友點亮街區', subtitle: '附近的人越多，城市越亮', onTap: () => go(() => shareInvite(context))),
-                  section('關於'),
-                  item(Icons.menu_book_outlined, '操作說明', subtitle: '從寫下心情到開一場集會，一次看懂', onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
-                  item(Icons.description_outlined, '使用條款', onTap: () => Legal.open(Legal.termsUrl)),
-                  item(Icons.privacy_tip_outlined, '隱私權政策', onTap: () => Legal.open(Legal.privacyUrl)),
-                  item(Icons.mail_outline, '聯絡我們', subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),
+                  section(tr.settingsSectionShare),
+                  item(Icons.ios_share, tr.shareMoodCard, subtitle: tr.shareMoodCardSubtitle, onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
+                  item(Icons.group_add_outlined, tr.inviteFriends, subtitle: tr.inviteFriendsSubtitle, onTap: () => go(() => shareInvite(context))),
+                  section(tr.settingsSectionAbout),
+                  item(Icons.menu_book_outlined, tr.guide, subtitle: tr.guideSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
+                  item(Icons.description_outlined, tr.termsOfUse, onTap: () => Legal.open(Legal.termsUrl)),
+                  item(Icons.privacy_tip_outlined, tr.privacyPolicy, onTap: () => Legal.open(Legal.privacyUrl)),
+                  item(Icons.mail_outline, tr.contactUs, subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),
                   const Divider(color: Night.night600, height: Night.space6),
-                  item(Icons.delete_forever_outlined, '刪除帳號與資料', subtitle: '永久抹除你在城市留下的一切', color: Night.danger, titleColor: Night.danger, onTap: () => go(_confirmDeleteAccount)),
+                  item(Icons.delete_forever_outlined, tr.deleteAccount, subtitle: tr.deleteAccountSubtitle, color: Night.danger, titleColor: Night.danger, onTap: () => go(_confirmDeleteAccount)),
                 ]),
               ),
             ),
@@ -1583,13 +1628,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               } catch (e) {
                 setDialogState(() => isUploading = false);
                 debugPrint('avatar upload failed: $e');
-                if (mounted) showGlassToast(context, '大頭貼上傳失敗，請稍後再試。', icon: Icons.error_outline, danger: true);
+                if (mounted) showGlassToast(context, tr.avatarUploadFailed, icon: Icons.error_outline, danger: true);
               }
             }
 
             Future<void> save() async {
               final String newMood = moodController.text.trim(); final String newNickname = nicknameController.text.trim();
-              if (newMood.isEmpty) { showGlassToast(context, '心情不能為空，給城市留下點微光吧。', icon: Icons.edit_outlined); return; }
+              if (newMood.isEmpty) { showGlassToast(context, tr.moodEmpty, icon: Icons.edit_outlined); return; }
               
               setState(() { _myMood = newMood; _myNickname = newNickname; _myAvatarUrl = pendingAvatarUrl; });
               final prefs = await SharedPreferences.getInstance(); 
@@ -1605,13 +1650,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 }
               } catch (e) {
                 debugPrint('profile write failed: $e');
-                if (mounted) showGlassToast(context, '狀態同步失敗，請稍後再試。', icon: Icons.error_outline, danger: true);
+                if (mounted) showGlassToast(context, tr.profileSyncFailed, icon: Icons.error_outline, danger: true);
               }
 
               if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
               
               if (dialogContext.mounted) Navigator.pop(dialogContext);
-              if (mounted) showGlassToast(context, '狀態已更新，城市正感知你的呼吸。', icon: Icons.auto_awesome_outlined);
+              if (mounted) showGlassToast(context, tr.profileUpdated, icon: Icons.auto_awesome_outlined);
             }
 
             return Dialog(
@@ -1620,12 +1665,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 glow: true,
                 child: SingleChildScrollView(
                   child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    const Text('編輯個人狀態', style: Night.title, textAlign: TextAlign.center),
+                    Text(tr.editProfile, style: Night.title, textAlign: TextAlign.center),
                     const SizedBox(height: Night.space4),
                     Center(
                       child: Semantics(
                         button: true,
-                        label: '更換大頭貼',
+                        label: tr.changeAvatar,
                         child: GestureDetector(
                           onTap: isUploading ? null : pickAvatar,
                           child: Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
@@ -1661,25 +1706,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       ),
                     ),
                     const SizedBox(height: Night.space2),
-                    const Text('輕觸更換大頭貼 · 光環是你的心情色', style: Night.caption, textAlign: TextAlign.center),
+                    Text(tr.avatarHint, style: Night.caption, textAlign: TextAlign.center),
                     const SizedBox(height: Night.space4),
-                    const Text('城市稱呼', style: Night.caption),
+                    Text(tr.cityName, style: Night.caption),
                     const SizedBox(height: Night.space2),
-                    TextField(controller: nicknameController, style: const TextStyle(color: Night.ink, fontSize: 15), maxLength: 10, cursorColor: Night.auroraViolet, decoration: nightInput('選填，例如：遊蕩的貓')),
+                    TextField(controller: nicknameController, style: const TextStyle(color: Night.ink, fontSize: 15), maxLength: 10, cursorColor: Night.auroraViolet, decoration: nightInput(tr.cityNameHint)),
                     const SizedBox(height: Night.space2),
-                    const Text('當下心情', style: Night.caption),
+                    Text(tr.currentMood, style: Night.caption),
                     const SizedBox(height: Night.space2),
                     TextField(
                       controller: moodController, maxLength: 20, cursorColor: Night.auroraViolet,
                       onChanged: (_) => setDialogState(() {}),
                       style: const TextStyle(color: Night.ink, fontSize: 15),
-                      decoration: nightInput('例如：漫步在微雨中 🌿'),
+                      decoration: nightInput(tr.currentMoodHint),
                     ),
                     const SizedBox(height: Night.space3),
                     Row(children: [
-                      Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
+                      Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
                       const SizedBox(width: Night.space2),
-                      Expanded(child: NightButton('儲存', onPressed: isUploading ? null : save)),
+                      Expanded(child: NightButton(tr.save, onPressed: isUploading ? null : save)),
                     ]),
                   ]),
                 ),
@@ -1701,15 +1746,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
               child: GlassCard(
                 child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  const Text('沉入黑暗的名單', style: Night.title, textAlign: TextAlign.center),
+                  Text(tr.blockListTitle, style: Night.title, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space3),
                   if (_blockedUids.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: Night.space4),
                       child: Column(children: [
                         Icon(Icons.nights_stay_outlined, color: Night.inkFaint, size: 40),
                         SizedBox(height: Night.space3),
-                        Text('夜色清朗，你的城市未曾放逐任何人。', style: Night.body, textAlign: TextAlign.center),
+                        Text(tr.blockListEmpty, style: Night.body, textAlign: TextAlign.center),
                       ]),
                     )
                   else
@@ -1737,7 +1782,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                               TextButton(
                                 style: TextButton.styleFrom(foregroundColor: Night.auroraBlue, minimumSize: const Size(44, 44)),
                                 onPressed: () async { await _unblockUser(blockedUid); setDialogState(() { _blockedUids.remove(blockedUid); }); },
-                                child: const Text('解除放逐', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                child: Text(tr.unblock, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                               ),
                             ]),
                           );
@@ -1745,7 +1790,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       ),
                     ),
                   const SizedBox(height: Night.space4),
-                  NightButton('關閉', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext)),
+                  NightButton(tr.close, kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext)),
                 ]),
               ),
             );
@@ -1767,20 +1812,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const Icon(Icons.delete_forever_outlined, color: Night.danger, size: 36),
                 const SizedBox(height: Night.space3),
-                const Text('刪除帳號與資料', style: Night.title, textAlign: TextAlign.center),
+                Text(tr.deleteAccount, style: Night.title, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space2),
-                const Text('你的位置、心情、城市稱呼、大頭貼、留下的低語、微光、封鎖名單與進行中的對話都會被永久刪除，無法復原。\n\n為了防止濫用，檢舉紀錄會依隱私權政策保留 1 年。',
+                Text(tr.deleteAccountBody,
                     style: Night.body, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space4),
                 Row(children: [
-                  Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: deleting ? null : () => Navigator.pop(dialogContext))),
+                  Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: deleting ? null : () => Navigator.pop(dialogContext))),
                   const SizedBox(width: Night.space2),
-                  Expanded(child: NightButton(deleting ? '刪除中…' : '永久刪除', kind: NightButtonKind.danger, onPressed: deleting ? null : () async {
+                  Expanded(child: NightButton(deleting ? tr.deleting : tr.deletePermanently, kind: NightButtonKind.danger, onPressed: deleting ? null : () async {
                     setDialogState(() => deleting = true);
                     final ok = await _deleteAccount();
                     if (!ok && dialogContext.mounted) {
                       setDialogState(() => deleting = false);
-                      showGlassToast(context, '刪除沒有完成，請檢查網路後再試一次。', icon: Icons.error_outline, danger: true);
+                      showGlassToast(context, tr.deleteFailed, icon: Icons.error_outline, danger: true);
                     }
                   })),
                 ]),
@@ -1912,7 +1957,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         behavior: HitTestBehavior.translucent,
         onLongPress: () {
           _focusBubble(uid);
-          _showInteractionMenu(uid, isShadow ? '歷史殘影' : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
+          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
         },
         // 雙擊氣泡：直接送出一道微光
         onDoubleTap: () {
@@ -1996,7 +2041,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               _clusterOrbFace(c),
               const SizedBox(height: 8),
-              Text('這裡有 ${c.length} 個心情', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
+              Text(tr.clusterCount(c.length), style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
             ]),
           ),
         ),
@@ -2074,7 +2119,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     width: 60, height: 60,
                     decoration: BoxDecoration(shape: BoxShape.circle, color: Night.glassFill, border: Border.all(color: Night.glassLine)),
                     alignment: Alignment.center,
-                    child: Text(page + 1 < pages ? '更多\n+${c.length - (page + 1) * perPage}' : '回到\n第一批',
+                    child: Text(page + 1 < pages ? tr.clusterMore(c.length - (page + 1) * perPage) : tr.clusterBackToFirst,
                         textAlign: TextAlign.center, style: Night.caption.copyWith(color: Night.ink)),
                   ),
                 ),
@@ -2102,28 +2147,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
           child: GlassCard(
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(isShadow ? '一道歷史殘影' : '與 $displayName 的相遇', style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
+              Text(isShadow ? tr.fadingEchoTitle : tr.encounterWith(displayName), style: Night.title, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
               if (isShadow) ...[
                 const SizedBox(height: Night.space2),
-                const Text('這只是一道歷史殘影，無法產生交集。', style: Night.body, textAlign: TextAlign.center),
+                Text(tr.fadingEchoBody, style: Night.body, textAlign: TextAlign.center),
               ],
               if (isDemo) ...[
                 const SizedBox(height: Night.space2),
-                const Text('這是示範對象，由程式自動回應，不是真人。可以用它體驗敲門、聊天、微光、檢舉與封鎖。', style: Night.body, textAlign: TextAlign.center),
+                Text(tr.demoPersonBody, style: Night.body, textAlign: TextAlign.center),
               ],
               const SizedBox(height: Night.space3),
-              item(Icons.auto_awesome, moodColor, '送出一道微光 (共鳴)', () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
+              item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
               if (!isShadow) ...[
-                item(Icons.waving_hand_outlined, Night.knockPink, '敲門 (產生交集)', () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
-                item(Icons.block, Night.danger, '封鎖 (沒入黑暗)', () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
+                item(Icons.waving_hand_outlined, Night.knockPink, tr.knock, () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
+                item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
                 if (!isDemo && _hostedGathering != null)
-                  item(Icons.swap_horiz, Night.auroraBlue, '轉移主持人', () {
+                  item(Icons.swap_horiz, Night.auroraBlue, tr.handOverHost, () {
                     Navigator.pop(dialogContext);
                     showHandoffDialog(context, gathering: _hostedGathering!, toUid: targetUid, toName: displayName);
                   }),
               ],
-              item(Icons.flag_outlined, Night.danger, '檢舉', () {
+              item(Icons.flag_outlined, Night.danger, tr.report, () {
                 Navigator.pop(dialogContext);
                 showReportSheet(context, myUid: widget.uid, targetUid: targetUid, targetName: displayName, reportContext: ReportContext.bubble);
               }),
@@ -2144,14 +2189,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               const Icon(Icons.block, color: Night.danger, size: 36),
               const SizedBox(height: Night.space3),
-              const Text('確認封鎖', style: Night.title, textAlign: TextAlign.center),
+              Text(tr.confirmBlockTitle, style: Night.title, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),
-              Text('確定要將 $displayName 沒入黑暗嗎？\n封鎖後，雙方將從彼此的城市中消失。', style: Night.body, textAlign: TextAlign.center),
+              Text(tr.confirmBlockBody(displayName), style: Night.body, textAlign: TextAlign.center),
               const SizedBox(height: Night.space4),
               Row(children: [
-                Expanded(child: NightButton('取消', kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
+                Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext))),
                 const SizedBox(width: Night.space2),
-                Expanded(child: NightButton('確定封鎖', kind: NightButtonKind.danger, icon: Icons.block, onPressed: () { Navigator.pop(dialogContext); _blockUser(targetUid, displayName); })),
+                Expanded(child: NightButton(tr.confirmBlock, kind: NightButtonKind.danger, icon: Icons.block, onPressed: () { Navigator.pop(dialogContext); _blockUser(targetUid, displayName); })),
               ]),
             ]),
           ),
@@ -2181,7 +2226,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       setState(() => _resonanceCount = count);
       if (isNew) {
         HapticFeedback.lightImpact();
-        showGlassToast(context, '有人送你一道微光，與你的心情共鳴。', icon: Icons.auto_awesome);
+        showGlassToast(context, tr.glimmerReceived, icon: Icons.auto_awesome);
       }
     });
   }
@@ -2196,10 +2241,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         setState(() { _sparkleAt = anchor; _sparkleColor = moodColor; });
         _sparkle.forward(from: 0);
       }
-      if (mounted) showGlassToast(context, '你送出了一道微光。', icon: Icons.auto_awesome);
+      if (mounted) showGlassToast(context, tr.glimmerSent, icon: Icons.auto_awesome);
     } catch (e) {
       // 規則拒絕：24 小時內已送過、被封鎖，或帳號被隱藏
-      if (mounted) showGlassToast(context, '今天已經送過微光給對方了，明天再來吧。', icon: Icons.auto_awesome_outlined);
+      if (mounted) showGlassToast(context, tr.glimmerAlreadySent, icon: Icons.auto_awesome_outlined);
     }
   }
 
@@ -2252,7 +2297,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'status': 'pending',
         'nickname': _myNickname
     }).then((_) {
-      if (mounted) showGlassToast(context, '敲門聲已送出，等待回音…', icon: Icons.waving_hand_outlined);
+      if (mounted) showGlassToast(context, tr.knockSent, icon: Icons.waving_hand_outlined);
     }).catchError((Object e) {
       // 寫入被拒（規則驗證失敗、網路中斷等）時收回狀態並告知，不再默默失敗
       debugPrint('knock write failed: $e');
@@ -2260,7 +2305,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _endKnockRitual(targetUid);
       if (mounted) {
         setState(() => _outgoingRequests.remove(targetUid));
-        showGlassToast(context, '敲門沒有送出，請稍後再試。', icon: Icons.error_outline, danger: true);
+        showGlassToast(context, tr.knockFailed, icon: Icons.error_outline, danger: true);
       }
     });
 
@@ -2268,7 +2313,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _pendingTimers[targetUid] = Timer(const Duration(minutes: 5), () {
       if (_outgoingRequests[targetUid] == RequestStatus.pending) {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); 
-        _endKnockRitual(targetUid, dissolve: true, message: '沒有回音，敲門聲悄悄消散了。');
+        _endKnockRitual(targetUid, dissolve: true, message: tr.knockNoAnswer);
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       }
     });
@@ -2297,13 +2342,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         }
       } else if (status == 'rejected') {
         _dbRef.child('requests/$targetUid/${widget.uid}').remove(); _pendingTimers[targetUid]?.cancel(); _coolingSystem.recordRejection(targetUid); 
-        _endKnockRitual(targetUid, dissolve: true, message: '這次沒有交集，讓彼此保留一點空間。');
+        _endKnockRitual(targetUid, dissolve: true, message: tr.knockDeclined);
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       } else if (status.isEmpty && _outgoingRequests[targetUid] == RequestStatus.pending) {
         // 對方按「略過」會直接刪除請求 → 收回敲門中的狀態
         // （同意 / 婉拒後由自己刪除請求時，狀態已先移除，不會走到這裡）
         _pendingTimers[targetUid]?.cancel();
-        _endKnockRitual(targetUid, dissolve: true, message: '對方先略過了，敲門聲悄悄消散。');
+        _endKnockRitual(targetUid, dissolve: true, message: tr.knockSkipped);
         if (mounted) setState(() => _outgoingRequests.remove(targetUid));
       }
     });
@@ -2381,7 +2426,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   @override
   Widget build(BuildContext context) {
     if (_locationIssue != _LocationIssue.none && _currentPosition == null) return _buildLocationBlocker();
-    if (_currentPosition == null || _mapStyle == null) return const Scaffold(backgroundColor: Night.night900, body: Center(child: Text("正在感知這座城市...", style: TextStyle(color: Night.inkMuted, letterSpacing: 2))));
+    if (_currentPosition == null || _mapStyle == null) return Scaffold(backgroundColor: Night.night900, body: Center(child: Text(tr.sensingCity, style: TextStyle(color: Night.inkMuted, letterSpacing: 2))));
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;

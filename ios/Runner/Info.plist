@@ -6,6 +6,17 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hant</string>
+		<string>zh-Hans</string>
+		<string>en</string>
+		<string>ja</string>
+		<string>ko</string>
+		<string>ms</string>
+		<string>id</string>
+		<string>vi</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>城市低語</string>
 	<key>CFBundleExecutable</key>

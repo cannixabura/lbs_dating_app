@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A1D10000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5A1D10000000000000000001 /* InfoPlist.strings */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		38F3BAF58919D53848C4BB26 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F90E9B09D30F296A7EC996B /* Pods_Runner.framework */; };
@@ -45,6 +46,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5A1D10000000000000000010 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000011 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000012 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en"; path = "en.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000013 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ja"; path = "ja.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000014 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ko"; path = "ko.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000015 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ms"; path = "ms.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000016 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "id"; path = "id.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5A1D10000000000000000017 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "vi"; path = "vi.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		14A2D6EA865B05E371B4D215 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -145,6 +154,7 @@
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
+				5A1D10000000000000000001 /* InfoPlist.strings */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
@@ -249,6 +259,13 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hant",
+				"zh-Hans",
+				"ja",
+				"ko",
+				"ms",
+				"id",
+				"vi",
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
@@ -281,6 +298,7 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				5A1D10000000000000000002 /* InfoPlist.strings in Resources */,
 				8B21DFF7EC57E36B04A474B0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,6 +444,21 @@
 				97C147001CF9000F007C117D /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		5A1D10000000000000000001 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5A1D10000000000000000010 /* zh-Hant */,
+				5A1D10000000000000000011 /* zh-Hans */,
+				5A1D10000000000000000012 /* en */,
+				5A1D10000000000000000013 /* ja */,
+				5A1D10000000000000000014 /* ko */,
+				5A1D10000000000000000015 /* ms */,
+				5A1D10000000000000000016 /* id */,
+				5A1D10000000000000000017 /* vi */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

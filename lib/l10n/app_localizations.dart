@@ -2914,7 +2914,7 @@ abstract class AppLocalizations {
   /// No description provided for @parallelUniverseIntroBody.
   ///
   /// In zh, this message translates to:
-  /// **'開啟後，其他城市也開啟平行宇宙的人會出現在你的雷達上，你也會出現在他們的雷達上。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。'**
+  /// **'開啟後，其他城市此刻在線的人都會投影到你的雷達上，他們也都看得到你。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。'**
   String get parallelUniverseIntroBody;
 
   /// No description provided for @parallelUniverseEnter.

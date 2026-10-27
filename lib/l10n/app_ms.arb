@@ -467,7 +467,7 @@
   "parallelUniverse": "Alam Selari",
   "parallelUniverseSubtitle": "Lihat perasaan bandar lain sekarang, dan biar mereka lihat anda",
   "parallelUniverseIntroTitle": "Masuk ke Alam Selari",
-  "parallelUniverseIntroBody": "Apabila dihidupkan, orang di bandar lain yang turut menghidupkannya akan muncul pada radar anda, dan anda muncul pada radar mereka.\n\nKedudukan diunjurkan mengikut skala bandar dan dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa.",
+  "parallelUniverseIntroBody": "Apabila dihidupkan, semua orang yang sedang dalam talian di bandar lain diunjurkan ke radar anda, dan mereka semua dapat melihat anda.\n\nKedudukan diunjurkan mengikut skala bandar dan dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa.",
   "parallelUniverseEnter": "Masuk",
   "parallelUniverseNoCity": "Belum ada Alam Selari di tempat anda",
   "parallelFrom": "Selari · {city}",

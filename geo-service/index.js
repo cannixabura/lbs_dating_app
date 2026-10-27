@@ -204,37 +204,60 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang
     return bots;
 }
 
+// 開啟平行宇宙的人（沒開的人只看得到他們），每個伺服器執行個體快取 10 秒
+let parallelSnapshot = { at: 0, members: [] };
+async function parallelMembers(now) {
+    if (now - parallelSnapshot.at < 10000) return parallelSnapshot.members;
+    const list = await sendUpstashCommand(parallel.snapshotCommand());
+    const members = (Array.isArray(list) ? list : []).filter((m) => Array.isArray(m) && m[0])
+        .map((m) => [m[0], { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) }]);
+    parallelSnapshot = { at: now, members };
+    return members;
+}
+
 /**
- * 平行宇宙的訪客：其他城市開啟平行宇宙、目前在線（活躍或休息中）的人，投影到觀看者的城市。
+ * 平行宇宙的訪客：其他城市、目前在線（活躍或休息中）的人，投影到觀看者的城市。
+ * 只要一方開啟就看得到：觀看者開啟 → 其他城市所有人；沒開 → 只有開啟的人。
  * 不回傳真實距離與真實位置；殘影不跨城市。
  */
-async function parallelVisitors(viewerUid, viewerCity, here, radiusKM, now) {
-    const { others, commands } = parallel.searchCommands(viewerCity);
-    const hits = await sendUpstashPipeline(commands);
+async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM, now) {
     const found = []; // [uid, fromCity, {lat, lng}]
-    hits.forEach((list, i) => {
-        for (const m of Array.isArray(list) ? list : []) {
-            if (!Array.isArray(m) || !m[0] || m[0] === viewerUid) continue;
-            const pos = { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) };
-            // 只算真的屬於這座城市的人（兩座城市的範圍重疊時，歸最近的那座）
-            const home = parallel.cityOf(pos.lat, pos.lng);
-            if (home && home.id === others[i].id) found.push([m[0], home, pos]);
-        }
-    });
-    if (found.length === 0) return [];
+    const consider = (memberUid, pos, onlyCity) => {
+        if (!memberUid || memberUid === viewerUid || memberUid.startsWith(demo.DEMO_PREFIX)) return;
+        // 兩座城市的範圍重疊時，歸最近的那座
+        const home = parallel.cityOf(pos.lat, pos.lng);
+        if (!home || home.id === viewerCity.id || (onlyCity && home.id !== onlyCity)) return;
+        found.push([memberUid, home, pos]);
+    };
+    if (viewerOn) {
+        const { others, commands } = parallel.searchCommands(viewerCity, here.lat, here.lng, radiusKM, parallel.ALL_KEY);
+        (await sendUpstashPipeline(commands)).forEach((list, i) => {
+            for (const m of Array.isArray(list) ? list : []) {
+                if (Array.isArray(m)) consider(m[0], { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) }, others[i].id);
+            }
+        });
+    } else {
+        for (const [memberUid, pos] of await parallelMembers(now)) consider(memberUid, pos, null);
+    }
 
-    const profiles = await sendUpstashPipeline(found.map(([u]) => ["HMGET", `user_data:${u}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden"]));
+    // 先投影、只留雷達圈內的人，再去拿資料
+    const inRange = [];
+    for (const [memberUid, home, pos] of found) {
+        const shown = parallel.project(home, viewerCity, pos.lat, pos.lng, memberUid, now);
+        if (parallel.distanceKm(here, shown) <= radiusKM) inRange.push({ memberUid, home, shown });
+    }
+    if (inRange.length === 0) return [];
+
+    const profiles = await sendUpstashPipeline(inRange.map((c) => ["HMGET", `user_data:${c.memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden"]));
     const visitors = [];
-    found.forEach(([memberUid, home, pos], i) => {
+    inRange.forEach(({ memberUid, home, shown }, i) => {
         const [mood, nickname, timestamp, state, stateAt, hidden] = profiles[i] || [];
-        if (hidden === "1") return;
+        if (hidden === "1" || !nickname) return;
         const lastSeen = parseInt(timestamp || "0", 10);
         if (!lastSeen) return;
         const { status } = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
         if (status === 'shadow') return;
-        const shown = parallel.project(home, viewerCity, pos.lat, pos.lng, memberUid, now);
-        if (parallel.distanceKm(here, shown) > radiusKM) return;
-        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname: nickname || "", status, shadowAge: 0, timestamp: lastSeen, parallel: home.id });
+        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id });
     });
     // 最近活動的優先，避免把雷達塞滿
     return visitors.sort((a, b) => b.timestamp - a.timestamp).slice(0, parallel.MAX_RESULTS);
@@ -309,17 +332,13 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       const realCount = results.filter((r) => r.status !== 'shadow').length;
       results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount, langOf(req)));
 
-      // 平行宇宙：其他城市開啟的人投影到這裡；看的人自己也要開啟
-      let parallelCity = null;
-      if (req.body.parallel === true) {
-          const viewerCity = parallel.cityOf(lat, lng);
-          parallelCity = viewerCity ? viewerCity.id : null;
-          if (viewerCity) {
-              try {
-                  const seen = new Set(results.map((r) => r.uid));
-                  results.push(...(await parallelVisitors(uid, viewerCity, { lat, lng }, radiusKM, now)).filter((r) => !seen.has(r.uid)));
-              } catch (e) { console.error('parallel visitors failed:', e); }
-          }
+      // 平行宇宙：其他城市的人投影到這裡（只要一方開啟）
+      const viewerCity = parallel.cityOf(lat, lng);
+      if (viewerCity) {
+          try {
+              const seen = new Set(results.map((r) => r.uid));
+              results.push(...(await parallelVisitors(uid, viewerCity, req.body.parallel === true, { lat, lng }, radiusKM, now)).filter((r) => !seen.has(r.uid)));
+          } catch (e) { console.error('parallel visitors failed:', e); }
       }
 
       // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
@@ -329,7 +348,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           } catch (e) { console.error('stale cleanup failed:', e); }
       }
 
-      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 }, parallelCity });
+      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 }, parallelCity: viewerCity ? viewerCity.id : null });
     } catch (error) {
       console.error('getNearby failed:', error);
       res.status(500).json({ success: false, error: localize(langOf(req), "掃描失敗") });

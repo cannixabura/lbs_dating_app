@@ -1758,7 +1758,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'When it\'s on, people in other cities who also turned it on appear on your radar, and you appear on theirs.\n\nPositions are projected by city scale and blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time.';
+      'When it\'s on, everyone online in other cities is projected onto your radar, and they can all see you.\n\nPositions are projected by city scale and blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time.';
 
   @override
   String get parallelUniverseEnter => 'Enter';

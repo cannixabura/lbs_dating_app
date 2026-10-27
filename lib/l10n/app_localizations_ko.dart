@@ -1608,7 +1608,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '켜면 다른 도시에서 평행우주를 켠 사람들이 내 레이더에 나타나고, 나도 그들의 레이더에 나타납니다.\n\n위치는 도시 크기에 맞춰 투영되고 약 500m로 흐려져서, 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다.';
+      '켜면 다른 도시에서 지금 접속 중인 모든 사람이 내 레이더에 투영되고, 그들 모두 나를 볼 수 있습니다.\n\n위치는 도시 크기에 맞춰 투영되고 약 500m로 흐려져서, 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다.';
 
   @override
   String get parallelUniverseEnter => '들어가기';

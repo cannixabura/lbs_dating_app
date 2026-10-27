@@ -467,7 +467,7 @@
   "parallelUniverse": "平行宇宙",
   "parallelUniverseSubtitle": "看见其他城市此刻的心情，也让他们看见你",
   "parallelUniverseIntroTitle": "进入平行宇宙",
-  "parallelUniverseIntroBody": "开启后，其他城市也开启平行宇宙的人会出现在你的雷达上，你也会出现在他们的雷达上。\n\n位置按城市比例投影过去，并模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。",
+  "parallelUniverseIntroBody": "开启后，其他城市此刻在线的人都会投影到你的雷达上，他们也都看得到你。\n\n位置按城市比例投影过去，并模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。",
   "parallelUniverseEnter": "进入",
   "parallelUniverseNoCity": "你所在的地方还没有平行宇宙",
   "parallelFrom": "平行宇宙 · {city}",

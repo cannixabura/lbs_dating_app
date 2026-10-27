@@ -1687,7 +1687,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Khi bật, những người ở thành phố khác cũng bật tính năng này sẽ hiện trên radar của bạn, và bạn hiện trên radar của họ.\n\nVị trí được chiếu theo tỷ lệ thành phố và làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào.';
+      'Khi bật, mọi người đang trực tuyến ở các thành phố khác sẽ được chiếu lên radar của bạn, và tất cả họ đều thấy bạn.\n\nVị trí được chiếu theo tỷ lệ thành phố và làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào.';
 
   @override
   String get parallelUniverseEnter => 'Bước vào';

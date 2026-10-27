@@ -1686,7 +1686,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Saat aktif, orang di kota lain yang juga mengaktifkannya akan muncul di radarmu, dan kamu muncul di radar mereka.\n\nPosisi diproyeksikan sesuai skala kota dan dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja.';
+      'Saat aktif, semua orang yang sedang online di kota lain diproyeksikan ke radarmu, dan mereka semua bisa melihatmu.\n\nPosisi diproyeksikan sesuai skala kota dan dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';

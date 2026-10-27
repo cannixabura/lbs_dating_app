@@ -1592,7 +1592,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'オンにすると、ほかの街でオンにしている人があなたのレーダーに現れ、あなたも相手のレーダーに現れます。\n\n位置は街の大きさに合わせて投影され、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。';
+      'オンにすると、ほかの街でいまオンラインの人がみんなあなたのレーダーに投影され、みんなもあなたを見ることができます。\n\n位置は街の大きさに合わせて投影され、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。';
 
   @override
   String get parallelUniverseEnter => '入る';

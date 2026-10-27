@@ -8,7 +8,7 @@ import 'ui/night.dart';
 /// 預設關閉；開啟時同時「看得到別人」與「被別人看到」。
 final parallelUniverseOn = ValueNotifier<bool>(false);
 
-/// 伺服器判定你所在的城市；null = 不在任何支援的城市（或還沒掃描到）
+/// 伺服器判定你所在的城市：null = 還不知道（關閉或還沒掃描到），'' = 不在支援的城市
 final parallelHomeCity = ValueNotifier<String?>(null);
 
 const _prefKey = 'parallel_universe';
@@ -69,4 +69,47 @@ Future<bool> confirmParallelUniverse(BuildContext context) async {
     ),
   );
   return ok == true;
+}
+
+/// 雷達右上角的開關：只有圖標，開啟時發紫光（跟左下角的城市燈塔一樣）
+class ParallelUniverseButton extends StatelessWidget {
+  final VoidCallback onToggle;
+  const ParallelUniverseButton({super.key, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: parallelUniverseOn,
+      builder: (context, on, _) => ValueListenableBuilder<String?>(
+        valueListenable: parallelHomeCity,
+        builder: (context, city, _) {
+          // 伺服器回覆前不下結論：null = 還不知道，'' = 不在支援的城市
+          final status = !on || city == null ? tr.parallelUniverseSubtitle
+              : city.isEmpty ? tr.parallelUniverseNoCity
+              : tr.parallelFrom(parallelCityName(city));
+          return Semantics(
+            button: true,
+            toggled: on,
+            label: '${tr.parallelUniverse}，$status',
+            child: Tooltip(
+              message: status,
+              child: GestureDetector(
+                onTap: onToggle,
+                child: Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(
+                    color: Night.glassFill,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: on ? Night.auroraViolet : Night.glassLine),
+                    boxShadow: on ? [BoxShadow(color: Night.auroraViolet.withOpacity(0.45), blurRadius: 14)] : null,
+                  ),
+                  child: Icon(Icons.public, size: 22, color: on ? Night.auroraViolet : Night.inkMuted),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

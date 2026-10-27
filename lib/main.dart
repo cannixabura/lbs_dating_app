@@ -1038,6 +1038,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } catch (_) {}
   }
 
+  /// 雷達右上角的平行宇宙開關：開啟前先說明，關閉直接關
+  Future<void> _toggleParallelUniverse() async {
+    final on = !parallelUniverseOn.value;
+    if (on && !await confirmParallelUniverse(context)) return;
+    await setParallelUniverse(on);
+    parallelHomeCity.value = null; // 等下一次掃描再顯示所在城市
+    _applyParallelUniverse();
+  }
+
   /// 平行宇宙開關改變：馬上告訴伺服器（加入或離開），並重新掃描雷達
   void _applyParallelUniverse() {
     final pos = _currentPosition;
@@ -1061,7 +1070,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          parallelHomeCity.value = data['parallelCity'] as String?;
+          parallelHomeCity.value = parallelUniverseOn.value ? (data['parallelCity'] as String? ?? '') : null;
           _processNearbyData(data['data'] as List);
         }
       }
@@ -1538,33 +1547,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             ),
           ]),
         ));
-        final parallelRow = StatefulBuilder(builder: (context, setRowState) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: Night.space1, horizontal: Night.space2),
-          child: Row(children: [
-            const Icon(Icons.public, color: Night.auroraViolet, size: 22),
-            const SizedBox(width: Night.space4),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr.parallelUniverse, style: const TextStyle(color: Night.ink, fontSize: 15)),
-                const SizedBox(height: 2),
-                Text(parallelUniverseOn.value && _hasScanned && parallelHomeCity.value == null ? tr.parallelUniverseNoCity : tr.parallelUniverseSubtitle,
-                    style: Night.caption),
-              ]),
-            ),
-            Switch(
-              value: parallelUniverseOn.value,
-              activeThumbColor: Night.onDeep,
-              activeTrackColor: Night.deepViolet,
-              inactiveTrackColor: Night.night700,
-              onChanged: (v) async {
-                if (v && !await confirmParallelUniverse(context)) return;
-                await setParallelUniverse(v);
-                setRowState(() {});
-                _applyParallelUniverse();
-              },
-            ),
-          ]),
-        ));
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -1591,7 +1573,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),
                   item(Icons.timeline, tr.myMoodTrail, subtitle: tr.myMoodTrailSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
-                  parallelRow,
                   item(Icons.translate, tr.language, subtitle: _languageName(appLocale.value), onTap: () => go(_showLanguagePicker)),
                   section(tr.settingsSectionGatherings),
                   item(Icons.campaign_outlined, tr.gatheringHost,
@@ -2661,6 +2642,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         ),
                       // 城市心情天氣
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
+                      // 平行宇宙開關（右上角，只有圖標）
+                      Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4, child: ParallelUniverseButton(onToggle: _toggleParallelUniverse)),
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
                       if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildEmptyRadarCard()),

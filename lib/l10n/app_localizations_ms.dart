@@ -1696,7 +1696,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Apabila dihidupkan, orang di bandar lain yang turut menghidupkannya akan muncul pada radar anda, dan anda muncul pada radar mereka.\n\nKedudukan diunjurkan mengikut skala bandar dan dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa.';
+      'Apabila dihidupkan, semua orang yang sedang dalam talian di bandar lain diunjurkan ke radar anda, dan mereka semua dapat melihat anda.\n\nKedudukan diunjurkan mengikut skala bandar dan dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';

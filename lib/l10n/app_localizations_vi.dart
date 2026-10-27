@@ -10,6 +10,26 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
+  String get checkInEnter => 'Check-in tại đây và vào';
+
+  @override
+  String get checkInNote =>
+      'Khi bạn chạm, người ở gần sẽ thấy tâm trạng và vị trí gần đúng của bạn. Mỗi lần vào bạn đều tự check-in.';
+
+  @override
+  String get checkInTitle => 'Check-in vào thành phố';
+
+  @override
+  String get checkInBody =>
+      'Sau khi check-in, người ở gần sẽ thấy tâm trạng và vị trí gần đúng của bạn, và bạn cũng thấy họ. Họ thấy nơi bạn check-in; vị trí này không đi theo bạn khi bạn di chuyển. Mỗi lần mở ứng dụng bạn tự check-in; không bao giờ tự động.';
+
+  @override
+  String get checkInButton => 'Check-in tại đây';
+
+  @override
+  String get checkInAgain => 'Bạn đã rời nơi check-in · Check-in tại đây';
+
+  @override
   String get appName => 'Mood Whisper';
 
   @override
@@ -52,27 +72,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return 'Bạn đã trao lại buổi tụ họp. Chúng tôi đã thêm $emoji vào biệt danh, giờ bạn là người tham gia.';
   }
-
-  @override
-  String get releaseNotesTitle => 'Mood Whisper 1.1 bản thử nội bộ';
-
-  @override
-  String get releaseNotesLead => 'Thành phố đã khoác lên màu đêm.';
-
-  @override
-  String get releaseNotesMap =>
-      'Bản đồ đêm mới: khu phố xanh thẫm, con đường phát sáng, tòa nhà neon';
-
-  @override
-  String get releaseNotesBubbles =>
-      'Bong bóng tâm trạng giờ là kính tối, dễ đọc ở mọi nơi';
-
-  @override
-  String get releaseNotesResting =>
-      'Đang nghỉ và dư ảnh: người khác vẫn gõ cửa được khi màn hình bạn khóa';
-
-  @override
-  String get releaseNotesSafety => 'Báo cáo và chặn giúp thành phố an toàn';
 
   @override
   String get gotIt => 'Đã hiểu';
@@ -774,7 +773,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS1L2 =>
-      'Viết một câu về cảm xúc lúc này (tối đa 20 ký tự), đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư, rồi chạm Vào Mood Whisper.';
+      'Viết một câu về cảm xúc lúc này (tối đa 20 ký tự), đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư, rồi chạm Check-in tại đây và vào.';
 
   @override
   String get guideS1L3 =>
@@ -783,6 +782,10 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS1L4 =>
       'Từ ngữ trong tâm trạng quyết định màu sắc: “vui, cười” vàng kim, “buồn, khóc” xanh dương, “giận” đỏ cam, “bình yên, thẫn thờ” xanh lá, “nhiệt huyết” cam, “yêu, tim” hồng, còn lại là tím nhạt.';
+
+  @override
+  String get guideS1L5 =>
+      'Check-in: mỗi lần mở ứng dụng bạn tự check-in, và chỉ khi đó người ở gần mới thấy tâm trạng và vị trí gần đúng của bạn, và bạn cũng thấy họ. Không bao giờ tự động. Người khác thấy nơi bạn check-in; vị trí này không đi theo bạn. Nếu bạn đi xa hơn 1 km, nút Check-in tại đây sẽ hiện dưới radar. Nếu ứng dụng ở chế độ nền hơn 30 phút, bạn check-in lại khi quay lại.';
 
   @override
   String get guideS2Title => '2. Thanh dưới cùng';
@@ -899,7 +902,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS8L2 =>
-      'Buổi tụ họp bao phủ 5 km quanh người tổ chức và di chuyển theo họ. Người tổ chức có vòng sáng và nhãn Tổ chức trên radar.';
+      'Buổi tụ họp bao phủ 5 km quanh nơi người tổ chức check-in; khi người tổ chức check-in lại, phạm vi di chuyển theo. Người tổ chức có vòng sáng và nhãn Tổ chức trên radar.';
 
   @override
   String get guideS8L3 =>
@@ -952,7 +955,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cài đặt → Dấu vết tâm trạng cho bạn xem lại những tâm trạng và nơi bạn đã viết. Dữ liệu chỉ lưu trên điện thoại, có thể tắt hoặc xóa bất cứ lúc nào.';
 
   @override
-  String get guideS11Title => '11. Cài đặt và thông báo';
+  String get guideS11Title => '13. Cài đặt và thông báo';
 
   @override
   String get guideS11L1 =>
@@ -967,7 +970,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mỗi thứ Sáu từ 21:00 đến 23:00 là Đêm Thắp Sáng, khi mọi người cùng online và thành phố sáng nhất.';
 
   @override
-  String get guideS12Title => '12. Báo cáo và chặn';
+  String get guideS12Title => '14. Báo cáo và chặn';
 
   @override
   String get guideS12L1 =>
@@ -986,11 +989,11 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn đang gặp nguy hiểm khẩn cấp, hãy gọi ngay số khẩn cấp tại địa phương (113 ở Việt Nam, 110 ở Đài Loan).';
 
   @override
-  String get guideS13Title => '13. Quyền riêng tư và tài khoản';
+  String get guideS13Title => '15. Quyền riêng tư và tài khoản';
 
   @override
   String get guideS13L1 =>
-      'Người gần đó thấy được tâm trạng, biệt danh, ảnh và khoảng cách gần đúng của bạn. Vị trí chỉ được dùng khi bạn đang dùng ứng dụng.';
+      'Chỉ sau khi bạn check-in, người ở gần mới thấy tâm trạng, tên thành phố, ảnh và khoảng cách gần đúng của bạn. Họ thấy nơi bạn check-in, không phải vị trí theo thời gian thực.';
 
   @override
   String get guideS13L2 =>
@@ -999,6 +1002,44 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS13L3 =>
       'Có câu hỏi? Vào Cài đặt → Liên hệ, hoặc gửi email đến service.softchip@gmail.com.';
+
+  @override
+  String get guideS14Title => '11. Vũ trụ song song';
+
+  @override
+  String get guideS14L1 =>
+      'Chạm biểu tượng quả địa cầu ở góc trên bên phải radar để bật, chạm lần nữa để tắt. Mỗi lần mở ứng dụng, tính năng này đều tắt.';
+
+  @override
+  String get guideS14L2 =>
+      'Mỗi thành phố hoặc huyện ở Đài Loan lấy nhà ga trung tâm của mình làm tâm (Đại Đài Bắc là ga Đài Bắc, Đào Viên là ga Đào Viên…) và được ghép với các thành phố nước ngoài: Nhật Bản, Hàn Quốc, Hồng Kông, Ma Cao, Singapore, Malaysia, Indonesia và Việt Nam. Các thành phố nước ngoài được ghép với Đài Loan.';
+
+  @override
+  String get guideS14L3 =>
+      'Bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở thành phố của họ với cùng khoảng cách và hướng so với nhà ga của họ, được làm mờ khoảng 500 m. Không ai thấy được vị trí thật của bạn.';
+
+  @override
+  String get guideS14L4 =>
+      'Hai người thấy nhau nếu một trong hai bật: khi bật, bạn thấy mọi người đang mở ứng dụng ở các thành phố được ghép; khi tắt, bạn chỉ thấy những người đã bật. Chỉ người đã check-in và đang mở ứng dụng mới xuất hiện ở thành phố khác.';
+
+  @override
+  String get guideS14L5 =>
+      'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Dư ảnh, lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
+
+  @override
+  String get guideS15Title => '12. Dịch';
+
+  @override
+  String get guideS15L1 =>
+      'Khi trò chuyện, nếu tin nhắn không phải ngôn ngữ của bạn, dòng Chạm để dịch sẽ hiện bên dưới. Chạm để dịch sang ngôn ngữ của bạn, chạm lần nữa để xem bản gốc.';
+
+  @override
+  String get guideS15L2 =>
+      'Bong bóng tâm trạng trên radar cũng vậy: nếu không phải ngôn ngữ của bạn, chạm để dịch và chạm lần nữa để trở lại bản gốc.';
+
+  @override
+  String get guideS15L3 =>
+      'Việc dịch diễn ra hoàn toàn trên điện thoại; văn bản không bao giờ được tải lên. iPhone dùng tính năng dịch có sẵn của Apple, và hệ thống sẽ hỏi trước khi tải một ngôn ngữ lần đầu. Android dùng Google ML Kit, hỏi bạn trước rồi tải mô hình ngôn ngữ khoảng 30 MB. iPhone chưa dịch được tiếng Mã Lai.';
 
   @override
   String get guideIntro =>

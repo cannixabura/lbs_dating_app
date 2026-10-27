@@ -139,7 +139,9 @@ class BlankCanvasScreen extends StatefulWidget {
   final String uid;
   final String initialMood;
 
-  const BlankCanvasScreen({super.key, required this.uid, required this.initialMood});
+  /// 使用者在進入畫面按了「在這裡打卡」：拿到位置後立刻打卡
+  final bool checkIn;
+  const BlankCanvasScreen({super.key, required this.uid, required this.initialMood, this.checkIn = false});
 
   @override
   State<BlankCanvasScreen> createState() => _BlankCanvasScreenState();
@@ -160,7 +162,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Timer? _radarTimer;
   StreamSubscription<DatabaseEvent>? _connectionSubscription;
   bool _isInForeground = true;
-  bool _locationServicesStarted = false;
+  bool _locationServicesStarted = false; // 已打卡：在線狀態、雷達與位置回報都在運作
+  // 打卡（App Store 5.1.2）：每次打開 App 都要自己按「在這裡打卡」才會出現在地圖上，不會自動打卡。
+  // 別人看到的是打卡當下的位置；走遠了要再打卡一次才會更新。在背景超過 30 分鐘回來也要重新打卡。
+  Position? _checkInPosition;
+  DateTime? _pausedAt;
+  static const _checkInMoveMeters = 1000.0;
+  static const _checkInExpiry = Duration(minutes: 30);
+  late bool _checkInRequested = widget.checkIn;
   // 進場鏡頭：從城市高空俯衝到街道，期間暫停羅盤與仰角對鏡頭的更新
   bool _introFlying = true;
   late final AnimationController _introFade = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
@@ -339,10 +348,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
     
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndShowReleaseNotes();
-    });
-
     _startAppSetup();
   }
 
@@ -357,7 +362,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     // 敲門監聽不需要定位，先啟動，避免定位較慢時漏接敲門
     _listenToIncomingRequests();
     await _initSensors();
-    if (_currentPosition != null) _startLocationServices();
   }
 
   /// 條款同意紀錄：登入畫面寫入失敗時（網路不穩、剛登入的權杖還沒生效），進城後補寫一次。
@@ -376,12 +380,32 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
   }
 
-  // 取得第一個定位後才啟動在線狀態與雷達；首次定位逾時（>10 秒）時改由定位串流觸發
-  void _startLocationServices() {
-    if (_locationServicesStarted) return;
-    _locationServicesStarted = true;
-    _initPresence();
-    _startRadarSweep();
+  /// 打卡：把此刻的位置公開在地圖上，啟動在線狀態與雷達。只由使用者按下按鈕觸發。
+  void _checkIn() {
+    final pos = _currentPosition;
+    if (pos == null) return;
+    _checkInRequested = false;
+    setState(() { _checkInPosition = pos; _emptyCardDismissed = false; });
+    if (!_locationServicesStarted) {
+      _locationServicesStarted = true;
+      _initPresence();
+      _startRadarSweep();
+    }
+    _updateMyLocationToServer(pos);
+  }
+
+  /// 打卡失效（在背景太久）：停止回報與掃描，雷達清空，等使用者重新打卡
+  void _endCheckIn() {
+    _heartbeatTimer?.cancel(); _radarTimer?.cancel(); _cityMoodTimer?.cancel();
+    _locationServicesStarted = false;
+    _activeUsersNotifier.value = [];
+    setState(() { _checkInPosition = null; _hasScanned = false; _whispers = []; });
+  }
+
+  bool get _movedFarFromCheckIn {
+    final from = _checkInPosition, now = _currentPosition;
+    if (from == null || now == null) return false;
+    return Geolocator.distanceBetween(from.latitude, from.longitude, now.latitude, now.longitude) > _checkInMoveMeters;
   }
 
   Future<void> _loadProfileData() async {
@@ -407,52 +431,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
       if (_currentPosition != null) {
         _updateMyLocationToServer(_currentPosition!);
-      }
-    }
-  }
-
-  Future<void> _checkAndShowReleaseNotes() async {
-    final prefs = await SharedPreferences.getInstance();
-    const String currentVersion = '1.1.0'; 
-    final String? lastSeenVersion = prefs.getString('last_seen_version');
-
-    if (lastSeenVersion != currentVersion) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false, barrierColor: const Color(0x99070B1F),
-          builder: (context) {
-            Widget line(IconData icon, String text) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(icon, color: Night.auroraBlue, size: 18),
-                    const SizedBox(width: Night.space3),
-                    Expanded(child: Text(text, style: const TextStyle(color: Night.inkMuted, fontSize: 14, height: 1.5))),
-                  ]),
-                );
-            return Dialog(
-              backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
-              child: GlassCard(
-                glow: true,
-                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(tr.releaseNotesTitle, style: Night.title, textAlign: TextAlign.center),
-                  const SizedBox(height: Night.space2),
-                  Text(tr.releaseNotesLead, style: Night.body, textAlign: TextAlign.center),
-                  const SizedBox(height: Night.space4),
-                  line(Icons.map_outlined, tr.releaseNotesMap),
-                  line(Icons.bubble_chart_outlined, tr.releaseNotesBubbles),
-                  line(Icons.nights_stay_outlined, tr.releaseNotesResting),
-                  line(Icons.flag_outlined, tr.releaseNotesSafety),
-                  const SizedBox(height: Night.space4),
-                  NightButton(tr.gotIt, onPressed: () async {
-                    await prefs.setString('last_seen_version', currentVersion);
-                    if (context.mounted) Navigator.pop(context);
-                  }),
-                ]),
-              ),
-            );
-          },
-        );
       }
     }
   }
@@ -563,7 +541,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     // 網路斷線重連後，重新登記在線（斷線時 onDisconnect 可能已標記為已離開）
     _connectionSubscription?.cancel();
     _connectionSubscription = _dbRef.child('.info/connected').onValue.skip(1).listen((event) {
-      if (event.snapshot.value == true && _isInForeground) _setPresence('active');
+      if (event.snapshot.value == true && _isInForeground && _locationServicesStarted) _setPresence('active');
     });
     _startForegroundHeartbeat();
   }
@@ -697,9 +675,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _currentPosition = newPosition;
           if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
         });
-        _updateMyLocationToServer(newPosition);
         _updateMapCamera();
-        _startLocationServices();
+        if (_checkInRequested) _checkIn();
         _checkTimeWhispers();
         _maybeFetchBeacon();
       },
@@ -714,8 +691,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         _currentPosition = position;
         if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
       });
-      _updateMyLocationToServer(position);
-      _startLocationServices();
+      if (_checkInRequested) _checkIn();
     }).catchError((Object e) {
       debugPrint('initial position failed: $e');
       if (mounted && _currentPosition == null) _setLocationIssue(_LocationIssue.noFix);
@@ -803,9 +779,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     };
   }
 
-  Future<void> _updateMyLocationToServer(Position position) async {
+  /// 回報位置與心情（也是「活躍」心跳）。只在打卡後送出，而且一律送打卡當下的位置，不會跟著移動更新。
+  Future<void> _updateMyLocationToServer(Position _) async {
     // 伺服器把這個呼叫視為「活躍」心跳，背景時（例如 Android 背景定位回呼）不可送出
-    if (!_isInForeground) return;
+    final position = _checkInPosition;
+    if (!_isInForeground || !_locationServicesStarted || position == null) return;
     MoodTrail.record(_myMood, position.latitude, position.longitude); // 只存在手機上
     try {
       await http.post(
@@ -1055,7 +1033,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   Future<void> _fetchNearbyUsers() async {
-    if (_currentPosition == null) return;
+    if (_currentPosition == null || !_locationServicesStarted) return; // 打卡後才看得到附近的人
     try {
       final response = await http.post(
         Uri.parse(_getNearbyUrl),
@@ -1363,6 +1341,42 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         ),
       ),
     ]);
+  }
+
+  Widget _buildCheckInCard() {
+    return GlassCard(
+      glow: true,
+      padding: const EdgeInsets.symmetric(horizontal: Night.space6, vertical: Night.space4),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(Icons.where_to_vote_outlined, color: Night.auroraViolet, size: 32),
+        const SizedBox(height: Night.space2),
+        Text(tr.checkInTitle, style: Night.title, textAlign: TextAlign.center),
+        const SizedBox(height: Night.space2),
+        Text(tr.checkInBody, style: Night.body, textAlign: TextAlign.center),
+        const SizedBox(height: Night.space4),
+        NightButton(tr.checkInButton, icon: Icons.where_to_vote, onPressed: _currentPosition == null ? null : _checkIn),
+      ]),
+    );
+  }
+
+  Widget _buildReCheckInPill() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: _checkIn,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space2),
+          decoration: BoxDecoration(color: Night.glassFill, borderRadius: BorderRadius.circular(999), border: Border.all(color: Night.auroraViolet)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.where_to_vote_outlined, color: Night.auroraViolet, size: 18),
+            const SizedBox(width: Night.space2),
+            Text(tr.checkInAgain, style: const TextStyle(color: Night.ink, fontSize: 14)),
+          ]),
+        ),
+      ),
+    );
   }
 
   Widget _buildEmptyRadarCardBody() {
@@ -2443,6 +2457,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       if (_isInForeground) return;
       _isInForeground = true;
       if (!_locationServicesStarted) return;
+      // 在背景太久：打卡失效，要重新打卡才會再出現在地圖上
+      if (_pausedAt != null && DateTime.now().difference(_pausedAt!) > _checkInExpiry) return _endCheckIn();
       _setPresence('active');
       if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
       _startForegroundHeartbeat();
@@ -2452,6 +2468,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       // 註：iOS 開啟 App 切換器只會進入 inactive，此時從切換器滑掉 App 會觸發 onDisconnect → exited
       if (!_isInForeground) return;
       _isInForeground = false;
+      _pausedAt = DateTime.now();
       _heartbeatTimer?.cancel();
       _radarTimer?.cancel();
       _cityMoodTimer?.cancel();
@@ -2669,8 +2686,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
                       // 平行宇宙開關（右上角，只有圖標）
                       Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4, child: ParallelUniverseButton(onToggle: _toggleParallelUniverse)),
+                      // 打卡：還沒打卡時只看得到地圖，按下才會出現在地圖上、看到附近的人
+                      if (!_locationServicesStarted && !_checkInRequested)
+                        Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildCheckInCard()),
+                      // 走離打卡的地方：別人看到的還是打卡的位置，提醒可以重新打卡
+                      if (_locationServicesStarted && _movedFarFromCheckIn)
+                        Positioned(left: 0, right: 0, bottom: MediaQuery.of(context).padding.bottom + 152, child: Center(child: _buildReCheckInPill())),
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
-                      if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
+                      if (_locationServicesStarted && _hasScanned && activeUsers.isEmpty && !_emptyCardDismissed && !_movedFarFromCheckIn)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildEmptyRadarCard()),
                       // 城市燈塔開關與篩選（底部選單左上方）
                       Positioned(

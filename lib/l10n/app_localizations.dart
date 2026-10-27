@@ -109,6 +109,42 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ];
 
+  /// No description provided for @checkInEnter.
+  ///
+  /// In zh, this message translates to:
+  /// **'在這裡打卡，走進城市'**
+  String get checkInEnter;
+
+  /// No description provided for @checkInNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'按下後，附近的人會看到你此刻的心情與大概的位置。每次進入都要自己打卡。'**
+  String get checkInNote;
+
+  /// No description provided for @checkInTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'打卡，走進城市'**
+  String get checkInTitle;
+
+  /// No description provided for @checkInBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。'**
+  String get checkInBody;
+
+  /// No description provided for @checkInButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'在這裡打卡'**
+  String get checkInButton;
+
+  /// No description provided for @checkInAgain.
+  ///
+  /// In zh, this message translates to:
+  /// **'你離開打卡的地方了 · 在這裡重新打卡'**
+  String get checkInAgain;
+
   /// No description provided for @appName.
   ///
   /// In zh, this message translates to:
@@ -180,42 +216,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'你已交棒，稱呼補上了 {emoji}，你現在是參加者。'**
   String handedOffEmojiAdded(String emoji);
-
-  /// No description provided for @releaseNotesTitle.
-  ///
-  /// In zh, this message translates to:
-  /// **'城市低語 1.1 內部測試版'**
-  String get releaseNotesTitle;
-
-  /// No description provided for @releaseNotesLead.
-  ///
-  /// In zh, this message translates to:
-  /// **'這座城市換上了夜色。'**
-  String get releaseNotesLead;
-
-  /// No description provided for @releaseNotesMap.
-  ///
-  /// In zh, this message translates to:
-  /// **'全新夜光地圖：深藍街區、微光道路、霓虹建築'**
-  String get releaseNotesMap;
-
-  /// No description provided for @releaseNotesBubbles.
-  ///
-  /// In zh, this message translates to:
-  /// **'心情氣泡改為深色玻璃，在哪裡都看得清楚'**
-  String get releaseNotesBubbles;
-
-  /// No description provided for @releaseNotesResting.
-  ///
-  /// In zh, this message translates to:
-  /// **'休息中與歷史殘影：鎖屏也能被敲門'**
-  String get releaseNotesResting;
-
-  /// No description provided for @releaseNotesSafety.
-  ///
-  /// In zh, this message translates to:
-  /// **'檢舉與封鎖：讓城市保持安全'**
-  String get releaseNotesSafety;
 
   /// No description provided for @gotIt.
   ///
@@ -1396,7 +1396,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS1L2.
   ///
   /// In zh, this message translates to:
-  /// **'寫下一句此刻的心情（最多 20 個字），勾選同意《使用條款》與《隱私權政策》，按「走進城市低語」。'**
+  /// **'寫下一句此刻的心情（最多 20 個字），勾選同意《使用條款》與《隱私權政策》，按「在這裡打卡，走進城市」。'**
   String get guideS1L2;
 
   /// No description provided for @guideS1L3.
@@ -1410,6 +1410,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'心情的顏色由字裡的關鍵字決定：「開心、笑」金黃，「難過、哭」藍，「生氣、怒」橘紅，「平靜、發呆」綠，「熱情」橘，「愛、心」粉紅，其他是淡紫。'**
   String get guideS1L4;
+
+  /// No description provided for @guideS1L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'打卡：每次打開 App 都要自己按下打卡，附近的人才看得到你的心情與大概的位置，你也才看得到他們；不會自動打卡。別人看到的是你打卡的地方，不會跟著你移動。走離打卡的地方超過 1 公里，雷達下方會出現「在這裡重新打卡」；App 在背景超過 30 分鐘，回來時也要重新打卡。'**
+  String get guideS1L5;
 
   /// No description provided for @guideS2Title.
   ///
@@ -1594,7 +1600,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS8L2.
   ///
   /// In zh, this message translates to:
-  /// **'範圍是以主持人為中心 5 公里，主持人走到哪，範圍就跟到哪。主持人在雷達上有一圈光環和「主持」標示。'**
+  /// **'範圍是以主持人打卡的地方為中心 5 公里；主持人重新打卡，範圍就跟著移動。主持人在雷達上有一圈光環和「主持」標示。'**
   String get guideS8L2;
 
   /// No description provided for @guideS8L3.
@@ -1678,7 +1684,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS11Title.
   ///
   /// In zh, this message translates to:
-  /// **'11. 設定與通知'**
+  /// **'13. 設定與通知'**
   String get guideS11Title;
 
   /// No description provided for @guideS11L1.
@@ -1702,7 +1708,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS12Title.
   ///
   /// In zh, this message translates to:
-  /// **'12. 檢舉與封鎖'**
+  /// **'14. 檢舉與封鎖'**
   String get guideS12Title;
 
   /// No description provided for @guideS12L1.
@@ -1732,13 +1738,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideS13Title.
   ///
   /// In zh, this message translates to:
-  /// **'13. 隱私與帳號'**
+  /// **'15. 隱私與帳號'**
   String get guideS13Title;
 
   /// No description provided for @guideS13L1.
   ///
   /// In zh, this message translates to:
-  /// **'附近的人看得到你的心情、城市稱呼、大頭貼與大概的距離；只有在你使用 App 時才會取得位置。'**
+  /// **'只有在你打卡之後，附近的人才看得到你的心情、城市稱呼、大頭貼與大概的距離；他們看到的是你打卡的地方，不是即時位置。'**
   String get guideS13L1;
 
   /// No description provided for @guideS13L2.
@@ -1752,6 +1758,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'有任何問題，設定 →「聯絡我們」或寫信到 service.softchip@gmail.com。'**
   String get guideS13L3;
+
+  /// No description provided for @guideS14Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'11. 平行宇宙'**
+  String get guideS14Title;
+
+  /// No description provided for @guideS14L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'點雷達右上角的地球圖示開啟，再點一次關閉。每次打開 App 都是關閉的。'**
+  String get guideS14L1;
+
+  /// No description provided for @guideS14L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼與越南；國外的城市則對應到台灣。'**
+  String get guideS14L2;
+
+  /// No description provided for @guideS14L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'你離車站往哪個方向、多遠，在對方的城市就出現在離對方車站同樣方向、同樣距離的地方，並模糊到約 500 公尺，沒有人看得到你的真實位置。'**
+  String get guideS14L3;
+
+  /// No description provided for @guideS14L4.
+  ///
+  /// In zh, this message translates to:
+  /// **'只要你或對方其中一方開啟就看得到：你開啟時，看得到對方城市所有正開著 App 的人；你沒開時，只看得到有開啟的人。只有已打卡、正開著 App 的人會出現在其他城市。'**
+  String get guideS14L4;
+
+  /// No description provided for @guideS14L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。'**
+  String get guideS14L5;
+
+  /// No description provided for @guideS15Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'12. 翻譯'**
+  String get guideS15Title;
+
+  /// No description provided for @guideS15L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。'**
+  String get guideS15L1;
+
+  /// No description provided for @guideS15L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'雷達上的心情氣泡也一樣：跟你的語言不同時，點一下就翻譯，再點一下回到原文。'**
+  String get guideS15L2;
+
+  /// No description provided for @guideS15L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'翻譯完全在手機上進行，文字不會上傳。iPhone 使用 Apple 內建的翻譯，第一次翻某種語言時系統會問你要不要下載；Android 使用 Google ML Kit，第一次會先問你，再下載約 30 MB 的語言模型。iPhone 暫時無法翻譯馬來文。'**
+  String get guideS15L3;
 
   /// No description provided for @guideIntro.
   ///

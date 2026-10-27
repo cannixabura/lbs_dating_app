@@ -18,7 +18,7 @@ OUT = os.path.join(ROOT, "hosting", "guide.html")
 ICONS = {
     "edit_outlined": "✎", "space_dashboard_outlined": "▤", "radar": "◎", "back_hand_outlined": "✋",
     "auto_awesome": "✦", "mail_outline": "✉", "wb_twilight": "◐", "campaign_outlined": "📣",
-    "wc": "🚻", "ios_share": "⇪", "tune": "⚙", "flag_outlined": "⚑", "lock_outline": "🔒",
+    "wc": "🚻", "ios_share": "⇪", "tune": "⚙", "flag_outlined": "⚑", "lock_outline": "🔒", "public": "🪐", "translate": "文",
 }
 
 

@@ -116,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // 🌟 這裡傳入型態絕對安全的 finalUid，編譯器就不會再報錯了！
           uid: finalUid, 
           initialMood: mood,
+          checkIn: true,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -210,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           maxLength: 20, 
                           cursorColor: Night.auroraViolet,
                           textInputAction: TextInputAction.done, 
-                          onSubmitted: (_) => _enterCity(), 
+                          onSubmitted: (_) => _focusNode.unfocus(), // 打卡只由按鈕觸發
                           decoration: InputDecoration(
                             hintText: tr.loginHint,
                             hintStyle: const TextStyle(color: Night.inkFaint, fontSize: 15),
@@ -227,7 +228,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           _consentRow(),
                         ],
                         const SizedBox(height: Night.space4),
-                        NightButton(tr.enterCity, expand: true, onPressed: canEnter ? _enterCity : null),
+                        // 按下就是打卡（App Store 5.1.2）：附近的人會看到你的心情與大概位置
+                        NightButton(tr.checkInEnter, icon: Icons.where_to_vote, expand: true, onPressed: canEnter ? _enterCity : null),
+                        const SizedBox(height: Night.space2),
+                        Text(tr.checkInNote, style: Night.caption, textAlign: TextAlign.center),
                       ],
                     ),
                   ),

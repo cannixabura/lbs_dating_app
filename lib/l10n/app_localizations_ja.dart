@@ -10,6 +10,25 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get checkInEnter => 'ここでチェックインして街へ';
+
+  @override
+  String get checkInNote => '押すと、近くの人にいまの気分とだいたいの位置が見えます。入るたびに自分でチェックインします。';
+
+  @override
+  String get checkInTitle => 'チェックインして街へ';
+
+  @override
+  String get checkInBody =>
+      'チェックインすると、近くの人にいまの気分とだいたいの位置が見え、あなたもその人たちが見えるようになります。表示されるのはチェックインした場所で、移動しても動きません。アプリを開くたびに自分でチェックインします。自動でチェックインすることはありません。';
+
+  @override
+  String get checkInButton => 'ここでチェックイン';
+
+  @override
+  String get checkInAgain => 'チェックインした場所から離れました · ここでチェックイン';
+
+  @override
   String get appName => 'Mood Whisper';
 
   @override
@@ -52,24 +71,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return '主催を引き継ぎました。呼び名に $emoji を加えたので、今は参加者です。';
   }
-
-  @override
-  String get releaseNotesTitle => 'Mood Whisper 1.1 内部テスト版';
-
-  @override
-  String get releaseNotesLead => '街が夜の色をまといました。';
-
-  @override
-  String get releaseNotesMap => '新しい夜のマップ：深い青の街区、ほのかに光る道、ネオンの建物';
-
-  @override
-  String get releaseNotesBubbles => 'ムードの泡がダークガラスになり、どこでも読みやすく';
-
-  @override
-  String get releaseNotesResting => '休憩中と残像：画面をロックしていてもノックが届きます';
-
-  @override
-  String get releaseNotesSafety => '通報とブロックで街を安全に';
 
   @override
   String get gotIt => 'わかった';
@@ -736,7 +737,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideS1L2 =>
-      '今の気持ちをひとこと（20 文字まで）書き、利用規約とプライバシーポリシーに同意して「Mood Whisper に入る」をタップします。';
+      '今の気持ちをひとこと（20 文字まで）書き、利用規約とプライバシーポリシーに同意して「ここでチェックインして街へ」をタップします。';
 
   @override
   String get guideS1L3 => '電話番号、メールアドレス、本名は不要です。アカウントは匿名で、この端末に紐づきます。';
@@ -744,6 +745,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS1L4 =>
       'ムードの色は言葉に含まれるキーワードで決まります。「うれしい・笑」は金色、「かなしい・泣」は青、「怒り」は朱色、「おだやか・ぼんやり」は緑、「情熱」はオレンジ、「愛・ハート」はピンク、それ以外は淡い紫です。';
+
+  @override
+  String get guideS1L5 =>
+      'チェックイン：アプリを開くたびに自分でチェックインすると、近くの人にあなたの気分とだいたいの位置が見え、あなたもその人たちが見えるようになります。自動でチェックインすることはありません。表示されるのはチェックインした場所で、移動しても動きません。チェックインした場所から 1 km 以上離れると、レーダーの下に「ここでチェックイン」が出ます。アプリをバックグラウンドに 30 分以上置いたあとは、戻ったときにもう一度チェックインします。';
 
   @override
   String get guideS2Title => '2. 下のメニュー';
@@ -851,7 +856,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideS8L2 =>
-      '範囲は主催者を中心に 5 km で、主催者が動けば一緒に動きます。レーダー上の主催者には光の輪と「主催」の印がつきます。';
+      '範囲は主催者がチェックインした場所を中心に 5 km で、主催者がチェックインし直すと一緒に動きます。レーダー上の主催者には光の輪と「主催」の印がつきます。';
 
   @override
   String get guideS8L3 => '主催者はお知らせを何度でも投稿でき、みんなに質問したり、いつでも集いを終了したりできます。';
@@ -902,7 +907,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定 →「ムードの軌跡」で、これまで書いたムードと場所を振り返れます。データはこの端末にだけ保存され、いつでもオフにしたり消去したりできます。';
 
   @override
-  String get guideS11Title => '11. 設定と通知';
+  String get guideS11Title => '13. 設定と通知';
 
   @override
   String get guideS11L1 => '「夜のリマインダー」：毎晩 21:30 にやさしいお知らせが届きます。設定でオン・オフできます。';
@@ -916,7 +921,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週金曜 21:00〜23:00 は「ライトアップナイト」。みんなで一緒にオンラインになると、街がいちばん明るくなります。';
 
   @override
-  String get guideS12Title => '12. 通報とブロック';
+  String get guideS12Title => '14. 通報とブロック';
 
   @override
   String get guideS12L1 =>
@@ -935,11 +940,11 @@ class AppLocalizationsJa extends AppLocalizations {
       '差し迫った危険があるときは、すぐに現地の緊急通報番号（日本は 110、台湾は 110）に電話してください。';
 
   @override
-  String get guideS13Title => '13. プライバシーとアカウント';
+  String get guideS13Title => '15. プライバシーとアカウント';
 
   @override
   String get guideS13L1 =>
-      '近くの人に見えるのは、あなたのムード、呼び名、写真、おおよその距離です。位置情報はアプリの使用中だけ使われます。';
+      '近くの人にあなたのムード、呼び名、写真、おおよその距離が見えるのは、チェックインしたあとだけです。見えるのはチェックインした場所で、リアルタイムの位置ではありません。';
 
   @override
   String get guideS13L2 => '設定 →「アカウントとデータを削除」で、街に残したすべてをいつでも完全に削除できます。';
@@ -947,6 +952,44 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS13L3 =>
       'ご不明な点は、設定 →「お問い合わせ」または service.softchip@gmail.com までご連絡ください。';
+
+  @override
+  String get guideS14Title => '11. パラレルユニバース';
+
+  @override
+  String get guideS14L1 =>
+      'レーダー右上の地球アイコンをタップするとオン、もう一度タップするとオフになります。アプリを開くたびにオフから始まります。';
+
+  @override
+  String get guideS14L2 =>
+      '台湾の各県市はそれぞれの中央駅を中心に（大台北は台北駅、桃園は桃園駅など）、海外の街（日本、韓国、香港、マカオ、シンガポール、マレーシア、インドネシア、ベトナム）と対応します。海外の街は台湾と対応します。';
+
+  @override
+  String get guideS14L3 =>
+      'あなたが駅からどの方向にどれだけ離れているかで、相手の街の駅から同じ方向・同じ距離の場所に表示され、約 500 m ぼかされます。本当の位置は誰にもわかりません。';
+
+  @override
+  String get guideS14L4 =>
+      'どちらか一方がオンなら見えます。オンのときは対応する街でアプリを開いている全員が、オフのときはオンにしている人だけが見えます。ほかの街に表示されるのは、チェックイン済みでアプリを開いている人だけです。';
+
+  @override
+  String get guideS14L5 =>
+      'パラレルユニバースの人には点線の輪があり、いる街が表示されます。光を送る・ノック・チャットもできます。残像・ささやき・未来への手紙・集いはその街だけのものです。';
+
+  @override
+  String get guideS15Title => '12. 翻訳';
+
+  @override
+  String get guideS15L1 =>
+      'チャットで相手のメッセージがあなたの言語と違うと、下に「タップして翻訳」が出ます。タップすると翻訳され、もう一度タップすると原文に戻ります。';
+
+  @override
+  String get guideS15L2 =>
+      'レーダー上の気分の吹き出しも同じです。あなたの言語と違うときはタップで翻訳、もう一度タップで原文に戻ります。';
+
+  @override
+  String get guideS15L3 =>
+      '翻訳はすべてスマホの中で行われ、文章がアップロードされることはありません。iPhone は Apple の内蔵翻訳を使い、初めての言語ではシステムがダウンロードを確認します。Android は Google ML Kit を使い、最初に確認してから約 30 MB の言語モデルをダウンロードします。iPhone ではマレー語はまだ翻訳できません。';
 
   @override
   String get guideIntro =>

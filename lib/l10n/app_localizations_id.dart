@@ -10,6 +10,27 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
+  String get checkInEnter => 'Check-in di sini dan masuk';
+
+  @override
+  String get checkInNote =>
+      'Setelah kamu ketuk, orang di sekitar akan melihat suasana hatimu dan kira-kira di mana kamu berada. Kamu check-in sendiri setiap kali masuk.';
+
+  @override
+  String get checkInTitle => 'Check-in ke kota';
+
+  @override
+  String get checkInBody =>
+      'Setelah kamu check-in, orang di sekitar bisa melihat suasana hatimu dan kira-kira di mana kamu berada, dan kamu juga akan melihat mereka. Yang mereka lihat adalah tempat kamu check-in; tidak ikut berpindah saat kamu bergerak. Kamu check-in sendiri setiap kali membuka aplikasi; tidak pernah otomatis.';
+
+  @override
+  String get checkInButton => 'Check-in di sini';
+
+  @override
+  String get checkInAgain =>
+      'Kamu sudah meninggalkan tempat check-in · Check-in di sini';
+
+  @override
   String get appName => 'Mood Whisper';
 
   @override
@@ -52,27 +73,6 @@ class AppLocalizationsId extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return 'Kamu sudah menyerahkan acara. Kami menambahkan $emoji ke namamu, jadi sekarang kamu peserta.';
   }
-
-  @override
-  String get releaseNotesTitle => 'Mood Whisper 1.1 uji internal';
-
-  @override
-  String get releaseNotesLead => 'Kota ini kini berwarna malam.';
-
-  @override
-  String get releaseNotesMap =>
-      'Peta malam baru: blok biru tua, jalan bercahaya, gedung neon';
-
-  @override
-  String get releaseNotesBubbles =>
-      'Gelembung mood kini kaca gelap, mudah dibaca di mana saja';
-
-  @override
-  String get releaseNotesResting =>
-      'Istirahat dan gema memudar: orang tetap bisa mengetuk saat layarmu terkunci';
-
-  @override
-  String get releaseNotesSafety => 'Laporkan dan blokir agar kota tetap aman';
 
   @override
   String get gotIt => 'Oke';
@@ -775,7 +775,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS1L2 =>
-      'Tulis satu kalimat tentang perasaanmu sekarang (maks. 20 karakter), setujui Ketentuan Penggunaan dan Kebijakan Privasi, lalu ketuk Masuk Mood Whisper.';
+      'Tulis satu kalimat tentang perasaanmu saat ini (maksimal 20 karakter), setujui Ketentuan Penggunaan dan Kebijakan Privasi, lalu ketuk Check-in di sini dan masuk.';
 
   @override
   String get guideS1L3 =>
@@ -784,6 +784,10 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS1L4 =>
       'Kata dalam mood-mu menentukan warnanya: “senang, tertawa” emas, “sedih, menangis” biru, “marah” merah oranye, “tenang, melamun” hijau, “semangat” oranye, “cinta, hati” merah muda, dan lainnya ungu lembut.';
+
+  @override
+  String get guideS1L5 =>
+      'Check-in: setiap kali membuka aplikasi, kamu check-in sendiri, dan baru setelah itu orang di sekitar bisa melihat suasana hatimu dan kira-kira di mana kamu berada, dan kamu melihat mereka. Tidak pernah otomatis. Orang lain melihat tempat kamu check-in; tidak ikut berpindah saat kamu bergerak. Jika kamu bergerak lebih dari 1 km, Check-in di sini muncul di bawah radar. Jika aplikasi berada di latar belakang lebih dari 30 menit, kamu check-in lagi saat kembali.';
 
   @override
   String get guideS2Title => '2. Bilah bawah';
@@ -898,7 +902,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS8L2 =>
-      'Acara mencakup 5 km di sekitar penyelenggara dan ikut bergerak bersamanya. Penyelenggara punya cincin cahaya dan label Penyelenggara di radar.';
+      'Acara mencakup 5 km di sekitar tempat tuan rumah check-in; saat tuan rumah check-in lagi, area ikut berpindah. Tuan rumah punya cincin cahaya dan label Tuan rumah di radar.';
 
   @override
   String get guideS8L3 =>
@@ -951,7 +955,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Pengaturan → Jejak mood-ku memungkinkanmu melihat kembali mood dan tempat yang pernah kamu tulis. Hanya disimpan di ponselmu, dan bisa dimatikan atau dihapus kapan saja.';
 
   @override
-  String get guideS11Title => '11. Pengaturan dan notifikasi';
+  String get guideS11Title => '13. Pengaturan dan notifikasi';
 
   @override
   String get guideS11L1 =>
@@ -966,7 +970,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Setiap Jumat pukul 21.00–23.00 adalah Malam Bercahaya, saat semua orang online bersama dan kota paling terang.';
 
   @override
-  String get guideS12Title => '12. Melapor dan memblokir';
+  String get guideS12Title => '14. Laporan dan blokir';
 
   @override
   String get guideS12L1 =>
@@ -985,11 +989,11 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika kamu dalam bahaya mendesak, hubungi nomor darurat setempat (112 di Indonesia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '13. Privasi dan akunmu';
+  String get guideS13Title => '15. Privasi dan akunmu';
 
   @override
   String get guideS13L1 =>
-      'Orang di sekitar bisa melihat mood, nama panggilan, foto, dan jarak perkiraanmu. Lokasimu hanya dipakai saat aplikasi digunakan.';
+      'Hanya setelah kamu check-in, orang di sekitar bisa melihat suasana hati, nama kota, foto, dan perkiraan jarakmu. Yang mereka lihat adalah tempat kamu check-in, bukan lokasi waktu nyata.';
 
   @override
   String get guideS13L2 =>
@@ -998,6 +1002,44 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS13L3 =>
       'Ada pertanyaan? Buka Pengaturan → Hubungi kami, atau email ke service.softchip@gmail.com.';
+
+  @override
+  String get guideS14Title => '11. Semesta Paralel';
+
+  @override
+  String get guideS14L1 =>
+      'Ketuk ikon bola dunia di kanan atas radar untuk menyalakannya, dan ketuk lagi untuk mematikannya. Selalu mati setiap kali kamu membuka aplikasi.';
+
+  @override
+  String get guideS14L2 =>
+      'Setiap kota atau kabupaten di Taiwan berpusat di stasiun pusatnya sendiri (Taipei Raya di Stasiun Taipei, Taoyuan di Stasiun Taoyuan, dan seterusnya) dan dipasangkan dengan kota di luar negeri: Jepang, Korea, Hong Kong, Makau, Singapura, Malaysia, Indonesia, dan Vietnam. Kota di luar negeri dipasangkan dengan Taiwan.';
+
+  @override
+  String get guideS14L3 =>
+      'Seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dengan jarak dan arah yang sama dari stasiun mereka, dikaburkan sekitar 500 m. Tidak ada yang bisa melihat lokasi aslimu.';
+
+  @override
+  String get guideS14L4 =>
+      'Kalian saling melihat jika salah satu menyalakannya: saat menyala, kamu melihat semua orang di kota pasangan yang sedang membuka aplikasi; saat mati, kamu hanya melihat orang yang menyalakannya. Hanya orang yang sudah check-in dan sedang membuka aplikasi yang muncul di kota lain.';
+
+  @override
+  String get guideS14L5 =>
+      'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Gema yang memudar, bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
+
+  @override
+  String get guideS15Title => '12. Terjemahan';
+
+  @override
+  String get guideS15L1 =>
+      'Saat mengobrol, jika pesan tidak dalam bahasamu, Ketuk untuk menerjemahkan muncul di bawahnya. Ketuk untuk menerjemahkan, dan ketuk lagi untuk melihat teks asli.';
+
+  @override
+  String get guideS15L2 =>
+      'Gelembung suasana hati di radar juga sama: jika tidak dalam bahasamu, ketuk untuk menerjemahkan dan ketuk lagi untuk kembali ke teks asli.';
+
+  @override
+  String get guideS15L3 =>
+      'Terjemahan sepenuhnya dilakukan di ponselmu; teks tidak pernah diunggah. iPhone memakai terjemahan bawaan Apple, dan sistem bertanya sebelum mengunduh bahasa pertama kali. Android memakai Google ML Kit, yang bertanya dulu lalu mengunduh model bahasa sekitar 30 MB. iPhone belum bisa menerjemahkan bahasa Melayu.';
 
   @override
   String get guideIntro =>

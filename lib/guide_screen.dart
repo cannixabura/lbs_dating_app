@@ -14,6 +14,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS1L2,
       tr.guideS1L3,
       tr.guideS1L4,
+      tr.guideS1L5,
     ]),
     (Icons.space_dashboard_outlined, tr.guideS2Title, [
       tr.guideS2L1,
@@ -67,6 +68,18 @@ class GuideScreen extends StatelessWidget {
     (Icons.ios_share, tr.guideS10Title, [
       tr.guideS10L1,
       tr.guideS10L2,
+    ]),
+    (Icons.public, tr.guideS14Title, [
+      tr.guideS14L1,
+      tr.guideS14L2,
+      tr.guideS14L3,
+      tr.guideS14L4,
+      tr.guideS14L5,
+    ]),
+    (Icons.translate, tr.guideS15Title, [
+      tr.guideS15L1,
+      tr.guideS15L2,
+      tr.guideS15L3,
     ]),
     (Icons.tune, tr.guideS11Title, [
       tr.guideS11L1,

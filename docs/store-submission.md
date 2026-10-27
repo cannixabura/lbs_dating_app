@@ -1,6 +1,8 @@
 # 城市低語 上架填寫指南
 
-依照目前程式碼實際蒐集的資料整理（2026-10，條款版本 2026-10.2；位置模糊化目前關閉，見 geo-service/index.js 的 FUZZ_LOCATION）。功能有變動時，這份要跟著更新。
+依照目前程式碼實際蒐集的資料整理（2026-10，App 1.0.2 (8)，條款版本 2026-10.8；位置模糊化目前關閉，見 geo-service/index.js 的 FUZZ_LOCATION）。
+
+**位置一律手動打卡（App Store 5.1.2(i)）**：每次打開 App 都要按「在這裡打卡，走進城市」，別人才看得到你；看到的是打卡的地方，不會跟著移動；App 在背景超過 30 分鐘要重新打卡。沒有自動打卡的選項。**不放任何測試版功能（App Store 2.2）**：App 裡不能有「測試版、內部測試、Beta」等字樣或回報測試問題的功能。功能有變動時，這份要跟著更新。
 
 ## 網址
 
@@ -18,7 +20,7 @@
 
 | Apple 資料類型 | 蒐集內容 | 與使用者身分連結 | 用途 |
 | --- | --- | --- | --- |
-| 位置 → 精確位置 | 使用 App 時的 GPS 位置 | 是 | App 功能 |
+| 位置 → 精確位置 | 使用 App 時的 GPS 位置（查詢附近的人）；打卡時的位置（顯示給附近的人） | 是 | App 功能 |
 | 使用者內容 → 照片或影片 | 大頭貼（選填） | 是 | App 功能 |
 | 使用者內容 → 其他使用者內容 | 心情、城市稱呼 | 是 | App 功能 |
 | 使用者內容 → 電子郵件或文字訊息 | 限時聊天訊息（對話結束即刪除） | 是 | App 功能 |
@@ -76,13 +78,19 @@ Mood Whisper (城市低語) is an anonymous, location-based app for adults (18+)
 
 Because the radar only shows people within 5 km, we added a review mode so you can test every social feature alone:
 1. Swipe through or skip (略過) the intro, answer the age question with 已滿 18 歲 (I am 18 or older), and allow precise location while using the app.
-2. Type #review in the mood field (此時此刻，你想對城市說什麼？), tick the terms box, and tap 走進城市低語.
+2. Type #review in the mood field (此時此刻，你想對城市說什麼？), tick the terms box, and tap 在這裡打卡，走進城市 (Check in here and enter). This is the manual check-in: your location is shown to others only after this tap, every time you open the app.
 3. 20 demo people appear around your location, 200 m apart. They are labelled 示範 (demo) and are only visible to accounts that entered the code. Pinch to zoom; overlapping bubbles merge into a glowing orb — tap it to fan them out.
 4. Knock: long-press a bubble → 敲門. The demo person accepts in about 3 seconds and a 10-minute chat opens; it replies automatically.
 5. Report: chat header flag icon, the bubble long-press menu (檢舉), or the knock card. Block: bubble long-press menu → 封鎖.
 6. Glimmer (resonance): double-tap a bubble; the demo person sends one back.
 7. Gatherings: Settings (sliders icon, bottom right) → 集會主持人 creates a 5 km event identified by one emoji. People who add that emoji to their name receive the host's announcements; every announcement has a report button.
 8. Guide: Settings → 操作說明. Delete account: Settings → 刪除帳號與資料 at the bottom.
+9. Parallel Universe: the globe at the top right of the radar (off every time the app opens). Translation: tap a chat message or a mood bubble in another language.
+
+Location (Guideline 5.1.2(i)):
+- Users check in manually every time they want their location shown on the map: the button 在這裡打卡，走進城市 (Check in here and enter) on the entry screen, which also explains that people nearby will see their mood and approximate location.
+- There is no automatic check-in and no setting to enable one. Others see the place where the user checked in; it does not update as they move. If they move more than 1 km away, a 在這裡重新打卡 (Check in here) button appears, and nothing changes until they tap it. After 30 minutes in the background the check-in expires and must be repeated.
+- Before checking in, the user is not visible to anyone and does not see anyone either.
 
 User-generated content (Guideline 1.2):
 - Age rating 18+. Users confirm they are 18+ and must accept the terms (EULA) before entering; the terms state zero tolerance for objectionable content and abusive users, with an English summary at the top: https://mood-whisper-f7de9.web.app/terms.html

@@ -10,6 +10,25 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get checkInEnter => '在這裡打卡，走進城市';
+
+  @override
+  String get checkInNote => '按下後，附近的人會看到你此刻的心情與大概的位置。每次進入都要自己打卡。';
+
+  @override
+  String get checkInTitle => '打卡，走進城市';
+
+  @override
+  String get checkInBody =>
+      '打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。';
+
+  @override
+  String get checkInButton => '在這裡打卡';
+
+  @override
+  String get checkInAgain => '你離開打卡的地方了 · 在這裡重新打卡';
+
+  @override
   String get appName => '城市低語';
 
   @override
@@ -52,24 +71,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return '你已交棒，稱呼補上了 $emoji，你現在是參加者。';
   }
-
-  @override
-  String get releaseNotesTitle => '城市低語 1.1 內部測試版';
-
-  @override
-  String get releaseNotesLead => '這座城市換上了夜色。';
-
-  @override
-  String get releaseNotesMap => '全新夜光地圖：深藍街區、微光道路、霓虹建築';
-
-  @override
-  String get releaseNotesBubbles => '心情氣泡改為深色玻璃，在哪裡都看得清楚';
-
-  @override
-  String get releaseNotesResting => '休息中與歷史殘影：鎖屏也能被敲門';
-
-  @override
-  String get releaseNotesSafety => '檢舉與封鎖：讓城市保持安全';
 
   @override
   String get gotIt => '我知道了';
@@ -729,7 +730,8 @@ class AppLocalizationsZh extends AppLocalizations {
       '第一次開啟時，請確認你已年滿 18 歲，並允許「使用 App 時」取得精確位置；沒有精確位置，雷達無法運作。';
 
   @override
-  String get guideS1L2 => '寫下一句此刻的心情（最多 20 個字），勾選同意《使用條款》與《隱私權政策》，按「走進城市低語」。';
+  String get guideS1L2 =>
+      '寫下一句此刻的心情（最多 20 個字），勾選同意《使用條款》與《隱私權政策》，按「在這裡打卡，走進城市」。';
 
   @override
   String get guideS1L3 => '不需要手機號碼、Email 或真名。帳號是匿名的，綁定在這支手機上。';
@@ -737,6 +739,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS1L4 =>
       '心情的顏色由字裡的關鍵字決定：「開心、笑」金黃，「難過、哭」藍，「生氣、怒」橘紅，「平靜、發呆」綠，「熱情」橘，「愛、心」粉紅，其他是淡紫。';
+
+  @override
+  String get guideS1L5 =>
+      '打卡：每次打開 App 都要自己按下打卡，附近的人才看得到你的心情與大概的位置，你也才看得到他們；不會自動打卡。別人看到的是你打卡的地方，不會跟著你移動。走離打卡的地方超過 1 公里，雷達下方會出現「在這裡重新打卡」；App 在背景超過 30 分鐘，回來時也要重新打卡。';
 
   @override
   String get guideS2Title => '2. 底部選單';
@@ -834,7 +840,8 @@ class AppLocalizationsZh extends AppLocalizations {
       '開活動：設定 → 集會主持人 → 填活動名稱、一個表情符號當圖標、開始與結束時間（最長 24 小時）→ 開始活動。';
 
   @override
-  String get guideS8L2 => '範圍是以主持人為中心 5 公里，主持人走到哪，範圍就跟到哪。主持人在雷達上有一圈光環和「主持」標示。';
+  String get guideS8L2 =>
+      '範圍是以主持人打卡的地方為中心 5 公里；主持人重新打卡，範圍就跟著移動。主持人在雷達上有一圈光環和「主持」標示。';
 
   @override
   String get guideS8L3 => '主持人可以發公告（不限次數）、提出全場提問，也可以隨時結束活動。';
@@ -880,7 +887,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS10L2 => '設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。';
 
   @override
-  String get guideS11Title => '11. 設定與通知';
+  String get guideS11Title => '13. 設定與通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。';
@@ -892,7 +899,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS11L3 => '每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。';
 
   @override
-  String get guideS12Title => '12. 檢舉與封鎖';
+  String get guideS12Title => '14. 檢舉與封鎖';
 
   @override
   String get guideS12L1 =>
@@ -908,16 +915,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS12L4 => '遇到立即的危險，請直接撥打 110。';
 
   @override
-  String get guideS13Title => '13. 隱私與帳號';
+  String get guideS13Title => '15. 隱私與帳號';
 
   @override
-  String get guideS13L1 => '附近的人看得到你的心情、城市稱呼、大頭貼與大概的距離；只有在你使用 App 時才會取得位置。';
+  String get guideS13L1 =>
+      '只有在你打卡之後，附近的人才看得到你的心情、城市稱呼、大頭貼與大概的距離；他們看到的是你打卡的地方，不是即時位置。';
 
   @override
   String get guideS13L2 => '設定 →「刪除帳號與資料」可以隨時永久刪除你在城市留下的一切。';
 
   @override
   String get guideS13L3 => '有任何問題，設定 →「聯絡我們」或寫信到 service.softchip@gmail.com。';
+
+  @override
+  String get guideS14Title => '11. 平行宇宙';
+
+  @override
+  String get guideS14L1 => '點雷達右上角的地球圖示開啟，再點一次關閉。每次打開 App 都是關閉的。';
+
+  @override
+  String get guideS14L2 =>
+      '台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼與越南；國外的城市則對應到台灣。';
+
+  @override
+  String get guideS14L3 =>
+      '你離車站往哪個方向、多遠，在對方的城市就出現在離對方車站同樣方向、同樣距離的地方，並模糊到約 500 公尺，沒有人看得到你的真實位置。';
+
+  @override
+  String get guideS14L4 =>
+      '只要你或對方其中一方開啟就看得到：你開啟時，看得到對方城市所有正開著 App 的人；你沒開時，只看得到有開啟的人。只有已打卡、正開著 App 的人會出現在其他城市。';
+
+  @override
+  String get guideS14L5 =>
+      '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。';
+
+  @override
+  String get guideS15Title => '12. 翻譯';
+
+  @override
+  String get guideS15L1 => '聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。';
+
+  @override
+  String get guideS15L2 => '雷達上的心情氣泡也一樣：跟你的語言不同時，點一下就翻譯，再點一下回到原文。';
+
+  @override
+  String get guideS15L3 =>
+      '翻譯完全在手機上進行，文字不會上傳。iPhone 使用 Apple 內建的翻譯，第一次翻某種語言時系統會問你要不要下載；Android 使用 Google ML Kit，第一次會先問你，再下載約 30 MB 的語言模型。iPhone 暫時無法翻譯馬來文。';
 
   @override
   String get guideIntro => '城市低語是一座夜裡的城市：寫下一句此刻的心情，看見附近的人此刻的感受。';
@@ -1648,6 +1691,25 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   AppLocalizationsZhHans() : super('zh_Hans');
 
   @override
+  String get checkInEnter => '在这里打卡，走进城市';
+
+  @override
+  String get checkInNote => '按下后，附近的人会看到你此刻的心情与大概的位置。每次进入都要自己打卡。';
+
+  @override
+  String get checkInTitle => '打卡，走进城市';
+
+  @override
+  String get checkInBody =>
+      '打卡后，附近的人才看得到你此刻的心情与大概的位置，你也会看到他们。别人看到的是你打卡的地方，不会跟着你移动。每次打开 App 都要自己打卡，不会自动打卡。';
+
+  @override
+  String get checkInButton => '在这里打卡';
+
+  @override
+  String get checkInAgain => '你离开打卡的地方了 · 在这里重新打卡';
+
+  @override
   String get appName => '城市低语';
 
   @override
@@ -1690,24 +1752,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String handedOffEmojiAdded(String emoji) {
     return '你已交棒，昵称补上了 $emoji，你现在是参加者。';
   }
-
-  @override
-  String get releaseNotesTitle => '城市低语 1.1 内部测试版';
-
-  @override
-  String get releaseNotesLead => '这座城市换上了夜色。';
-
-  @override
-  String get releaseNotesMap => '全新夜光地图：深蓝街区、微光道路、霓虹建筑';
-
-  @override
-  String get releaseNotesBubbles => '心情气泡改为深色玻璃，在哪里都看得清楚';
-
-  @override
-  String get releaseNotesResting => '休息中与历史残影：锁屏也能被敲门';
-
-  @override
-  String get releaseNotesSafety => '举报与屏蔽：让城市保持安全';
 
   @override
   String get gotIt => '我知道了';
@@ -2367,7 +2411,8 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '第一次打开时，请确认你已年满 18 岁，并允许「使用 App 时」获取精确位置；没有精确位置，雷达无法运作。';
 
   @override
-  String get guideS1L2 => '写下一句此刻的心情（最多 20 个字），勾选同意《使用条款》与《隐私政策》，按「走进城市低语」。';
+  String get guideS1L2 =>
+      '写下一句此刻的心情（最多 20 个字），勾选同意《使用条款》与《隐私政策》，按「在这里打卡，走进城市」。';
 
   @override
   String get guideS1L3 => '不需要手机号码、Email 或真名。账号是匿名的，绑定在这台手机上。';
@@ -2375,6 +2420,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS1L4 =>
       '心情的颜色由字里的关键字决定：「开心、笑」金黄，「难过、哭」蓝，「生气、怒」橘红，「平静、发呆」绿，「热情」橘，「爱、心」粉红，其他是淡紫。';
+
+  @override
+  String get guideS1L5 =>
+      '打卡：每次打开 App 都要自己按下打卡，附近的人才看得到你的心情与大概的位置，你也才看得到他们；不会自动打卡。别人看到的是你打卡的地方，不会跟着你移动。走离打卡的地方超过 1 公里，雷达下方会出现「在这里重新打卡」；App 在后台超过 30 分钟，回来时也要重新打卡。';
 
   @override
   String get guideS2Title => '2. 底部菜单';
@@ -2472,7 +2521,8 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '开活动：设置 → 集会主持人 → 填活动名称、一个表情符号当图标、开始与结束时间（最长 24 小时）→ 开始活动。';
 
   @override
-  String get guideS8L2 => '范围是以主持人为中心 5 公里，主持人走到哪，范围就跟到哪。主持人在雷达上有一圈光环和「主持」标示。';
+  String get guideS8L2 =>
+      '范围是以主持人打卡的地方为中心 5 公里；主持人重新打卡，范围就跟着移动。主持人在雷达上有一圈光环和「主持」标示。';
 
   @override
   String get guideS8L3 => '主持人可以发公告（不限次数）、提出全场提问，也可以随时结束活动。';
@@ -2518,7 +2568,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS10L2 => '设置 →「我的心情轨迹」可以回顾你写过的心情与地点，数据只存在你的手机上，可以随时关闭或清除。';
 
   @override
-  String get guideS11Title => '11. 设置与通知';
+  String get guideS11Title => '13. 设置与通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一则温和的提醒，可以在设置里开关。';
@@ -2530,7 +2580,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS11L3 => '每周五 21:00–23:00 是「点亮之夜」，大家一起上线，城市最亮。';
 
   @override
-  String get guideS12Title => '12. 举报与屏蔽';
+  String get guideS12Title => '14. 举报与屏蔽';
 
   @override
   String get guideS12L1 =>
@@ -2546,16 +2596,52 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS12L4 => '遇到紧急危险，请直接拨打当地的紧急电话（台湾为 110）。';
 
   @override
-  String get guideS13Title => '13. 隐私与账号';
+  String get guideS13Title => '15. 隐私与账号';
 
   @override
-  String get guideS13L1 => '附近的人看得到你的心情、城市昵称、头像与大概的距离；只有在你使用 App 时才会获取位置。';
+  String get guideS13L1 =>
+      '只有在你打卡之后，附近的人才看得到你的心情、城市称呼、头像与大概的距离；他们看到的是你打卡的地方，不是实时位置。';
 
   @override
   String get guideS13L2 => '设置 →「删除账号与数据」可以随时永久删除你在城市留下的一切。';
 
   @override
   String get guideS13L3 => '有任何问题，设置 →「联系我们」或写信到 service.softchip@gmail.com。';
+
+  @override
+  String get guideS14Title => '11. 平行宇宙';
+
+  @override
+  String get guideS14L1 => '点雷达右上角的地球图标开启，再点一次关闭。每次打开 App 都是关闭的。';
+
+  @override
+  String get guideS14L2 =>
+      '台湾各县市以各自的中央车站为中心（例如大台北是台北车站、桃园是桃园车站），对应到国外的城市：日本、韩国、香港、澳门、新加坡、马来西亚、印尼与越南；国外的城市则对应到台湾。';
+
+  @override
+  String get guideS14L3 =>
+      '你离车站往哪个方向、多远，在对方的城市就出现在离对方车站同样方向、同样距离的地方，并模糊到约 500 米，没有人看得到你的真实位置。';
+
+  @override
+  String get guideS14L4 =>
+      '只要你或对方其中一方开启就看得到：你开启时，看得到对方城市所有正开着 App 的人；你没开时，只看得到有开启的人。只有已打卡、正开着 App 的人会出现在其他城市。';
+
+  @override
+  String get guideS14L5 =>
+      '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。残影、低语、低语穿越与集会都只留在当地。';
+
+  @override
+  String get guideS15Title => '12. 翻译';
+
+  @override
+  String get guideS15L1 => '聊天时，对方的消息跟你的语言不同，下方会出现「点一下翻译」；点一下就翻成你的语言，再点一下看原文。';
+
+  @override
+  String get guideS15L2 => '雷达上的心情气泡也一样：跟你的语言不同时，点一下就翻译，再点一下回到原文。';
+
+  @override
+  String get guideS15L3 =>
+      '翻译完全在手机上进行，文字不会上传。iPhone 使用 Apple 内置的翻译，第一次翻某种语言时系统会问你要不要下载；Android 使用 Google ML Kit，第一次会先问你，再下载约 30 MB 的语言模型。iPhone 暂时无法翻译马来文。';
 
   @override
   String get guideIntro => '城市低语是一座夜里的城市：写下一句此刻的心情，看见附近的人此刻的感受。';

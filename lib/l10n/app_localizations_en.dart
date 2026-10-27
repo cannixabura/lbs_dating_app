@@ -10,6 +10,27 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get checkInEnter => 'Check in here and enter';
+
+  @override
+  String get checkInNote =>
+      'Once you tap, people nearby will see your mood and roughly where you are. You check in yourself every time you enter.';
+
+  @override
+  String get checkInTitle => 'Check in to the city';
+
+  @override
+  String get checkInBody =>
+      'Once you check in, people nearby can see your mood and roughly where you are, and you\'ll see them too. They see the place where you checked in; it doesn\'t follow you around. You check in yourself every time you open the app; it never happens automatically.';
+
+  @override
+  String get checkInButton => 'Check in here';
+
+  @override
+  String get checkInAgain =>
+      'You\'ve left where you checked in · Check in here';
+
+  @override
   String get appName => 'Mood Whisper';
 
   @override
@@ -52,27 +73,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return 'You handed the gathering over. We added $emoji to your name, so you are now a participant.';
   }
-
-  @override
-  String get releaseNotesTitle => 'Mood Whisper 1.1 internal test';
-
-  @override
-  String get releaseNotesLead => 'The city has put on its night colours.';
-
-  @override
-  String get releaseNotesMap =>
-      'A new night map: deep-blue blocks, glowing roads, neon buildings';
-
-  @override
-  String get releaseNotesBubbles =>
-      'Mood bubbles are now dark glass, easy to read anywhere';
-
-  @override
-  String get releaseNotesResting =>
-      'Resting and fading echoes: people can knock even when your screen is locked';
-
-  @override
-  String get releaseNotesSafety => 'Report and block keep the city safe';
 
   @override
   String get gotIt => 'Got it';
@@ -826,7 +826,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS1L2 =>
-      'Write one sentence about how you feel right now (up to 20 characters), agree to the Terms of Use and Privacy Policy, and tap Enter Mood Whisper.';
+      'Write one sentence about how you feel right now (up to 20 characters), agree to the Terms of Use and Privacy Policy, and tap Check in here and enter.';
 
   @override
   String get guideS1L3 =>
@@ -835,6 +835,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS1L4 =>
       'Words in your mood set its colour: “happy, laugh” is gold, “sad, cry” is blue, “angry” is orange-red, “calm, daydream” is green, “fired up” is orange, “love, heart” is pink, and anything else is soft violet.';
+
+  @override
+  String get guideS1L5 =>
+      'Checking in: every time you open the app you check in yourself, and only then can people nearby see your mood and roughly where you are, and you see them. It never happens automatically. Others see the place where you checked in; it doesn\'t follow you around. If you move more than 1 km away, Check in here appears below the radar. If the app has been in the background for more than 30 minutes, you check in again when you come back.';
 
   @override
   String get guideS2Title => '2. The bottom bar';
@@ -948,7 +952,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS8L2 =>
-      'The gathering covers 5 km around the host and moves with them. The host has a ring of light and a Host label on the radar.';
+      'The gathering covers 5 km around the place where the host checked in; when the host checks in again, it moves with them. The host has a ring of light and a Host label on the radar.';
 
   @override
   String get guideS8L3 =>
@@ -1001,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings → My mood trail lets you look back at the moods and places you\'ve written. It\'s stored only on your phone, and you can turn it off or clear it at any time.';
 
   @override
-  String get guideS11Title => '11. Settings and notifications';
+  String get guideS11Title => '13. Settings and notifications';
 
   @override
   String get guideS11L1 =>
@@ -1016,7 +1020,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every Friday from 21:00 to 23:00 is Light-up Night, when everyone comes online together and the city shines brightest.';
 
   @override
-  String get guideS12Title => '12. Reporting and blocking';
+  String get guideS12Title => '14. Reporting and blocking';
 
   @override
   String get guideS12L1 =>
@@ -1035,11 +1039,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you\'re in immediate danger, call your local emergency number (110 in Taiwan).';
 
   @override
-  String get guideS13Title => '13. Privacy and your account';
+  String get guideS13Title => '15. Privacy and your account';
 
   @override
   String get guideS13L1 =>
-      'People nearby can see your mood, city name, photo and rough distance. Your location is only used while you\'re using the app.';
+      'Only after you check in can people nearby see your mood, city name, photo and rough distance. They see the place where you checked in, not your live location.';
 
   @override
   String get guideS13L2 =>
@@ -1048,6 +1052,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS13L3 =>
       'Questions? Go to Settings → Contact us, or email service.softchip@gmail.com.';
+
+  @override
+  String get guideS14Title => '11. Parallel Universe';
+
+  @override
+  String get guideS14L1 =>
+      'Tap the globe at the top right of the radar to turn it on, and again to turn it off. It\'s off every time you open the app.';
+
+  @override
+  String get guideS14L2 =>
+      'Each city or county in Taiwan is centred on its own central station (Greater Taipei on Taipei Station, Taoyuan on Taoyuan Station, and so on) and matched with cities abroad: Japan, Korea, Hong Kong, Macau, Singapore, Malaysia, Indonesia and Vietnam. Cities abroad are matched with Taiwan.';
+
+  @override
+  String get guideS14L3 =>
+      'However far and in whichever direction you are from your station, that\'s where you appear in theirs, the same distance and direction from their station, blurred to about 500 m. No one can see your real location.';
+
+  @override
+  String get guideS14L4 =>
+      'You see each other if either of you has it on: with it on, you see everyone in the matched cities who has the app open; with it off, you only see people who turned it on. Only people who have checked in and have the app open appear in other cities.';
+
+  @override
+  String get guideS14L5 =>
+      'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Fading echoes, whispers, letters to the future and gatherings stay local.';
+
+  @override
+  String get guideS15Title => '12. Translation';
+
+  @override
+  String get guideS15L1 =>
+      'In a chat, when a message isn\'t in your language, Tap to translate appears under it. Tap to translate it into your language, and tap again to see the original.';
+
+  @override
+  String get guideS15L2 =>
+      'Mood bubbles on the radar work the same way: when one isn\'t in your language, tap it to translate and tap again to go back to the original.';
+
+  @override
+  String get guideS15L3 =>
+      'Translation happens entirely on your phone; the text is never uploaded. iPhone uses Apple\'s built-in translation, and the system asks before downloading a language the first time. Android uses Google ML Kit, which asks you first and then downloads a language model of about 30 MB. iPhone can\'t translate Malay yet.';
 
   @override
   String get guideIntro =>

@@ -10,6 +10,26 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get checkInEnter => '여기서 체크인하고 들어가기';
+
+  @override
+  String get checkInNote =>
+      '누르면 근처 사람들이 지금 내 기분과 대략적인 위치를 볼 수 있어요. 들어올 때마다 직접 체크인해요.';
+
+  @override
+  String get checkInTitle => '체크인하고 도시로';
+
+  @override
+  String get checkInBody =>
+      '체크인하면 근처 사람들이 지금 내 기분과 대략적인 위치를 볼 수 있고, 나도 그들을 볼 수 있어요. 보이는 곳은 체크인한 장소이고, 내가 움직여도 따라오지 않아요. 앱을 열 때마다 직접 체크인해야 하며, 자동으로 체크인되지 않아요.';
+
+  @override
+  String get checkInButton => '여기서 체크인';
+
+  @override
+  String get checkInAgain => '체크인한 곳을 떠났어요 · 여기서 다시 체크인';
+
+  @override
   String get appName => 'Mood Whisper';
 
   @override
@@ -52,24 +72,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String handedOffEmojiAdded(String emoji) {
     return '진행을 넘겼어요. 닉네임에 $emoji를 넣어 두었으니 이제 참가자예요.';
   }
-
-  @override
-  String get releaseNotesTitle => 'Mood Whisper 1.1 내부 테스트 버전';
-
-  @override
-  String get releaseNotesLead => '도시가 밤의 색으로 갈아입었어요.';
-
-  @override
-  String get releaseNotesMap => '새로운 야경 지도: 짙은 파랑의 거리, 은은히 빛나는 길, 네온 건물';
-
-  @override
-  String get releaseNotesBubbles => '무드 버블이 어두운 유리로 바뀌어 어디서나 잘 보여요';
-
-  @override
-  String get releaseNotesResting => '휴식 중과 잔상: 화면이 잠겨 있어도 노크를 받을 수 있어요';
-
-  @override
-  String get releaseNotesSafety => '신고와 차단으로 도시를 안전하게';
 
   @override
   String get gotIt => '알겠어요';
@@ -738,7 +740,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS1L2 =>
-      '지금 기분을 한 문장(최대 20자)으로 쓰고, 이용약관과 개인정보 처리방침에 동의한 뒤 \'Mood Whisper 입장\'을 누르세요.';
+      '지금 기분을 한 문장(최대 20자)으로 쓰고, 이용약관과 개인정보 처리방침에 동의한 뒤 「여기서 체크인하고 들어가기」를 누르세요.';
 
   @override
   String get guideS1L3 => '전화번호, 이메일, 실명이 필요 없어요. 계정은 익명이며 이 휴대폰에 연결돼요.';
@@ -746,6 +748,10 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS1L4 =>
       '무드 색은 글 속 키워드로 정해져요. \'기쁨·웃음\'은 금색, \'슬픔·눈물\'은 파랑, \'화남\'은 주홍, \'평온·멍\'은 초록, \'열정\'은 주황, \'사랑·하트\'는 분홍, 그 밖에는 연보라예요.';
+
+  @override
+  String get guideS1L5 =>
+      '체크인: 앱을 열 때마다 직접 체크인해야 근처 사람들이 내 기분과 대략적인 위치를 볼 수 있고, 나도 그들을 볼 수 있어요. 자동으로 체크인되지 않아요. 다른 사람에게 보이는 곳은 체크인한 장소이고, 내가 움직여도 따라오지 않아요. 체크인한 곳에서 1km 넘게 멀어지면 레이더 아래에 「여기서 다시 체크인」이 나타나요. 앱이 백그라운드에 30분 넘게 있었다면 돌아왔을 때 다시 체크인해요.';
 
   @override
   String get guideS2Title => '2. 아래 메뉴';
@@ -855,7 +861,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS8L2 =>
-      '범위는 진행자를 중심으로 5km이고, 진행자가 움직이면 함께 움직여요. 레이더에서 진행자에게는 빛 고리와 \'진행\' 표시가 붙어요.';
+      '범위는 주최자가 체크인한 곳을 중심으로 5km이고, 주최자가 다시 체크인하면 함께 움직여요. 레이더에서 주최자에게는 빛의 고리와 「주최」 표시가 있어요.';
 
   @override
   String get guideS8L3 => '진행자는 공지를 횟수 제한 없이 올리고, 모두에게 질문하고, 언제든 모임을 끝낼 수 있어요.';
@@ -907,7 +913,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '설정 → \'나의 무드 궤적\'에서 지금까지 쓴 무드와 장소를 돌아볼 수 있어요. 데이터는 이 휴대폰에만 저장되며 언제든 끄거나 지울 수 있어요.';
 
   @override
-  String get guideS11Title => '11. 설정과 알림';
+  String get guideS11Title => '13. 설정과 알림';
 
   @override
   String get guideS11L1 =>
@@ -922,7 +928,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '매주 금요일 21:00~23:00는 \'라이트업 나이트\'. 다 함께 접속하면 도시가 가장 밝아져요.';
 
   @override
-  String get guideS12Title => '12. 신고와 차단';
+  String get guideS12Title => '14. 신고와 차단';
 
   @override
   String get guideS12L1 =>
@@ -940,11 +946,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideS12L4 => '급박한 위험이 있다면 바로 현지 긴급 번호(한국 112, 대만 110)로 전화하세요.';
 
   @override
-  String get guideS13Title => '13. 개인정보와 계정';
+  String get guideS13Title => '15. 개인정보와 계정';
 
   @override
   String get guideS13L1 =>
-      '근처 사람들은 당신의 무드, 도시 닉네임, 사진, 대략적인 거리를 볼 수 있어요. 위치는 앱을 사용하는 동안에만 쓰여요.';
+      '체크인한 뒤에만 근처 사람들이 내 기분, 도시 이름, 사진, 대략적인 거리를 볼 수 있어요. 보이는 곳은 체크인한 장소이지 실시간 위치가 아니에요.';
 
   @override
   String get guideS13L2 =>
@@ -953,6 +959,44 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS13L3 =>
       '궁금한 점은 설정 → \'문의하기\' 또는 service.softchip@gmail.com으로 보내 주세요.';
+
+  @override
+  String get guideS14Title => '11. 평행우주';
+
+  @override
+  String get guideS14L1 =>
+      '레이더 오른쪽 위의 지구 아이콘을 누르면 켜지고, 다시 누르면 꺼져요. 앱을 열 때마다 꺼진 상태로 시작해요.';
+
+  @override
+  String get guideS14L2 =>
+      '대만의 각 시·현은 각자의 중앙역을 중심으로(타이베이 권역은 타이베이역, 타오위안은 타오위안역 등) 해외 도시인 일본, 한국, 홍콩, 마카오, 싱가포르, 말레이시아, 인도네시아, 베트남과 짝지어져요. 해외 도시는 대만과 짝지어져요.';
+
+  @override
+  String get guideS14L3 =>
+      '내가 역에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시의 역에서 같은 방향·같은 거리에 나타나고, 약 500m로 흐려져요. 누구도 실제 위치를 알 수 없어요.';
+
+  @override
+  String get guideS14L4 =>
+      '둘 중 한 명만 켜도 서로 보여요. 켜면 짝지어진 도시에서 앱을 켜 둔 모든 사람이, 끄면 켜 둔 사람만 보여요. 다른 도시에는 체크인하고 앱을 켜 둔 사람만 나타나요.';
+
+  @override
+  String get guideS14L5 =>
+      '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 잔상, 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
+
+  @override
+  String get guideS15Title => '12. 번역';
+
+  @override
+  String get guideS15L1 =>
+      '채팅에서 상대 메시지가 내 언어와 다르면 아래에 「탭하여 번역」이 나타나요. 누르면 내 언어로 번역되고, 다시 누르면 원문이 보여요.';
+
+  @override
+  String get guideS15L2 =>
+      '레이더의 기분 말풍선도 같아요. 내 언어와 다르면 눌러서 번역하고, 다시 누르면 원문으로 돌아가요.';
+
+  @override
+  String get guideS15L3 =>
+      '번역은 모두 휴대폰 안에서 이루어지고, 글은 업로드되지 않아요. iPhone은 Apple 내장 번역을 사용하며 처음 쓰는 언어는 시스템이 다운로드할지 물어봐요. Android는 Google ML Kit을 사용하며 먼저 물어본 뒤 약 30MB의 언어 모델을 내려받아요. iPhone에서는 아직 말레이어를 번역할 수 없어요.';
 
   @override
   String get guideIntro =>

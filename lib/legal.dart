@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Legal {
   Legal._();
 
-  static const termsVersion = '2026-10.7'; // .7：平行宇宙（只要一方開啟就看得到）與聊天翻譯；.6：內容過濾擴及聊天、檢舉後立即移除、英文摘要（App Store 1.2）；.1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒；.5：低語穿越、今晚的台灣心情
+  static const termsVersion = '2026-10.8'; // .8：每次手動打卡才顯示位置（App Store 5.1.2）；.7：平行宇宙（只要一方開啟就看得到）與聊天翻譯；.6：內容過濾擴及聊天、檢舉後立即移除、英文摘要（App Store 1.2）；.1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒；.5：低語穿越、今晚的台灣心情
   static const contactEmail = 'service.softchip@gmail.com';
   static final termsUrl = Uri.parse('https://mood-whisper-f7de9.web.app/terms.html');
   static final privacyUrl = Uri.parse('https://mood-whisper-f7de9.web.app/privacy.html');

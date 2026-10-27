@@ -1580,4 +1580,106 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get languageSystem => '端末の設定に合わせる';
+
+  @override
+  String get parallelUniverse => 'パラレルユニバース';
+
+  @override
+  String get parallelUniverseSubtitle => 'ほかの街の今の気持ちを見て、あなたも見てもらう';
+
+  @override
+  String get parallelUniverseIntroTitle => 'パラレルユニバースへ';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'オンにすると、対応する街でいまアプリを開いている人がみんなあなたのレーダーに重なり、みんなもあなたを見ることができます。台湾の街は海外の街（東京、ソウル、クアラルンプールなど）と、海外の街は台湾と対応しています。\n\n2つの街はそれぞれの中央駅で重ね合わせます。あなたが駅からどの方向にどれだけ離れているかで、相手の街での位置が決まり、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。残像・ささやき・集いはその街だけのものです。';
+
+  @override
+  String get parallelUniverseEnter => '入る';
+
+  @override
+  String get parallelUniverseNoCity => '今いる場所にはまだパラレルユニバースがありません';
+
+  @override
+  String parallelFrom(String city) {
+    return 'パラレル · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'この人は$cityにいて、近くにはいません。位置は投影されたもので、本当の距離ではありません。';
+  }
+
+  @override
+  String get labelHost => '主催';
+
+  @override
+  String get labelDemo => 'デモ';
+
+  @override
+  String get labelResting => '休憩中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '東京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => 'ソウル';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => 'マカオ';
+
+  @override
+  String get citySingapore => 'シンガポール';
+
+  @override
+  String get cityKualalumpur => 'クアラルンプール';
+
+  @override
+  String get cityJakarta => 'ジャカルタ';
+
+  @override
+  String get cityHochiminh => 'ホーチミン';
+
+  @override
+  String get cityHanoi => 'ハノイ';
+
+  @override
+  String get translateTap => 'タップして翻訳';
+
+  @override
+  String get translateShowOriginal => '翻訳済み · タップで原文';
+
+  @override
+  String get translating => '翻訳中…';
+
+  @override
+  String get translateFailed => '翻訳できませんでした。しばらくしてからお試しください';
+
+  @override
+  String get translateDownloadTitle => '翻訳モデルをダウンロード';
+
+  @override
+  String get translateDownloadBody =>
+      'この言語を初めて翻訳するには、翻訳モデルのダウンロードが必要です（1言語あたり約30MB、初回のみ）。\n\n翻訳はすべてスマホの中で行われ、メッセージがアップロードされることはありません。';
+
+  @override
+  String get translateDownload => 'ダウンロード';
 }

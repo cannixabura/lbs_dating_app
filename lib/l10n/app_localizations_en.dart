@@ -1745,4 +1745,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSystem => 'Same as phone';
+
+  @override
+  String get parallelUniverse => 'Parallel Universe';
+
+  @override
+  String get parallelUniverseSubtitle =>
+      'See how other cities feel right now, and let them see you';
+
+  @override
+  String get parallelUniverseIntroTitle => 'Enter the Parallel Universe';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'When it\'s on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their central stations: however far and in whichever direction you are from your station, that\'s where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Fading echoes, whispers and gatherings stay local.';
+
+  @override
+  String get parallelUniverseEnter => 'Enter';
+
+  @override
+  String get parallelUniverseNoCity =>
+      'There\'s no Parallel Universe where you are yet';
+
+  @override
+  String parallelFrom(String city) {
+    return 'Parallel · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'This person is in $city, not near you. Their position is projected and doesn\'t show a real distance.';
+  }
+
+  @override
+  String get labelHost => 'Host';
+
+  @override
+  String get labelDemo => 'Demo';
+
+  @override
+  String get labelResting => 'Resting';
+
+  @override
+  String get cityTaipei => 'Taipei';
+
+  @override
+  String get cityTaichung => 'Taichung';
+
+  @override
+  String get cityKaohsiung => 'Kaohsiung';
+
+  @override
+  String get cityTokyo => 'Tokyo';
+
+  @override
+  String get cityOsaka => 'Osaka';
+
+  @override
+  String get citySeoul => 'Seoul';
+
+  @override
+  String get cityBusan => 'Busan';
+
+  @override
+  String get cityHongkong => 'Hong Kong';
+
+  @override
+  String get cityMacau => 'Macau';
+
+  @override
+  String get citySingapore => 'Singapore';
+
+  @override
+  String get cityKualalumpur => 'Kuala Lumpur';
+
+  @override
+  String get cityJakarta => 'Jakarta';
+
+  @override
+  String get cityHochiminh => 'Ho Chi Minh City';
+
+  @override
+  String get cityHanoi => 'Hanoi';
+
+  @override
+  String get translateTap => 'Tap to translate';
+
+  @override
+  String get translateShowOriginal => 'Translated · tap for original';
+
+  @override
+  String get translating => 'Translating…';
+
+  @override
+  String get translateFailed => 'Couldn\'t translate. Please try again later.';
+
+  @override
+  String get translateDownloadTitle => 'Download translation model';
+
+  @override
+  String get translateDownloadBody =>
+      'Translating this language for the first time needs a translation model (about 30 MB per language, downloaded once).\n\nTranslation happens entirely on your phone; messages are never uploaded.';
+
+  @override
+  String get translateDownload => 'Download';
 }

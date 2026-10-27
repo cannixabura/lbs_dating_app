@@ -1674,4 +1674,107 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get languageSystem => 'Theo điện thoại';
+
+  @override
+  String get parallelUniverse => 'Vũ trụ song song';
+
+  @override
+  String get parallelUniverseSubtitle =>
+      'Xem tâm trạng các thành phố khác lúc này, và để họ thấy bạn';
+
+  @override
+  String get parallelUniverseIntroTitle => 'Bước vào Vũ trụ song song';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo nhà ga trung tâm của mỗi bên: bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Dư ảnh, lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.';
+
+  @override
+  String get parallelUniverseEnter => 'Bước vào';
+
+  @override
+  String get parallelUniverseNoCity => 'Nơi bạn ở chưa có Vũ trụ song song';
+
+  @override
+  String parallelFrom(String city) {
+    return 'Song song · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'Người này đang ở $city, không ở gần bạn. Vị trí được chiếu sang và không phải khoảng cách thật.';
+  }
+
+  @override
+  String get labelHost => 'Chủ trì';
+
+  @override
+  String get labelDemo => 'Mẫu';
+
+  @override
+  String get labelResting => 'Đang nghỉ';
+
+  @override
+  String get cityTaipei => 'Đài Bắc';
+
+  @override
+  String get cityTaichung => 'Đài Trung';
+
+  @override
+  String get cityKaohsiung => 'Cao Hùng';
+
+  @override
+  String get cityTokyo => 'Tokyo';
+
+  @override
+  String get cityOsaka => 'Osaka';
+
+  @override
+  String get citySeoul => 'Seoul';
+
+  @override
+  String get cityBusan => 'Busan';
+
+  @override
+  String get cityHongkong => 'Hồng Kông';
+
+  @override
+  String get cityMacau => 'Ma Cao';
+
+  @override
+  String get citySingapore => 'Singapore';
+
+  @override
+  String get cityKualalumpur => 'Kuala Lumpur';
+
+  @override
+  String get cityJakarta => 'Jakarta';
+
+  @override
+  String get cityHochiminh => 'TP. Hồ Chí Minh';
+
+  @override
+  String get cityHanoi => 'Hà Nội';
+
+  @override
+  String get translateTap => 'Chạm để dịch';
+
+  @override
+  String get translateShowOriginal => 'Đã dịch · chạm để xem bản gốc';
+
+  @override
+  String get translating => 'Đang dịch…';
+
+  @override
+  String get translateFailed => 'Không dịch được. Vui lòng thử lại sau.';
+
+  @override
+  String get translateDownloadTitle => 'Tải mô hình dịch';
+
+  @override
+  String get translateDownloadBody =>
+      'Lần đầu dịch ngôn ngữ này cần tải mô hình dịch (khoảng 30 MB mỗi ngôn ngữ, chỉ một lần).\n\nViệc dịch diễn ra hoàn toàn trên điện thoại của bạn; tin nhắn không bao giờ được tải lên.';
+
+  @override
+  String get translateDownload => 'Tải xuống';
 }

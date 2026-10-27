@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'content_filter.dart';
 import 'report_sheet.dart';
+import 'translate.dart';
 import 'ui/night.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -51,6 +52,43 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   
   bool _showLeaveOverlay = false; 
   String _leaveMessage = '';
+
+  // 翻譯：先顯示原文，點一下才翻（只翻對方的訊息）
+  final Map<String, bool> _needsTranslation = {};
+  final Map<String, String> _translations = {};
+  final Set<String> _showingTranslation = {};
+  final Set<String> _translating = {};
+
+  String _messageKey(Map msg) => '${msg['sender']}|${msg['timestamp']}|${msg['text']}';
+
+  bool _needs(Map msg, Locale locale) {
+    final key = _messageKey(msg);
+    final known = _needsTranslation[key];
+    if (known != null) return known;
+    _needsTranslation[key] = false;
+    ChatTranslator.needsTranslation('${msg['text']}', locale).then((v) {
+      if (v && mounted) setState(() => _needsTranslation[key] = true);
+    });
+    return false;
+  }
+
+  Future<void> _toggleTranslation(Map msg, Locale locale) async {
+    final key = _messageKey(msg);
+    if (_translating.contains(key)) return;
+    if (_showingTranslation.contains(key)) { setState(() => _showingTranslation.remove(key)); return; }
+    if (_translations.containsKey(key)) { setState(() => _showingTranslation.add(key)); return; }
+    setState(() => _translating.add(key));
+    String? out;
+    try { out = await ChatTranslator.translate(context, '${msg['text']}', locale); } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _translating.remove(key);
+      if (out != null) { _translations[key] = out; _showingTranslation.add(key); }
+    });
+    if (out == null && _needsTranslation[key] == true) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(tr.translateFailed)));
+    }
+  }
 
   @override
   void initState() {
@@ -348,7 +386,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                 padding: const EdgeInsets.only(left: Night.space2, top: Night.space2, bottom: 2),
                                 child: Text(widget.targetName, style: Night.caption),
                               ),
-                            Container(
+                            Builder(builder: (context) {
+                            final locale = Localizations.localeOf(context);
+                            final key = _messageKey(msg);
+                            final canTranslate = !isMe && _needs(msg, locale);
+                            final showing = _showingTranslation.contains(key);
+                            final bubble = Container(
                               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.76),
                               margin: const EdgeInsets.symmetric(vertical: 3),
                               padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: 10),
@@ -363,11 +406,29 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                   bottomRight: Radius.circular(isMe ? 4 : Night.radiusMd),
                                 ),
                               ),
-                              child: Text(
-                                msg['text'],
-                                style: TextStyle(color: isMe ? Night.onDeep : Night.ink, fontSize: 15, height: 1.6),
-                              ),
-                            ),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                                Text(
+                                  showing ? _translations[key]! : msg['text'],
+                                  style: TextStyle(color: isMe ? Night.onDeep : Night.ink, fontSize: 15, height: 1.6),
+                                ),
+                                if (canTranslate || showing)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                      const Icon(Icons.translate, size: 12, color: Night.inkFaint),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        _translating.contains(key) ? tr.translating : showing ? tr.translateShowOriginal : tr.translateTap,
+                                        style: const TextStyle(color: Night.inkFaint, fontSize: 11),
+                                      ),
+                                    ]),
+                                  ),
+                              ]),
+                            );
+                            return canTranslate || showing
+                                ? GestureDetector(onTap: () => _toggleTranslation(msg, locale), child: bubble)
+                                : bubble;
+                            }),
                           ],
                         ),
                       );

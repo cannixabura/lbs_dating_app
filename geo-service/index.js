@@ -19,6 +19,7 @@ const publicmood = require("./publicmood");
 const timewhisper = require("./timewhisper");
 const beacon = require("./beacon");
 const { langOf, localize } = require("./i18n");
+const parallel = require("./parallel");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -133,12 +134,15 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
           const pub = fuzzLocation(lat, lng, uid, previousCell, timestamp);
           fuzzFields.push("flat", pub.lat.toString(), "flng", pub.lng.toString(), "cellRow", String(pub.row), "cellCol", String(pub.col));
       }
+      // 平行宇宙：開啟且在支援的城市裡才放進 parallel_users，否則移除（舊版 App 不會送，等於關閉）
+      const parallelOn = req.body.parallel === true && !!parallel.cityOf(lat, lng);
       const [, , hostingGid] = await sendUpstashPipeline([
           ["GEOADD", "city_users", lng.toString(), lat.toString(), uid],
           // 只有前景的 App 會呼叫，因此同時視為「活躍」心跳
           ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", langOf(req), "timestamp", timestamp.toString(),
               "state", "active", "stateAt", timestamp.toString(), ...fuzzFields],
           ["HGET", `user_data:${uid}`, "host"],
+          parallelOn ? ["GEOADD", parallel.GEO_KEY, lng.toString(), lat.toString(), uid] : ["ZREM", parallel.GEO_KEY, uid],
       ]);
       // 集會的中心跟著主持人走（遊行隊伍會移動）；活動已被結束（例如人工審查）就移除「主持」標記
       if (hostingGid) {
@@ -198,6 +202,65 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang
         bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
     });
     return bots;
+}
+
+// 開啟平行宇宙的人（沒開的人只看得到他們），每個伺服器執行個體快取 10 秒
+let parallelSnapshot = { at: 0, members: [] };
+async function parallelMembers(now) {
+    if (now - parallelSnapshot.at < 10000) return parallelSnapshot.members;
+    const list = await sendUpstashCommand(parallel.snapshotCommand());
+    const members = (Array.isArray(list) ? list : []).filter((m) => Array.isArray(m) && m[0])
+        .map((m) => [m[0], { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) }]);
+    parallelSnapshot = { at: now, members };
+    return members;
+}
+
+/**
+ * 平行宇宙的訪客：對應國家的城市裡、正開著 App（活躍）的人，以中心車站對齊疊到觀看者的城市。
+ * 只要一方開啟就看得到：觀看者開啟 → 其他城市所有人；沒開 → 只有開啟的人。
+ * 不回傳真實距離與真實位置；休息中與殘影都不跨城市，對方一離開就消失，不留痕跡。
+ */
+async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM, now, lang) {
+    const found = []; // [uid, fromCity, {lat, lng}]
+    const consider = (memberUid, pos, onlyCity) => {
+        if (!memberUid || memberUid === viewerUid || memberUid.startsWith(demo.DEMO_PREFIX)) return;
+        // 屬於離中心車站最近的那座城市；只疊台灣 ↔ 其他國家
+        const home = parallel.cityOf(pos.lat, pos.lng);
+        if (!home || !parallel.paired(home, viewerCity) || (onlyCity && home.id !== onlyCity)) return;
+        found.push([memberUid, home, pos]);
+    };
+    if (viewerOn) {
+        const { others, commands } = parallel.searchCommands(viewerCity, here.lat, here.lng, radiusKM, parallel.ALL_KEY);
+        (await sendUpstashPipeline(commands)).forEach((list, i) => {
+            for (const m of Array.isArray(list) ? list : []) {
+                if (Array.isArray(m)) consider(m[0], { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) }, others[i].id);
+            }
+        });
+    } else {
+        for (const [memberUid, pos] of await parallelMembers(now)) consider(memberUid, pos, null);
+    }
+
+    // 先投影、只留雷達圈內的人，再去拿資料
+    const inRange = [];
+    for (const [memberUid, home, pos] of found) {
+        const shown = parallel.project(home, viewerCity, pos.lat, pos.lng, memberUid, now);
+        if (parallel.distanceKm(here, shown) <= radiusKM) inRange.push({ memberUid, home, shown });
+    }
+    if (inRange.length === 0) return [];
+
+    const profiles = await sendUpstashPipeline(inRange.map((c) => ["HMGET", `user_data:${c.memberUid}`, "mood", "nickname", "timestamp", "state", "stateAt", "hidden"]));
+    const visitors = [];
+    inRange.forEach(({ memberUid, home, shown }, i) => {
+        const [mood, nickname, timestamp, state, stateAt, hidden] = profiles[i] || [];
+        if (hidden === "1" || !nickname) return;
+        const lastSeen = parseInt(timestamp || "0", 10);
+        if (!lastSeen) return;
+        const { status } = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
+        if (status !== 'active') return; // 只顯示正開著 App 的人：休息中、殘影都不跨城市
+        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id, parallelName: parallel.nameOf(home.id, lang) });
+    });
+    // 最近活動的優先，避免把雷達塞滿
+    return visitors.sort((a, b) => b.timestamp - a.timestamp).slice(0, parallel.MAX_RESULTS);
 }
 
 exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
@@ -269,14 +332,23 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       const realCount = results.filter((r) => r.status !== 'shadow').length;
       results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount, langOf(req)));
 
+      // 平行宇宙：其他城市的人投影到這裡（只要一方開啟）
+      const viewerCity = parallel.cityOf(lat, lng);
+      if (viewerCity) {
+          try {
+              const seen = new Set(results.map((r) => r.uid));
+              results.push(...(await parallelVisitors(uid, viewerCity, req.body.parallel === true, { lat, lng }, radiusKM, now, langOf(req))).filter((r) => !seen.has(r.uid)));
+          } catch (e) { console.error('parallel visitors failed:', e); }
+      }
+
       // 🧹 順手清掉過期的殘影，避免地理索引無限膨脹
       if (staleUids.length > 0) {
           try {
-              await sendUpstashPipeline([["ZREM", "city_users", ...staleUids], ...staleUids.map((u) => ["DEL", `user_data:${u}`])]);
+              await sendUpstashPipeline([["ZREM", "city_users", ...staleUids], ["ZREM", parallel.GEO_KEY, ...staleUids], ...staleUids.map((u) => ["DEL", `user_data:${u}`])]);
           } catch (e) { console.error('stale cleanup failed:', e); }
       }
 
-      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 } });
+      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 }, parallelCity: viewerCity ? viewerCity.id : null, parallelCityName: viewerCity ? parallel.nameOf(viewerCity.id, langOf(req)) : null });
     } catch (error) {
       console.error('getNearby failed:', error);
       res.status(500).json({ success: false, error: localize(langOf(req), "掃描失敗") });
@@ -494,7 +566,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       // 正在主持的集會先結束（通知參加的人），再刪資料
       const hostingGid = (await db.ref(`hosting/${uid}`).once("value")).val();
       if (hostingGid) await endGathering(hostingGid, 'host_left');
-      await sendUpstashPipeline([["ZREM", "city_users", uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`]]);
+      await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`]]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
           await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);

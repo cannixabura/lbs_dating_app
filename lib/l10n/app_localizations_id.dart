@@ -1673,4 +1673,107 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get languageSystem => 'Ikuti ponsel';
+
+  @override
+  String get parallelUniverse => 'Semesta Paralel';
+
+  @override
+  String get parallelUniverseSubtitle =>
+      'Lihat perasaan kota lain saat ini, dan biarkan mereka melihatmu';
+
+  @override
+  String get parallelUniverseIntroTitle => 'Masuk ke Semesta Paralel';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Gema yang memudar, bisikan, dan acara tetap di tempat asalnya.';
+
+  @override
+  String get parallelUniverseEnter => 'Masuk';
+
+  @override
+  String get parallelUniverseNoCity => 'Belum ada Semesta Paralel di tempatmu';
+
+  @override
+  String parallelFrom(String city) {
+    return 'Paralel · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'Orang ini ada di $city, tidak di dekatmu. Posisinya diproyeksikan dan bukan jarak sebenarnya.';
+  }
+
+  @override
+  String get labelHost => 'Tuan rumah';
+
+  @override
+  String get labelDemo => 'Demo';
+
+  @override
+  String get labelResting => 'Istirahat';
+
+  @override
+  String get cityTaipei => 'Taipei';
+
+  @override
+  String get cityTaichung => 'Taichung';
+
+  @override
+  String get cityKaohsiung => 'Kaohsiung';
+
+  @override
+  String get cityTokyo => 'Tokyo';
+
+  @override
+  String get cityOsaka => 'Osaka';
+
+  @override
+  String get citySeoul => 'Seoul';
+
+  @override
+  String get cityBusan => 'Busan';
+
+  @override
+  String get cityHongkong => 'Hong Kong';
+
+  @override
+  String get cityMacau => 'Makau';
+
+  @override
+  String get citySingapore => 'Singapura';
+
+  @override
+  String get cityKualalumpur => 'Kuala Lumpur';
+
+  @override
+  String get cityJakarta => 'Jakarta';
+
+  @override
+  String get cityHochiminh => 'Kota Ho Chi Minh';
+
+  @override
+  String get cityHanoi => 'Hanoi';
+
+  @override
+  String get translateTap => 'Ketuk untuk menerjemahkan';
+
+  @override
+  String get translateShowOriginal => 'Diterjemahkan · ketuk untuk teks asli';
+
+  @override
+  String get translating => 'Menerjemahkan…';
+
+  @override
+  String get translateFailed => 'Gagal menerjemahkan. Coba lagi nanti.';
+
+  @override
+  String get translateDownloadTitle => 'Unduh model terjemahan';
+
+  @override
+  String get translateDownloadBody =>
+      'Menerjemahkan bahasa ini pertama kali memerlukan model terjemahan (sekitar 30 MB per bahasa, cukup sekali).\n\nTerjemahan dilakukan sepenuhnya di ponselmu; pesan tidak pernah diunggah.';
+
+  @override
+  String get translateDownload => 'Unduh';
 }

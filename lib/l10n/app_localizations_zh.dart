@@ -1539,6 +1539,108 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get languageSystem => '跟隨手機設定';
+
+  @override
+  String get parallelUniverse => '平行宇宙';
+
+  @override
+  String get parallelUniverseSubtitle => '看見其他城市此刻的心情，也讓他們看見你';
+
+  @override
+  String get parallelUniverseIntroTitle => '進入平行宇宙';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。殘影、低語和集會只留在當地。';
+
+  @override
+  String get parallelUniverseEnter => '進入';
+
+  @override
+  String get parallelUniverseNoCity => '你所在的地方還沒有平行宇宙';
+
+  @override
+  String parallelFrom(String city) {
+    return '平行宇宙 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '這個人在$city，不在你身邊。位置是投影過來的，不代表真實距離。';
+  }
+
+  @override
+  String get labelHost => '主持';
+
+  @override
+  String get labelDemo => '示範';
+
+  @override
+  String get labelResting => '休息中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '東京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => '首爾';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => '澳門';
+
+  @override
+  String get citySingapore => '新加坡';
+
+  @override
+  String get cityKualalumpur => '吉隆坡';
+
+  @override
+  String get cityJakarta => '雅加達';
+
+  @override
+  String get cityHochiminh => '胡志明市';
+
+  @override
+  String get cityHanoi => '河內';
+
+  @override
+  String get translateTap => '點一下翻譯';
+
+  @override
+  String get translateShowOriginal => '已翻譯 · 點一下看原文';
+
+  @override
+  String get translating => '翻譯中…';
+
+  @override
+  String get translateFailed => '翻譯失敗，請稍後再試';
+
+  @override
+  String get translateDownloadTitle => '下載翻譯模型';
+
+  @override
+  String get translateDownloadBody =>
+      '第一次翻譯這種語言，需要下載翻譯模型（每種語言約 30 MB，只需一次）。\n\n翻譯完全在你的手機上進行，訊息不會上傳。';
+
+  @override
+  String get translateDownload => '下載';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3075,4 +3177,106 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get languageSystem => '跟随手机设置';
+
+  @override
+  String get parallelUniverse => '平行宇宙';
+
+  @override
+  String get parallelUniverseSubtitle => '看见其他城市此刻的心情，也让他们看见你';
+
+  @override
+  String get parallelUniverseIntroTitle => '进入平行宇宙';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。残影、低语和集会只留在当地。';
+
+  @override
+  String get parallelUniverseEnter => '进入';
+
+  @override
+  String get parallelUniverseNoCity => '你所在的地方还没有平行宇宙';
+
+  @override
+  String parallelFrom(String city) {
+    return '平行宇宙 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '这个人在$city，不在你身边。位置是投影过来的，不代表真实距离。';
+  }
+
+  @override
+  String get labelHost => '主持';
+
+  @override
+  String get labelDemo => '示范';
+
+  @override
+  String get labelResting => '休息中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '东京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => '首尔';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => '澳门';
+
+  @override
+  String get citySingapore => '新加坡';
+
+  @override
+  String get cityKualalumpur => '吉隆坡';
+
+  @override
+  String get cityJakarta => '雅加达';
+
+  @override
+  String get cityHochiminh => '胡志明市';
+
+  @override
+  String get cityHanoi => '河内';
+
+  @override
+  String get translateTap => '点一下翻译';
+
+  @override
+  String get translateShowOriginal => '已翻译 · 点一下看原文';
+
+  @override
+  String get translating => '翻译中…';
+
+  @override
+  String get translateFailed => '翻译失败，请稍后再试';
+
+  @override
+  String get translateDownloadTitle => '下载翻译模型';
+
+  @override
+  String get translateDownloadBody =>
+      '第一次翻译这种语言，需要下载翻译模型（每种语言约 30 MB，只需一次）。\n\n翻译完全在你的手机上进行，消息不会上传。';
+
+  @override
+  String get translateDownload => '下载';
 }

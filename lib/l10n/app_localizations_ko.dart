@@ -1596,4 +1596,106 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get languageSystem => '휴대폰 설정 따르기';
+
+  @override
+  String get parallelUniverse => '평행우주';
+
+  @override
+  String get parallelUniverseSubtitle => '다른 도시의 지금 기분을 보고, 나도 보여 주기';
+
+  @override
+  String get parallelUniverseIntroTitle => '평행우주로 들어가기';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '켜면 짝지어진 도시에서 지금 앱을 켜 둔 사람들이 모두 내 레이더에 겹쳐 보이고, 그들 모두 나를 볼 수 있습니다. 대만의 도시는 해외 도시(도쿄, 서울, 쿠알라룸푸르 등)와, 해외 도시는 대만과 짝지어집니다.\n\n두 도시는 각자의 중앙역을 기준으로 겹칩니다. 내가 역에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시에서의 위치가 정해지고, 약 500m로 흐려져서 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다. 잔상, 속삭임, 모임은 그 도시에만 남습니다.';
+
+  @override
+  String get parallelUniverseEnter => '들어가기';
+
+  @override
+  String get parallelUniverseNoCity => '지금 있는 곳에는 아직 평행우주가 없어요';
+
+  @override
+  String parallelFrom(String city) {
+    return '평행우주 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '이 사람은 $city에 있고, 근처에 있지 않아요. 위치는 투영된 것이라 실제 거리가 아닙니다.';
+  }
+
+  @override
+  String get labelHost => '호스트';
+
+  @override
+  String get labelDemo => '데모';
+
+  @override
+  String get labelResting => '쉬는 중';
+
+  @override
+  String get cityTaipei => '타이베이';
+
+  @override
+  String get cityTaichung => '타이중';
+
+  @override
+  String get cityKaohsiung => '가오슝';
+
+  @override
+  String get cityTokyo => '도쿄';
+
+  @override
+  String get cityOsaka => '오사카';
+
+  @override
+  String get citySeoul => '서울';
+
+  @override
+  String get cityBusan => '부산';
+
+  @override
+  String get cityHongkong => '홍콩';
+
+  @override
+  String get cityMacau => '마카오';
+
+  @override
+  String get citySingapore => '싱가포르';
+
+  @override
+  String get cityKualalumpur => '쿠알라룸푸르';
+
+  @override
+  String get cityJakarta => '자카르타';
+
+  @override
+  String get cityHochiminh => '호찌민';
+
+  @override
+  String get cityHanoi => '하노이';
+
+  @override
+  String get translateTap => '탭하여 번역';
+
+  @override
+  String get translateShowOriginal => '번역됨 · 탭하면 원문';
+
+  @override
+  String get translating => '번역 중…';
+
+  @override
+  String get translateFailed => '번역하지 못했습니다. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get translateDownloadTitle => '번역 모델 다운로드';
+
+  @override
+  String get translateDownloadBody =>
+      '이 언어를 처음 번역하려면 번역 모델을 다운로드해야 합니다(언어당 약 30MB, 한 번만).\n\n번역은 모두 휴대폰 안에서 이루어지며 메시지는 업로드되지 않습니다.';
+
+  @override
+  String get translateDownload => '다운로드';
 }

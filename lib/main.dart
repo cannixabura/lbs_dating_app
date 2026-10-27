@@ -40,6 +40,8 @@ import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
+import 'parallel_universe.dart';
+import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
 import 'ui/knock_ritual.dart';
@@ -92,6 +94,7 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await loadAppLocale();
+  await loadParallelUniverse();
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('has_seen_intro');
   final bool hasSeenIntro = prefs.getBool('has_seen_intro') ?? false;
@@ -813,6 +816,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           'lng': position.longitude,
           'mood': _myMood,
           'nickname': _myNickname, 
+          'parallel': parallelUniverseOn.value,
         }),
       );
     } catch (e) {}
@@ -1035,6 +1039,21 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } catch (_) {}
   }
 
+  /// 雷達右上角的平行宇宙開關：開啟前先說明，關閉直接關
+  Future<void> _toggleParallelUniverse() async {
+    final on = !parallelUniverseOn.value;
+    if (on && !await confirmParallelUniverse(context)) return;
+    await setParallelUniverse(on);
+    parallelHomeCity.value = null; // 等下一次掃描再顯示所在城市
+    _applyParallelUniverse();
+  }
+
+  /// 平行宇宙開關改變：馬上告訴伺服器（加入或離開），並重新掃描雷達
+  void _applyParallelUniverse() {
+    final pos = _currentPosition;
+    if (pos != null) _updateMyLocationToServer(pos).then((_) => _fetchNearbyUsers());
+  }
+
   Future<void> _fetchNearbyUsers() async {
     if (_currentPosition == null) return;
     try {
@@ -1045,12 +1064,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           'lat': _currentPosition!.latitude,
           'lng': _currentPosition!.longitude,
           'radiusKM': 5, 
+          'parallel': parallelUniverseOn.value,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
+          parallelHomeCity.value = parallelUniverseOn.value ? (data['parallelCityName'] as String? ?? data['parallelCity'] as String? ?? '') : null;
           _processNearbyData(data['data'] as List);
         }
       }
@@ -1082,6 +1103,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'isDemo': user['demo'] == true,
         // 正在主持集會：「主持」光環與活動圖標
         'hostEmoji': user['hostEmoji'],
+        // 平行宇宙：其他城市投影過來的人，值是對方所在的城市代碼
+        'parallelCity': user['parallelName'] ?? user['parallel'], // 伺服器給的城市名稱（使用者的語言）
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -1943,6 +1966,27 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     return widgets;
   }
 
+  // 氣泡上的心情翻譯：key 是「uid|原文」，心情換了就自動回到原文
+  final Map<String, String> _moodTranslations = {};
+  final Set<String> _showingMoodTranslation = {};
+
+  dynamic _shownMood(String uid, dynamic mood) {
+    final key = '$uid|$mood';
+    return _showingMoodTranslation.contains(key) ? _moodTranslations[key] : mood;
+  }
+
+  Future<void> _toggleMoodTranslation(String uid, String mood) async {
+    final key = '$uid|$mood';
+    if (_showingMoodTranslation.contains(key)) { setState(() => _showingMoodTranslation.remove(key)); return; }
+    if (_moodTranslations.containsKey(key)) { setState(() => _showingMoodTranslation.add(key)); return; }
+    final locale = Localizations.localeOf(context);
+    if (!await ChatTranslator.needsTranslation(mood, locale) || !mounted) return;
+    String? out;
+    try { out = await ChatTranslator.translate(context, mood, locale); } catch (_) {}
+    if (out == null || !mounted) return;
+    setState(() { _moodTranslations[key] = out!; _showingMoodTranslation.add(key); });
+  }
+
   Widget _placedBubbleWidget(_PlacedBubble p, Offset at, {double extraScale = 1.0, bool petal = false}) {
     final user = p.user;
     final uid = p.uid;
@@ -1957,8 +2001,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         behavior: HitTestBehavior.translucent,
         onLongPress: () {
           _focusBubble(uid);
-          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
+          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?, moodColor: _getMoodColor(user['mood']));
         },
+        // 點一下：心情不是你的語言就直接翻譯，再點一下回到原文
+        onTap: isShadow ? null : () => _toggleMoodTranslation(uid, '${user['mood'] ?? ''}'),
         // 雙擊氣泡：直接送出一道微光
         onDoubleTap: () {
           _focusBubble(uid);
@@ -1972,7 +2018,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: _AnimatedBubbleUI(
               key: ValueKey(uid),
               uid: uid, // 🌟 傳入 UID 給 StreamBuilder 監聽
-              moodText: user['mood'],
+              moodText: _shownMood(uid, user['mood']),
               isFavored: p.render.isFavored,
               status: _outgoingRequests[uid] ?? RequestStatus.none,
               displayName: displayName,
@@ -1982,6 +2028,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               isInactive: user['isInactive'] ?? false,
               isDemo: user['isDemo'] ?? false,
               hostEmoji: user['hostEmoji'] as String?,
+              parallelCity: user['parallelCity'] as String?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
             ),
           ),
@@ -2130,7 +2177,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
-  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, Color moodColor = Night.moodDefault}) {
+  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, String? parallelCity, Color moodColor = Night.moodDefault}) {
     Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Night.radiusSm),
@@ -2156,13 +2203,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 const SizedBox(height: Night.space2),
                 Text(tr.demoPersonBody, style: Night.body, textAlign: TextAlign.center),
               ],
+              if (parallelCity != null) ...[
+                const SizedBox(height: Night.space2),
+                Text(tr.parallelPersonBody(parallelCityName(parallelCity)), style: Night.body, textAlign: TextAlign.center),
+              ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
               if (!isShadow) ...[
                 item(Icons.waving_hand_outlined, Night.knockPink, tr.knock, () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
                 item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
-                if (!isDemo && _hostedGathering != null)
+                // 集會是在地的：平行宇宙的人不能接主持
+                if (!isDemo && parallelCity == null && _hostedGathering != null)
                   item(Icons.swap_horiz, Night.auroraBlue, tr.handOverHost, () {
                     Navigator.pop(dialogContext);
                     showHandoffDialog(context, gathering: _hostedGathering!, toUid: targetUid, toName: displayName);
@@ -2615,6 +2667,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         ),
                       // 城市心情天氣
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4, child: _buildCityMoodChip()),
+                      // 平行宇宙開關（右上角，只有圖標）
+                      Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4, child: ParallelUniverseButton(onToggle: _toggleParallelUniverse)),
                       // 空雷達：附近沒有人時，不留白，告訴使用者他正在發光
                       if (_hasScanned && activeUsers.isEmpty && !_emptyCardDismissed)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildEmptyRadarCard()),
@@ -2649,6 +2703,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
   final bool isDemo; // 示範對象：名字前面加上「示範」
   final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
+  final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -2664,6 +2719,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isInactive = false,
     this.isDemo = false,
     this.hostEmoji,
+    this.parallelCity,
     this.shadowOpacity = 1.0
   });
 
@@ -2785,6 +2841,16 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                           ),
                         ),
                       ),
+                      // 平行宇宙的人：頭像外一圈淡紫色細環，和身邊的人一眼分得出來
+                      if (widget.parallelCity != null)
+                        Container(
+                          width: avatarSize + 12, height: avatarSize + 12,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Night.auroraViolet.withOpacity(0.75), width: 1),
+                            boxShadow: [BoxShadow(color: Night.auroraViolet.withOpacity(0.25), blurRadius: 10)],
+                          ),
+                        ),
                       // 集會主持人：頭像外一圈亮漸層光環
                       if (widget.hostEmoji != null && !widget.isShadow)
                         Container(
@@ -2821,7 +2887,14 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
 
                 const SizedBox(height: 10),
-                Text('${widget.hostEmoji != null ? '主持 ${widget.hostEmoji} · ' : ''}${widget.isDemo ? '示範 · ' : ''}${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                Text([
+                  if (widget.hostEmoji != null) '${tr.labelHost} ${widget.hostEmoji}',
+                  if (widget.isDemo) tr.labelDemo,
+                  widget.displayName,
+                  // 平行宇宙的位置是投影的，不顯示距離，只顯示對方的城市
+                  widget.parallelCity != null ? '🪐 ${parallelCityName(widget.parallelCity!)}' : widget.distanceLabel,
+                  if (widget.isInactive) tr.labelResting,
+                ].join(' · '), style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

@@ -2914,7 +2914,7 @@ abstract class AppLocalizations {
   /// No description provided for @parallelUniverseIntroBody.
   ///
   /// In zh, this message translates to:
-  /// **'開啟後，其他城市此刻在線的人都會投影到你的雷達上，他們也都看得到你。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。'**
+  /// **'開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。殘影、低語和集會只留在當地。'**
   String get parallelUniverseIntroBody;
 
   /// No description provided for @parallelUniverseEnter.

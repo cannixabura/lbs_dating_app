@@ -1686,7 +1686,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Saat aktif, semua orang yang sedang online di kota lain diproyeksikan ke radarmu, dan mereka semua bisa melihatmu.\n\nPosisi diproyeksikan sesuai skala kota dan dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja.';
+      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Gema yang memudar, bisikan, dan acara tetap di tempat asalnya.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';

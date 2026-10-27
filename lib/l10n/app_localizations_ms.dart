@@ -1696,7 +1696,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Apabila dihidupkan, semua orang yang sedang dalam talian di bandar lain diunjurkan ke radar anda, dan mereka semua dapat melihat anda.\n\nKedudukan diunjurkan mengikut skala bandar dan dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa.';
+      'Apabila dihidupkan, semua orang yang sedang membuka aplikasi di bandar padanan anda muncul di radar anda, dan mereka semua dapat melihat anda. Bandar di Taiwan dipadankan dengan bandar di luar negara (seperti Tokyo, Seoul dan Kuala Lumpur), dan bandar di luar negara dipadankan dengan Taiwan.\n\nKedua-dua bandar diselaraskan pada stesen pusat masing-masing: sejauh mana dan ke arah mana anda dari stesen anda, di situlah anda muncul di bandar mereka, dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa. Gema pudar, bisikan dan perhimpunan kekal di tempat asal.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';

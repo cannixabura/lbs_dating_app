@@ -216,17 +216,17 @@ async function parallelMembers(now) {
 }
 
 /**
- * 平行宇宙的訪客：其他城市、正開著 App（活躍）的人，投影到觀看者的城市。
+ * 平行宇宙的訪客：對應國家的城市裡、正開著 App（活躍）的人，以中心車站對齊疊到觀看者的城市。
  * 只要一方開啟就看得到：觀看者開啟 → 其他城市所有人；沒開 → 只有開啟的人。
  * 不回傳真實距離與真實位置；休息中與殘影都不跨城市，對方一離開就消失，不留痕跡。
  */
-async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM, now) {
+async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM, now, lang) {
     const found = []; // [uid, fromCity, {lat, lng}]
     const consider = (memberUid, pos, onlyCity) => {
         if (!memberUid || memberUid === viewerUid || memberUid.startsWith(demo.DEMO_PREFIX)) return;
-        // 兩座城市的範圍重疊時，歸最近的那座
+        // 屬於離中心車站最近的那座城市；只疊台灣 ↔ 其他國家
         const home = parallel.cityOf(pos.lat, pos.lng);
-        if (!home || home.id === viewerCity.id || (onlyCity && home.id !== onlyCity)) return;
+        if (!home || !parallel.paired(home, viewerCity) || (onlyCity && home.id !== onlyCity)) return;
         found.push([memberUid, home, pos]);
     };
     if (viewerOn) {
@@ -257,7 +257,7 @@ async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM,
         if (!lastSeen) return;
         const { status } = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
         if (status !== 'active') return; // 只顯示正開著 App 的人：休息中、殘影都不跨城市
-        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id });
+        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id, parallelName: parallel.nameOf(home.id, lang) });
     });
     // 最近活動的優先，避免把雷達塞滿
     return visitors.sort((a, b) => b.timestamp - a.timestamp).slice(0, parallel.MAX_RESULTS);
@@ -337,7 +337,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       if (viewerCity) {
           try {
               const seen = new Set(results.map((r) => r.uid));
-              results.push(...(await parallelVisitors(uid, viewerCity, req.body.parallel === true, { lat, lng }, radiusKM, now)).filter((r) => !seen.has(r.uid)));
+              results.push(...(await parallelVisitors(uid, viewerCity, req.body.parallel === true, { lat, lng }, radiusKM, now, langOf(req))).filter((r) => !seen.has(r.uid)));
           } catch (e) { console.error('parallel visitors failed:', e); }
       }
 
@@ -348,7 +348,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           } catch (e) { console.error('stale cleanup failed:', e); }
       }
 
-      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 }, parallelCity: viewerCity ? viewerCity.id : null });
+      res.status(200).json({ success: true, data: results, density: { peopleNearby, shadowRetentionHours: retentionMs / 3600000 }, parallelCity: viewerCity ? viewerCity.id : null, parallelCityName: viewerCity ? parallel.nameOf(viewerCity.id, langOf(req)) : null });
     } catch (error) {
       console.error('getNearby failed:', error);
       res.status(500).json({ success: false, error: localize(langOf(req), "掃描失敗") });

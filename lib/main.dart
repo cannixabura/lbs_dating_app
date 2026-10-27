@@ -1071,7 +1071,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          parallelHomeCity.value = parallelUniverseOn.value ? (data['parallelCity'] as String? ?? '') : null;
+          parallelHomeCity.value = parallelUniverseOn.value ? (data['parallelCityName'] as String? ?? data['parallelCity'] as String? ?? '') : null;
           _processNearbyData(data['data'] as List);
         }
       }
@@ -1104,7 +1104,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         // 正在主持集會：「主持」光環與活動圖標
         'hostEmoji': user['hostEmoji'],
         // 平行宇宙：其他城市投影過來的人，值是對方所在的城市代碼
-        'parallelCity': user['parallel'],
+        'parallelCity': user['parallelName'] ?? user['parallel'], // 伺服器給的城市名稱（使用者的語言）
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -2213,7 +2213,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 item(Icons.waving_hand_outlined, Night.knockPink, tr.knock, () { Navigator.pop(dialogContext); _handleBubbleLongPress(targetUid, displayName); }),
                 item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
-                if (!isDemo && _hostedGathering != null)
+                // 集會是在地的：平行宇宙的人不能接主持
+                if (!isDemo && parallelCity == null && _hostedGathering != null)
                   item(Icons.swap_horiz, Night.auroraBlue, tr.handOverHost, () {
                     Navigator.pop(dialogContext);
                     showHandoffDialog(context, gathering: _hostedGathering!, toUid: targetUid, toName: displayName);

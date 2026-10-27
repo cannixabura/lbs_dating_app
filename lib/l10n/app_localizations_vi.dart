@@ -1687,7 +1687,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Khi bật, mọi người đang trực tuyến ở các thành phố khác sẽ được chiếu lên radar của bạn, và tất cả họ đều thấy bạn.\n\nVị trí được chiếu theo tỷ lệ thành phố và làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào.';
+      'Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo nhà ga trung tâm của mỗi bên: bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Dư ảnh, lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
   String get parallelUniverseEnter => 'Bước vào';

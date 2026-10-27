@@ -467,7 +467,7 @@
   "parallelUniverse": "Parallel Universe",
   "parallelUniverseSubtitle": "See how other cities feel right now, and let them see you",
   "parallelUniverseIntroTitle": "Enter the Parallel Universe",
-  "parallelUniverseIntroBody": "When it's on, everyone online in other cities is projected onto your radar, and they can all see you.\n\nPositions are projected by city scale and blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time.",
+  "parallelUniverseIntroBody": "When it's on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their central stations: however far and in whichever direction you are from your station, that's where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Fading echoes, whispers and gatherings stay local.",
   "parallelUniverseEnter": "Enter",
   "parallelUniverseNoCity": "There's no Parallel Universe where you are yet",
   "parallelFrom": "Parallel · {city}",

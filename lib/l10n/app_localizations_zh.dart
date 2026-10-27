@@ -1551,7 +1551,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '開啟後，其他城市此刻在線的人都會投影到你的雷達上，他們也都看得到你。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。';
+      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。殘影、低語和集會只留在當地。';
 
   @override
   String get parallelUniverseEnter => '進入';
@@ -3189,7 +3189,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get parallelUniverseIntroBody =>
-      '开启后，其他城市此刻在线的人都会投影到你的雷达上，他们也都看得到你。\n\n位置按城市比例投影过去，并模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。';
+      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。残影、低语和集会只留在当地。';
 
   @override
   String get parallelUniverseEnter => '进入';

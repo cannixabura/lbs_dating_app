@@ -40,6 +40,7 @@ import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
+import 'parallel_universe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
 import 'ui/knock_ritual.dart';
@@ -92,6 +93,7 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await loadAppLocale();
+  await loadParallelUniverse();
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('has_seen_intro');
   final bool hasSeenIntro = prefs.getBool('has_seen_intro') ?? false;
@@ -813,6 +815,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           'lng': position.longitude,
           'mood': _myMood,
           'nickname': _myNickname, 
+          'parallel': parallelUniverseOn.value,
         }),
       );
     } catch (e) {}
@@ -1035,6 +1038,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } catch (_) {}
   }
 
+  /// 平行宇宙開關改變：馬上告訴伺服器（加入或離開），並重新掃描雷達
+  void _applyParallelUniverse() {
+    final pos = _currentPosition;
+    if (pos != null) _updateMyLocationToServer(pos).then((_) => _fetchNearbyUsers());
+  }
+
   Future<void> _fetchNearbyUsers() async {
     if (_currentPosition == null) return;
     try {
@@ -1045,12 +1054,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           'lat': _currentPosition!.latitude,
           'lng': _currentPosition!.longitude,
           'radiusKM': 5, 
+          'parallel': parallelUniverseOn.value,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
+          parallelHomeCity.value = data['parallelCity'] as String?;
           _processNearbyData(data['data'] as List);
         }
       }
@@ -1082,6 +1093,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'isDemo': user['demo'] == true,
         // 正在主持集會：「主持」光環與活動圖標
         'hostEmoji': user['hostEmoji'],
+        // 平行宇宙：其他城市投影過來的人，值是對方所在的城市代碼
+        'parallelCity': user['parallel'],
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -1525,6 +1538,33 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             ),
           ]),
         ));
+        final parallelRow = StatefulBuilder(builder: (context, setRowState) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: Night.space1, horizontal: Night.space2),
+          child: Row(children: [
+            const Icon(Icons.public, color: Night.auroraViolet, size: 22),
+            const SizedBox(width: Night.space4),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr.parallelUniverse, style: const TextStyle(color: Night.ink, fontSize: 15)),
+                const SizedBox(height: 2),
+                Text(parallelUniverseOn.value && _hasScanned && parallelHomeCity.value == null ? tr.parallelUniverseNoCity : tr.parallelUniverseSubtitle,
+                    style: Night.caption),
+              ]),
+            ),
+            Switch(
+              value: parallelUniverseOn.value,
+              activeThumbColor: Night.onDeep,
+              activeTrackColor: Night.deepViolet,
+              inactiveTrackColor: Night.night700,
+              onChanged: (v) async {
+                if (v && !await confirmParallelUniverse(context)) return;
+                await setParallelUniverse(v);
+                setRowState(() {});
+                _applyParallelUniverse();
+              },
+            ),
+          ]),
+        ));
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -1551,6 +1591,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),
                   item(Icons.timeline, tr.myMoodTrail, subtitle: tr.myMoodTrailSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
+                  parallelRow,
                   item(Icons.translate, tr.language, subtitle: _languageName(appLocale.value), onTap: () => go(_showLanguagePicker)),
                   section(tr.settingsSectionGatherings),
                   item(Icons.campaign_outlined, tr.gatheringHost,
@@ -1957,7 +1998,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         behavior: HitTestBehavior.translucent,
         onLongPress: () {
           _focusBubble(uid);
-          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, moodColor: _getMoodColor(user['mood']));
+          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?, moodColor: _getMoodColor(user['mood']));
         },
         // 雙擊氣泡：直接送出一道微光
         onDoubleTap: () {
@@ -1982,6 +2023,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               isInactive: user['isInactive'] ?? false,
               isDemo: user['isDemo'] ?? false,
               hostEmoji: user['hostEmoji'] as String?,
+              parallelCity: user['parallelCity'] as String?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
             ),
           ),
@@ -2130,7 +2172,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
-  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, Color moodColor = Night.moodDefault}) {
+  void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, String? parallelCity, Color moodColor = Night.moodDefault}) {
     Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Night.radiusSm),
@@ -2155,6 +2197,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               if (isDemo) ...[
                 const SizedBox(height: Night.space2),
                 Text(tr.demoPersonBody, style: Night.body, textAlign: TextAlign.center),
+              ],
+              if (parallelCity != null) ...[
+                const SizedBox(height: Night.space2),
+                Text(tr.parallelPersonBody(parallelCityName(parallelCity)), style: Night.body, textAlign: TextAlign.center),
               ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
@@ -2649,6 +2695,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isInactive; // 休息中（鎖屏 / 背景）：可敲門，但降低亮度、停止呼吸光暈
   final bool isDemo; // 示範對象：名字前面加上「示範」
   final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
+  final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -2664,6 +2711,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isInactive = false,
     this.isDemo = false,
     this.hostEmoji,
+    this.parallelCity,
     this.shadowOpacity = 1.0
   });
 
@@ -2785,6 +2833,16 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                           ),
                         ),
                       ),
+                      // 平行宇宙的人：頭像外一圈淡紫色細環，和身邊的人一眼分得出來
+                      if (widget.parallelCity != null)
+                        Container(
+                          width: avatarSize + 12, height: avatarSize + 12,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Night.auroraViolet.withOpacity(0.75), width: 1),
+                            boxShadow: [BoxShadow(color: Night.auroraViolet.withOpacity(0.25), blurRadius: 10)],
+                          ),
+                        ),
                       // 集會主持人：頭像外一圈亮漸層光環
                       if (widget.hostEmoji != null && !widget.isShadow)
                         Container(
@@ -2821,7 +2879,14 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ),
 
                 const SizedBox(height: 10),
-                Text('${widget.hostEmoji != null ? '主持 ${widget.hostEmoji} · ' : ''}${widget.isDemo ? '示範 · ' : ''}${widget.displayName} · ${widget.distanceLabel}${widget.isInactive ? ' · 休息中' : ''}', style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                Text([
+                  if (widget.hostEmoji != null) '${tr.labelHost} ${widget.hostEmoji}',
+                  if (widget.isDemo) tr.labelDemo,
+                  widget.displayName,
+                  // 平行宇宙的位置是投影的，不顯示距離，只顯示對方的城市
+                  widget.parallelCity != null ? '🪐 ${parallelCityName(widget.parallelCity!)}' : widget.distanceLabel,
+                  if (widget.isInactive) tr.labelResting,
+                ].join(' · '), style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

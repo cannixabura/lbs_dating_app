@@ -1580,4 +1580,84 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get languageSystem => '端末の設定に合わせる';
+
+  @override
+  String get parallelUniverse => 'パラレルユニバース';
+
+  @override
+  String get parallelUniverseSubtitle => 'ほかの街の今の気持ちを見て、あなたも見てもらう';
+
+  @override
+  String get parallelUniverseIntroTitle => 'パラレルユニバースへ';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'オンにすると、ほかの街でオンにしている人があなたのレーダーに現れ、あなたも相手のレーダーに現れます。\n\n位置は街の大きさに合わせて投影され、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。';
+
+  @override
+  String get parallelUniverseEnter => '入る';
+
+  @override
+  String get parallelUniverseNoCity => '今いる場所にはまだパラレルユニバースがありません';
+
+  @override
+  String parallelFrom(String city) {
+    return 'パラレル · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'この人は$cityにいて、近くにはいません。位置は投影されたもので、本当の距離ではありません。';
+  }
+
+  @override
+  String get labelHost => '主催';
+
+  @override
+  String get labelDemo => 'デモ';
+
+  @override
+  String get labelResting => '休憩中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '東京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => 'ソウル';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => 'マカオ';
+
+  @override
+  String get citySingapore => 'シンガポール';
+
+  @override
+  String get cityKualalumpur => 'クアラルンプール';
+
+  @override
+  String get cityJakarta => 'ジャカルタ';
+
+  @override
+  String get cityHochiminh => 'ホーチミン';
+
+  @override
+  String get cityHanoi => 'ハノイ';
 }

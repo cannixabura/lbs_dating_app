@@ -1539,6 +1539,86 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get languageSystem => '跟隨手機設定';
+
+  @override
+  String get parallelUniverse => '平行宇宙';
+
+  @override
+  String get parallelUniverseSubtitle => '看見其他城市此刻的心情，也讓他們看見你';
+
+  @override
+  String get parallelUniverseIntroTitle => '進入平行宇宙';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '開啟後，其他城市也開啟平行宇宙的人會出現在你的雷達上，你也會出現在他們的雷達上。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。';
+
+  @override
+  String get parallelUniverseEnter => '進入';
+
+  @override
+  String get parallelUniverseNoCity => '你所在的地方還沒有平行宇宙';
+
+  @override
+  String parallelFrom(String city) {
+    return '平行宇宙 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '這個人在$city，不在你身邊。位置是投影過來的，不代表真實距離。';
+  }
+
+  @override
+  String get labelHost => '主持';
+
+  @override
+  String get labelDemo => '示範';
+
+  @override
+  String get labelResting => '休息中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '東京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => '首爾';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => '澳門';
+
+  @override
+  String get citySingapore => '新加坡';
+
+  @override
+  String get cityKualalumpur => '吉隆坡';
+
+  @override
+  String get cityJakarta => '雅加達';
+
+  @override
+  String get cityHochiminh => '胡志明市';
+
+  @override
+  String get cityHanoi => '河內';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3075,4 +3155,84 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get languageSystem => '跟随手机设置';
+
+  @override
+  String get parallelUniverse => '平行宇宙';
+
+  @override
+  String get parallelUniverseSubtitle => '看见其他城市此刻的心情，也让他们看见你';
+
+  @override
+  String get parallelUniverseIntroTitle => '进入平行宇宙';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '开启后，其他城市也开启平行宇宙的人会出现在你的雷达上，你也会出现在他们的雷达上。\n\n位置按城市比例投影过去，并模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。';
+
+  @override
+  String get parallelUniverseEnter => '进入';
+
+  @override
+  String get parallelUniverseNoCity => '你所在的地方还没有平行宇宙';
+
+  @override
+  String parallelFrom(String city) {
+    return '平行宇宙 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '这个人在$city，不在你身边。位置是投影过来的，不代表真实距离。';
+  }
+
+  @override
+  String get labelHost => '主持';
+
+  @override
+  String get labelDemo => '示范';
+
+  @override
+  String get labelResting => '休息中';
+
+  @override
+  String get cityTaipei => '台北';
+
+  @override
+  String get cityTaichung => '台中';
+
+  @override
+  String get cityKaohsiung => '高雄';
+
+  @override
+  String get cityTokyo => '东京';
+
+  @override
+  String get cityOsaka => '大阪';
+
+  @override
+  String get citySeoul => '首尔';
+
+  @override
+  String get cityBusan => '釜山';
+
+  @override
+  String get cityHongkong => '香港';
+
+  @override
+  String get cityMacau => '澳门';
+
+  @override
+  String get citySingapore => '新加坡';
+
+  @override
+  String get cityKualalumpur => '吉隆坡';
+
+  @override
+  String get cityJakarta => '雅加达';
+
+  @override
+  String get cityHochiminh => '胡志明市';
+
+  @override
+  String get cityHanoi => '河内';
 }

@@ -1745,4 +1745,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSystem => 'Same as phone';
+
+  @override
+  String get parallelUniverse => 'Parallel Universe';
+
+  @override
+  String get parallelUniverseSubtitle =>
+      'See how other cities feel right now, and let them see you';
+
+  @override
+  String get parallelUniverseIntroTitle => 'Enter the Parallel Universe';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'When it\'s on, people in other cities who also turned it on appear on your radar, and you appear on theirs.\n\nPositions are projected by city scale and blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time.';
+
+  @override
+  String get parallelUniverseEnter => 'Enter';
+
+  @override
+  String get parallelUniverseNoCity =>
+      'There\'s no Parallel Universe where you are yet';
+
+  @override
+  String parallelFrom(String city) {
+    return 'Parallel · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'This person is in $city, not near you. Their position is projected and doesn\'t show a real distance.';
+  }
+
+  @override
+  String get labelHost => 'Host';
+
+  @override
+  String get labelDemo => 'Demo';
+
+  @override
+  String get labelResting => 'Resting';
+
+  @override
+  String get cityTaipei => 'Taipei';
+
+  @override
+  String get cityTaichung => 'Taichung';
+
+  @override
+  String get cityKaohsiung => 'Kaohsiung';
+
+  @override
+  String get cityTokyo => 'Tokyo';
+
+  @override
+  String get cityOsaka => 'Osaka';
+
+  @override
+  String get citySeoul => 'Seoul';
+
+  @override
+  String get cityBusan => 'Busan';
+
+  @override
+  String get cityHongkong => 'Hong Kong';
+
+  @override
+  String get cityMacau => 'Macau';
+
+  @override
+  String get citySingapore => 'Singapore';
+
+  @override
+  String get cityKualalumpur => 'Kuala Lumpur';
+
+  @override
+  String get cityJakarta => 'Jakarta';
+
+  @override
+  String get cityHochiminh => 'Ho Chi Minh City';
+
+  @override
+  String get cityHanoi => 'Hanoi';
 }

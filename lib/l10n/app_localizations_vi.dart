@@ -1674,4 +1674,85 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get languageSystem => 'Theo điện thoại';
+
+  @override
+  String get parallelUniverse => 'Vũ trụ song song';
+
+  @override
+  String get parallelUniverseSubtitle =>
+      'Xem tâm trạng các thành phố khác lúc này, và để họ thấy bạn';
+
+  @override
+  String get parallelUniverseIntroTitle => 'Bước vào Vũ trụ song song';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      'Khi bật, những người ở thành phố khác cũng bật tính năng này sẽ hiện trên radar của bạn, và bạn hiện trên radar của họ.\n\nVị trí được chiếu theo tỷ lệ thành phố và làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào.';
+
+  @override
+  String get parallelUniverseEnter => 'Bước vào';
+
+  @override
+  String get parallelUniverseNoCity => 'Nơi bạn ở chưa có Vũ trụ song song';
+
+  @override
+  String parallelFrom(String city) {
+    return 'Song song · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return 'Người này đang ở $city, không ở gần bạn. Vị trí được chiếu sang và không phải khoảng cách thật.';
+  }
+
+  @override
+  String get labelHost => 'Chủ trì';
+
+  @override
+  String get labelDemo => 'Mẫu';
+
+  @override
+  String get labelResting => 'Đang nghỉ';
+
+  @override
+  String get cityTaipei => 'Đài Bắc';
+
+  @override
+  String get cityTaichung => 'Đài Trung';
+
+  @override
+  String get cityKaohsiung => 'Cao Hùng';
+
+  @override
+  String get cityTokyo => 'Tokyo';
+
+  @override
+  String get cityOsaka => 'Osaka';
+
+  @override
+  String get citySeoul => 'Seoul';
+
+  @override
+  String get cityBusan => 'Busan';
+
+  @override
+  String get cityHongkong => 'Hồng Kông';
+
+  @override
+  String get cityMacau => 'Ma Cao';
+
+  @override
+  String get citySingapore => 'Singapore';
+
+  @override
+  String get cityKualalumpur => 'Kuala Lumpur';
+
+  @override
+  String get cityJakarta => 'Jakarta';
+
+  @override
+  String get cityHochiminh => 'TP. Hồ Chí Minh';
+
+  @override
+  String get cityHanoi => 'Hà Nội';
 }

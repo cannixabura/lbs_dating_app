@@ -2892,6 +2892,156 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'跟隨手機設定'**
   String get languageSystem;
+
+  /// No description provided for @parallelUniverse.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行宇宙'**
+  String get parallelUniverse;
+
+  /// No description provided for @parallelUniverseSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'看見其他城市此刻的心情，也讓他們看見你'**
+  String get parallelUniverseSubtitle;
+
+  /// No description provided for @parallelUniverseIntroTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'進入平行宇宙'**
+  String get parallelUniverseIntroTitle;
+
+  /// No description provided for @parallelUniverseIntroBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'開啟後，其他城市也開啟平行宇宙的人會出現在你的雷達上，你也會出現在他們的雷達上。\n\n位置依城市比例投影過去，並模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。'**
+  String get parallelUniverseIntroBody;
+
+  /// No description provided for @parallelUniverseEnter.
+  ///
+  /// In zh, this message translates to:
+  /// **'進入'**
+  String get parallelUniverseEnter;
+
+  /// No description provided for @parallelUniverseNoCity.
+  ///
+  /// In zh, this message translates to:
+  /// **'你所在的地方還沒有平行宇宙'**
+  String get parallelUniverseNoCity;
+
+  /// No description provided for @parallelFrom.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行宇宙 · {city}'**
+  String parallelFrom(String city);
+
+  /// No description provided for @parallelPersonBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個人在{city}，不在你身邊。位置是投影過來的，不代表真實距離。'**
+  String parallelPersonBody(String city);
+
+  /// No description provided for @labelHost.
+  ///
+  /// In zh, this message translates to:
+  /// **'主持'**
+  String get labelHost;
+
+  /// No description provided for @labelDemo.
+  ///
+  /// In zh, this message translates to:
+  /// **'示範'**
+  String get labelDemo;
+
+  /// No description provided for @labelResting.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息中'**
+  String get labelResting;
+
+  /// No description provided for @cityTaipei.
+  ///
+  /// In zh, this message translates to:
+  /// **'台北'**
+  String get cityTaipei;
+
+  /// No description provided for @cityTaichung.
+  ///
+  /// In zh, this message translates to:
+  /// **'台中'**
+  String get cityTaichung;
+
+  /// No description provided for @cityKaohsiung.
+  ///
+  /// In zh, this message translates to:
+  /// **'高雄'**
+  String get cityKaohsiung;
+
+  /// No description provided for @cityTokyo.
+  ///
+  /// In zh, this message translates to:
+  /// **'東京'**
+  String get cityTokyo;
+
+  /// No description provided for @cityOsaka.
+  ///
+  /// In zh, this message translates to:
+  /// **'大阪'**
+  String get cityOsaka;
+
+  /// No description provided for @citySeoul.
+  ///
+  /// In zh, this message translates to:
+  /// **'首爾'**
+  String get citySeoul;
+
+  /// No description provided for @cityBusan.
+  ///
+  /// In zh, this message translates to:
+  /// **'釜山'**
+  String get cityBusan;
+
+  /// No description provided for @cityHongkong.
+  ///
+  /// In zh, this message translates to:
+  /// **'香港'**
+  String get cityHongkong;
+
+  /// No description provided for @cityMacau.
+  ///
+  /// In zh, this message translates to:
+  /// **'澳門'**
+  String get cityMacau;
+
+  /// No description provided for @citySingapore.
+  ///
+  /// In zh, this message translates to:
+  /// **'新加坡'**
+  String get citySingapore;
+
+  /// No description provided for @cityKualalumpur.
+  ///
+  /// In zh, this message translates to:
+  /// **'吉隆坡'**
+  String get cityKualalumpur;
+
+  /// No description provided for @cityJakarta.
+  ///
+  /// In zh, this message translates to:
+  /// **'雅加達'**
+  String get cityJakarta;
+
+  /// No description provided for @cityHochiminh.
+  ///
+  /// In zh, this message translates to:
+  /// **'胡志明市'**
+  String get cityHochiminh;
+
+  /// No description provided for @cityHanoi.
+  ///
+  /// In zh, this message translates to:
+  /// **'河內'**
+  String get cityHanoi;
 }
 
 class _AppLocalizationsDelegate

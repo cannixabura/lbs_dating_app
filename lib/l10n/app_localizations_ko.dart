@@ -1596,4 +1596,84 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get languageSystem => '휴대폰 설정 따르기';
+
+  @override
+  String get parallelUniverse => '평행우주';
+
+  @override
+  String get parallelUniverseSubtitle => '다른 도시의 지금 기분을 보고, 나도 보여 주기';
+
+  @override
+  String get parallelUniverseIntroTitle => '평행우주로 들어가기';
+
+  @override
+  String get parallelUniverseIntroBody =>
+      '켜면 다른 도시에서 평행우주를 켠 사람들이 내 레이더에 나타나고, 나도 그들의 레이더에 나타납니다.\n\n위치는 도시 크기에 맞춰 투영되고 약 500m로 흐려져서, 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다.';
+
+  @override
+  String get parallelUniverseEnter => '들어가기';
+
+  @override
+  String get parallelUniverseNoCity => '지금 있는 곳에는 아직 평행우주가 없어요';
+
+  @override
+  String parallelFrom(String city) {
+    return '평행우주 · $city';
+  }
+
+  @override
+  String parallelPersonBody(String city) {
+    return '이 사람은 $city에 있고, 근처에 있지 않아요. 위치는 투영된 것이라 실제 거리가 아닙니다.';
+  }
+
+  @override
+  String get labelHost => '호스트';
+
+  @override
+  String get labelDemo => '데모';
+
+  @override
+  String get labelResting => '쉬는 중';
+
+  @override
+  String get cityTaipei => '타이베이';
+
+  @override
+  String get cityTaichung => '타이중';
+
+  @override
+  String get cityKaohsiung => '가오슝';
+
+  @override
+  String get cityTokyo => '도쿄';
+
+  @override
+  String get cityOsaka => '오사카';
+
+  @override
+  String get citySeoul => '서울';
+
+  @override
+  String get cityBusan => '부산';
+
+  @override
+  String get cityHongkong => '홍콩';
+
+  @override
+  String get cityMacau => '마카오';
+
+  @override
+  String get citySingapore => '싱가포르';
+
+  @override
+  String get cityKualalumpur => '쿠알라룸푸르';
+
+  @override
+  String get cityJakarta => '자카르타';
+
+  @override
+  String get cityHochiminh => '호찌민';
+
+  @override
+  String get cityHanoi => '하노이';
 }

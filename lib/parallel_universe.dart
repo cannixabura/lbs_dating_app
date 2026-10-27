@@ -5,23 +5,23 @@ import 'l10n/l10n.dart';
 import 'ui/night.dart';
 
 /// 平行宇宙：其他城市也開啟的人，依城市比例投影到你的雷達上（伺服器負責投影與模糊化）。
-/// 預設關閉；開啟時同時「看得到別人」與「被別人看到」。
+/// 每次打開 App 都是關閉；開啟時同時「看得到別人」與「被別人看到」。
 final parallelUniverseOn = ValueNotifier<bool>(false);
 
 /// 伺服器判定你所在的城市：null = 還不知道（關閉或還沒掃描到），'' = 不在支援的城市
 final parallelHomeCity = ValueNotifier<String?>(null);
 
-const _prefKey = 'parallel_universe';
+const _prefKey = 'parallel_universe'; // 舊版存的開關，啟動時清除
 
+/// 每次打開 App 都從關閉開始（不記住上次的狀態）；順便清掉舊版存下的設定
 Future<void> loadParallelUniverse() async {
+  parallelUniverseOn.value = false;
   final prefs = await SharedPreferences.getInstance();
-  parallelUniverseOn.value = prefs.getBool(_prefKey) ?? false;
+  await prefs.remove(_prefKey);
 }
 
 Future<void> setParallelUniverse(bool on) async {
   parallelUniverseOn.value = on;
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool(_prefKey, on);
 }
 
 /// 伺服器的城市代碼 → 目前語言的城市名稱

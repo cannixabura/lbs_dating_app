@@ -216,9 +216,9 @@ async function parallelMembers(now) {
 }
 
 /**
- * 平行宇宙的訪客：其他城市、目前在線（活躍或休息中）的人，投影到觀看者的城市。
+ * 平行宇宙的訪客：其他城市、正開著 App（活躍）的人，投影到觀看者的城市。
  * 只要一方開啟就看得到：觀看者開啟 → 其他城市所有人；沒開 → 只有開啟的人。
- * 不回傳真實距離與真實位置；殘影不跨城市。
+ * 不回傳真實距離與真實位置；休息中與殘影都不跨城市，對方一離開就消失，不留痕跡。
  */
 async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM, now) {
     const found = []; // [uid, fromCity, {lat, lng}]
@@ -256,7 +256,7 @@ async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM,
         const lastSeen = parseInt(timestamp || "0", 10);
         if (!lastSeen) return;
         const { status } = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
-        if (status === 'shadow') return;
+        if (status !== 'active') return; // 只顯示正開著 App 的人：休息中、殘影都不跨城市
         visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id });
     });
     // 最近活動的優先，避免把雷達塞滿

@@ -38,7 +38,10 @@ import Translation
         case "status":
           AppleTranslator.status(source: args["source"] as? String ?? "", target: args["target"] as? String ?? "") { result($0) }
         case "translate":
-          guard let window = self?.window else { result(FlutterError(code: "translate", message: "no window", details: nil)); return }
+          // 用了 SceneDelegate，AppDelegate 的 window 是 nil，要從場景找
+          let window = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }.first { $0.isKeyWindow } ?? self?.window
+          guard let window else { result(FlutterError(code: "translate", message: "no window", details: nil)); return }
           AppleTranslator.shared.translate(
             args["text"] as? String ?? "", source: args["source"] as? String ?? "", target: args["target"] as? String ?? "", in: window
           ) { text in

@@ -488,5 +488,12 @@
   "cityKualalumpur": "クアラルンプール",
   "cityJakarta": "ジャカルタ",
   "cityHochiminh": "ホーチミン",
-  "cityHanoi": "ハノイ"
+  "cityHanoi": "ハノイ",
+  "translateTap": "タップして翻訳",
+  "translateShowOriginal": "翻訳済み · タップで原文",
+  "translating": "翻訳中…",
+  "translateFailed": "翻訳できませんでした。しばらくしてからお試しください",
+  "translateDownloadTitle": "翻訳モデルをダウンロード",
+  "translateDownloadBody": "この言語を初めて翻訳するには、翻訳モデルのダウンロードが必要です（1言語あたり約30MB、初回のみ）。\n\n翻訳はすべてスマホの中で行われ、メッセージがアップロードされることはありません。",
+  "translateDownload": "ダウンロード"
 }

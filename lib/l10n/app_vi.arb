@@ -488,5 +488,12 @@
   "cityKualalumpur": "Kuala Lumpur",
   "cityJakarta": "Jakarta",
   "cityHochiminh": "TP. Hồ Chí Minh",
-  "cityHanoi": "Hà Nội"
+  "cityHanoi": "Hà Nội",
+  "translateTap": "Chạm để dịch",
+  "translateShowOriginal": "Đã dịch · chạm để xem bản gốc",
+  "translating": "Đang dịch…",
+  "translateFailed": "Không dịch được. Vui lòng thử lại sau.",
+  "translateDownloadTitle": "Tải mô hình dịch",
+  "translateDownloadBody": "Lần đầu dịch ngôn ngữ này cần tải mô hình dịch (khoảng 30 MB mỗi ngôn ngữ, chỉ một lần).\n\nViệc dịch diễn ra hoàn toàn trên điện thoại của bạn; tin nhắn không bao giờ được tải lên.",
+  "translateDownload": "Tải xuống"
 }

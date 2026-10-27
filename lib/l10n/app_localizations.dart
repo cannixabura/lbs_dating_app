@@ -3042,6 +3042,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'河內'**
   String get cityHanoi;
+
+  /// No description provided for @translateTap.
+  ///
+  /// In zh, this message translates to:
+  /// **'點一下翻譯'**
+  String get translateTap;
+
+  /// No description provided for @translateShowOriginal.
+  ///
+  /// In zh, this message translates to:
+  /// **'已翻譯 · 點一下看原文'**
+  String get translateShowOriginal;
+
+  /// No description provided for @translating.
+  ///
+  /// In zh, this message translates to:
+  /// **'翻譯中…'**
+  String get translating;
+
+  /// No description provided for @translateFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'翻譯失敗，請稍後再試'**
+  String get translateFailed;
+
+  /// No description provided for @translateDownloadTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'下載翻譯模型'**
+  String get translateDownloadTitle;
+
+  /// No description provided for @translateDownloadBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'第一次翻譯這種語言，需要下載翻譯模型（每種語言約 30 MB，只需一次）。\n\n翻譯完全在你的手機上進行，訊息不會上傳。'**
+  String get translateDownloadBody;
+
+  /// No description provided for @translateDownload.
+  ///
+  /// In zh, this message translates to:
+  /// **'下載'**
+  String get translateDownload;
 }
 
 class _AppLocalizationsDelegate

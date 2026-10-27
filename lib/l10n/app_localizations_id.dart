@@ -1754,4 +1754,26 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cityHanoi => 'Hanoi';
+
+  @override
+  String get translateTap => 'Ketuk untuk menerjemahkan';
+
+  @override
+  String get translateShowOriginal => 'Diterjemahkan · ketuk untuk teks asli';
+
+  @override
+  String get translating => 'Menerjemahkan…';
+
+  @override
+  String get translateFailed => 'Gagal menerjemahkan. Coba lagi nanti.';
+
+  @override
+  String get translateDownloadTitle => 'Unduh model terjemahan';
+
+  @override
+  String get translateDownloadBody =>
+      'Menerjemahkan bahasa ini pertama kali memerlukan model terjemahan (sekitar 30 MB per bahasa, cukup sekali).\n\nTerjemahan dilakukan sepenuhnya di ponselmu; pesan tidak pernah diunggah.';
+
+  @override
+  String get translateDownload => 'Unduh';
 }

@@ -488,5 +488,12 @@
   "cityKualalumpur": "吉隆坡",
   "cityJakarta": "雅加达",
   "cityHochiminh": "胡志明市",
-  "cityHanoi": "河内"
+  "cityHanoi": "河内",
+  "translateTap": "点一下翻译",
+  "translateShowOriginal": "已翻译 · 点一下看原文",
+  "translating": "翻译中…",
+  "translateFailed": "翻译失败，请稍后再试",
+  "translateDownloadTitle": "下载翻译模型",
+  "translateDownloadBody": "第一次翻译这种语言，需要下载翻译模型（每种语言约 30 MB，只需一次）。\n\n翻译完全在你的手机上进行，消息不会上传。",
+  "translateDownload": "下载"
 }

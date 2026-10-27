@@ -1660,4 +1660,26 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cityHanoi => 'ハノイ';
+
+  @override
+  String get translateTap => 'タップして翻訳';
+
+  @override
+  String get translateShowOriginal => '翻訳済み · タップで原文';
+
+  @override
+  String get translating => '翻訳中…';
+
+  @override
+  String get translateFailed => '翻訳できませんでした。しばらくしてからお試しください';
+
+  @override
+  String get translateDownloadTitle => '翻訳モデルをダウンロード';
+
+  @override
+  String get translateDownloadBody =>
+      'この言語を初めて翻訳するには、翻訳モデルのダウンロードが必要です（1言語あたり約30MB、初回のみ）。\n\n翻訳はすべてスマホの中で行われ、メッセージがアップロードされることはありません。';
+
+  @override
+  String get translateDownload => 'ダウンロード';
 }

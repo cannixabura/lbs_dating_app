@@ -488,5 +488,12 @@
   "cityKualalumpur": "Kuala Lumpur",
   "cityJakarta": "Jakarta",
   "cityHochiminh": "Ho Chi Minh City",
-  "cityHanoi": "Hanoi"
+  "cityHanoi": "Hanoi",
+  "translateTap": "Tap to translate",
+  "translateShowOriginal": "Translated · tap for original",
+  "translating": "Translating…",
+  "translateFailed": "Couldn't translate. Please try again later.",
+  "translateDownloadTitle": "Download translation model",
+  "translateDownloadBody": "Translating this language for the first time needs a translation model (about 30 MB per language, downloaded once).\n\nTranslation happens entirely on your phone; messages are never uploaded.",
+  "translateDownload": "Download"
 }

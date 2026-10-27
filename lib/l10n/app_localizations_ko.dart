@@ -1676,4 +1676,26 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cityHanoi => '하노이';
+
+  @override
+  String get translateTap => '탭하여 번역';
+
+  @override
+  String get translateShowOriginal => '번역됨 · 탭하면 원문';
+
+  @override
+  String get translating => '번역 중…';
+
+  @override
+  String get translateFailed => '번역하지 못했습니다. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get translateDownloadTitle => '번역 모델 다운로드';
+
+  @override
+  String get translateDownloadBody =>
+      '이 언어를 처음 번역하려면 번역 모델을 다운로드해야 합니다(언어당 약 30MB, 한 번만).\n\n번역은 모두 휴대폰 안에서 이루어지며 메시지는 업로드되지 않습니다.';
+
+  @override
+  String get translateDownload => '다운로드';
 }

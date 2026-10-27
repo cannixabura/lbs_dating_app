@@ -1619,6 +1619,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cityHanoi => '河內';
+
+  @override
+  String get translateTap => '點一下翻譯';
+
+  @override
+  String get translateShowOriginal => '已翻譯 · 點一下看原文';
+
+  @override
+  String get translating => '翻譯中…';
+
+  @override
+  String get translateFailed => '翻譯失敗，請稍後再試';
+
+  @override
+  String get translateDownloadTitle => '下載翻譯模型';
+
+  @override
+  String get translateDownloadBody =>
+      '第一次翻譯這種語言，需要下載翻譯模型（每種語言約 30 MB，只需一次）。\n\n翻譯完全在你的手機上進行，訊息不會上傳。';
+
+  @override
+  String get translateDownload => '下載';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3235,4 +3257,26 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get cityHanoi => '河内';
+
+  @override
+  String get translateTap => '点一下翻译';
+
+  @override
+  String get translateShowOriginal => '已翻译 · 点一下看原文';
+
+  @override
+  String get translating => '翻译中…';
+
+  @override
+  String get translateFailed => '翻译失败，请稍后再试';
+
+  @override
+  String get translateDownloadTitle => '下载翻译模型';
+
+  @override
+  String get translateDownloadBody =>
+      '第一次翻译这种语言，需要下载翻译模型（每种语言约 30 MB，只需一次）。\n\n翻译完全在你的手机上进行，消息不会上传。';
+
+  @override
+  String get translateDownload => '下载';
 }

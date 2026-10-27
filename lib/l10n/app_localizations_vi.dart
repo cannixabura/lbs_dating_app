@@ -1755,4 +1755,26 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cityHanoi => 'Hà Nội';
+
+  @override
+  String get translateTap => 'Chạm để dịch';
+
+  @override
+  String get translateShowOriginal => 'Đã dịch · chạm để xem bản gốc';
+
+  @override
+  String get translating => 'Đang dịch…';
+
+  @override
+  String get translateFailed => 'Không dịch được. Vui lòng thử lại sau.';
+
+  @override
+  String get translateDownloadTitle => 'Tải mô hình dịch';
+
+  @override
+  String get translateDownloadBody =>
+      'Lần đầu dịch ngôn ngữ này cần tải mô hình dịch (khoảng 30 MB mỗi ngôn ngữ, chỉ một lần).\n\nViệc dịch diễn ra hoàn toàn trên điện thoại của bạn; tin nhắn không bao giờ được tải lên.';
+
+  @override
+  String get translateDownload => 'Tải xuống';
 }

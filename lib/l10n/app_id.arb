@@ -488,5 +488,12 @@
   "cityKualalumpur": "Kuala Lumpur",
   "cityJakarta": "Jakarta",
   "cityHochiminh": "Kota Ho Chi Minh",
-  "cityHanoi": "Hanoi"
+  "cityHanoi": "Hanoi",
+  "translateTap": "Ketuk untuk menerjemahkan",
+  "translateShowOriginal": "Diterjemahkan · ketuk untuk teks asli",
+  "translating": "Menerjemahkan…",
+  "translateFailed": "Gagal menerjemahkan. Coba lagi nanti.",
+  "translateDownloadTitle": "Unduh model terjemahan",
+  "translateDownloadBody": "Menerjemahkan bahasa ini pertama kali memerlukan model terjemahan (sekitar 30 MB per bahasa, cukup sekali).\n\nTerjemahan dilakukan sepenuhnya di ponselmu; pesan tidak pernah diunggah.",
+  "translateDownload": "Unduh"
 }

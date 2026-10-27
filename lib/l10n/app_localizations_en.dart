@@ -1827,4 +1827,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cityHanoi => 'Hanoi';
+
+  @override
+  String get translateTap => 'Tap to translate';
+
+  @override
+  String get translateShowOriginal => 'Translated · tap for original';
+
+  @override
+  String get translating => 'Translating…';
+
+  @override
+  String get translateFailed => 'Couldn\'t translate. Please try again later.';
+
+  @override
+  String get translateDownloadTitle => 'Download translation model';
+
+  @override
+  String get translateDownloadBody =>
+      'Translating this language for the first time needs a translation model (about 30 MB per language, downloaded once).\n\nTranslation happens entirely on your phone; messages are never uploaded.';
+
+  @override
+  String get translateDownload => 'Download';
 }

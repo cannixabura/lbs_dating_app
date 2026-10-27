@@ -61,6 +61,8 @@ dependencies:
   path_provider: ^2.1.6
   characters: ^1.4.1
   firebase_crashlytics: ^5.4.0
+  google_mlkit_translation: ^0.15.1
+  google_mlkit_language_id: ^0.15.1
 
 dev_dependencies:
   flutter_test:
@@ -111,6 +113,7 @@ flutter:
     - assets/cards/
     - assets/audio/knock.mp3
     - assets/map/night_style.json
+    - assets/opencc/s2t.txt
   # 🌟 新增這裡：宣告我們要使用的 Fragment Shader 檔案
   shaders:
     - shaders/breathing_glow.frag

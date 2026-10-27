@@ -80,5 +80,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
+    // 聊天與心情翻譯（Translator.kt）：在手機上翻譯，模型第一次使用時下載
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("com.google.mlkit:language-id:17.0.6")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

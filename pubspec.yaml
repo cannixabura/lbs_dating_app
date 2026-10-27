@@ -61,9 +61,6 @@ dependencies:
   path_provider: ^2.1.6
   characters: ^1.4.1
   firebase_crashlytics: ^5.4.0
-  google_mlkit_translation: ^0.15.1
-  google_mlkit_language_id: ^0.15.1
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -41,6 +41,7 @@ import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
+import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
 import 'ui/knock_ritual.dart';
@@ -1965,6 +1966,27 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     return widgets;
   }
 
+  // 氣泡上的心情翻譯：key 是「uid|原文」，心情換了就自動回到原文
+  final Map<String, String> _moodTranslations = {};
+  final Set<String> _showingMoodTranslation = {};
+
+  dynamic _shownMood(String uid, dynamic mood) {
+    final key = '$uid|$mood';
+    return _showingMoodTranslation.contains(key) ? _moodTranslations[key] : mood;
+  }
+
+  Future<void> _toggleMoodTranslation(String uid, String mood) async {
+    final key = '$uid|$mood';
+    if (_showingMoodTranslation.contains(key)) { setState(() => _showingMoodTranslation.remove(key)); return; }
+    if (_moodTranslations.containsKey(key)) { setState(() => _showingMoodTranslation.add(key)); return; }
+    final locale = Localizations.localeOf(context);
+    if (!await ChatTranslator.needsTranslation(mood, locale) || !mounted) return;
+    String? out;
+    try { out = await ChatTranslator.translate(context, mood, locale); } catch (_) {}
+    if (out == null || !mounted) return;
+    setState(() { _moodTranslations[key] = out!; _showingMoodTranslation.add(key); });
+  }
+
   Widget _placedBubbleWidget(_PlacedBubble p, Offset at, {double extraScale = 1.0, bool petal = false}) {
     final user = p.user;
     final uid = p.uid;
@@ -1981,6 +2003,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _focusBubble(uid);
           _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?, moodColor: _getMoodColor(user['mood']));
         },
+        // 點一下：心情不是你的語言就直接翻譯，再點一下回到原文
+        onTap: isShadow ? null : () => _toggleMoodTranslation(uid, '${user['mood'] ?? ''}'),
         // 雙擊氣泡：直接送出一道微光
         onDoubleTap: () {
           _focusBubble(uid);
@@ -1994,7 +2018,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: _AnimatedBubbleUI(
               key: ValueKey(uid),
               uid: uid, // 🌟 傳入 UID 給 StreamBuilder 監聽
-              moodText: user['mood'],
+              moodText: _shownMood(uid, user['mood']),
               isFavored: p.render.isFavored,
               status: _outgoingRequests[uid] ?? RequestStatus.none,
               displayName: displayName,

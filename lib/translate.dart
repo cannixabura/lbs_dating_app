@@ -1,77 +1,95 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:google_mlkit_language_id/google_mlkit_language_id.dart';
-import 'package:google_mlkit_translation/google_mlkit_translation.dart';
+import 'package:flutter/services.dart' show MethodChannel, rootBundle;
 
 import 'l10n/l10n.dart';
 import 'ui/night.dart';
 
-/// 聊天翻譯：完全在手機上進行（Google ML Kit），訊息不會上傳。
-/// 先顯示原文，點一下才翻譯；第一次翻某種語言要下載模型（約 30 MB），下載前先問。
+/// 聊天與心情翻譯：完全在手機上進行，訊息不會上傳。
+/// iPhone 用 Apple 翻譯（iOS 18，需要下載語言時系統會自己問），
+/// Android 用 Google ML Kit（第一次翻某種語言要下載約 30 MB 的模型，下載前先問）。
+/// 原生程式在 AppDelegate.swift 與 Translator.kt。
 class ChatTranslator {
   ChatTranslator._();
 
-  static final _identifier = LanguageIdentifier(confidenceThreshold: 0.5);
-  static final _models = OnDeviceTranslatorModelManager();
-  static final Map<String, OnDeviceTranslator> _translators = {};
-  static final Map<String, TranslateLanguage?> _detected = {};
+  static const _channel = MethodChannel('citywhisper/translate');
+  static final Map<String, String?> _detected = {};
+  static final Map<String, bool> _pairSupported = {};
 
-  /// App 的語言 → ML Kit 的語言（App 支援的 8 種語言都有）
-  static TranslateLanguage targetOf(Locale locale) => switch (locale.languageCode) {
-        'en' => TranslateLanguage.english,
-        'ja' => TranslateLanguage.japanese,
-        'ko' => TranslateLanguage.korean,
-        'ms' => TranslateLanguage.malay,
-        'id' => TranslateLanguage.indonesian,
-        'vi' => TranslateLanguage.vietnamese,
-        _ => TranslateLanguage.chinese,
-      };
+  /// App 的語言 → 翻譯用的語言代碼。iPhone 的中文分繁簡；ML Kit 的中文只有簡體，繁體之後再轉換。
+  static String targetOf(Locale locale) {
+    final lang = const {'en', 'ja', 'ko', 'ms', 'id', 'vi'}.contains(locale.languageCode) ? locale.languageCode : 'zh';
+    if (lang == 'zh' && Platform.isIOS) return wantsTraditional(locale) ? 'zh-Hant' : 'zh-Hans';
+    return lang;
+  }
 
-  /// ML Kit 的中文只會輸出簡體，繁體使用者要再轉換
   static bool wantsTraditional(Locale locale) => locale.languageCode == 'zh' && locale.scriptCode != 'Hans';
 
-  /// 這則訊息是什麼語言；認不出來回傳 null。結果會快取。
-  static Future<TranslateLanguage?> detect(String text) async {
+  static String _base(String code) => code.split('-').first;
+
+  /// 這段文字是什麼語言；認不出來回傳 null。結果會快取。
+  static Future<String?> detect(String text) async {
     if (_detected.containsKey(text)) return _detected[text];
-    TranslateLanguage? found;
+    String? found;
     try {
-      final code = await _identifier.identifyLanguage(text);
-      found = code == 'und' ? null : BCP47Code.fromRawValue(code.split('-').first);
+      final code = await _channel.invokeMethod<String>('identify', {'text': text});
+      if (code != null && code != 'und') found = Platform.isIOS ? code : _base(code);
     } catch (_) {}
     return _detected[text] = found;
   }
 
-  /// 需要翻譯（或繁簡轉換）才回傳 true
+  static Future<bool> _supported(String source, String target) async {
+    final key = '$source>$target';
+    final known = _pairSupported[key];
+    if (known != null) return known;
+    var ok = false;
+    try {
+      ok = Platform.isIOS
+          ? await _channel.invokeMethod<String>('status', {'source': source, 'target': target}) != 'unsupported'
+          : await _channel.invokeMethod<bool>('supported', {'lang': source}) == true;
+    } catch (_) {}
+    return _pairSupported[key] = ok;
+  }
+
+  /// 跟使用者的語言不同（或是簡體而使用者用繁體）、而且翻得了，才回傳 true
   static Future<bool> needsTranslation(String text, Locale locale) async {
+    if (text.trim().isEmpty) return false;
     final source = await detect(text);
     if (source == null) return false;
     final target = targetOf(locale);
-    if (source != target) return true;
-    return source == TranslateLanguage.chinese && wantsTraditional(locale) && ChineseConverter.toTraditional(text) != text;
+    if (_base(source) == _base(target)) {
+      if (_base(target) != 'zh' || !wantsTraditional(locale)) return false;
+      await ChineseConverter.load();
+      return ChineseConverter.toTraditional(text) != text;
+    }
+    return _supported(source, target);
   }
 
-  static Future<bool> _hasModel(TranslateLanguage l) => _models.isModelDownloaded(l.bcpCode);
+  static Future<bool> _hasModel(String lang) async =>
+      await _channel.invokeMethod<bool>('isDownloaded', {'lang': lang}) == true;
 
-  /// 翻譯；需要下載模型時先問使用者。使用者取消或失敗回傳 null。
+  /// 翻譯；Android 需要下載模型時先問使用者。取消或失敗回傳 null。
   static Future<String?> translate(BuildContext context, String text, Locale locale) async {
     final source = await detect(text);
     if (source == null) return null;
     final target = targetOf(locale);
     final traditional = wantsTraditional(locale);
     await ChineseConverter.load();
-    if (source == target) return traditional ? ChineseConverter.toTraditional(text) : text;
+    if (_base(source) == _base(target)) return traditional ? ChineseConverter.toTraditional(text) : text;
 
-    final missing = [for (final l in {source, target}) if (!await _hasModel(l)) l];
-    if (missing.isNotEmpty) {
-      if (!context.mounted || !await _confirmDownload(context)) return null;
-      for (final l in missing) {
-        if (!await _models.downloadModel(l.bcpCode, isWifiRequired: false)) return null;
+    if (!Platform.isIOS) {
+      final missing = [for (final l in {source, target}) if (!await _hasModel(l)) l];
+      if (missing.isNotEmpty) {
+        if (!context.mounted || !await _confirmDownload(context)) return null;
+        for (final l in missing) {
+          if (await _channel.invokeMethod<bool>('download', {'lang': l}) != true) return null;
+        }
       }
     }
-    final translator = _translators.putIfAbsent('${source.bcpCode}>${target.bcpCode}',
-        () => OnDeviceTranslator(sourceLanguage: source, targetLanguage: target));
-    final out = await translator.translateText(text);
-    return traditional && target == TranslateLanguage.chinese ? ChineseConverter.toTraditional(out) : out;
+    final out = await _channel.invokeMethod<String>('translate', {'text': text, 'source': source, 'target': target});
+    if (out == null) return null;
+    return traditional && _base(target) == 'zh' ? ChineseConverter.toTraditional(out) : out;
   }
 
   static Future<bool> _confirmDownload(BuildContext context) async {

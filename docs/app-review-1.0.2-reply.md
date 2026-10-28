@@ -13,7 +13,7 @@ Guideline 5.1.2(i) - manual check-in
 - Others see the place where the user checked in. It does not follow the user as they move. If they move more than 1 km away, a 在這裡重新打卡 ("Check in here") button appears, and their position only changes if they tap it.
 - If the app stays in the background for more than 30 minutes, the check-in expires and the user has to check in again.
 - Before checking in, the user is invisible to everyone and does not see anyone else either.
-- The Terms of Use (English summary at the top, https://mood-whisper-f7de9.web.app/terms.html), the Privacy Policy and the in-app guide (Settings → 操作說明) describe the check-in.
+- The Terms of Use (in English: https://mood-whisper-f7de9.web.app/terms-en.html), the Privacy Policy and the in-app guide (Settings → 操作說明) describe the check-in.
 
 Guideline 2.2 - beta testing features
 - We removed the "1.1 internal test" (內部測試版) release-notes dialog that appeared at launch. The app no longer contains any beta or test wording or beta-testing features.

@@ -21,13 +21,8 @@ const _scenes = [
   'assets/cards/scene_09.webp', 'assets/cards/scene_10.webp', 'assets/cards/scene_12.webp',
 ];
 
-/// 邀請卡：八張功能海報（圖上已經有標題），加上兩張夜景配「一起來點亮我們的街區」
-const _invites = <(String, bool)>[
-  ('assets/cards/poster_01.webp', true), ('assets/cards/poster_02.webp', true), ('assets/cards/poster_03.webp', true),
-  ('assets/cards/poster_04.webp', true), ('assets/cards/poster_05.webp', true), ('assets/cards/poster_06.webp', true),
-  ('assets/cards/poster_07.webp', true), ('assets/cards/poster_08.webp', true),
-  ('assets/cards/scene_01.webp', false), ('assets/cards/scene_02.webp', false),
-];
+/// 邀請卡：19 張沒有文字的夜景，每次隨機一張，標題「一起來點亮我們的街區」依語言疊在上方夜空
+final _invites = [for (var i = 1; i <= 19; i++) 'assets/cards/invite_${i.toString().padLeft(2, '0')}.webp'];
 
 /// 邀請文案：每次隨機一則，結尾都附上邀請連結
 List<String> get _inviteTexts => [
@@ -45,7 +40,7 @@ List<String> get _inviteTexts => [
 
 /// 邀請朋友「點亮你的街區」：選好一張邀請卡後只傳文字與連結。
 /// LINE、Messenger 收到「圖片＋文字」時會丟掉文字，所以改用每張卡專屬的網址
-/// （hosting/i/1.html…10.html），預覽圖就是那張卡，點了直接到官網。
+/// （hosting/i/1.html…19.html），預覽圖就是那張卡，點了直接到官網。
 Future<void> shareInvite(BuildContext context) {
   final random = Random();
   final text = _inviteTexts[random.nextInt(_inviteTexts.length)];
@@ -53,10 +48,10 @@ Future<void> shareInvite(BuildContext context) {
     context,
     random: random,
     count: _invites.length,
-    image: (i) => _invites[i].$1,
+    image: (i) => _invites[i],
     shareLabel: tr.shareInvite,
     fileName: 'city_whisper_invite',
-    build: (i) => ShareCard(image: _invites[i].$1, poster: _invites[i].$2, accent: Night.auroraBlue, at: DateTime.now(), kind: ShareCardKind.invite),
+    build: (i) => ShareCard(image: _invites[i], accent: Night.auroraBlue, at: DateTime.now(), kind: ShareCardKind.invite),
     shareText: (i) => '$text\n${_landingUrl}i/${i + 1}.html',
     asLink: true,
     subject: tr.inviteSubject,
@@ -192,15 +187,13 @@ String _partOfDay(DateTime t) {
 enum ShareCardKind { mood, invite }
 
 /// 分享卡本體（360×640 邏輯尺寸）：夜景插畫為底，上方文字，下方品牌。不放任何位置資訊。
-/// poster 為 true 時插畫本身已有標題，只加上品牌與網址。
 class ShareCard extends StatelessWidget {
   final String image;
-  final bool poster;
   final Color accent;
   final DateTime at;
   final ShareCardKind kind;
   final String mood;
-  const ShareCard({super.key, required this.image, required this.accent, required this.at, this.poster = false, this.kind = ShareCardKind.mood, this.mood = ''});
+  const ShareCard({super.key, required this.image, required this.accent, required this.at, this.kind = ShareCardKind.mood, this.mood = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -214,9 +207,8 @@ class ShareCard extends StatelessWidget {
         child: Stack(children: [
           const Positioned.fill(child: ColoredBox(color: Night.night900)),
           Positioned.fill(child: Image.asset(image, fit: BoxFit.cover, gaplessPlayback: true)),
-          // 上方：夜空再壓暗一點，任何插畫上的文字都讀得清楚（海報自己有標題，不需要）
-          if (!poster)
-            const Positioned(
+          // 上方：夜空再壓暗一點，任何插畫上的文字都讀得清楚
+          const Positioned(
               left: 0, right: 0, top: 0, height: 300,
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -233,8 +225,7 @@ class ShareCard extends StatelessWidget {
               ),
             ),
           ),
-          if (!poster)
-            Positioned(
+          Positioned(
               left: 28, right: 28, top: 52,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(invite ? tr.cardInviteEyebrow : tr.cardMoodEyebrow, style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,

@@ -12,9 +12,11 @@
 - [ ] 示範對象都在：執行 `node tool/seed_demo_bots.js`（會顯示「已建立 200 位台北示範對象…與 20 位審核示範對象」，可重複執行）
 - [ ] 用模擬器把位置設在加州（37.3349, -122.0090），心情輸入 `#review`，確認雷達上出現 20 位「示範對象」，敲門會自動同意、聊天會回覆
   - 測完到設定刪除這個帳號，避免留下審核模式的帳號
-- [ ] 打開這三個網址，確認都正常顯示：
+- [ ] 打開這五個網址，確認都正常顯示：
   - https://mood-whisper-f7de9.web.app/privacy.html
   - https://mood-whisper-f7de9.web.app/terms.html
+  - https://mood-whisper-f7de9.web.app/privacy-en.html
+  - https://mood-whisper-f7de9.web.app/terms-en.html
   - https://mood-whisper-f7de9.web.app/delete-account.html
 - [ ] 清掉測試期間留下的帳號與資料（Firebase Console → Authentication / Realtime Database），只留示範對象
 

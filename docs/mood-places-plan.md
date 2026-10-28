@@ -119,7 +119,7 @@ hosting/img/place/{id}.webp
 
   兩邊都用 `place-{id}` 當行銷活動名稱，人數改在後台看：App Store Connect 是「App 分析 → 獲取 → 行銷活動」，Play Console 是「使用者獲取 → UTM 行銷活動」。三個設定都填好之前，按鈕仍然連到公測報名。
 
-## 第三階段進度（2026-10-28）
+## 第三階段進度（2026-10-28 完成，10-29 部署並在兩支手機實測通過）
 
 已定案：留言保留 30 天、店的 40 公尺內才能讀和寫（室內 GPS 常有 20～40 公尺誤差）、同一個人在同一家店每天 1 則。
 
@@ -136,7 +136,7 @@ hosting/img/place/{id}.webp
   - 在店裡會列出留言，點一下翻譯；自己的可以收回，別人的可以檢舉，檢舉後立刻從自己畫面消失。
   - 「留一句話」最多 60 字。8 種語言；操作說明第 10 節多一條。
 - **網站**：網頁版說明書、隱私權政策（中英各加一列）、使用條款（中英的「你的內容」、過濾、檢舉）都更新在 `places/release-web.patch`，上架時一起套用。條款版本沒有改。
-- **上架前要部署**：`firebase deploy --only functions:geo-service:placeNote,functions:geo-service:onReportCreated,functions:geo-service:deleteAccount,database`。
+- **已部署（2026-10-29）**：`firebase deploy --only functions:geo-service:placeNote,functions:geo-service:onReportCreated,functions:geo-service:deleteAccount,database`。
 - **之後再決定**：留言本上架後，桌卡可以改回原設計稿那句「有人留了話給下一個坐在這裡的人」，落地頁的三步說明也可以加一步。
 
 ## 上線時機

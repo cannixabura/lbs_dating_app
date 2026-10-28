@@ -901,6 +901,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
   }
 
+  /// 心情據點的小燈：保留真實方向，預設比例下離中心至少 72 像素（不壓在自己的頭像上），再跟著雙指縮放等比例移動；營業時間過了就熄。
+  /// [seen] 選今天看過名片的（背景柔光）或還在呼吸的（畫在氣泡上面）；兩組在同一個 Stack 裡，靠 key 保留狀態。
+  Iterable<Widget> _placeLamps({required bool seen, required double centerX, required double centerY, required double screenHeight,
+      required double pitch, required double heading, required double scale, required double rhythm}) {
+    final now = DateTime.now();
+    return MoodPlaces.places.where((p) => _nearPlaces.contains(p.id) && p.isOpen(now) && PlaceHints.seenToday(p.id, now) == seen).map((p) {
+      final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, p.lat, p.lng, heading, p.id, rhythm);
+      final d = max(MoodPlaces.minRadiusPx, (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6)) * scale;
+      final a = v.relativeAngle * pi / 180.0;
+      final rx = d * sin(a); final ry = -d * cos(a) * cos(pitch); final rz = -d * cos(a) * sin(pitch);
+      final ww = max(0.01, 1.0 + (rz * 0.002));
+      return Positioned(
+        key: ValueKey('place:${p.id}'),
+        left: centerX + rx / ww - 22, top: centerY + ry / ww - 22,
+        child: MoodPlaceLamp(place: p, breathing: !seen, onTap: () => _openPlace(p)),
+      );
+    });
+  }
+
   // 打開名片後，這盞燈今天改成靜止的柔光
   void _openPlace(MoodPlace p) => showMoodPlaceCard(context, p).then((_) { if (mounted) setState(() {}); });
 
@@ -2653,6 +2672,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           final ww = max(0.01, 1.0 + (rz * 0.002));
                           return Positioned(left: centerX + rx / ww - 20, top: centerY + ry / ww - 20, child: BeaconMarker(toilet: t, onTap: () => showBeaconSheet(context, t)));
                         }),
+                      // 今天看過名片的心情據點：靜止的柔光，退到背景，不擋氣泡
+                      ..._placeLamps(seen: true, centerX: centerX, centerY: centerY, screenHeight: screenHeight, pitch: smoothPitch, heading: currentHeading, scale: currentScale, rhythm: currentRhythmScore),
                       // 我的低語穿越（只有自己看得到）：在信封與氣泡下面
                       ..._timeWhispers.map((w) {
                         final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, w.lat, w.lng, currentHeading, w.id, currentRhythmScore);
@@ -2685,20 +2706,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
                       ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
-                      // 心情據點的小燈：畫在氣泡上面才點得到（只有 150 公尺內的一兩盞）。保留真實方向，預設比例下離中心至少 72 像素，不會壓在自己的頭像上；營業時間過了就熄
-                      ...MoodPlaces.places.where((p) => _nearPlaces.contains(p.id) && p.isOpen(DateTime.now())).map((p) {
-                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, p.lat, p.lng, currentHeading, p.id, currentRhythmScore);
-                        // 先以預設比例保證離中心 72 像素，再跟著雙指縮放一起放大縮小
-                        final d = max(MoodPlaces.minRadiusPx, (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6)) * currentScale;
-                        final a = v.relativeAngle * pi / 180.0;
-                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
-                        final ww = max(0.01, 1.0 + (rz * 0.002));
-                        return Positioned(
-                          key: ValueKey('place:${p.id}'),
-                          left: centerX + rx / ww - 22, top: centerY + ry / ww - 22,
-                          child: MoodPlaceLamp(place: p, breathing: !PlaceHints.seenToday(p.id, DateTime.now()), onTap: () => _openPlace(p)),
-                        );
-                      }),
+                      // 還在呼吸的心情據點小燈畫在氣泡上面，才點得到（只有 150 公尺內的一兩盞）
+                      ..._placeLamps(seen: false, centerX: centerX, centerY: centerY, screenHeight: screenHeight, pitch: smoothPitch, heading: currentHeading, scale: currentScale, rhythm: currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
                       // 放在底部選單下方的空間，不佔地圖
                       Positioned(left: 20, bottom: max(1.0, MediaQuery.of(context).padding.bottom - 14), child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),

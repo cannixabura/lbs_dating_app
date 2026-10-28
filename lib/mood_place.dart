@@ -277,10 +277,10 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
             child: AnimatedBuilder(
               animation: _breath,
               builder: (context, child) {
-                // 呼吸：亮度 25%～100%、大小 85%～115%、光暈跟著漲落。今天看過名片：靜止的柔光，暗一些、光暈小
+                // 呼吸：亮度 20%～80%、大小 85%～115%、光暈跟著漲落。今天看過名片：靜止的柔光，暗一些、光暈小
                 final t = Curves.easeInOut.transform(_breath.value);
                 final seen = !widget.breathing;
-                final glow = seen ? 0.45 : 0.25 + 0.75 * t;
+                final glow = seen ? 0.45 : 0.2 + 0.6 * t;
                 return Transform.scale(
                   scale: seen ? 0.9 : 0.85 + 0.3 * t,
                   child: Opacity(

@@ -896,7 +896,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'データが違うときは報告できます（ジェンダーフリーではない、夜は閉まっている、見つからない）。同じ問題を 3 人が報告するとマーカーが灰色になり、注記がつきます。';
 
   @override
-  String get guideS10Title => '10. ムードカードとムードの軌跡';
+  String get guideS10Title => '11. ムードカードとムードの軌跡';
 
   @override
   String get guideS10L1 =>
@@ -907,7 +907,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定 →「ムードの軌跡」で、これまで書いたムードと場所を振り返れます。データはこの端末にだけ保存され、いつでもオフにしたり消去したりできます。';
 
   @override
-  String get guideS11Title => '13. 設定と通知';
+  String get guideS11Title => '14. 設定と通知';
 
   @override
   String get guideS11L1 => '「夜のリマインダー」：毎晩 21:30 にやさしいお知らせが届きます。設定でオン・オフできます。';
@@ -921,7 +921,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週金曜 21:00〜23:00 は「ライトアップナイト」。みんなで一緒にオンラインになると、街がいちばん明るくなります。';
 
   @override
-  String get guideS12Title => '14. 通報とブロック';
+  String get guideS12Title => '15. 通報とブロック';
 
   @override
   String get guideS12L1 =>
@@ -940,7 +940,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '差し迫った危険があるときは、すぐに現地の緊急通報番号（日本は 110、台湾は 110）に電話してください。';
 
   @override
-  String get guideS13Title => '15. プライバシーとアカウント';
+  String get guideS13Title => '16. プライバシーとアカウント';
 
   @override
   String get guideS13L1 =>
@@ -954,7 +954,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'ご不明な点は、設定 →「お問い合わせ」または service.softchip@gmail.com までご連絡ください。';
 
   @override
-  String get guideS14Title => '11. パラレルユニバース';
+  String get guideS14Title => '12. パラレルユニバース';
 
   @override
   String get guideS14L1 =>
@@ -977,7 +977,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'パラレルユニバースの人には点線の輪があり、いる街が表示されます。光を送る・ノック・チャットもできます。残像・ささやき・未来への手紙・集いはその街だけのものです。';
 
   @override
-  String get guideS15Title => '12. 翻訳';
+  String get guideS15Title => '13. 翻訳';
 
   @override
   String get guideS15L1 =>
@@ -1747,4 +1747,53 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get translateDownload => 'ダウンロード';
+
+  @override
+  String placeHint(String name) {
+    return '近くにムードスポットの灯りがあります · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return '$timeまで営業';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return 'ムードスポット：$name、$hours';
+  }
+
+  @override
+  String get placeWrongData => '情報が間違っていますか？';
+
+  @override
+  String placeReportSubject(String name) {
+    return 'ムードスポットの情報の誤り：$name';
+  }
+
+  @override
+  String get placeHintsSetting => 'ムードスポットのお知らせ';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      '営業中のムードスポットの近くを通ると、アプリ内でそっとお知らせします（プッシュ通知なし）';
+
+  @override
+  String get guideS16Title => '10. ムードスポット';
+
+  @override
+  String get guideS16L1 =>
+      'ムードスポットは提携している個人経営のカフェです。チェックインした後、営業中のお店の 150 m 以内に入ると、レーダーにゆっくり呼吸する小さな灯りが浮かびます。離れると消えます。';
+
+  @override
+  String get guideS16L2 =>
+      '灯りをタップするとスポットカードが開きます：店内からの夜景、今日の閉店時間、お店のひとことムードストーリー（タップで翻訳）、住所と電話番号。「歩いて行く」で地図アプリの徒歩ルートを開きます。今日カードを開いた灯りは、呼吸せず静かに光ります。';
+
+  @override
+  String get guideS16L3 =>
+      '初めて通りかかったときは、上に小さなカードでお知らせします。音も振動もありません。同じお店は 7 日に 1 回まで、1 日に最大 2 回です。「設定 → ムードスポットのお知らせ」でオフにできます（灯りは表示されます）。';
+
+  @override
+  String get guideS16L4 =>
+      'スポットの一覧はまるごとスマホにダウンロードされ、近くにいるかどうかはスマホの中だけで判断します。どのお店の近くを通ったか、私たちもお店も知ることはありません。お店はお金で表示を増やすことはできません。情報の誤りはカードの下から報告できます。';
 }

@@ -1666,7 +1666,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS10Title.
   ///
   /// In zh, this message translates to:
-  /// **'10. 心情卡與心情軌跡'**
+  /// **'11. 心情卡與心情軌跡'**
   String get guideS10Title;
 
   /// No description provided for @guideS10L1.
@@ -1684,7 +1684,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS11Title.
   ///
   /// In zh, this message translates to:
-  /// **'13. 設定與通知'**
+  /// **'14. 設定與通知'**
   String get guideS11Title;
 
   /// No description provided for @guideS11L1.
@@ -1708,7 +1708,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS12Title.
   ///
   /// In zh, this message translates to:
-  /// **'14. 檢舉與封鎖'**
+  /// **'15. 檢舉與封鎖'**
   String get guideS12Title;
 
   /// No description provided for @guideS12L1.
@@ -1738,7 +1738,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS13Title.
   ///
   /// In zh, this message translates to:
-  /// **'15. 隱私與帳號'**
+  /// **'16. 隱私與帳號'**
   String get guideS13Title;
 
   /// No description provided for @guideS13L1.
@@ -1762,7 +1762,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS14Title.
   ///
   /// In zh, this message translates to:
-  /// **'11. 平行宇宙'**
+  /// **'12. 平行宇宙'**
   String get guideS14Title;
 
   /// No description provided for @guideS14L1.
@@ -1798,7 +1798,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS15Title.
   ///
   /// In zh, this message translates to:
-  /// **'12. 翻譯'**
+  /// **'13. 翻譯'**
   String get guideS15Title;
 
   /// No description provided for @guideS15L1.
@@ -3186,6 +3186,78 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'下載'**
   String get translateDownload;
+
+  /// No description provided for @placeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'附近有一盞心情據點的燈 · {name}'**
+  String placeHint(String name);
+
+  /// No description provided for @placeOpenUntil.
+  ///
+  /// In zh, this message translates to:
+  /// **'營業到 {time}'**
+  String placeOpenUntil(String time);
+
+  /// No description provided for @placeLampLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'心情據點：{name}，{hours}'**
+  String placeLampLabel(String name, String hours);
+
+  /// No description provided for @placeWrongData.
+  ///
+  /// In zh, this message translates to:
+  /// **'資料有誤？'**
+  String get placeWrongData;
+
+  /// No description provided for @placeReportSubject.
+  ///
+  /// In zh, this message translates to:
+  /// **'心情據點資料有誤：{name}'**
+  String placeReportSubject(String name);
+
+  /// No description provided for @placeHintsSetting.
+  ///
+  /// In zh, this message translates to:
+  /// **'心情據點提示'**
+  String get placeHintsSetting;
+
+  /// No description provided for @placeHintsSettingSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'經過營業中的心情據點時，在 App 裡輕聲提示（不推播）'**
+  String get placeHintsSettingSubtitle;
+
+  /// No description provided for @guideS16Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'10. 心情據點'**
+  String get guideS16Title;
+
+  /// No description provided for @guideS16L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'心情據點是合作的獨立咖啡店。你打卡後，走到營業中的店門口 150 公尺內，雷達上會浮現一盞慢慢呼吸的小燈；走遠了就熄掉。'**
+  String get guideS16L1;
+
+  /// No description provided for @guideS16L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'點小燈打開據點名片：店裡的夜景、今天營業到幾點、一句店家的心情故事（點一下翻譯）、地址與電話，按「走路過去」用手機的地圖 App 導航。今天打開過的燈會變成靜止的柔光。'**
+  String get guideS16L2;
+
+  /// No description provided for @guideS16L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'第一次經過時，上方會浮出一張小卡提示你，不響也不震動；同一家店 7 天內只提示一次，一天最多 2 次。可以在「設定 → 心情據點提示」關掉，燈還是會在。'**
+  String get guideS16L3;
+
+  /// No description provided for @guideS16L4.
+  ///
+  /// In zh, this message translates to:
+  /// **'店家清單整份下載到你的手機，是否在附近只在手機上判斷，我們和店家都不會知道你經過哪家店。店家不能付費換取曝光；資料有誤可以在名片下方回報。'**
+  String get guideS16L4;
 }
 
 class _AppLocalizationsDelegate

@@ -944,7 +944,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu thông tin sai, bạn có thể báo (không phải phi giới tính, đóng ban đêm, không tìm thấy). Khi 3 người báo cùng một vấn đề, điểm đánh dấu chuyển xám kèm ghi chú.';
 
   @override
-  String get guideS10Title => '10. Thẻ tâm trạng và dấu vết tâm trạng';
+  String get guideS10Title => '11. Thẻ tâm trạng và dấu vết tâm trạng';
 
   @override
   String get guideS10L1 =>
@@ -955,7 +955,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cài đặt → Dấu vết tâm trạng cho bạn xem lại những tâm trạng và nơi bạn đã viết. Dữ liệu chỉ lưu trên điện thoại, có thể tắt hoặc xóa bất cứ lúc nào.';
 
   @override
-  String get guideS11Title => '13. Cài đặt và thông báo';
+  String get guideS11Title => '14. Cài đặt và thông báo';
 
   @override
   String get guideS11L1 =>
@@ -970,7 +970,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mỗi thứ Sáu từ 21:00 đến 23:00 là Đêm Thắp Sáng, khi mọi người cùng online và thành phố sáng nhất.';
 
   @override
-  String get guideS12Title => '14. Báo cáo và chặn';
+  String get guideS12Title => '15. Báo cáo và chặn';
 
   @override
   String get guideS12L1 =>
@@ -989,7 +989,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn đang gặp nguy hiểm khẩn cấp, hãy gọi ngay số khẩn cấp tại địa phương (113 ở Việt Nam, 110 ở Đài Loan).';
 
   @override
-  String get guideS13Title => '15. Quyền riêng tư và tài khoản';
+  String get guideS13Title => '16. Quyền riêng tư và tài khoản';
 
   @override
   String get guideS13L1 =>
@@ -1004,7 +1004,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Có câu hỏi? Vào Cài đặt → Liên hệ, hoặc gửi email đến service.softchip@gmail.com.';
 
   @override
-  String get guideS14Title => '11. Vũ trụ song song';
+  String get guideS14Title => '12. Vũ trụ song song';
 
   @override
   String get guideS14L1 =>
@@ -1027,7 +1027,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Dư ảnh, lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
-  String get guideS15Title => '12. Dịch';
+  String get guideS15Title => '13. Dịch';
 
   @override
   String get guideS15L1 =>
@@ -1839,4 +1839,53 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get translateDownload => 'Tải xuống';
+
+  @override
+  String placeHint(String name) {
+    return 'Gần đây có một ngọn đèn Điểm tâm trạng · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return 'Mở cửa đến $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return 'Điểm tâm trạng: $name, $hours';
+  }
+
+  @override
+  String get placeWrongData => 'Thông tin bị sai?';
+
+  @override
+  String placeReportSubject(String name) {
+    return 'Thông tin Điểm tâm trạng bị sai: $name';
+  }
+
+  @override
+  String get placeHintsSetting => 'Gợi ý Điểm tâm trạng';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      'Gợi ý nhẹ nhàng trong ứng dụng khi bạn đi ngang một Điểm tâm trạng đang mở cửa (không gửi thông báo đẩy)';
+
+  @override
+  String get guideS16Title => '10. Điểm tâm trạng';
+
+  @override
+  String get guideS16L1 =>
+      'Điểm tâm trạng là các quán cà phê độc lập hợp tác với chúng tôi. Sau khi điểm danh, đi vào trong vòng 150 m quanh một quán đang mở cửa, trên radar sẽ hiện một ngọn đèn nhỏ thở chậm. Đi xa thì đèn tắt.';
+
+  @override
+  String get guideS16L2 =>
+      'Chạm vào đèn để mở thẻ địa điểm: cảnh đêm nhìn từ trong quán, giờ đóng cửa hôm nay, một câu chuyện tâm trạng của quán (chạm để dịch), địa chỉ và số điện thoại. Chạm Đi bộ đến đó để xem đường đi bộ trong ứng dụng bản đồ. Đèn của thẻ bạn đã mở hôm nay sẽ sáng dịu và không thở nữa.';
+
+  @override
+  String get guideS16L3 =>
+      'Lần đầu bạn đi ngang, một thẻ nhỏ ở phía trên sẽ báo cho bạn, không có âm thanh hay rung. Mỗi quán chỉ gợi ý tối đa một lần trong 7 ngày, mỗi ngày tối đa 2 lần. Tắt trong Cài đặt > Gợi ý Điểm tâm trạng; đèn vẫn hiện.';
+
+  @override
+  String get guideS16L4 =>
+      'Toàn bộ danh sách địa điểm được tải về điện thoại của bạn, và việc bạn có ở gần hay không chỉ được xác định trên điện thoại. Chúng tôi và các quán đều không biết bạn đi ngang quán nào. Quán không thể trả tiền để được hiển thị nhiều hơn. Nếu thông tin sai, hãy báo ở cuối thẻ.';
 }

@@ -878,7 +878,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS9L4 => '資料不對時可以回報（不是性別友善、晚上沒開、找不到）；同一種問題有 3 個人回報，標記會變灰並註明。';
 
   @override
-  String get guideS10Title => '10. 心情卡與心情軌跡';
+  String get guideS10Title => '11. 心情卡與心情軌跡';
 
   @override
   String get guideS10L1 => '底部選單的分享鈕可以把此刻的心情做成一張夜景卡片，適合 IG 限時動態；卡片上不會有你的位置。';
@@ -887,7 +887,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS10L2 => '設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。';
 
   @override
-  String get guideS11Title => '13. 設定與通知';
+  String get guideS11Title => '14. 設定與通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。';
@@ -899,7 +899,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS11L3 => '每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。';
 
   @override
-  String get guideS12Title => '14. 檢舉與封鎖';
+  String get guideS12Title => '15. 檢舉與封鎖';
 
   @override
   String get guideS12L1 =>
@@ -915,7 +915,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS12L4 => '遇到立即的危險，請直接撥打 110。';
 
   @override
-  String get guideS13Title => '15. 隱私與帳號';
+  String get guideS13Title => '16. 隱私與帳號';
 
   @override
   String get guideS13L1 =>
@@ -928,7 +928,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS13L3 => '有任何問題，設定 →「聯絡我們」或寫信到 service.softchip@gmail.com。';
 
   @override
-  String get guideS14Title => '11. 平行宇宙';
+  String get guideS14Title => '12. 平行宇宙';
 
   @override
   String get guideS14L1 => '點雷達右上角的地球圖示開啟，再點一次關閉。每次打開 App 都是關閉的。';
@@ -950,7 +950,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。';
 
   @override
-  String get guideS15Title => '12. 翻譯';
+  String get guideS15Title => '13. 翻譯';
 
   @override
   String get guideS15L1 => '聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。';
@@ -1703,6 +1703,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get translateDownload => '下載';
+
+  @override
+  String placeHint(String name) {
+    return '附近有一盞心情據點的燈 · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return '營業到 $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return '心情據點：$name，$hours';
+  }
+
+  @override
+  String get placeWrongData => '資料有誤？';
+
+  @override
+  String placeReportSubject(String name) {
+    return '心情據點資料有誤：$name';
+  }
+
+  @override
+  String get placeHintsSetting => '心情據點提示';
+
+  @override
+  String get placeHintsSettingSubtitle => '經過營業中的心情據點時，在 App 裡輕聲提示（不推播）';
+
+  @override
+  String get guideS16Title => '10. 心情據點';
+
+  @override
+  String get guideS16L1 =>
+      '心情據點是合作的獨立咖啡店。你打卡後，走到營業中的店門口 150 公尺內，雷達上會浮現一盞慢慢呼吸的小燈；走遠了就熄掉。';
+
+  @override
+  String get guideS16L2 =>
+      '點小燈打開據點名片：店裡的夜景、今天營業到幾點、一句店家的心情故事（點一下翻譯）、地址與電話，按「走路過去」用手機的地圖 App 導航。今天打開過的燈會變成靜止的柔光。';
+
+  @override
+  String get guideS16L3 =>
+      '第一次經過時，上方會浮出一張小卡提示你，不響也不震動；同一家店 7 天內只提示一次，一天最多 2 次。可以在「設定 → 心情據點提示」關掉，燈還是會在。';
+
+  @override
+  String get guideS16L4 =>
+      '店家清單整份下載到你的手機，是否在附近只在手機上判斷，我們和店家都不會知道你經過哪家店。店家不能付費換取曝光；資料有誤可以在名片下方回報。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -2578,7 +2626,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS9L4 => '数据不对时可以回报（不是性别友善、晚上没开、找不到）；同一种问题有 3 个人回报，标记会变灰并注明。';
 
   @override
-  String get guideS10Title => '10. 心情卡与心情轨迹';
+  String get guideS10Title => '11. 心情卡与心情轨迹';
 
   @override
   String get guideS10L1 => '底部菜单的分享钮可以把此刻的心情做成一张夜景卡片，适合 IG 快拍；卡片上不会有你的位置。';
@@ -2587,7 +2635,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS10L2 => '设置 →「我的心情轨迹」可以回顾你写过的心情与地点，数据只存在你的手机上，可以随时关闭或清除。';
 
   @override
-  String get guideS11Title => '13. 设置与通知';
+  String get guideS11Title => '14. 设置与通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一则温和的提醒，可以在设置里开关。';
@@ -2599,7 +2647,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS11L3 => '每周五 21:00–23:00 是「点亮之夜」，大家一起上线，城市最亮。';
 
   @override
-  String get guideS12Title => '14. 举报与屏蔽';
+  String get guideS12Title => '15. 举报与屏蔽';
 
   @override
   String get guideS12L1 =>
@@ -2615,7 +2663,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS12L4 => '遇到紧急危险，请直接拨打当地的紧急电话（台湾为 110）。';
 
   @override
-  String get guideS13Title => '15. 隐私与账号';
+  String get guideS13Title => '16. 隐私与账号';
 
   @override
   String get guideS13L1 =>
@@ -2628,7 +2676,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS13L3 => '有任何问题，设置 →「联系我们」或写信到 service.softchip@gmail.com。';
 
   @override
-  String get guideS14Title => '11. 平行宇宙';
+  String get guideS14Title => '12. 平行宇宙';
 
   @override
   String get guideS14L1 => '点雷达右上角的地球图标开启，再点一次关闭。每次打开 App 都是关闭的。';
@@ -2650,7 +2698,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。残影、低语、低语穿越与集会都只留在当地。';
 
   @override
-  String get guideS15Title => '12. 翻译';
+  String get guideS15Title => '13. 翻译';
 
   @override
   String get guideS15L1 => '聊天时，对方的消息跟你的语言不同，下方会出现「点一下翻译」；点一下就翻成你的语言，再点一下看原文。';
@@ -3403,4 +3451,52 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get translateDownload => '下载';
+
+  @override
+  String placeHint(String name) {
+    return '附近有一盏心情据点的灯 · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return '营业到 $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return '心情据点：$name，$hours';
+  }
+
+  @override
+  String get placeWrongData => '信息有误？';
+
+  @override
+  String placeReportSubject(String name) {
+    return '心情据点信息有误：$name';
+  }
+
+  @override
+  String get placeHintsSetting => '心情据点提示';
+
+  @override
+  String get placeHintsSettingSubtitle => '经过营业中的心情据点时，在 App 里轻声提示（不推送）';
+
+  @override
+  String get guideS16Title => '10. 心情据点';
+
+  @override
+  String get guideS16L1 =>
+      '心情据点是合作的独立咖啡店。你打卡后，走到营业中的店门口 150 米内，雷达上会浮现一盏慢慢呼吸的小灯；走远了就熄掉。';
+
+  @override
+  String get guideS16L2 =>
+      '点小灯打开据点名片：店里的夜景、今天营业到几点、一句店家的心情故事（点一下翻译）、地址与电话，按“走路过去”用手机的地图 App 导航。今天打开过的灯会变成静止的柔光。';
+
+  @override
+  String get guideS16L3 =>
+      '第一次经过时，上方会浮出一张小卡提示你，不响也不震动；同一家店 7 天内只提示一次，一天最多 2 次。可以在“设置 → 心情据点提示”关掉，灯还是会在。';
+
+  @override
+  String get guideS16L4 =>
+      '店家清单整份下载到你的手机，是否在附近只在手机上判断，我们和店家都不会知道你经过哪家店。店家不能付费换取曝光；信息有误可以在名片下方反馈。';
 }

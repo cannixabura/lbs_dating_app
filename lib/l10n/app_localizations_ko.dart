@@ -902,7 +902,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '정보가 틀리면 신고할 수 있어요(성중립 아님, 밤에 닫힘, 찾을 수 없음). 같은 문제를 3명이 신고하면 표시가 회색으로 바뀌고 메모가 붙어요.';
 
   @override
-  String get guideS10Title => '10. 무드 카드와 무드 궤적';
+  String get guideS10Title => '11. 무드 카드와 무드 궤적';
 
   @override
   String get guideS10L1 =>
@@ -913,7 +913,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '설정 → \'나의 무드 궤적\'에서 지금까지 쓴 무드와 장소를 돌아볼 수 있어요. 데이터는 이 휴대폰에만 저장되며 언제든 끄거나 지울 수 있어요.';
 
   @override
-  String get guideS11Title => '13. 설정과 알림';
+  String get guideS11Title => '14. 설정과 알림';
 
   @override
   String get guideS11L1 =>
@@ -928,7 +928,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '매주 금요일 21:00~23:00는 \'라이트업 나이트\'. 다 함께 접속하면 도시가 가장 밝아져요.';
 
   @override
-  String get guideS12Title => '14. 신고와 차단';
+  String get guideS12Title => '15. 신고와 차단';
 
   @override
   String get guideS12L1 =>
@@ -946,7 +946,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideS12L4 => '급박한 위험이 있다면 바로 현지 긴급 번호(한국 112, 대만 110)로 전화하세요.';
 
   @override
-  String get guideS13Title => '15. 개인정보와 계정';
+  String get guideS13Title => '16. 개인정보와 계정';
 
   @override
   String get guideS13L1 =>
@@ -961,7 +961,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '궁금한 점은 설정 → \'문의하기\' 또는 service.softchip@gmail.com으로 보내 주세요.';
 
   @override
-  String get guideS14Title => '11. 평행우주';
+  String get guideS14Title => '12. 평행우주';
 
   @override
   String get guideS14L1 =>
@@ -984,7 +984,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 잔상, 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
 
   @override
-  String get guideS15Title => '12. 번역';
+  String get guideS15Title => '13. 번역';
 
   @override
   String get guideS15L1 =>
@@ -1763,4 +1763,53 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get translateDownload => '다운로드';
+
+  @override
+  String placeHint(String name) {
+    return '근처에 무드 플레이스의 불빛이 있어요 · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return '$time까지 영업';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return '무드 플레이스: $name, $hours';
+  }
+
+  @override
+  String get placeWrongData => '정보가 틀렸나요?';
+
+  @override
+  String placeReportSubject(String name) {
+    return '무드 플레이스 정보 오류: $name';
+  }
+
+  @override
+  String get placeHintsSetting => '무드 플레이스 알림';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      '영업 중인 무드 플레이스를 지나갈 때 앱 안에서 조용히 알려 줘요 (푸시 알림 없음)';
+
+  @override
+  String get guideS16Title => '10. 무드 플레이스';
+
+  @override
+  String get guideS16L1 =>
+      '무드 플레이스는 함께하는 독립 카페예요. 체크인한 뒤 영업 중인 가게 150m 안으로 들어가면 레이더에 천천히 숨 쉬는 작은 불빛이 떠올라요. 멀어지면 꺼져요.';
+
+  @override
+  String get guideS16L2 =>
+      '불빛을 탭하면 플레이스 카드가 열려요: 가게 안에서 본 밤 풍경, 오늘 영업 종료 시간, 가게의 한 줄 무드 스토리(탭하면 번역), 주소와 전화번호. \"걸어가기\"를 누르면 지도 앱의 도보 길찾기가 열려요. 오늘 카드를 연 불빛은 숨 쉬지 않고 은은하게 빛나요.';
+
+  @override
+  String get guideS16L3 =>
+      '처음 지나갈 때 위쪽에 작은 카드로 알려 줘요. 소리나 진동은 없어요. 같은 가게는 7일에 한 번, 하루 최대 2번까지만 알려 줘요. \"설정 → 무드 플레이스 알림\"에서 끌 수 있고, 불빛은 그대로 보여요.';
+
+  @override
+  String get guideS16L4 =>
+      '플레이스 목록은 통째로 휴대폰에 내려받고, 근처에 있는지는 휴대폰 안에서만 판단해요. 어느 가게를 지나갔는지 저희도 가게도 알 수 없어요. 가게는 돈을 내고 노출을 늘릴 수 없어요. 정보가 틀리면 카드 아래에서 알려 주세요.';
 }

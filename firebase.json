@@ -65,6 +65,17 @@
       "firebase.json",
       "**/.*"
     ],
-    "cleanUrls": false
+    "cleanUrls": false,
+    "headers": [
+      {
+        "source": "/places/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=600"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -65,6 +65,12 @@ class GuideScreen extends StatelessWidget {
       tr.guideS9L3,
       tr.guideS9L4,
     ]),
+    (Icons.local_cafe_outlined, tr.guideS16Title, [
+      tr.guideS16L1,
+      tr.guideS16L2,
+      tr.guideS16L3,
+      tr.guideS16L4,
+    ]),
     (Icons.ios_share, tr.guideS10Title, [
       tr.guideS10L1,
       tr.guideS10L2,

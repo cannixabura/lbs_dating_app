@@ -994,7 +994,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If something is wrong you can report it (not gender-friendly, closed at night, can\'t find it). When 3 people report the same problem, the marker turns grey with a note.';
 
   @override
-  String get guideS10Title => '10. Mood cards and mood trail';
+  String get guideS10Title => '11. Mood cards and mood trail';
 
   @override
   String get guideS10L1 =>
@@ -1005,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings → My mood trail lets you look back at the moods and places you\'ve written. It\'s stored only on your phone, and you can turn it off or clear it at any time.';
 
   @override
-  String get guideS11Title => '13. Settings and notifications';
+  String get guideS11Title => '14. Settings and notifications';
 
   @override
   String get guideS11L1 =>
@@ -1020,7 +1020,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every Friday from 21:00 to 23:00 is Light-up Night, when everyone comes online together and the city shines brightest.';
 
   @override
-  String get guideS12Title => '14. Reporting and blocking';
+  String get guideS12Title => '15. Reporting and blocking';
 
   @override
   String get guideS12L1 =>
@@ -1039,7 +1039,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you\'re in immediate danger, call your local emergency number (110 in Taiwan).';
 
   @override
-  String get guideS13Title => '15. Privacy and your account';
+  String get guideS13Title => '16. Privacy and your account';
 
   @override
   String get guideS13L1 =>
@@ -1054,7 +1054,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Questions? Go to Settings → Contact us, or email service.softchip@gmail.com.';
 
   @override
-  String get guideS14Title => '11. Parallel Universe';
+  String get guideS14Title => '12. Parallel Universe';
 
   @override
   String get guideS14L1 =>
@@ -1077,7 +1077,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Fading echoes, whispers, letters to the future and gatherings stay local.';
 
   @override
-  String get guideS15Title => '12. Translation';
+  String get guideS15Title => '13. Translation';
 
   @override
   String get guideS15L1 =>
@@ -1912,4 +1912,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateDownload => 'Download';
+
+  @override
+  String placeHint(String name) {
+    return 'A Mood Place lamp is nearby · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return 'Open until $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return 'Mood Place: $name, $hours';
+  }
+
+  @override
+  String get placeWrongData => 'Something wrong?';
+
+  @override
+  String placeReportSubject(String name) {
+    return 'Mood Place information is wrong: $name';
+  }
+
+  @override
+  String get placeHintsSetting => 'Mood Place hints';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      'A quiet in-app hint when you pass an open Mood Place (no push notifications)';
+
+  @override
+  String get guideS16Title => '10. Mood Places';
+
+  @override
+  String get guideS16L1 =>
+      'Mood Places are independent cafés we partner with. After you check in, walk within 150 m of one while it is open and a small lamp appears on your radar, slowly breathing. It goes out when you walk away.';
+
+  @override
+  String get guideS16L2 =>
+      'Tap the lamp to open the place card: a night view from inside, today\'s closing time, a one-line mood story from the café (tap to translate), the address and phone number. Tap Walk there to get walking directions in your map app. A lamp whose card you opened today glows softly without breathing.';
+
+  @override
+  String get guideS16L3 =>
+      'The first time you pass, a small card at the top lets you know, with no sound or vibration. You get at most one hint per place every 7 days and 2 hints a day. Turn them off in Settings > Mood Place hints; the lamps stay.';
+
+  @override
+  String get guideS16L4 =>
+      'The whole list of places is downloaded to your phone, and whether you are nearby is worked out only on your phone. Neither we nor the cafés know which places you pass. Cafés cannot pay for visibility. If something is wrong, report it at the bottom of the card.';
 }

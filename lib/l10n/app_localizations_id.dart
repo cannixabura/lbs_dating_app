@@ -944,7 +944,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika ada yang salah, kamu bisa melaporkannya (bukan netral gender, tutup malam hari, tidak ditemukan). Jika 3 orang melaporkan masalah yang sama, penanda berubah abu-abu dengan catatan.';
 
   @override
-  String get guideS10Title => '10. Kartu mood dan jejak mood';
+  String get guideS10Title => '11. Kartu mood dan jejak mood';
 
   @override
   String get guideS10L1 =>
@@ -955,7 +955,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Pengaturan → Jejak mood-ku memungkinkanmu melihat kembali mood dan tempat yang pernah kamu tulis. Hanya disimpan di ponselmu, dan bisa dimatikan atau dihapus kapan saja.';
 
   @override
-  String get guideS11Title => '13. Pengaturan dan notifikasi';
+  String get guideS11Title => '14. Pengaturan dan notifikasi';
 
   @override
   String get guideS11L1 =>
@@ -970,7 +970,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Setiap Jumat pukul 21.00–23.00 adalah Malam Bercahaya, saat semua orang online bersama dan kota paling terang.';
 
   @override
-  String get guideS12Title => '14. Laporan dan blokir';
+  String get guideS12Title => '15. Laporan dan blokir';
 
   @override
   String get guideS12L1 =>
@@ -989,7 +989,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika kamu dalam bahaya mendesak, hubungi nomor darurat setempat (112 di Indonesia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '15. Privasi dan akunmu';
+  String get guideS13Title => '16. Privasi dan akunmu';
 
   @override
   String get guideS13L1 =>
@@ -1004,7 +1004,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Ada pertanyaan? Buka Pengaturan → Hubungi kami, atau email ke service.softchip@gmail.com.';
 
   @override
-  String get guideS14Title => '11. Semesta Paralel';
+  String get guideS14Title => '12. Semesta Paralel';
 
   @override
   String get guideS14L1 =>
@@ -1027,7 +1027,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Gema yang memudar, bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
 
   @override
-  String get guideS15Title => '12. Terjemahan';
+  String get guideS15Title => '13. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -1839,4 +1839,53 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateDownload => 'Unduh';
+
+  @override
+  String placeHint(String name) {
+    return 'Ada lampu Tempat Mood di dekatmu · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return 'Buka sampai $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return 'Tempat Mood: $name, $hours';
+  }
+
+  @override
+  String get placeWrongData => 'Ada info yang salah?';
+
+  @override
+  String placeReportSubject(String name) {
+    return 'Info Tempat Mood salah: $name';
+  }
+
+  @override
+  String get placeHintsSetting => 'Petunjuk Tempat Mood';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      'Petunjuk pelan di dalam aplikasi saat kamu melewati Tempat Mood yang sedang buka (tanpa notifikasi push)';
+
+  @override
+  String get guideS16Title => '10. Tempat Mood';
+
+  @override
+  String get guideS16L1 =>
+      'Tempat Mood adalah kafe independen yang bekerja sama dengan kami. Setelah check in, berjalanlah dalam jarak 150 m dari kafe yang sedang buka, dan lampu kecil yang bernapas pelan muncul di radarmu. Lampu padam saat kamu menjauh.';
+
+  @override
+  String get guideS16L2 =>
+      'Ketuk lampu untuk membuka kartu tempat: pemandangan malam dari dalam kafe, jam tutup hari ini, satu kalimat cerita mood dari kafe (ketuk untuk menerjemahkan), alamat dan nomor telepon. Ketuk Jalan ke sana untuk rute jalan kaki di aplikasi peta. Lampu yang kartunya sudah kamu buka hari ini menyala lembut tanpa bernapas.';
+
+  @override
+  String get guideS16L3 =>
+      'Saat pertama kali lewat, kartu kecil di atas memberitahumu, tanpa suara atau getar. Paling banyak satu petunjuk per tempat setiap 7 hari dan 2 petunjuk sehari. Matikan di Pengaturan > Petunjuk Tempat Mood; lampunya tetap ada.';
+
+  @override
+  String get guideS16L4 =>
+      'Seluruh daftar tempat diunduh ke ponselmu, dan apakah kamu berada di dekatnya hanya ditentukan di ponselmu. Kami dan kafe tidak tahu tempat mana yang kamu lewati. Kafe tidak bisa membayar agar lebih terlihat. Jika ada info yang salah, laporkan di bagian bawah kartu.';
 }

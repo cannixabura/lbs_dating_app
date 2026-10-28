@@ -947,7 +947,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika ada yang salah, anda boleh melaporkannya (bukan mesra jantina, tutup pada waktu malam, tidak dijumpai). Apabila 3 orang melaporkan masalah yang sama, penanda menjadi kelabu dengan nota.';
 
   @override
-  String get guideS10Title => '10. Kad mood dan jejak mood';
+  String get guideS10Title => '11. Kad mood dan jejak mood';
 
   @override
   String get guideS10L1 =>
@@ -958,7 +958,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Tetapan → Jejak mood saya membolehkan anda melihat semula mood dan tempat yang pernah anda tulis. Ia disimpan hanya dalam telefon anda, dan anda boleh mematikan atau mengosongkannya bila-bila masa.';
 
   @override
-  String get guideS11Title => '13. Tetapan dan pemberitahuan';
+  String get guideS11Title => '14. Tetapan dan pemberitahuan';
 
   @override
   String get guideS11L1 =>
@@ -973,7 +973,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Setiap Jumaat 21:00 hingga 23:00 ialah Malam Bercahaya, apabila semua dalam talian bersama dan bandar paling terang.';
 
   @override
-  String get guideS12Title => '14. Laporan dan sekatan';
+  String get guideS12Title => '15. Laporan dan sekatan';
 
   @override
   String get guideS12L1 =>
@@ -992,7 +992,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika anda dalam bahaya segera, hubungi nombor kecemasan tempatan (999 di Malaysia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '15. Privasi dan akaun anda';
+  String get guideS13Title => '16. Privasi dan akaun anda';
 
   @override
   String get guideS13L1 =>
@@ -1007,7 +1007,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Ada soalan? Pergi ke Tetapan → Hubungi kami, atau e-mel service.softchip@gmail.com.';
 
   @override
-  String get guideS14Title => '11. Alam Selari';
+  String get guideS14Title => '12. Alam Selari';
 
   @override
   String get guideS14L1 =>
@@ -1030,7 +1030,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Gema pudar, bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
 
   @override
-  String get guideS15Title => '12. Terjemahan';
+  String get guideS15Title => '13. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -1849,4 +1849,53 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get translateDownload => 'Muat turun';
+
+  @override
+  String placeHint(String name) {
+    return 'Ada lampu Tempat Mood berdekatan · $name';
+  }
+
+  @override
+  String placeOpenUntil(String time) {
+    return 'Dibuka hingga $time';
+  }
+
+  @override
+  String placeLampLabel(String name, String hours) {
+    return 'Tempat Mood: $name, $hours';
+  }
+
+  @override
+  String get placeWrongData => 'Maklumat salah?';
+
+  @override
+  String placeReportSubject(String name) {
+    return 'Maklumat Tempat Mood salah: $name';
+  }
+
+  @override
+  String get placeHintsSetting => 'Petunjuk Tempat Mood';
+
+  @override
+  String get placeHintsSettingSubtitle =>
+      'Petunjuk perlahan dalam aplikasi apabila anda melalui Tempat Mood yang dibuka (tiada pemberitahuan tolak)';
+
+  @override
+  String get guideS16Title => '10. Tempat Mood';
+
+  @override
+  String get guideS16L1 =>
+      'Tempat Mood ialah kafe bebas yang bekerjasama dengan kami. Selepas anda daftar masuk, berjalan dalam lingkungan 150 m dari kafe yang sedang dibuka dan lampu kecil yang bernafas perlahan muncul di radar anda. Ia padam apabila anda berjalan pergi.';
+
+  @override
+  String get guideS16L2 =>
+      'Ketik lampu untuk membuka kad tempat: pemandangan malam dari dalam kafe, waktu tutup hari ini, satu baris cerita mood daripada kafe (ketik untuk terjemah), alamat dan nombor telefon. Ketik Jalan ke sana untuk arah berjalan kaki dalam aplikasi peta. Lampu yang kadnya anda buka hari ini bercahaya lembut tanpa bernafas.';
+
+  @override
+  String get guideS16L3 =>
+      'Kali pertama anda lalu, kad kecil di bahagian atas memberitahu anda, tanpa bunyi atau getaran. Paling banyak satu petunjuk bagi setiap tempat setiap 7 hari dan 2 petunjuk sehari. Matikan dalam Tetapan > Petunjuk Tempat Mood; lampu tetap kelihatan.';
+
+  @override
+  String get guideS16L4 =>
+      'Seluruh senarai tempat dimuat turun ke telefon anda, dan sama ada anda berdekatan hanya ditentukan dalam telefon anda. Kami dan kafe tidak tahu tempat mana yang anda lalui. Kafe tidak boleh membayar untuk lebih kelihatan. Jika ada maklumat salah, laporkan di bahagian bawah kad.';
 }

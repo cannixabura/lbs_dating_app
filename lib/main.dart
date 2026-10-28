@@ -30,6 +30,7 @@ import 'firebase_options.dart';
 import 'legal.dart';
 import 'mood_card.dart';
 import 'mood_trail.dart';
+import 'mood_place.dart';
 import 'package:characters/characters.dart';
 import 'gathering.dart';
 import 'time_whisper.dart';
@@ -305,6 +306,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   List<BeaconToilet> _beaconToilets = [];
   Position? _beaconFetchedAt;
   bool _beaconLoading = false;
+  // 心情據點：營業中、在店門口 150 公尺內的店（只在手機上判斷）
+  final Set<String> _nearPlaces = {};
   final Set<String> _seenWhisperIds = {};
   bool _whispersLoaded = false;
   int _radarTick = 0;
@@ -342,6 +345,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _loadProfileData(); 
     _coolingSystem.loadRejections();
     _loadBeaconPrefs();
+    _loadMoodPlaces();
     HiddenContent.instance.addListener(_onHiddenContentChanged);
     HiddenContent.instance.load();
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
@@ -392,6 +396,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _startRadarSweep();
     }
     _updateMyLocationToServer(pos);
+    _checkPlaces();
   }
 
   /// 打卡失效（在背景太久）：停止回報與掃描，雷達清空，等使用者重新打卡
@@ -399,7 +404,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _heartbeatTimer?.cancel(); _radarTimer?.cancel(); _cityMoodTimer?.cancel();
     _locationServicesStarted = false;
     _activeUsersNotifier.value = [];
-    setState(() { _checkInPosition = null; _hasScanned = false; _whispers = []; });
+    setState(() { _checkInPosition = null; _hasScanned = false; _whispers = []; _nearPlaces.clear(); });
   }
 
   bool get _movedFarFromCheckIn {
@@ -594,6 +599,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     // 讓仰角從鏡頭的 50° 平順接回感測器
     _pitchNotifier.value = 50.0 * pi / 180.0;
     if (mounted) setState(() => _introFlying = false);
+    _checkPlaces();
   }
 
   void _onStyleLoaded() async {
@@ -679,6 +685,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         if (_checkInRequested) _checkIn();
         _checkTimeWhispers();
         _maybeFetchBeacon();
+        _checkPlaces();
+        MoodPlaces.refresh().then((changed) { if (changed && mounted) { setState(() {}); _checkPlaces(); } });
       },
       onError: (dynamic error) => debugPrint('position stream error: $error'),
       cancelOnError: false,
@@ -857,6 +865,44 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   // ---------- 城市燈塔 ----------
   static const _beaconRefetchMeters = 300.0;
+
+  Future<void> _loadMoodPlaces() async {
+    await PlaceHints.load();
+    await MoodPlaces.refresh(force: true);
+    if (!mounted) return;
+    setState(() {});
+    _checkPlaces();
+  }
+
+  /// 心情據點：已打卡、在前景時，找出營業中、150 公尺內的店（走出 170 公尺才熄，避免定位飄動時一直閃）。
+  /// 剛走進某家店的範圍時，在 App 裡輕聲提示一次；頻率限制在 PlaceHints（同一家 7 天一次、一天最多 2 次）。
+  void _checkPlaces() {
+    final pos = _currentPosition;
+    // 進場鏡頭還在飛時先不亮燈、不提示，飛完再判斷一次
+    if (pos == null || !_locationServicesStarted || !_isInForeground || _introFlying) return;
+    final now = DateTime.now();
+    final near = <String>{};
+    final entered = <(MoodPlace, double)>[];
+    for (final p in MoodPlaces.places) {
+      if (!p.isOpen(now)) continue;
+      final d = Geolocator.distanceBetween(pos.latitude, pos.longitude, p.lat, p.lng);
+      final wasNear = _nearPlaces.contains(p.id);
+      if (d > (wasNear ? MoodPlaces.leaveMeters : MoodPlaces.nearMeters)) continue;
+      near.add(p.id);
+      if (!wasNear) entered.add((p, d));
+    }
+    if (near.length != _nearPlaces.length || !near.containsAll(_nearPlaces)) setState(() => _nearPlaces..clear()..addAll(near));
+    entered.sort((a, b) => a.$2.compareTo(b.$2));
+    for (final (p, _) in entered) {
+      if (!PlaceHints.canHint(p.id, now)) continue;
+      PlaceHints.recordHint(p.id, now);
+      showPlaceHint(context, p, onOpen: () => _openPlace(p));
+      break;
+    }
+  }
+
+  // 打開名片後，這盞燈今天改成靜止的柔光
+  void _openPlace(MoodPlace p) => showMoodPlaceCard(context, p).then((_) { if (mounted) setState(() {}); });
 
   Future<void> _loadBeaconPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1541,27 +1587,29 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       useSafeArea: true, // 設定比螢幕高時，標題與關閉鈕不能被狀態列蓋住
       builder: (BuildContext sheetContext) {
         void go(VoidCallback action) { Navigator.pop(sheetContext); action(); }
-        final reminderRow = StatefulBuilder(builder: (context, setRowState) => Padding(
+        Widget switchRow(IconData icon, String title, String subtitle, bool Function() value, ValueChanged<bool> onChanged) => StatefulBuilder(builder: (context, setRowState) => Padding(
           padding: const EdgeInsets.symmetric(vertical: Night.space1, horizontal: Night.space2),
           child: Row(children: [
-            const Icon(Icons.nightlight_outlined, color: Night.inkMuted, size: 22),
+            Icon(icon, color: Night.inkMuted, size: 22),
             const SizedBox(width: Night.space4),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr.nightlyReminder, style: TextStyle(color: Night.ink, fontSize: 15)),
+                Text(title, style: TextStyle(color: Night.ink, fontSize: 15)),
                 SizedBox(height: 2),
-                Text(tr.nightlyReminderSubtitle, style: Night.caption),
+                Text(subtitle, style: Night.caption),
               ]),
             ),
             Switch(
-              value: reminderOn,
+              value: value(),
               activeThumbColor: Night.onDeep,
               activeTrackColor: Night.deepViolet,
               inactiveTrackColor: Night.night700,
-              onChanged: (v) { setRowState(() => reminderOn = v); NightlyReminder.setEnabled(v); },
+              onChanged: (v) => setRowState(() => onChanged(v)),
             ),
           ]),
         ));
+        final reminderRow = switchRow(Icons.nightlight_outlined, tr.nightlyReminder, tr.nightlyReminderSubtitle, () => reminderOn, (v) { reminderOn = v; NightlyReminder.setEnabled(v); });
+        final placeHintRow = switchRow(Icons.local_cafe_outlined, tr.placeHintsSetting, tr.placeHintsSettingSubtitle, () => PlaceHints.enabled, PlaceHints.setEnabled);
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -1588,6 +1636,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),
                   item(Icons.timeline, tr.myMoodTrail, subtitle: tr.myMoodTrailSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
+                  placeHintRow,
                   item(Icons.translate, tr.language, subtitle: _languageName(appLocale.value), onTap: () => go(_showLanguagePicker)),
                   section(tr.settingsSectionGatherings),
                   item(Icons.campaign_outlined, tr.gatheringHost,
@@ -2636,6 +2685,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
                       ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
+                      // 心情據點的小燈：畫在氣泡上面才點得到（只有 150 公尺內的一兩盞）。保留真實方向，但離中心至少 72 像素，不會壓在自己的頭像上；營業時間過了就熄
+                      ...MoodPlaces.places.where((p) => _nearPlaces.contains(p.id) && p.isOpen(DateTime.now())).map((p) {
+                        final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, p.lat, p.lng, currentHeading, p.id, currentRhythmScore);
+                        final d = max(MoodPlaces.minRadiusPx, (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale);
+                        final a = v.relativeAngle * pi / 180.0;
+                        final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
+                        final ww = max(0.01, 1.0 + (rz * 0.002));
+                        return Positioned(
+                          key: ValueKey('place:${p.id}'),
+                          left: centerX + rx / ww - 22, top: centerY + ry / ww - 22,
+                          child: MoodPlaceLamp(place: p, breathing: !PlaceHints.seenToday(p.id, DateTime.now()), onTap: () => _openPlace(p)),
+                        );
+                      }),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
                       // 放在底部選單下方的空間，不佔地圖
                       Positioned(left: 20, bottom: max(1.0, MediaQuery.of(context).padding.bottom - 14), child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),

@@ -1,0 +1,138 @@
+diff --git a/hosting/guide.html b/hosting/guide.html
+index 86ae186..9738b18 100644
+--- a/hosting/guide.html
++++ b/hosting/guide.html
+@@ -76,12 +76,13 @@
+       <li><a href="#s7">7. 城市心情天氣</a></li>
+       <li><a href="#s8">8. 集會</a></li>
+       <li><a href="#s9">9. 城市燈塔（友善廁所）</a></li>
+-      <li><a href="#s10">10. 心情卡與心情軌跡</a></li>
+-      <li><a href="#s11">11. 平行宇宙</a></li>
+-      <li><a href="#s12">12. 翻譯</a></li>
+-      <li><a href="#s13">13. 設定與通知</a></li>
+-      <li><a href="#s14">14. 檢舉與封鎖</a></li>
+-      <li><a href="#s15">15. 隱私與帳號</a></li>
++      <li><a href="#s10">10. 心情據點</a></li>
++      <li><a href="#s11">11. 心情卡與心情軌跡</a></li>
++      <li><a href="#s12">12. 平行宇宙</a></li>
++      <li><a href="#s13">13. 翻譯</a></li>
++      <li><a href="#s14">14. 設定與通知</a></li>
++      <li><a href="#s15">15. 檢舉與封鎖</a></li>
++      <li><a href="#s16">16. 隱私與帳號</a></li>
+     </ol>
+   </nav>
+     <section class="sec" id="s1">
+@@ -176,16 +177,25 @@
+         <li>資料不對時可以回報（不是性別友善、晚上沒開、找不到）；同一種問題有 3 個人回報，標記會變灰並註明。</li>
+       </ul>
+     </section>
+-    <section class="sec has-art" id="s10">
++    <section class="sec" id="s10">
++      <h2><span class="ico" aria-hidden="true">☕</span>10. 心情據點</h2>
++      <ul>
++        <li>心情據點是合作的獨立咖啡店。你打卡後，走到營業中的店門口 150 公尺內，雷達上會浮現一盞慢慢呼吸的小燈；走遠了就熄掉。</li>
++        <li>點小燈打開據點名片：店裡的夜景、今天營業到幾點、一句店家的心情故事（點一下翻譯）、地址與電話，按「走路過去」用手機的地圖 App 導航。今天打開過的燈會變成靜止的柔光。</li>
++        <li>第一次經過時，上方會浮出一張小卡提示你，不響也不震動；同一家店 7 天內只提示一次，一天最多 2 次。可以在「設定 → 心情據點提示」關掉，燈還是會在。</li>
++        <li>店家清單整份下載到你的手機，是否在附近只在手機上判斷，我們和店家都不會知道你經過哪家店。店家不能付費換取曝光；資料有誤可以在名片下方回報。</li>
++      </ul>
++    </section>
++    <section class="sec has-art" id="s11">
+       <img class="art" src="img/features/mood-card.webp" alt="女生拿著一張發光的城市明信片" loading="lazy" width="720" height="1280">
+-      <h2><span class="ico" aria-hidden="true">⇪</span>10. 心情卡與心情軌跡</h2>
++      <h2><span class="ico" aria-hidden="true">⇪</span>11. 心情卡與心情軌跡</h2>
+       <ul>
+         <li>底部選單的分享鈕可以把此刻的心情做成一張夜景卡片，適合 IG 限時動態；卡片上不會有你的位置。</li>
+         <li>設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。</li>
+       </ul>
+     </section>
+-    <section class="sec" id="s11">
+-      <h2><span class="ico" aria-hidden="true">🪐</span>11. 平行宇宙</h2>
++    <section class="sec" id="s12">
++      <h2><span class="ico" aria-hidden="true">🪐</span>12. 平行宇宙</h2>
+       <ul>
+         <li>點雷達右上角的地球圖示開啟，再點一次關閉。每次打開 App 都是關閉的。</li>
+         <li>台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼與越南；國外的城市則對應到台灣。</li>
+@@ -194,24 +204,24 @@
+         <li>平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。</li>
+       </ul>
+     </section>
+-    <section class="sec" id="s12">
+-      <h2><span class="ico" aria-hidden="true">文</span>12. 翻譯</h2>
++    <section class="sec" id="s13">
++      <h2><span class="ico" aria-hidden="true">文</span>13. 翻譯</h2>
+       <ul>
+         <li>聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。</li>
+         <li>雷達上的心情氣泡也一樣：跟你的語言不同時，點一下就翻譯，再點一下回到原文。</li>
+         <li>翻譯完全在手機上進行，文字不會上傳。iPhone 使用 Apple 內建的翻譯，第一次翻某種語言時系統會問你要不要下載；Android 使用 Google ML Kit，第一次會先問你，再下載約 30 MB 的語言模型。iPhone 暫時無法翻譯馬來文。</li>
+       </ul>
+     </section>
+-    <section class="sec" id="s13">
+-      <h2><span class="ico" aria-hidden="true">⚙</span>13. 設定與通知</h2>
++    <section class="sec" id="s14">
++      <h2><span class="ico" aria-hidden="true">⚙</span>14. 設定與通知</h2>
+       <ul>
+         <li>「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。</li>
+         <li>敲門、新訊息、微光與集會公告會以推播通知你；可以在手機的系統設定裡關閉。</li>
+         <li>每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。</li>
+       </ul>
+     </section>
+-    <section class="sec" id="s14">
+-      <h2><span class="ico" aria-hidden="true">⚑</span>14. 檢舉與封鎖</h2>
++    <section class="sec" id="s15">
++      <h2><span class="ico" aria-hidden="true">⚑</span>15. 檢舉與封鎖</h2>
+       <ul>
+         <li>長按氣泡、敲門卡片、聊天室右上角、低語與集會公告都可以檢舉。檢舉後，那個人或那則內容會立刻從你的畫面消失，聊天室也會立即結束；我們會在 24 小時內處理。</li>
+         <li>心情、稱呼、低語、聊天訊息與集會公告都會自動過濾不當字詞、電話與網址等聯絡方式。</li>
+@@ -219,8 +229,8 @@
+         <li>遇到立即的危險，請直接撥打 110。</li>
+       </ul>
+     </section>
+-    <section class="sec" id="s15">
+-      <h2><span class="ico" aria-hidden="true">🔒</span>15. 隱私與帳號</h2>
++    <section class="sec" id="s16">
++      <h2><span class="ico" aria-hidden="true">🔒</span>16. 隱私與帳號</h2>
+       <ul>
+         <li>只有在你打卡之後，附近的人才看得到你的心情、城市稱呼、大頭貼與大概的距離；他們看到的是你打卡的地方，不是即時位置。</li>
+         <li>設定 →「刪除帳號與資料」可以隨時永久刪除你在城市留下的一切。</li>
+diff --git a/hosting/privacy-en.html b/hosting/privacy-en.html
+index 2ba21aa..3367ac0 100644
+--- a/hosting/privacy-en.html
++++ b/hosting/privacy-en.html
+@@ -12,7 +12,7 @@
+ <main>
+ <p class="home"><a href="./">← Mood Whisper</a> · <a href="privacy.html" lang="zh-Hant">繁體中文</a></p>
+ <h1>Mood Whisper Privacy Policy</h1>
+-<p class="meta">Version 2026-10.8 · Effective October 2026 · Glimmers, city mood weather, whispers and mood trail added October 15, 2026; gatherings added October 21; host hand-over, letters to the future, Taiwan's mood tonight and City Beacon added October 24; Parallel Universe (cities paired by their central stations) and chat translation added, and manual check-in required, October 27</p>
++<p class="meta">Version 2026-10.8 · Effective October 2026 · Glimmers, city mood weather, whispers and mood trail added October 15, 2026; gatherings added October 21; host hand-over, letters to the future, Taiwan's mood tonight and City Beacon added October 24; Parallel Universe (cities paired by their central stations) and chat translation added, and manual check-in required, October 27; Mood Places added October 28</p>
+ 
+ <p>This policy explains what Mood Whisper (the "Service") collects, how we use it, who we share it with, and how you can manage your data.</p>
+ <p>This policy is a translation of the Traditional Chinese version. If the two versions differ, the <a href="privacy.html" lang="zh-Hant">Traditional Chinese version</a> prevails.</p>
+@@ -40,6 +40,7 @@
+ <tr><td>Gathering participation</td><td>Decide from your location and city name whether you are a participant, and so whether to send you announcements and notifications</td><td>Decided only by our servers. <strong>The host never knows who joined</strong>. Remove the icon from your name to leave</td></tr>
+ <tr><td>Answers to gathering questions</td><td>Calculate the share of each mood among everyone present</td><td>The host sees only percentages, hidden when fewer than 10 people answer. <strong>No one can see who answered what</strong>. Our servers record that you answered (to avoid double counting) and delete this 30 days after the event ends</td></tr>
+ <tr><td>City Beacon: your location when you look up nearby accessible restrooms; reports of wrong information (account, place ID, type of problem, time)</td><td>List accessible restrooms within 2 km; note a problem in the app once 3 people report the same one</td><td>The lookup location is not stored. Reports are visible only to the Service; the app shows only that someone reported a problem, <strong>never who</strong>. Deleted when you delete your account</td></tr>
++<tr><td>Mood Places: the list of partner cafés; which place cards you opened and which hints you were shown</td><td>After you check in, light a lamp on your radar and show a quiet in-app hint (no push notification) when you pass within 150 m of an open café</td><td>The whole list is downloaded to your phone. <strong>Whether you are nearby is worked out only on your phone, and your location is not sent to us or to the cafés for this</strong>. Cafés never learn who passed by or opened their card. The cards you opened and the hints you were shown are stored only on your phone; you can turn hints off in Settings. Tapping Walk there or the phone number opens your map or phone app</td></tr>
+ <tr><td>Push notification token</td><td>Send knock, message and gathering notifications</td><td>The Service only</td></tr>
+ <tr><td>Block list, report content</td><td>Keep the community safe</td><td>The Service only; the reported person never learns who reported them</td></tr>
+ <tr><td>The version of the terms you agreed to, and when</td><td>Record that you agreed to this policy and the Terms of Use</td><td>The Service only</td></tr>
+diff --git a/hosting/privacy.html b/hosting/privacy.html
+index 0f12712..1075ef2 100644
+--- a/hosting/privacy.html
++++ b/hosting/privacy.html
+@@ -12,7 +12,7 @@
+ <main>
+ <p class="home"><a href="./">← 城市低語</a> · <a href="privacy-en.html" lang="en">English</a></p>
+ <h1>城市低語 隱私權政策</h1>
+-<p class="meta">版本 2026-10.8 · 生效日期 2026 年 10 月 · 2026 年 10 月 15 日補充共鳴、城市心情天氣、低語與心情軌跡；10 月 21 日補充集會；10 月 24 日補充主持人交棒、低語穿越、今晚的台灣心情與城市燈塔；10 月 27 日補充平行宇宙（以中央車站對應城市）與聊天翻譯，並改為每次手動打卡才顯示位置</p>
++<p class="meta">版本 2026-10.8 · 生效日期 2026 年 10 月 · 2026 年 10 月 15 日補充共鳴、城市心情天氣、低語與心情軌跡；10 月 21 日補充集會；10 月 24 日補充主持人交棒、低語穿越、今晚的台灣心情與城市燈塔；10 月 27 日補充平行宇宙（以中央車站對應城市）與聊天翻譯，並改為每次手動打卡才顯示位置；10 月 28 日補充心情據點</p>
+ 
+ <p>本政策說明城市低語（以下稱「本服務」）蒐集哪些資料、如何使用、會分享給誰，以及你可以如何管理你的資料。</p>
+ 
+@@ -39,6 +39,7 @@
+ <tr><td>集會參加狀態</td><td>依你的位置與城市稱呼判斷你是否參加，決定是否傳送活動公告與通知</td><td>只由伺服器判斷，<strong>主持人不會知道誰參加了</strong>；你把圖標從稱呼移除就退出</td></tr>
+ <tr><td>集會提問的回答</td><td>計算全場的心情比例</td><td>主持人只看到百分比，少於 10 人回答時不顯示比例；<strong>沒有人能看到誰回答了什麼</strong>。伺服器會記錄你回答過（避免重複計算），活動結束後 30 天刪除</td></tr>
+ <tr><td>城市燈塔：查詢附近友善廁所時的位置；資料不符的回報（帳號、地點編號、問題種類、時間）</td><td>列出 2 公里內的友善廁所；同一種問題有 3 個人回報時在 App 上註明</td><td>查詢用的位置不會儲存。回報只有本服務看得到，App 上只顯示「有人回報」，<strong>不會顯示是誰回報</strong>；刪除帳號時一併刪除</td></tr>
++<tr><td>心情據點：合作咖啡店的清單；你打開過哪些據點名片、收過哪些提示</td><td>你打卡後，經過營業中的店門口 150 公尺內時，在雷達上亮起一盞燈，並在 App 裡輕聲提示（不推播）</td><td>清單整份下載到你的手機，<strong>是否在附近只在你的手機上判斷，你的位置不會因此傳給我們或店家</strong>，店家也不會知道誰經過或看過名片。打開過的名片與提示紀錄只存在你的手機上，可以在設定裡關閉提示。點「走路過去」或電話時，會打開手機的地圖或電話 App</td></tr>
+ <tr><td>推播通知權杖</td><td>傳送敲門、訊息與集會通知</td><td>僅本服務</td></tr>
+ <tr><td>封鎖名單、檢舉內容</td><td>維護社群安全</td><td>僅本服務；被檢舉人不會知道是誰檢舉</td></tr>
+ <tr><td>同意條款的版本與時間</td><td>記錄你已同意本政策與使用條款</td><td>僅本服務</td></tr>

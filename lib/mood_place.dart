@@ -289,7 +289,7 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
                     child: Icon(
                       Icons.local_cafe_outlined,
                       color: placeColor,
-                      size: 26,
+                      size: 15,
                       shadows: seen
                           ? [Shadow(color: placeColor.withOpacity(0.35), blurRadius: 6)]
                           : [

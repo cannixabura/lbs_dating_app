@@ -15,30 +15,45 @@ class _IntroScreenState extends State<IntroScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // 🌟 這裡為你設計了 5 頁的簡短文案，並指定了圖片檔名
+  // 8 頁導覽：圖片不含文字（多語言共用），文字在 lib/l10n/app_*.arb 的 intro<頁>Title／Body；最後一頁接到打卡
   final List<Map<String, String>> _introData = [
     {
-      "image": "assets/images/intro_1.png",
+      "image": "assets/images/intro_1.webp",
       "title": tr.intro1Title,
       "description": tr.intro1Body
     },
     {
-      "image": "assets/images/intro_2.png",
+      "image": "assets/images/intro_2.webp",
       "title": tr.intro2Title,
       "description": tr.intro2Body
     },
     {
-      "image": "assets/images/intro_3.png",
+      "image": "assets/images/intro_3.webp",
       "title": tr.intro3Title,
       "description": tr.intro3Body
     },
     {
-      "image": "assets/images/intro_4.png",
+      "image": "assets/images/intro_4.webp",
       "title": tr.intro4Title,
       "description": tr.intro4Body
     },
     {
-      "image": "assets/images/intro_5.png",
+      "image": "assets/images/intro_time_whisper.webp",
+      "title": tr.intro6Title,
+      "description": tr.intro6Body
+    },
+    {
+      "image": "assets/images/intro_gathering.webp",
+      "title": tr.intro7Title,
+      "description": tr.intro7Body
+    },
+    {
+      "image": "assets/images/intro_parallel.webp",
+      "title": tr.intro8Title,
+      "description": tr.intro8Body
+    },
+    {
+      "image": "assets/images/intro_5.webp",
       "title": tr.intro5Title,
       "description": tr.intro5Body
     },

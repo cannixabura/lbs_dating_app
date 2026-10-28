@@ -2476,8 +2476,44 @@ abstract class AppLocalizations {
   /// No description provided for @intro5Body.
   ///
   /// In zh, this message translates to:
-  /// **'閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，走進城市低語。'**
+  /// **'閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，在這裡打卡，走進城市低語。'**
   String get intro5Body;
+
+  /// No description provided for @intro6Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'寫給未來的自己'**
+  String get intro6Title;
+
+  /// No description provided for @intro6Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'把一句話留在此刻的地方，寄給一個月或一年後的自己。等你回到這裡，它才會為你打開。'**
+  String get intro6Body;
+
+  /// No description provided for @intro7Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'今晚，一起發光'**
+  String get intro7Title;
+
+  /// No description provided for @intro7Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'開一場集會，用一個表情符號當暗號。把它加進稱呼的人，會收到你的公告，一起點亮同一片街區。'**
+  String get intro7Body;
+
+  /// No description provided for @intro8Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行宇宙'**
+  String get intro8Title;
+
+  /// No description provided for @intro8Body.
+  ///
+  /// In zh, this message translates to:
+  /// **'點一下地球，台灣的城市與東京、首爾、吉隆坡重疊在一起。看見遠方此刻的心情，一樣可以敲門聊天，點一下就翻譯。'**
+  String get intro8Body;
 
   /// No description provided for @loadingImage.
   ///

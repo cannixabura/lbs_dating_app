@@ -1499,7 +1499,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get intro5Body =>
-      'Close your eyes and feel your phone\'s pulse and your heartbeat. Now write how you feel and step into Mood Whisper.';
+      'Close your eyes and feel your phone\'s pulse and your heartbeat. Now write how you feel, check in here and step into Mood Whisper.';
+
+  @override
+  String get intro6Title => 'A letter to your future self';
+
+  @override
+  String get intro6Body =>
+      'Leave a few words in this very spot for yourself a month or a year from now. It opens only when you come back.';
+
+  @override
+  String get intro7Title => 'Glow together tonight';
+
+  @override
+  String get intro7Body =>
+      'Host a gathering with one emoji as the secret sign. Everyone who adds it to their name gets your announcements, and the whole block lights up together.';
+
+  @override
+  String get intro8Title => 'Parallel Universe';
+
+  @override
+  String get intro8Body =>
+      'Tap the globe and Taiwan\'s cities overlap with Tokyo, Seoul and Kuala Lumpur. See how people far away feel right now, knock and chat, and tap to translate.';
 
   @override
   String get loadingImage => 'Loading image...';

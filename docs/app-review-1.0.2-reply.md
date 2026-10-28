@@ -1,11 +1,11 @@
-# 回覆 App Review：Guideline 5.1.2(i) 與 2.2（2026-10-27 退件，送審 1.0.2 (8)）
+# 回覆 App Review：Guideline 5.1.2(i) 與 2.2（2026-10-27 退件，送審 1.0.2 (9)）
 
-上傳 1.0.2 (8) 後，在 App Store Connect →「App 審查」的訊息串按「回覆 App 審查」，貼上下面這段英文；「App 審核資訊 › 備註」也換成 `docs/store-submission.md` 的新版本。
+上傳 1.0.2 (9) 後，在 App Store Connect →「App 審查」的訊息串按「回覆 App 審查」，貼上下面這段英文；「App 審核資訊 › 備註」也換成 `docs/store-submission.md` 的新版本。
 
 ```
 Hello App Review team,
 
-Thank you for the review. Build 1.0.2 (8) addresses both issues.
+Thank you for the review. Build 1.0.2 (9) addresses both issues.
 
 Guideline 5.1.2(i) - manual check-in
 - Users now check in manually every time they want their location displayed. On the entry screen the button reads 在這裡打卡，走進城市 ("Check in here and enter"), and the text under it explains that people nearby will see the user's mood and approximate location once they tap it. The keyboard's Done key does not check in; only the button does.

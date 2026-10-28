@@ -2,7 +2,7 @@
 
 照順序做，每完成一項就打勾。各欄位要填的內容在 [store-submission.md](store-submission.md)；這份只列步驟。
 
-目前版本：`pubspec.yaml` 的 `version: 1.0.2+8`（1.0.2 是對外版號，+8 是建置號，每次上傳都要加 1）。iOS 最低版本 18（Apple 翻譯需要）。
+目前版本：`pubspec.yaml` 的 `version: 1.0.2+9`（1.0.2 是對外版號，+8 是建置號，每次上傳都要加 1）。iOS 最低版本 18（Apple 翻譯需要）。
 
 ---
 

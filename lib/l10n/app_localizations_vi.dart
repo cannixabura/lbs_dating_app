@@ -1432,7 +1432,28 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get intro5Body =>
-      'Nhắm mắt lại, cảm nhận rung động của điện thoại và nhịp tim. Giờ hãy viết cảm xúc lúc này và bước vào Mood Whisper.';
+      'Nhắm mắt lại, cảm nhận rung động của điện thoại và nhịp tim. Giờ hãy viết cảm xúc lúc này, check-in tại đây và bước vào Mood Whisper.';
+
+  @override
+  String get intro6Title => 'Thư gửi chính mình trong tương lai';
+
+  @override
+  String get intro6Body =>
+      'Để lại vài lời ở chính nơi này cho bạn của một tháng hay một năm sau. Lá thư chỉ mở khi bạn quay lại đây.';
+
+  @override
+  String get intro7Title => 'Đêm nay, cùng tỏa sáng';
+
+  @override
+  String get intro7Body =>
+      'Tổ chức một buổi tụ họp với một biểu tượng cảm xúc làm ám hiệu. Ai thêm nó vào tên sẽ nhận thông báo của bạn, và cả khu phố cùng sáng lên.';
+
+  @override
+  String get intro8Title => 'Vũ trụ song song';
+
+  @override
+  String get intro8Body =>
+      'Chạm quả địa cầu, các thành phố Đài Loan chồng lên Tokyo, Seoul và Kuala Lumpur. Thấy tâm trạng của người ở xa ngay lúc này, gõ cửa, trò chuyện và chạm để dịch.';
 
   @override
   String get loadingImage => 'Đang tải ảnh...';

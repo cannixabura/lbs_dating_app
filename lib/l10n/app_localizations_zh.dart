@@ -1320,7 +1320,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get intro5Title => '準備好相遇了嗎？';
 
   @override
-  String get intro5Body => '閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，走進城市低語。';
+  String get intro5Body => '閉上眼睛，感受手機的震動與心跳。現在，寫下你此刻的心情，在這裡打卡，走進城市低語。';
+
+  @override
+  String get intro6Title => '寫給未來的自己';
+
+  @override
+  String get intro6Body => '把一句話留在此刻的地方，寄給一個月或一年後的自己。等你回到這裡，它才會為你打開。';
+
+  @override
+  String get intro7Title => '今晚，一起發光';
+
+  @override
+  String get intro7Body => '開一場集會，用一個表情符號當暗號。把它加進稱呼的人，會收到你的公告，一起點亮同一片街區。';
+
+  @override
+  String get intro8Title => '平行宇宙';
+
+  @override
+  String get intro8Body =>
+      '點一下地球，台灣的城市與東京、首爾、吉隆坡重疊在一起。看見遠方此刻的心情，一樣可以敲門聊天，點一下就翻譯。';
 
   @override
   String get loadingImage => '等待載入高清圖片...';
@@ -3001,7 +3020,26 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get intro5Title => '准备好相遇了吗？';
 
   @override
-  String get intro5Body => '闭上眼睛，感受手机的震动与心跳。现在，写下你此刻的心情，走进城市低语。';
+  String get intro5Body => '闭上眼睛，感受手机的震动与心跳。现在，写下你此刻的心情，在这里打卡，走进城市低语。';
+
+  @override
+  String get intro6Title => '写给未来的自己';
+
+  @override
+  String get intro6Body => '把一句话留在此刻的地方，寄给一个月或一年后的自己。等你回到这里，它才会为你打开。';
+
+  @override
+  String get intro7Title => '今晚，一起发光';
+
+  @override
+  String get intro7Body => '开一场集会，用一个表情符号当暗号。把它加进称呼的人，会收到你的公告，一起点亮同一片街区。';
+
+  @override
+  String get intro8Title => '平行宇宙';
+
+  @override
+  String get intro8Body =>
+      '点一下地球，台湾的城市与东京、首尔、吉隆坡重叠在一起。看见远方此刻的心情，一样可以敲门聊天，点一下就翻译。';
 
   @override
   String get loadingImage => '等待加载高清图片...';

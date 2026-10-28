@@ -1371,7 +1371,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get intro5Body =>
-      '눈을 감고 휴대폰의 진동과 심장 박동을 느껴 보세요. 이제 지금 기분을 적고 Mood Whisper로 들어오세요.';
+      '눈을 감고 휴대폰의 진동과 심장 박동을 느껴 보세요. 이제 지금 기분을 적고, 여기서 체크인하고 Mood Whisper로 들어오세요.';
+
+  @override
+  String get intro6Title => '미래의 나에게 보내는 편지';
+
+  @override
+  String get intro6Body =>
+      '지금 이곳에 한 달 뒤나 1년 뒤의 나에게 한마디를 남겨 보세요. 이곳에 다시 왔을 때만 열려요.';
+
+  @override
+  String get intro7Title => '오늘 밤, 함께 빛나요';
+
+  @override
+  String get intro7Body =>
+      '이모지 하나를 암호로 모임을 열어 보세요. 그 이모지를 이름에 더한 사람들에게 공지가 전해지고, 같은 동네가 함께 밝아져요.';
+
+  @override
+  String get intro8Title => '평행우주';
+
+  @override
+  String get intro8Body =>
+      '지구를 누르면 대만의 도시가 도쿄, 서울, 쿠알라룸푸르와 겹쳐져요. 먼 곳의 지금 기분을 보고, 노크와 채팅도, 탭 한 번으로 번역도 할 수 있어요.';
 
   @override
   String get loadingImage => '이미지 불러오는 중…';

@@ -1431,7 +1431,28 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get intro5Body =>
-      'Pejamkan mata dan rasakan getar ponsel serta detak jantungmu. Sekarang, tulis perasaanmu dan masuklah ke Mood Whisper.';
+      'Pejamkan mata dan rasakan getar ponsel serta detak jantungmu. Sekarang, tulis perasaanmu, check-in di sini, dan masuklah ke Mood Whisper.';
+
+  @override
+  String get intro6Title => 'Surat untuk dirimu di masa depan';
+
+  @override
+  String get intro6Body =>
+      'Tinggalkan beberapa kata di tempat ini untuk dirimu sebulan atau setahun lagi. Surat itu hanya terbuka saat kamu kembali ke sini.';
+
+  @override
+  String get intro7Title => 'Bersinar bersama malam ini';
+
+  @override
+  String get intro7Body =>
+      'Buat acara dengan satu emoji sebagai kode rahasia. Siapa pun yang menambahkannya ke namanya akan menerima pengumumanmu, dan seluruh kawasan menyala bersama.';
+
+  @override
+  String get intro8Title => 'Semesta Paralel';
+
+  @override
+  String get intro8Body =>
+      'Ketuk bola dunia dan kota-kota Taiwan bertumpuk dengan Tokyo, Seoul, dan Kuala Lumpur. Lihat perasaan orang di tempat jauh saat ini, mengetuk dan mengobrol, dan ketuk untuk menerjemahkan.';
 
   @override
   String get loadingImage => 'Memuat gambar...';

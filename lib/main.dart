@@ -2685,10 +2685,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
                       ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
-                      // 心情據點的小燈：畫在氣泡上面才點得到（只有 150 公尺內的一兩盞）。保留真實方向，但離中心至少 72 像素，不會壓在自己的頭像上；營業時間過了就熄
+                      // 心情據點的小燈：畫在氣泡上面才點得到（只有 150 公尺內的一兩盞）。保留真實方向，預設比例下離中心至少 72 像素，不會壓在自己的頭像上；營業時間過了就熄
                       ...MoodPlaces.places.where((p) => _nearPlaces.contains(p.id) && p.isOpen(DateTime.now())).map((p) {
                         final v = WhisperEngine.calculateBubbleVisuals(_currentPosition!.latitude, _currentPosition!.longitude, p.lat, p.lng, currentHeading, p.id, currentRhythmScore);
-                        final d = max(MoodPlaces.minRadiusPx, (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6) * currentScale);
+                        // 先以預設比例保證離中心 72 像素，再跟著雙指縮放一起放大縮小
+                        final d = max(MoodPlaces.minRadiusPx, (v.distance / WhisperEngine.maxVisibleDistance) * (screenHeight * 0.6)) * currentScale;
                         final a = v.relativeAngle * pi / 180.0;
                         final rx = d * sin(a); final ry = -d * cos(a) * cos(smoothPitch); final rz = -d * cos(a) * sin(smoothPitch);
                         final ww = max(0.01, 1.0 + (rz * 0.002));

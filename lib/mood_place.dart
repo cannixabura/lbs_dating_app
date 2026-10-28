@@ -99,7 +99,7 @@ class MoodPlaces {
 
   static const nearMeters = 150.0;
   static const leaveMeters = 170.0; // 進入 150 公尺才亮，走出 170 公尺才熄，避免定位飄動時一直閃
-  static const minRadiusPx = 72.0; // 雷達上離中心至少這麼遠，不會壓在自己的頭像上
+  static const minRadiusPx = 72.0; // 預設比例下離雷達中心至少這麼遠，不會壓在自己的頭像上；縮放時跟著等比例移動
   static const _refreshEvery = Duration(hours: 6);
   static const _cacheKey = 'places_json_v1';
   static const _etagKey = 'places_etag_v1';
@@ -277,8 +277,13 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
             child: AnimatedBuilder(
               animation: _breath,
               builder: (context, child) {
-                final glow = 0.6 + 0.4 * Curves.easeInOut.transform(_breath.value);
-                return Opacity(
+                // 呼吸：亮度 25%～100%、大小 85%～115%、光暈跟著漲落。今天看過名片：靜止的柔光，暗一些、光暈小
+                final t = Curves.easeInOut.transform(_breath.value);
+                final seen = !widget.breathing;
+                final glow = seen ? 0.45 : 0.25 + 0.75 * t;
+                return Transform.scale(
+                  scale: seen ? 0.9 : 0.85 + 0.3 * t,
+                  child: Opacity(
                   opacity: glow,
                   child: Container(
                     width: 28, height: 28,
@@ -286,9 +291,14 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
                       shape: BoxShape.circle,
                       color: Night.night800.withOpacity(0.9),
                       border: Border.all(color: placeColor, width: 1.2),
-                      boxShadow: [BoxShadow(color: placeColor.withOpacity(0.55 * glow), blurRadius: 6 + 10 * glow, spreadRadius: 1)],
+                      boxShadow: [
+                        seen
+                            ? BoxShadow(color: placeColor.withOpacity(0.18), blurRadius: 6)
+                            : BoxShadow(color: placeColor.withOpacity(0.75 * glow), blurRadius: 4 + 18 * glow, spreadRadius: 1 + 3 * t),
+                      ],
                     ),
                     child: child,
+                  ),
                   ),
                 );
               },

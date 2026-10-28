@@ -281,28 +281,25 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
                 final t = Curves.easeInOut.transform(_breath.value);
                 final seen = !widget.breathing;
                 final glow = seen ? 0.45 : 0.2 + 0.6 * t;
+                // 只有圖標、沒有外圈，免得像使用者的氣泡；光暈畫在圖標的筆畫上
                 return Transform.scale(
                   scale: seen ? 0.9 : 0.85 + 0.3 * t,
                   child: Opacity(
-                  opacity: glow,
-                  child: Container(
-                    width: 28, height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Night.night800.withOpacity(0.9),
-                      border: Border.all(color: placeColor, width: 1.2),
-                      boxShadow: [
-                        seen
-                            ? BoxShadow(color: placeColor.withOpacity(0.18), blurRadius: 6)
-                            : BoxShadow(color: placeColor.withOpacity(0.75 * glow), blurRadius: 4 + 18 * glow, spreadRadius: 1 + 3 * t),
-                      ],
+                    opacity: glow,
+                    child: Icon(
+                      Icons.local_cafe_outlined,
+                      color: placeColor,
+                      size: 26,
+                      shadows: seen
+                          ? [Shadow(color: placeColor.withOpacity(0.35), blurRadius: 6)]
+                          : [
+                              Shadow(color: placeColor.withOpacity(0.9 * glow), blurRadius: 4 + 10 * glow),
+                              Shadow(color: placeColor.withOpacity(0.6 * glow), blurRadius: 12 + 16 * glow),
+                            ],
                     ),
-                    child: child,
-                  ),
                   ),
                 );
               },
-              child: const Icon(Icons.local_cafe_outlined, color: placeColor, size: 15),
             ),
           ),
           ),

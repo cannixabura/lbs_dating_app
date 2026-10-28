@@ -109,10 +109,15 @@ hosting/img/place/{id}.webp
 - **落地頁**：`tool/build_places.py` 會為每家店產生 `hosting/p/{id}.html`：店的照片、店名、心情故事、地址（點了開 Google 地圖）、電話、一週營業時間，三步說明怎麼在雷達上遇見這家店，最下面「加入公測，下載城市低語」連到 `beta.html?ref=place-{id}`。另外產生 1200×630 的 `img/place/{id}.jpg` 給 LINE、FB 分享預覽。測試店的頁面加上 noindex，也不部署（`firebase.json` 的 ignore 是 `p/t*.html`）。
 - **印刷檔**：`python3 tool/make_place_print.py [id …]` 輸出 `marketing/places/{id}/`：
   - 桌卡 `table-card.pdf`：A6，含 3 mm 出血，所以是 111×154 mm。QR code 連到落地頁。
-  - 窗貼 `window-sticker.pdf`：直徑 100 mm 的圓形模切，含出血是 106×106 mm。
+  - 窗貼 `window-sticker.pdf`：直徑 100 mm 的圓形模切，含出血是 106×106 mm，也有 QR code，路過的人在窗外就能掃。
   - 兩者都附 `.png` 預覽。需要 `pip3 install --user segno` 和 Chrome。
 - **文案改寫**：原設計稿寫「有人留了話給下一個坐在這裡的人」，那是第三階段的留言本，還沒做，所以先改成只說已經做好的事：「這家店，是雷達上的一盞燈」。圖標改成跟 App 裡一樣的咖啡杯。
-- **回報給店家**：公測報名本來就會存 `ref`。`tool/export_beta_signups.py` 現在會多印一行「心情據點：p001 3、p002 1」。只有人數，沒有任何個人資料。等 App 正式上架商店後，按鈕可以改成直接連 App Store、Google Play，並帶上 campaign 參數。
+- **回報給店家**：公測報名本來就會存 `ref`。`tool/export_beta_signups.py` 現在會多印一行「心情據點：p001 3、p002 1」。只有人數，沒有任何個人資料。- **上架後直接連商店**（已決定）：App 正式上架後，在 `tool/build_places.py` 開頭填三個設定，重跑並部署，落地頁就會改成 App Store、Google Play 兩顆按鈕。Android 手機會把 Google Play 放在前面。
+  - `IOS_APP_ID`：App Store 網址裡的數字。
+  - `IOS_PROVIDER_TOKEN`：在 App Store Connect 的行銷活動連結產生器裡，網址上的 `pt` 值。
+  - `ANDROID_PUBLIC = True`：Google Play 正式版上架後再改。
+
+  兩邊都用 `place-{id}` 當行銷活動名稱，人數改在後台看：App Store Connect 是「App 分析 → 獲取 → 行銷活動」，Play Console 是「使用者獲取 → UTM 行銷活動」。三個設定都填好之前，按鈕仍然連到公測報名。
 
 ## 上線時機
 

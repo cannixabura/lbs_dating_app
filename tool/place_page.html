@@ -66,6 +66,9 @@
   .how li b {{ flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 13px var(--mono); color: var(--ink); background: var(--night-700); border: 1px solid var(--glass-line); }}
   .cta {{ display: block; margin-top: 24px; padding: 16px; border-radius: 16px; text-align: center; text-decoration: none; font-size: 17px; font-weight: 700; letter-spacing: 2px; color: #fff;
     background: linear-gradient(90deg, #8e2de2, #2a63d4); box-shadow: 0 10px 30px rgba(142,45,226,.35); }}
+  .stores {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }}
+  .stores .cta {{ margin-top: 0; font-size: 15px; letter-spacing: 1px; }}
+  .stores .cta.alt {{ background: var(--night-700); border: 1px solid var(--glass-line); box-shadow: none; }}
   .fine {{ margin: 10px 0 0; text-align: center; font-size: 12px; line-height: 1.8; color: var(--ink-faint); }}
   footer {{ margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--night-600); font-size: 13px; line-height: 2; }}
   footer a {{ color: var(--ink-faint); text-decoration: none; margin-right: 16px; }}
@@ -109,8 +112,7 @@
     </ol>
   </section>
 
-  <a class="cta" href="/beta.html?ref={ref}">加入公測，下載城市低語</a>
-  <p class="fine">限 18 歲以上 · 免費 · iPhone 與 Android</p>
+{cta}
 
   <footer>
     <a href="/">城市低語</a>

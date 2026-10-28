@@ -7,7 +7,7 @@
 
 - 桌卡：A6（105×148 mm），四邊各留 3 mm 出血，PDF 為 111×154 mm。
 - 窗貼：直徑 100 mm 的圓形模切貼紙，四邊留 3 mm 出血，PDF 為 106×106 mm。
-- QR code 連到 /p/{id}.html（落地頁），再從那裡帶 ?ref=place-{id} 去報名，只用來數有幾個人從這家店來。
+- 桌卡、窗貼都有 QR code，連到 /p/{id}.html（落地頁），再從那裡帶 ?ref=place-{id} 去報名，只用來數有幾個人從這家店來。
 文案只寫已經做好的功能（雷達上的燈、名片）；店內留言本做好之前，不寫「有人留了話」。
 """
 import json
@@ -59,8 +59,8 @@ h1 { margin: 2mm 0 0; font-size: 7.4mm; line-height: 1.5; letter-spacing: 0.5mm;
 .lead { margin: 0; font-size: 3.9mm; line-height: 1.85; color: #b9b6d6; }
 .shop { margin: 0; font-size: 3.4mm; color: #8c89b0; letter-spacing: 0.4mm; }
 .bottom { margin-top: auto; display: flex; gap: 5mm; align-items: flex-end; }
-.qr { width: 34mm; height: 34mm; flex: none; border-radius: 3mm; background: #f3f0ff; padding: 2mm; }
-.qr svg { width: 100%; height: 100%; display: block; }
+.qr { width: 34mm; height: 34mm; flex: none; border-radius: 3mm; background: #f3f0ff; padding: 3mm; }
+.qr svg, .cup svg { width: 100%; height: 100%; display: block; }
 .side { display: flex; flex-direction: column; gap: 1.4mm; min-width: 0; }
 .side .brand { font-size: 5.8mm; letter-spacing: 1mm; }
 .side span { font-size: 3.1mm; line-height: 1.6; color: #b9b6d6; }
@@ -78,25 +78,26 @@ h1 { margin: 2mm 0 0; font-size: 7.4mm; line-height: 1.5; letter-spacing: 0.5mm;
     return HEAD % {"w": 111, "h": 154, "css": css, "body": body}
 
 
-def window_sticker(p):
+def window_sticker(p, qr_svg):
     css = """
 body { background: #070b1f; display: grid; place-items: center; }
 .disc { width: 100mm; height: 100mm; border-radius: 50%; border: 0.6mm solid rgba(196,170,255,0.5);
   box-shadow: 0 0 9mm rgba(180,76,255,0.35), inset 0 0 6mm rgba(79,195,247,0.12);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3mm; text-align: center; }
-.disc svg { width: 12mm; height: 12mm; filter: drop-shadow(0 0 1.5mm rgba(255,197,107,0.8)); }
-.title { margin: 0; font-size: 8mm; font-weight: 700; letter-spacing: 1.6mm; }
-.no { margin: 0; font-size: 4mm; letter-spacing: 1mm; color: #b9b6d6; }
-.rule { width: 15mm; }
-.lead { margin: 0; font-size: 3.6mm; line-height: 1.7; color: #b9b6d6; }
-.brand { margin: 0; font-size: 4.2mm; letter-spacing: 0.8mm; }
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.2mm; text-align: center; }
+.cup { display: block; width: 8mm; height: 8mm; filter: drop-shadow(0 0 1.5mm rgba(255,197,107,0.8)); }
+.title { margin: 0; font-size: 6.6mm; font-weight: 700; letter-spacing: 1.4mm; }
+.no { margin: 0; font-size: 3.4mm; letter-spacing: 1mm; color: #b9b6d6; }
+.lead { margin: 0; font-size: 3.1mm; line-height: 1.6; color: #b9b6d6; }
+.qr { width: 24mm; height: 24mm; border-radius: 2mm; background: #f3f0ff; padding: 2.4mm; margin-top: 0.6mm; }
+.qr svg, .cup svg { width: 100%; height: 100%; display: block; }
+.brand { margin: 0; font-size: 3.6mm; letter-spacing: 0.8mm; }
 """
     body = f"""
-<div class="disc">{CUP}
+<div class="disc"><span class="cup">{CUP}</span>
   <p class="title">心情據點</p>
   <p class="no mono">{number(p["id"])}</p>
-  <div class="rule"></div>
   <p class="lead">打開城市低語<br>這家店會在雷達上亮起</p>
+  <div class="qr">{qr_svg}</div>
   <p class="brand">城市低語</p>
 </div>"""
     return HEAD % {"w": 106, "h": 106, "css": css, "body": body}
@@ -125,7 +126,7 @@ def main():
         out = os.path.join(OUT, p["id"])
         os.makedirs(out, exist_ok=True)
         render(table_card(p, qr_svg), os.path.join(out, "table-card.pdf"), os.path.join(out, "table-card.png"), 111, 154)
-        render(window_sticker(p), os.path.join(out, "window-sticker.pdf"), os.path.join(out, "window-sticker.png"), 106, 106)
+        render(window_sticker(p, qr_svg), os.path.join(out, "window-sticker.pdf"), os.path.join(out, "window-sticker.png"), 106, 106)
         print(f"✓ {p['id']} {p['name']} → marketing/places/{p['id']}/（QR：{url}）")
 
 

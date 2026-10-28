@@ -108,12 +108,14 @@ class MoodPlaces {
   static DateTime? _fetchedAt;
   static bool _loading = false;
 
-  /// 正式版看不到 test 店
+  /// 正式版看不到 test 店；在手機上測試正式版時，打包加 --dart-define=TEST_PLACES=true
+  static const _showTest = !kReleaseMode || bool.fromEnvironment('TEST_PLACES');
+
   static List<MoodPlace> _parse(String body) {
     final list = (jsonDecode(body) as Map<String, dynamic>)['places'] as List? ?? const [];
     return [
       for (final e in list)
-        if (e['test'] != true || !kReleaseMode) MoodPlace.fromJson(Map<String, dynamic>.from(e)),
+        if (e['test'] != true || _showTest) MoodPlace.fromJson(Map<String, dynamic>.from(e)),
     ];
   }
 

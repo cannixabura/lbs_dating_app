@@ -63,7 +63,8 @@
     "public": "hosting",
     "ignore": [
       "firebase.json",
-      "**/.*"
+      "**/.*",
+      "p/t*.html"
     ],
     "cleanUrls": false,
     "headers": [

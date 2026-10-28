@@ -7,7 +7,8 @@
   all.csv            全部報名（Email、手機、地區、來源、報名時間）
   ios_emails.txt     iPhone 報名者，一行一個（貼到 TestFlight → 外部測試者 → 新增）
   android_emails.txt Android 報名者，一行一個（加進 Google 群組，或貼到 Play Console 的測試者清單）
-並印出各地區、各來源的人數，幫你判斷點亮之夜要辦在哪裡、哪個平台的貼文最有效。
+並印出各地區、各來源的人數，幫你判斷點亮之夜要辦在哪裡、哪個平台的貼文最有效；
+也印出每家心情據點（桌卡 QR code，ref=place-{id}）帶來幾個人，這是給店家唯一的回報。
 注意：輸出含個人資料，資料夾已在 .gitignore 中，請勿上傳或分享。
 """
 import csv
@@ -41,3 +42,6 @@ print(f"共 {len(rows)} 人報名，已寫入 {out}/")
 for title, key in (("手機", "platform"), ("地區", "area"), ("來源", "source")):
     counts = collections.Counter(r.get(key, "") for r in rows)
     print(f"  {title}：" + "、".join(f"{k} {v}" for k, v in counts.most_common()))
+places = collections.Counter(r["ref"][len("place-"):] for r in rows if r.get("ref", "").startswith("place-"))
+if places:
+    print("  心情據點：" + "、".join(f"{k} {v}" for k, v in sorted(places.items())))

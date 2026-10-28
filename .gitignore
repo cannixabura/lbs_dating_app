@@ -66,3 +66,7 @@ beta_signups/
 marketing/shorts/footage/
 marketing/shorts/out/
 tool/.review_last
+
+# 心情據點：測試店的落地頁只在本機預覽，不部署
+/hosting/p/t*.html
+/marketing/places/t*/

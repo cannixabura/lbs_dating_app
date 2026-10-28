@@ -104,6 +104,16 @@ hosting/img/place/{id}.webp
 - 開發時可以不部署，直接用本機的清單：`python3 -m http.server 8000`（在 hosting 資料夾）＋ `--dart-define=PLACES_URL=http://localhost:8000/places/v1.json`（只有模擬器連得到）。
 - 網頁版操作說明（`hosting/guide.html`）與隱私權政策中英文的新增列，存在 `places/release-web.patch`，**App 上架這個功能時**才 `git apply places/release-web.patch` 並部署，避免網站先介紹還用不到的功能。
 
+## 第二階段進度（2026-10-28）
+
+- **落地頁**：`tool/build_places.py` 會為每家店產生 `hosting/p/{id}.html`：店的照片、店名、心情故事、地址（點了開 Google 地圖）、電話、一週營業時間，三步說明怎麼在雷達上遇見這家店，最下面「加入公測，下載城市低語」連到 `beta.html?ref=place-{id}`。另外產生 1200×630 的 `img/place/{id}.jpg` 給 LINE、FB 分享預覽。測試店的頁面加上 noindex，也不部署（`firebase.json` 的 ignore 是 `p/t*.html`）。
+- **印刷檔**：`python3 tool/make_place_print.py [id …]` 輸出 `marketing/places/{id}/`：
+  - 桌卡 `table-card.pdf`：A6，含 3 mm 出血，所以是 111×154 mm。QR code 連到落地頁。
+  - 窗貼 `window-sticker.pdf`：直徑 100 mm 的圓形模切，含出血是 106×106 mm。
+  - 兩者都附 `.png` 預覽。需要 `pip3 install --user segno` 和 Chrome。
+- **文案改寫**：原設計稿寫「有人留了話給下一個坐在這裡的人」，那是第三階段的留言本，還沒做，所以先改成只說已經做好的事：「這家店，是雷達上的一盞燈」。圖標改成跟 App 裡一樣的咖啡杯。
+- **回報給店家**：公測報名本來就會存 `ref`。`tool/export_beta_signups.py` 現在會多印一行「心情據點：p001 3、p002 1」。只有人數，沒有任何個人資料。等 App 正式上架商店後，按鈕可以改成直接連 App Store、Google Play，並帶上 campaign 參數。
+
 ## 上線時機
 
 在 `mood-places` 分支開發，不影響 1.0.2 (9)。測好之後再決定併進哪一版，以及何時開始邀請店家（邀請信在 `marketing/outreach/mood-place-letter.md`）。

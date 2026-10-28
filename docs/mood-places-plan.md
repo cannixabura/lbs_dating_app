@@ -94,9 +94,11 @@ hosting/img/place/{id}.webp
 
 - 只有在店裡（約 30 公尺內）才讀得到的低語，需要改伺服器的低語程式。第一、二階段穩定後再做。
 
-## 第一階段進度（2026-10-28）
+## 第一階段進度（2026-10-28 完成）
 
-已完成：`lib/mood_place.dart`、雷達小燈與名片、App 內提示與設定開關、8 種語言、App 內操作說明第 10 節、`tool/build_places.py`、`firebase.json` 快取 10 分鐘、單元測試（`test/mood_place_test.dart`）。模擬器上台北車站、淡水兩家測試店都實測過。
+已完成：`lib/mood_place.dart`、雷達小燈與名片、App 內提示與設定開關、8 種語言、App 內操作說明第 10 節、`tool/build_places.py`、`firebase.json` 快取 10 分鐘、單元測試（`test/mood_place_test.dart`）。模擬器上台北車站、淡水兩家測試店都實測過；iPhone 與 Pixel 也實測通過（提示、名片、翻譯、雙指縮放、呼吸 20%～80%、看過退到背景、圖標 15 無外圈，兩支一致）。
+
+還沒做、等上架這個功能時再處理：併進哪一版、`git apply places/release-web.patch`、換成真實店家資料（目前只有 `test` 店）。
 
 - 呼吸中的小燈畫在氣泡**上面**（氣泡的點擊範圍很大，畫在下面會點不到），看過的柔光退到氣泡底下；進場鏡頭飛完才亮燈與提示。
 - 開發時可以不部署，直接用本機的清單：`python3 -m http.server 8000`（在 hosting 資料夾）＋ `--dart-define=PLACES_URL=http://localhost:8000/places/v1.json`（只有模擬器連得到）。

@@ -524,5 +524,18 @@
   "guideS16L1": "Tempat Mood ialah kafe bebas yang bekerjasama dengan kami. Selepas anda daftar masuk, berjalan dalam lingkungan 150 m dari kafe yang sedang dibuka dan lampu kecil yang bernafas perlahan muncul di radar anda. Ia padam apabila anda berjalan pergi.",
   "guideS16L2": "Ketik lampu untuk membuka kad tempat: pemandangan malam dari dalam kafe, waktu tutup hari ini, satu baris cerita mood daripada kafe (ketik untuk terjemah), alamat dan nombor telefon. Ketik Jalan ke sana untuk arah berjalan kaki dalam aplikasi peta. Lampu yang kadnya anda buka hari ini bercahaya lembut tanpa bernafas.",
   "guideS16L3": "Kali pertama anda lalu, kad kecil di bahagian atas memberitahu anda, tanpa bunyi atau getaran. Paling banyak satu petunjuk bagi setiap tempat setiap 7 hari dan 2 petunjuk sehari. Matikan dalam Tetapan > Petunjuk Tempat Mood; lampu tetap kelihatan.",
-  "guideS16L4": "Seluruh senarai tempat dimuat turun ke telefon anda, dan sama ada anda berdekatan hanya ditentukan dalam telefon anda. Kami dan kafe tidak tahu tempat mana yang anda lalui. Kafe tidak boleh membayar untuk lebih kelihatan. Jika ada maklumat salah, laporkan di bahagian bawah kad."
+  "guideS16L4": "Seluruh senarai tempat dimuat turun ke telefon anda, dan sama ada anda berdekatan hanya ditentukan dalam telefon anda. Kami dan kafe tidak tahu tempat mana yang anda lalui. Kafe tidak boleh membayar untuk lebih kelihatan. Jika ada maklumat salah, laporkan di bahagian bawah kad.",
+  "placeGuestbook": "Buku pelawat",
+  "placeGuestbookLocked": "Masuk ke dalam (dalam lingkungan kira-kira {m} m) untuk membaca kata-kata yang ditinggalkan oleh orang yang pernah duduk di sini.",
+  "placeGuestbookAbout": "Hanya orang di dalam boleh membacanya. Tanpa nama, hilang selepas 30 hari.",
+  "placeGuestbookEmpty": "Belum ada nota. Tinggalkan yang pertama.",
+  "placeGuestbookWrite": "Tinggalkan nota",
+  "placeGuestbookHint": "Untuk orang seterusnya yang duduk di sini…",
+  "placeGuestbookSent": "Siap. Orang seterusnya di sini akan membacanya.",
+  "placeGuestbookUnavailable": "Buku pelawat tidak tersedia sekarang. Sila cuba lagi nanti.",
+  "placeNoteMine": "Nota anda",
+  "withdrawPlaceNote": "Tarik balik nota ini",
+  "reportPlaceNote": "Laporkan nota ini",
+  "thisPlaceNote": "nota ini",
+  "guideS16L5": "Buku pelawat: buka kad tempat ketika anda di dalam (dalam lingkungan kira-kira 40 m) untuk membaca kata-kata orang yang pernah duduk di sini, dan tinggalkan satu baris untuk orang seterusnya. Nota adalah tanpa nama dan hilang selepas 30 hari. Anda boleh meninggalkan satu nota setiap tempat sehari, ketik nota untuk menterjemah, dan laporkan apa-apa yang mengganggu. Apabila anda membuka buku pelawat, telefon anda menghantar lokasi ke pelayan kami untuk mengesahkan anda di dalam; pelayan tidak menyimpannya."
 }

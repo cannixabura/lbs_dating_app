@@ -1888,4 +1888,49 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS16L4 =>
       'Toàn bộ danh sách địa điểm được tải về điện thoại của bạn, và việc bạn có ở gần hay không chỉ được xác định trên điện thoại. Chúng tôi và các quán đều không biết bạn đi ngang quán nào. Quán không thể trả tiền để được hiển thị nhiều hơn. Nếu thông tin sai, hãy báo ở cuối thẻ.';
+
+  @override
+  String get placeGuestbook => 'Sổ lưu bút';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return 'Hãy vào trong quán (trong khoảng $m m) để đọc những lời người ngồi đây trước bạn để lại.';
+  }
+
+  @override
+  String get placeGuestbookAbout =>
+      'Chỉ người trong quán mới đọc được. Ẩn danh, biến mất sau 30 ngày.';
+
+  @override
+  String get placeGuestbookEmpty =>
+      'Chưa có lời nhắn nào. Hãy để lại lời đầu tiên.';
+
+  @override
+  String get placeGuestbookWrite => 'Để lại lời nhắn';
+
+  @override
+  String get placeGuestbookHint => 'Gửi người tiếp theo ngồi ở đây…';
+
+  @override
+  String get placeGuestbookSent => 'Xong. Người tiếp theo ở đây sẽ đọc được.';
+
+  @override
+  String get placeGuestbookUnavailable =>
+      'Sổ lưu bút hiện chưa dùng được. Vui lòng thử lại sau.';
+
+  @override
+  String get placeNoteMine => 'Lời nhắn của bạn';
+
+  @override
+  String get withdrawPlaceNote => 'Thu hồi lời nhắn này';
+
+  @override
+  String get reportPlaceNote => 'Báo cáo lời nhắn này';
+
+  @override
+  String get thisPlaceNote => 'lời nhắn này';
+
+  @override
+  String get guideS16L5 =>
+      'Sổ lưu bút: mở thẻ địa điểm khi bạn đang ở trong quán (trong khoảng 40 m) để đọc những lời người ngồi đây trước bạn để lại, và để lại một câu cho người tiếp theo. Lời nhắn ẩn danh và biến mất sau 30 ngày. Mỗi quán bạn được để lại một lời nhắn mỗi ngày, chạm để dịch, và báo cáo những gì khiến bạn khó chịu. Khi bạn mở sổ lưu bút, điện thoại gửi vị trí đến máy chủ để xác nhận bạn đang ở trong quán; máy chủ không lưu lại.';
 }

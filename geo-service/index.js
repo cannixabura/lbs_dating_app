@@ -17,6 +17,7 @@ const betasignup = require("./betasignup");
 const gathering = require("./gathering");
 const publicmood = require("./publicmood");
 const timewhisper = require("./timewhisper");
+const placenote = require("./placenote");
 const beacon = require("./beacon");
 const { langOf, localize } = require("./i18n");
 const parallel = require("./parallel");
@@ -521,6 +522,19 @@ exports.onReportCreated = functionsV1.runWith({ secrets: UPSTASH_SECRETS, timeou
         } catch (e) { console.error(`[檢舉] 低語處理失敗 (${target}):`, e); }
         return null;
     }
+    // 店內留言本的檢舉：target = "place_note:<id>"，跟低語一樣 3 個不同的人檢舉就隱藏
+    if (report.context === 'placeNote' && String(target).startsWith('place_note:')) {
+        try {
+            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+            console.log(`[檢舉] 留言 ${target} 被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+            if (hide) {
+                await sendUpstashCommand(["HSET", target, "hidden", "1"]);
+                console.warn(`[檢舉] 留言 ${target} 已自動隱藏，請到 Firebase 主控台審查`);
+            }
+        } catch (e) { console.error(`[檢舉] 留言處理失敗 (${target}):`, e); }
+        return null;
+    }
     try {
         const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
         const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
@@ -570,6 +584,16 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
           await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);
+      }
+      // 店內留言本裡自己的留言
+      const myNotes = (await sendUpstashCommand(["SMEMBERS", `place_notes_by:${uid}`])) || [];
+      if (myNotes.length > 0) {
+          const places = await sendUpstashPipeline(myNotes.map((id) => ["HGET", `place_note:${id}`, "place"]));
+          await sendUpstashPipeline([
+              ...myNotes.flatMap((id, i) => (places[i] ? [["ZREM", `place_notes:${places[i]}`, id]] : [])),
+              ...myNotes.map((id) => ["DEL", `place_note:${id}`]),
+              ["DEL", `place_notes_by:${uid}`],
+          ]);
       }
       // 收下別人低語時留下的讀者紀錄（只保留匿名的收下次數）
       const allWhispers = (await sendUpstashCommand(["ZRANGE", "whispers", "0", "-1"])) || [];
@@ -829,6 +853,79 @@ exports.whisper = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
   });
 });
 
+
+// ============================================================================
+// API 10b: 店內留言本（心情據點）—— action: list / post / delete
+//   人要在店的 40 公尺內才讀得到、寫得了；作者永遠不回傳；30 天後消失；同一家店每人每天 1 則
+// ============================================================================
+const PLACE_NOTE_TTL = String(placenote.TTL_SECONDS);
+
+exports.placeNote = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const lang = langOf(req);
+    const fail = (status, text) => res.status(status).json({ success: false, error: localize(lang, text) });
+    const uid = await verifyCaller(req);
+    if (!uid) return fail(401, "未授權");
+    const { action, place: pid, lat, lng, id } = req.body || {};
+    const now = Date.now();
+    try {
+      if (action === "list" || action === "post") {
+        if (!isValidCoordinate(lat, lng)) return fail(400, "座標格式錯誤");
+        const place = (await placenote.loadPlaces(now)).get(String(pid || ""));
+        const problem = placenote.placeProblem(place, { lat, lng });
+        if (problem) return fail(403, problem);
+        const key = `place_notes:${place.id}`;
+
+        if (action === "post") {
+          const checked = placenote.validateText(req.body.text);
+          if (checked.error) return fail(400, checked.error);
+          const moderation = (await admin.database().ref(`moderation/${uid}/hidden`).once("value")).val();
+          if (moderation === true) return fail(403, "你的帳號正在審查中，暫時無法留言。");
+          const ok = await sendUpstashCommand(["SET", `place_note_rl:${place.id}:${uid}`, "1", "EX", String(placenote.COOLDOWN_SECONDS), "NX"]);
+          if (ok !== "OK") return fail(429, "你今天已經在這家店留過一句了，明天再來吧。");
+          const nid = `${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+          await sendUpstashPipeline([
+            ["HSET", `place_note:${nid}`, "text", checked.text, "author", uid, "createdAt", String(now), "place", place.id, "hidden", "0"],
+            ["EXPIRE", `place_note:${nid}`, PLACE_NOTE_TTL],
+            ["ZADD", key, String(now), nid],
+            ["ZREMRANGEBYSCORE", key, "-inf", String(now - placenote.TTL_SECONDS * 1000)],
+            ["ZREMRANGEBYRANK", key, "0", String(-(placenote.MAX_KEPT + 1))],
+            ["SADD", `place_notes_by:${uid}`, nid],
+            ["EXPIRE", `place_notes_by:${uid}`, PLACE_NOTE_TTL],
+          ]);
+          return res.status(200).json({ success: true, data: placenote.forReader(nid, { text: checked.text, author: uid, createdAt: String(now) }, uid) });
+        }
+
+        const ids = (await sendUpstashCommand(["ZREVRANGE", key, "0", String(placenote.MAX_KEPT - 1)])) || [];
+        const rows = ids.length ? await sendUpstashPipeline(ids.map((nid) => ["HMGET", `place_note:${nid}`, "text", "author", "createdAt", "hidden"])) : [];
+        const blocked = await blockedUidsFor(uid);
+        const gone = [];
+        const data = [];
+        ids.forEach((nid, i) => {
+          const [text, author, createdAt, hidden] = rows[i] || [];
+          if (!text) { gone.push(nid); return; }             // 已過期
+          if (hidden === "1" || blocked.has(author)) return;  // 被檢舉隱藏，或與作者互相封鎖
+          if (data.length < placenote.MAX_SHOWN) data.push(placenote.forReader(nid, { text, author, createdAt }, uid));
+        });
+        if (gone.length) await sendUpstashCommand(["ZREM", key, ...gone]);
+        return res.status(200).json({ success: true, data });
+      }
+
+      if (action === "delete") {
+        const [author, placeId] = (await sendUpstashCommand(["HMGET", `place_note:${id}`, "author", "place"])) || [];
+        if (author !== uid) return fail(403, "只能收回自己的留言。");
+        await sendUpstashPipeline([["ZREM", `place_notes:${placeId}`, id], ["DEL", `place_note:${id}`], ["SREM", `place_notes_by:${uid}`, id]]);
+        return res.status(200).json({ success: true });
+      }
+
+      return fail(400, "未知的操作");
+    } catch (error) {
+      console.error(`placeNote ${action} failed:`, error);
+      return fail(500, "留言本暫時無法使用，請稍後再試。");
+    }
+  });
+});
 
 // ============================================================================
 // API 11: 集會 —— action: create / end / announce / ask / answer

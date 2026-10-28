@@ -1751,6 +1751,48 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS16L4 =>
       '店家清單整份下載到你的手機，是否在附近只在手機上判斷，我們和店家都不會知道你經過哪家店。店家不能付費換取曝光；資料有誤可以在名片下方回報。';
+
+  @override
+  String get placeGuestbook => '店內留言本';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return '走進店裡（約 $m 公尺內）就讀得到之前坐在這裡的人留下的話。';
+  }
+
+  @override
+  String get placeGuestbookAbout => '只有在店裡的人讀得到。匿名，30 天後消失。';
+
+  @override
+  String get placeGuestbookEmpty => '還沒有人留言，留下第一句吧。';
+
+  @override
+  String get placeGuestbookWrite => '留一句話';
+
+  @override
+  String get placeGuestbookHint => '給下一個坐在這裡的人…';
+
+  @override
+  String get placeGuestbookSent => '留好了，下一個坐在這裡的人會讀到。';
+
+  @override
+  String get placeGuestbookUnavailable => '留言本暫時無法使用，請稍後再試。';
+
+  @override
+  String get placeNoteMine => '你的留言';
+
+  @override
+  String get withdrawPlaceNote => '收回這則留言';
+
+  @override
+  String get reportPlaceNote => '檢舉這則留言';
+
+  @override
+  String get thisPlaceNote => '這則留言';
+
+  @override
+  String get guideS16L5 =>
+      '店內留言本：人在店裡（約 40 公尺內）打開名片，就讀得到之前坐在這裡的人留下的話，也可以留一句給下一個人。留言匿名、30 天後消失，同一家店一天可以留一則，點一下可以翻譯，不舒服的可以檢舉。打開留言本時，手機會把位置送到伺服器確認你在店裡，伺服器不保存。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3499,4 +3541,46 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS16L4 =>
       '店家清单整份下载到你的手机，是否在附近只在手机上判断，我们和店家都不会知道你经过哪家店。店家不能付费换取曝光；信息有误可以在名片下方反馈。';
+
+  @override
+  String get placeGuestbook => '店内留言本';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return '走进店里（约 $m 米内）就读得到之前坐在这里的人留下的话。';
+  }
+
+  @override
+  String get placeGuestbookAbout => '只有在店里的人读得到。匿名，30 天后消失。';
+
+  @override
+  String get placeGuestbookEmpty => '还没有人留言，留下第一句吧。';
+
+  @override
+  String get placeGuestbookWrite => '留一句话';
+
+  @override
+  String get placeGuestbookHint => '给下一个坐在这里的人…';
+
+  @override
+  String get placeGuestbookSent => '留好了，下一个坐在这里的人会读到。';
+
+  @override
+  String get placeGuestbookUnavailable => '留言本暂时无法使用，请稍后再试。';
+
+  @override
+  String get placeNoteMine => '你的留言';
+
+  @override
+  String get withdrawPlaceNote => '收回这则留言';
+
+  @override
+  String get reportPlaceNote => '举报这则留言';
+
+  @override
+  String get thisPlaceNote => '这则留言';
+
+  @override
+  String get guideS16L5 =>
+      '店内留言本：人在店里（约 40 米内）打开名片，就读得到之前坐在这里的人留下的话，也可以留一句给下一个人。留言匿名、30 天后消失，同一家店一天可以留一则，点一下可以翻译，不舒服的可以举报。打开留言本时，手机会把位置发到服务器确认你在店里，服务器不保存。';
 }

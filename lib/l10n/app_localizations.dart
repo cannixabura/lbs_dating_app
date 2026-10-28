@@ -3258,6 +3258,84 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'店家清單整份下載到你的手機，是否在附近只在手機上判斷，我們和店家都不會知道你經過哪家店。店家不能付費換取曝光；資料有誤可以在名片下方回報。'**
   String get guideS16L4;
+
+  /// No description provided for @placeGuestbook.
+  ///
+  /// In zh, this message translates to:
+  /// **'店內留言本'**
+  String get placeGuestbook;
+
+  /// No description provided for @placeGuestbookLocked.
+  ///
+  /// In zh, this message translates to:
+  /// **'走進店裡（約 {m} 公尺內）就讀得到之前坐在這裡的人留下的話。'**
+  String placeGuestbookLocked(int m);
+
+  /// No description provided for @placeGuestbookAbout.
+  ///
+  /// In zh, this message translates to:
+  /// **'只有在店裡的人讀得到。匿名，30 天後消失。'**
+  String get placeGuestbookAbout;
+
+  /// No description provided for @placeGuestbookEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'還沒有人留言，留下第一句吧。'**
+  String get placeGuestbookEmpty;
+
+  /// No description provided for @placeGuestbookWrite.
+  ///
+  /// In zh, this message translates to:
+  /// **'留一句話'**
+  String get placeGuestbookWrite;
+
+  /// No description provided for @placeGuestbookHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'給下一個坐在這裡的人…'**
+  String get placeGuestbookHint;
+
+  /// No description provided for @placeGuestbookSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'留好了，下一個坐在這裡的人會讀到。'**
+  String get placeGuestbookSent;
+
+  /// No description provided for @placeGuestbookUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'留言本暫時無法使用，請稍後再試。'**
+  String get placeGuestbookUnavailable;
+
+  /// No description provided for @placeNoteMine.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的留言'**
+  String get placeNoteMine;
+
+  /// No description provided for @withdrawPlaceNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'收回這則留言'**
+  String get withdrawPlaceNote;
+
+  /// No description provided for @reportPlaceNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'檢舉這則留言'**
+  String get reportPlaceNote;
+
+  /// No description provided for @thisPlaceNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'這則留言'**
+  String get thisPlaceNote;
+
+  /// No description provided for @guideS16L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'店內留言本：人在店裡（約 40 公尺內）打開名片，就讀得到之前坐在這裡的人留下的話，也可以留一句給下一個人。留言匿名、30 天後消失，同一家店一天可以留一則，點一下可以翻譯，不舒服的可以檢舉。打開留言本時，手機會把位置送到伺服器確認你在店裡，伺服器不保存。'**
+  String get guideS16L5;
 }
 
 class _AppLocalizationsDelegate

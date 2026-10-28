@@ -119,6 +119,26 @@ hosting/img/place/{id}.webp
 
   兩邊都用 `place-{id}` 當行銷活動名稱，人數改在後台看：App Store Connect 是「App 分析 → 獲取 → 行銷活動」，Play Console 是「使用者獲取 → UTM 行銷活動」。三個設定都填好之前，按鈕仍然連到公測報名。
 
+## 第三階段進度（2026-10-28）
+
+已定案：留言保留 30 天、店的 40 公尺內才能讀和寫（室內 GPS 常有 20～40 公尺誤差）、同一個人在同一家店每天 1 則。
+
+- **伺服器**：`geo-service/placenote.js` 與 `index.js` 的 `placeNote` 端點，提供 `list`、`post`、`delete` 三個動作。
+  - 店的座標從網站的 `places/v1.json` 下載，快取 10 分鐘，伺服器不另存一份。
+  - 讀和寫都會再算一次距離；位置只用來比對，不保存。
+  - 作者匿名，只告訴作者本人「這是你的」。每家店顯示最新 30 則，最多保留 100 則。
+  - 被 3 個不同的人檢舉就自動隱藏（`onReportCreated`，context 是 `placeNote`）。
+  - 刪除帳號時一併刪除自己的留言。
+  - 錯誤訊息有 8 種語言。單元測試在 `placenote.test.js`。
+- **資料庫規則**：`reports` 的 context 多了 `placeNote`。
+- **App**：`lib/place_notes.dart`。
+  - 名片裡多一塊「店內留言本」。手機先判斷是否在 40 公尺內，在店外只顯示說明，不會連線。
+  - 在店裡會列出留言，點一下翻譯；自己的可以收回，別人的可以檢舉，檢舉後立刻從自己畫面消失。
+  - 「留一句話」最多 60 字。8 種語言；操作說明第 10 節多一條。
+- **網站**：網頁版說明書、隱私權政策（中英各加一列）、使用條款（中英的「你的內容」、過濾、檢舉）都更新在 `places/release-web.patch`，上架時一起套用。條款版本沒有改。
+- **上架前要部署**：`firebase deploy --only functions:geo-service:placeNote,functions:geo-service:onReportCreated,functions:geo-service:deleteAccount,database`。
+- **之後再決定**：留言本上架後，桌卡可以改回原設計稿那句「有人留了話給下一個坐在這裡的人」，落地頁的三步說明也可以加一步。
+
 ## 上線時機
 
 在 `mood-places` 分支開發，不影響 1.0.2 (9)。測好之後再決定併進哪一版，以及何時開始邀請店家（邀請信在 `marketing/outreach/mood-place-letter.md`）。

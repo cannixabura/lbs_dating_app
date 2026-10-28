@@ -1898,4 +1898,49 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS16L4 =>
       'Seluruh senarai tempat dimuat turun ke telefon anda, dan sama ada anda berdekatan hanya ditentukan dalam telefon anda. Kami dan kafe tidak tahu tempat mana yang anda lalui. Kafe tidak boleh membayar untuk lebih kelihatan. Jika ada maklumat salah, laporkan di bahagian bawah kad.';
+
+  @override
+  String get placeGuestbook => 'Buku pelawat';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return 'Masuk ke dalam (dalam lingkungan kira-kira $m m) untuk membaca kata-kata yang ditinggalkan oleh orang yang pernah duduk di sini.';
+  }
+
+  @override
+  String get placeGuestbookAbout =>
+      'Hanya orang di dalam boleh membacanya. Tanpa nama, hilang selepas 30 hari.';
+
+  @override
+  String get placeGuestbookEmpty => 'Belum ada nota. Tinggalkan yang pertama.';
+
+  @override
+  String get placeGuestbookWrite => 'Tinggalkan nota';
+
+  @override
+  String get placeGuestbookHint => 'Untuk orang seterusnya yang duduk di sini…';
+
+  @override
+  String get placeGuestbookSent =>
+      'Siap. Orang seterusnya di sini akan membacanya.';
+
+  @override
+  String get placeGuestbookUnavailable =>
+      'Buku pelawat tidak tersedia sekarang. Sila cuba lagi nanti.';
+
+  @override
+  String get placeNoteMine => 'Nota anda';
+
+  @override
+  String get withdrawPlaceNote => 'Tarik balik nota ini';
+
+  @override
+  String get reportPlaceNote => 'Laporkan nota ini';
+
+  @override
+  String get thisPlaceNote => 'nota ini';
+
+  @override
+  String get guideS16L5 =>
+      'Buku pelawat: buka kad tempat ketika anda di dalam (dalam lingkungan kira-kira 40 m) untuk membaca kata-kata orang yang pernah duduk di sini, dan tinggalkan satu baris untuk orang seterusnya. Nota adalah tanpa nama dan hilang selepas 30 hari. Anda boleh meninggalkan satu nota setiap tempat sehari, ketik nota untuk menterjemah, dan laporkan apa-apa yang mengganggu. Apabila anda membuka buku pelawat, telefon anda menghantar lokasi ke pelayan kami untuk mengesahkan anda di dalam; pelayan tidak menyimpannya.';
 }

@@ -1888,4 +1888,50 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS16L4 =>
       'Seluruh daftar tempat diunduh ke ponselmu, dan apakah kamu berada di dekatnya hanya ditentukan di ponselmu. Kami dan kafe tidak tahu tempat mana yang kamu lewati. Kafe tidak bisa membayar agar lebih terlihat. Jika ada info yang salah, laporkan di bagian bawah kartu.';
+
+  @override
+  String get placeGuestbook => 'Buku tamu';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return 'Masuk ke dalam (sekitar $m m) untuk membaca kata-kata dari orang yang pernah duduk di sini.';
+  }
+
+  @override
+  String get placeGuestbookAbout =>
+      'Hanya orang di dalam yang bisa membacanya. Anonim, hilang setelah 30 hari.';
+
+  @override
+  String get placeGuestbookEmpty =>
+      'Belum ada catatan. Tinggalkan yang pertama.';
+
+  @override
+  String get placeGuestbookWrite => 'Tinggalkan catatan';
+
+  @override
+  String get placeGuestbookHint => 'Untuk orang berikutnya yang duduk di sini…';
+
+  @override
+  String get placeGuestbookSent =>
+      'Selesai. Orang berikutnya di sini akan membacanya.';
+
+  @override
+  String get placeGuestbookUnavailable =>
+      'Buku tamu sedang tidak tersedia. Coba lagi nanti.';
+
+  @override
+  String get placeNoteMine => 'Catatanmu';
+
+  @override
+  String get withdrawPlaceNote => 'Tarik catatan ini';
+
+  @override
+  String get reportPlaceNote => 'Laporkan catatan ini';
+
+  @override
+  String get thisPlaceNote => 'catatan ini';
+
+  @override
+  String get guideS16L5 =>
+      'Buku tamu: buka kartu tempat saat kamu di dalam (sekitar 40 m) untuk membaca kata-kata dari orang yang pernah duduk di sini, dan tinggalkan satu kalimat untuk orang berikutnya. Catatan bersifat anonim dan hilang setelah 30 hari. Kamu bisa meninggalkan satu catatan per tempat per hari, ketuk catatan untuk menerjemahkannya, dan laporkan yang mengganggu. Saat membuka buku tamu, ponselmu mengirim lokasi ke server kami untuk memastikan kamu di dalam; server tidak menyimpannya.';
 }

@@ -1961,4 +1961,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS16L4 =>
       'The whole list of places is downloaded to your phone, and whether you are nearby is worked out only on your phone. Neither we nor the cafés know which places you pass. Cafés cannot pay for visibility. If something is wrong, report it at the bottom of the card.';
+
+  @override
+  String get placeGuestbook => 'Guestbook';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return 'Step inside (within about $m m) to read what people who sat here before left behind.';
+  }
+
+  @override
+  String get placeGuestbookAbout =>
+      'Only people inside can read it. Anonymous, gone after 30 days.';
+
+  @override
+  String get placeGuestbookEmpty => 'No notes yet. Leave the first one.';
+
+  @override
+  String get placeGuestbookWrite => 'Leave a note';
+
+  @override
+  String get placeGuestbookHint => 'For the next person who sits here…';
+
+  @override
+  String get placeGuestbookSent => 'Done. The next person here will read it.';
+
+  @override
+  String get placeGuestbookUnavailable =>
+      'The guestbook isn\'t available right now. Please try again later.';
+
+  @override
+  String get placeNoteMine => 'Your note';
+
+  @override
+  String get withdrawPlaceNote => 'Take back this note';
+
+  @override
+  String get reportPlaceNote => 'Report this note';
+
+  @override
+  String get thisPlaceNote => 'this note';
+
+  @override
+  String get guideS16L5 =>
+      'Guestbook: open a place\'s card while you\'re inside (within about 40 m) to read what people who sat here before left behind, and leave a line for the next person. Notes are anonymous and disappear after 30 days. You can leave one note per place per day, tap a note to translate it, and report anything that bothers you. When you open the guestbook, your phone sends your location to our server to confirm you\'re inside; the server doesn\'t keep it.';
 }

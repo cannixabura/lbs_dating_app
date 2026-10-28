@@ -1796,4 +1796,46 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS16L4 =>
       'スポットの一覧はまるごとスマホにダウンロードされ、近くにいるかどうかはスマホの中だけで判断します。どのお店の近くを通ったか、私たちもお店も知ることはありません。お店はお金で表示を増やすことはできません。情報の誤りはカードの下から報告できます。';
+
+  @override
+  String get placeGuestbook => '店内ノート';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return 'お店の中（約 $m m 以内）に入ると、ここに座っていた人たちが残した言葉が読めます。';
+  }
+
+  @override
+  String get placeGuestbookAbout => 'お店の中にいる人だけが読めます。匿名で、30 日後に消えます。';
+
+  @override
+  String get placeGuestbookEmpty => 'まだ誰も書いていません。最初のひとことをどうぞ。';
+
+  @override
+  String get placeGuestbookWrite => 'ひとこと残す';
+
+  @override
+  String get placeGuestbookHint => '次にここに座る人へ…';
+
+  @override
+  String get placeGuestbookSent => '残しました。次にここに来る人が読みます。';
+
+  @override
+  String get placeGuestbookUnavailable => '店内ノートは現在使えません。しばらくしてからお試しください。';
+
+  @override
+  String get placeNoteMine => 'あなたのノート';
+
+  @override
+  String get withdrawPlaceNote => 'このノートを取り消す';
+
+  @override
+  String get reportPlaceNote => 'このノートを通報';
+
+  @override
+  String get thisPlaceNote => 'このノート';
+
+  @override
+  String get guideS16L5 =>
+      '店内ノート：お店の中（約 40 m 以内）でカードを開くと、前にここに座っていた人たちが残した言葉が読めて、次の人へひとこと残すこともできます。ノートは匿名で 30 日後に消えます。同じお店には 1 日 1 件まで。タップすると翻訳でき、嫌なものは通報できます。店内ノートを開くとき、お店の中にいるか確かめるため位置情報をサーバーに送りますが、保存はしません。';
 }

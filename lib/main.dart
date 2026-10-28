@@ -921,7 +921,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   // 打開名片後，這盞燈今天改成靜止的柔光
-  void _openPlace(MoodPlace p) => showMoodPlaceCard(context, p).then((_) { if (mounted) setState(() {}); });
+  void _openPlace(MoodPlace p) {
+    final pos = _currentPosition;
+    showMoodPlaceCard(context, p, here: pos == null ? null : (lat: pos.latitude, lng: pos.longitude), myUid: widget.uid)
+        .then((_) { if (mounted) setState(() {}); });
+  }
 
   Future<void> _loadBeaconPrefs() async {
     final prefs = await SharedPreferences.getInstance();

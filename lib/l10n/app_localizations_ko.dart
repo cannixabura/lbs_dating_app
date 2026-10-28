@@ -1812,4 +1812,47 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS16L4 =>
       '플레이스 목록은 통째로 휴대폰에 내려받고, 근처에 있는지는 휴대폰 안에서만 판단해요. 어느 가게를 지나갔는지 저희도 가게도 알 수 없어요. 가게는 돈을 내고 노출을 늘릴 수 없어요. 정보가 틀리면 카드 아래에서 알려 주세요.';
+
+  @override
+  String get placeGuestbook => '방명록';
+
+  @override
+  String placeGuestbookLocked(int m) {
+    return '가게 안(약 ${m}m 이내)에 들어가면 먼저 여기 앉았던 사람들이 남긴 말을 읽을 수 있어요.';
+  }
+
+  @override
+  String get placeGuestbookAbout => '가게 안에 있는 사람만 읽을 수 있어요. 익명이고 30일 뒤에 사라져요.';
+
+  @override
+  String get placeGuestbookEmpty => '아직 아무도 남기지 않았어요. 첫 마디를 남겨 보세요.';
+
+  @override
+  String get placeGuestbookWrite => '한마디 남기기';
+
+  @override
+  String get placeGuestbookHint => '다음에 여기 앉을 사람에게…';
+
+  @override
+  String get placeGuestbookSent => '남겼어요. 다음에 여기 올 사람이 읽을 거예요.';
+
+  @override
+  String get placeGuestbookUnavailable =>
+      '지금은 방명록을 이용할 수 없어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get placeNoteMine => '내 메모';
+
+  @override
+  String get withdrawPlaceNote => '이 메모 거두기';
+
+  @override
+  String get reportPlaceNote => '이 메모 신고';
+
+  @override
+  String get thisPlaceNote => '이 메모';
+
+  @override
+  String get guideS16L5 =>
+      '방명록: 가게 안(약 40m 이내)에서 카드를 열면 먼저 여기 앉았던 사람들이 남긴 말을 읽고, 다음 사람에게 한마디 남길 수 있어요. 메모는 익명이고 30일 뒤에 사라져요. 같은 가게에는 하루 한 번 남길 수 있고, 누르면 번역되며, 불편한 메모는 신고할 수 있어요. 방명록을 열 때 가게 안에 있는지 확인하려고 위치를 서버로 보내지만 저장하지 않아요.';
 }

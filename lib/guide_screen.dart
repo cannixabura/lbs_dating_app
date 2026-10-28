@@ -69,7 +69,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS16L1,
       tr.guideS16L2,
       tr.guideS16L3,
-      tr.guideS16L4,
+      tr.guideS16L4, tr.guideS16L5,
     ]),
     (Icons.ios_share, tr.guideS10Title, [
       tr.guideS10L1,

@@ -10,23 +10,28 @@ class HiddenContent extends ChangeNotifier {
   static const _usersKey = 'hidden_users';
   static const _whispersKey = 'hidden_whispers';
   static const _announcementsKey = 'hidden_announcements';
+  static const _placeNotesKey = 'hidden_place_notes';
 
   final Set<String> users = {};
   final Set<String> whispers = {};
   final Set<String> announcements = {}; // "<gid>:<announcementId>"
+  final Set<String> placeNotes = {}; // 店內留言本的留言 id
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     users.addAll(prefs.getStringList(_usersKey) ?? const []);
     whispers.addAll(prefs.getStringList(_whispersKey) ?? const []);
     announcements.addAll(prefs.getStringList(_announcementsKey) ?? const []);
+    placeNotes.addAll(prefs.getStringList(_placeNotesKey) ?? const []);
     notifyListeners();
   }
 
-  /// 依檢舉的對象隱藏：一般是使用者的 uid；低語是 "whisper:<id>"；集會公告是 "gathering:<gid>:<aid>"
+  /// 依檢舉的對象隱藏：一般是使用者的 uid；低語是 "whisper:<id>"；集會公告是 "gathering:<gid>:<aid>"；店內留言是 "place_note:<id>"
   Future<void> hideReported(String target) async {
     if (target.startsWith('whisper:')) {
       whispers.add(target.substring(8));
+    } else if (target.startsWith('place_note:')) {
+      placeNotes.add(target.substring(11));
     } else if (target.startsWith('gathering:')) {
       final parts = target.split(':');
       if (parts.length == 3) announcements.add('${parts[1]}:${parts[2]}');
@@ -38,6 +43,7 @@ class HiddenContent extends ChangeNotifier {
     await prefs.setStringList(_usersKey, users.toList());
     await prefs.setStringList(_whispersKey, whispers.toList());
     await prefs.setStringList(_announcementsKey, announcements.toList());
+    await prefs.setStringList(_placeNotesKey, placeNotes.toList());
   }
 
   bool isAnnouncementHidden(String gid, String? announcementId) => announcementId != null && announcements.contains('$gid:$announcementId');

@@ -524,5 +524,18 @@
   "guideS16L1": "Tempat Mood adalah kafe independen yang bekerja sama dengan kami. Setelah check in, berjalanlah dalam jarak 150 m dari kafe yang sedang buka, dan lampu kecil yang bernapas pelan muncul di radarmu. Lampu padam saat kamu menjauh.",
   "guideS16L2": "Ketuk lampu untuk membuka kartu tempat: pemandangan malam dari dalam kafe, jam tutup hari ini, satu kalimat cerita mood dari kafe (ketuk untuk menerjemahkan), alamat dan nomor telepon. Ketuk Jalan ke sana untuk rute jalan kaki di aplikasi peta. Lampu yang kartunya sudah kamu buka hari ini menyala lembut tanpa bernapas.",
   "guideS16L3": "Saat pertama kali lewat, kartu kecil di atas memberitahumu, tanpa suara atau getar. Paling banyak satu petunjuk per tempat setiap 7 hari dan 2 petunjuk sehari. Matikan di Pengaturan > Petunjuk Tempat Mood; lampunya tetap ada.",
-  "guideS16L4": "Seluruh daftar tempat diunduh ke ponselmu, dan apakah kamu berada di dekatnya hanya ditentukan di ponselmu. Kami dan kafe tidak tahu tempat mana yang kamu lewati. Kafe tidak bisa membayar agar lebih terlihat. Jika ada info yang salah, laporkan di bagian bawah kartu."
+  "guideS16L4": "Seluruh daftar tempat diunduh ke ponselmu, dan apakah kamu berada di dekatnya hanya ditentukan di ponselmu. Kami dan kafe tidak tahu tempat mana yang kamu lewati. Kafe tidak bisa membayar agar lebih terlihat. Jika ada info yang salah, laporkan di bagian bawah kartu.",
+  "placeGuestbook": "Buku tamu",
+  "placeGuestbookLocked": "Masuk ke dalam (sekitar {m} m) untuk membaca kata-kata dari orang yang pernah duduk di sini.",
+  "placeGuestbookAbout": "Hanya orang di dalam yang bisa membacanya. Anonim, hilang setelah 30 hari.",
+  "placeGuestbookEmpty": "Belum ada catatan. Tinggalkan yang pertama.",
+  "placeGuestbookWrite": "Tinggalkan catatan",
+  "placeGuestbookHint": "Untuk orang berikutnya yang duduk di sini…",
+  "placeGuestbookSent": "Selesai. Orang berikutnya di sini akan membacanya.",
+  "placeGuestbookUnavailable": "Buku tamu sedang tidak tersedia. Coba lagi nanti.",
+  "placeNoteMine": "Catatanmu",
+  "withdrawPlaceNote": "Tarik catatan ini",
+  "reportPlaceNote": "Laporkan catatan ini",
+  "thisPlaceNote": "catatan ini",
+  "guideS16L5": "Buku tamu: buka kartu tempat saat kamu di dalam (sekitar 40 m) untuk membaca kata-kata dari orang yang pernah duduk di sini, dan tinggalkan satu kalimat untuk orang berikutnya. Catatan bersifat anonim dan hilang setelah 30 hari. Kamu bisa meninggalkan satu catatan per tempat per hari, ketuk catatan untuk menerjemahkannya, dan laporkan yang mengganggu. Saat membuka buku tamu, ponselmu mengirim lokasi ke server kami untuk memastikan kamu di dalam; server tidak menyimpannya."
 }

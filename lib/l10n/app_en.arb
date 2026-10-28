@@ -524,5 +524,18 @@
   "guideS16L1": "Mood Places are independent cafés we partner with. After you check in, walk within 150 m of one while it is open and a small lamp appears on your radar, slowly breathing. It goes out when you walk away.",
   "guideS16L2": "Tap the lamp to open the place card: a night view from inside, today's closing time, a one-line mood story from the café (tap to translate), the address and phone number. Tap Walk there to get walking directions in your map app. A lamp whose card you opened today glows softly without breathing.",
   "guideS16L3": "The first time you pass, a small card at the top lets you know, with no sound or vibration. You get at most one hint per place every 7 days and 2 hints a day. Turn them off in Settings > Mood Place hints; the lamps stay.",
-  "guideS16L4": "The whole list of places is downloaded to your phone, and whether you are nearby is worked out only on your phone. Neither we nor the cafés know which places you pass. Cafés cannot pay for visibility. If something is wrong, report it at the bottom of the card."
+  "guideS16L4": "The whole list of places is downloaded to your phone, and whether you are nearby is worked out only on your phone. Neither we nor the cafés know which places you pass. Cafés cannot pay for visibility. If something is wrong, report it at the bottom of the card.",
+  "placeGuestbook": "Guestbook",
+  "placeGuestbookLocked": "Step inside (within about {m} m) to read what people who sat here before left behind.",
+  "placeGuestbookAbout": "Only people inside can read it. Anonymous, gone after 30 days.",
+  "placeGuestbookEmpty": "No notes yet. Leave the first one.",
+  "placeGuestbookWrite": "Leave a note",
+  "placeGuestbookHint": "For the next person who sits here…",
+  "placeGuestbookSent": "Done. The next person here will read it.",
+  "placeGuestbookUnavailable": "The guestbook isn't available right now. Please try again later.",
+  "placeNoteMine": "Your note",
+  "withdrawPlaceNote": "Take back this note",
+  "reportPlaceNote": "Report this note",
+  "thisPlaceNote": "this note",
+  "guideS16L5": "Guestbook: open a place's card while you're inside (within about 40 m) to read what people who sat here before left behind, and leave a line for the next person. Notes are anonymous and disappear after 30 days. You can leave one note per place per day, tap a note to translate it, and report anything that bothers you. When you open the guestbook, your phone sends your location to our server to confirm you're inside; the server doesn't keep it."
 }

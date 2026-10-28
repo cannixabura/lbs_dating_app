@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'legal.dart';
+import 'place_notes.dart';
 import 'translate.dart';
 import 'ui/night.dart';
 
@@ -309,8 +310,8 @@ class _MoodPlaceLampState extends State<MoodPlaceLamp> with SingleTickerProvider
   }
 }
 
-/// 據點名片：照片、店名、今天營業到幾點、心情故事（點一下翻譯）、地址、電話、導航、回報資料有誤
-Future<void> showMoodPlaceCard(BuildContext context, MoodPlace p) {
+/// 據點名片：照片、店名、今天營業到幾點、心情故事（點一下翻譯）、店內留言本、地址、電話、導航、回報資料有誤
+Future<void> showMoodPlaceCard(BuildContext context, MoodPlace p, {required ({double lat, double lng})? here, required String myUid}) {
   PlaceHints.markSeen(p.id, DateTime.now());
   return showModalBottomSheet(
     context: context,
@@ -328,7 +329,7 @@ Future<void> showMoodPlaceCard(BuildContext context, MoodPlace p) {
           border: Border.all(color: Night.glassLine),
           boxShadow: const [Night.lift],
         ),
-        child: _PlaceCard(place: p),
+        child: _PlaceCard(place: p, here: here, myUid: myUid),
       ),
     ),
   );
@@ -336,7 +337,9 @@ Future<void> showMoodPlaceCard(BuildContext context, MoodPlace p) {
 
 class _PlaceCard extends StatefulWidget {
   final MoodPlace place;
-  const _PlaceCard({required this.place});
+  final ({double lat, double lng})? here;
+  final String myUid;
+  const _PlaceCard({required this.place, required this.here, required this.myUid});
   @override
   State<_PlaceCard> createState() => _PlaceCardState();
 }
@@ -436,6 +439,8 @@ class _PlaceCardState extends State<_PlaceCard> {
                 ),
               ],
               const SizedBox(height: Night.space4),
+              PlaceGuestbook(place: p, here: widget.here, myUid: widget.myUid),
+              const SizedBox(height: Night.space3),
               _InfoRow(icon: Icons.place_outlined, text: p.address, onTap: () => openPlaceDirections(p)),
               if (p.phone.isNotEmpty) _InfoRow(icon: Icons.call_outlined, text: p.phone, onTap: _call),
               const SizedBox(height: Night.space3),

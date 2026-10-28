@@ -155,7 +155,7 @@
         "target": { ".validate": "newData.isString() && newData.val() !== auth.uid && newData.val().length > 0 && newData.val().length <= 128" },
         "reason": { ".validate": "newData.val() === 'harassment' || newData.val() === 'sexual' || newData.val() === 'scam' || newData.val() === 'hate' || newData.val() === 'impersonation' || newData.val() === 'other'" },
         "detail": { ".validate": "newData.isString() && newData.val().length <= 500" },
-        "context": { ".validate": "newData.val() === 'bubble' || newData.val() === 'knock' || newData.val() === 'chat' || newData.val() === 'whisper' || newData.val() === 'gathering'" },
+        "context": { ".validate": "newData.val() === 'bubble' || newData.val() === 'knock' || newData.val() === 'chat' || newData.val() === 'whisper' || newData.val() === 'gathering' || newData.val() === 'placeNote'" },
         "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
         "$other": { ".validate": false }
       }

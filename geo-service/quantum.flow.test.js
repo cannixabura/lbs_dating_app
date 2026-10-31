@@ -13,6 +13,10 @@ global.fetch = async (url, { body }) => {
 };
 const admin = require('firebase-admin');
 Object.defineProperty(Object.getPrototypeOf(admin), 'auth', { configurable: true, value: () => ({ verifyIdToken: async (token) => ({ uid: token }) }) });
+const blocks = new Set(); // 'a/b' = a 封鎖了 b
+Object.defineProperty(Object.getPrototypeOf(admin), 'database', { configurable: true, value: () => ({
+    ref: (path) => ({ once: async () => ({ exists: () => blocks.has(path.replace(/^blocks\//, '')), val: () => null }) }),
+}) });
 
 const { quantum: handler } = require('./index');
 const q = require('./quantum');
@@ -154,4 +158,89 @@ test('a GPS jump that drifts back slowly does not leave you outside your seat on
     r = await beat('ivy', { east: 12, north: 5 }); // 回到家門口
     assert.ok(Math.abs(r.me.east - 12) < 1e-9 && Math.abs(r.me.north - 5) < 1e-9);
     assert.ok(distM(r.me, home) < 20);
+});
+
+// ---------- 第二期 ----------
+
+test('day-night tint is always shared, local time and topics only as chosen', async () => {
+    clock = Date.parse('2026-11-02T00:30:00Z'); // 台北 08:30、東京 09:30
+    await enter('p2a', { tz: 480, topics: [0, 4, 4, 9] });
+    await enter('p2b', { tz: 540, showTime: true });
+    const r = await beat('p2a');
+    const b = r.data.find((u) => u.uid === 'p2b');
+    assert.strictEqual(b.day, 'day');
+    assert.strictEqual(b.tz, 540);
+    const a = (await beat('p2b')).data.find((u) => u.uid === 'p2a');
+    assert.strictEqual(a.tz, undefined, 'local time stays hidden unless allowed');
+    assert.deepStrictEqual(a.topics, [0, 4]);
+});
+
+test('entanglement: invite, accept, line at any distance, max 3, collapses when one leaves', async () => {
+    clock += 5000;
+    assert.strictEqual((await call('p2a', { action: 'entangle', op: 'invite', uid: 'p2b' })).status, 200);
+    let r = await beat('p2b');
+    assert.deepStrictEqual(r.invites.map((i) => i.uid), ['p2a']);
+    assert.strictEqual((await call('p2b', { action: 'entangle', op: 'accept', uid: 'p2a' })).entangled, true);
+    r = await beat('p2a', { radiusKM: 0.1 }); // 就算不在雷達範圍內，糾纏的人也有位置
+    assert.deepStrictEqual(r.ent.map((e) => e.uid), ['p2b']);
+    assert.ok(r.ent[0].code.startsWith('Q'));
+    assert.deepStrictEqual((await beat('p2b')).invites, []);
+
+    for (const u of ['p2c', 'p2d', 'p2e']) {
+        await enter(u);
+        await call(u, { action: 'entangle', op: 'invite', uid: 'p2a' });
+    }
+    assert.strictEqual((await call('p2a', { action: 'entangle', op: 'accept', uid: 'p2c' })).status, 200);
+    assert.strictEqual((await call('p2a', { action: 'entangle', op: 'accept', uid: 'p2d' })).status, 200);
+    assert.strictEqual((await call('p2a', { action: 'entangle', op: 'accept', uid: 'p2e' })).code, 'full');
+
+    blocks.add('p2e/p2b');
+    assert.strictEqual((await call('p2b', { action: 'entangle', op: 'invite', uid: 'p2e' })).code, 'gone');
+
+    await call('p2b', { action: 'leave' });
+    r = await beat('p2a');
+    assert.deepStrictEqual(r.entGone, ['p2b']);
+    assert.ok(!r.ent.some((e) => e.uid === 'p2b'));
+    assert.deepStrictEqual((await beat('p2a')).entGone, [], 'told only once');
+
+    await call('p2c', { action: 'entangle', op: 'cut', uid: 'p2a' });
+    assert.deepStrictEqual((await beat('p2a')).entGone, ['p2c']);
+});
+
+test('tunnelling moves you to another free seat once per entry, keeps entanglement', async () => {
+    clock += 5000;
+    const before = (await beat('p2a', { east: 30, north: 0 })).me;
+    const t = await call('p2a', { action: 'tunnel' });
+    assert.strictEqual(t.status, 200);
+    assert.notStrictEqual(t.me.code, before.code);
+    assert.strictEqual(t.me.east, 0);
+    assert.strictEqual((await call('p2a', { action: 'tunnel' })).code, 'used');
+    // 走一點路：從新席位開始算；走回穿隧的地方就歸位到新席位
+    clock += 10000;
+    let r = await beat('p2a', { east: 42, north: 0 });
+    assert.ok(Math.abs(r.me.east - 12) < 1e-9);
+    assert.strictEqual(r.me.code, t.me.code);
+    assert.ok(r.me.tunneled);
+    r = await beat('p2d');
+    assert.ok(r.ent.some((e) => e.uid === 'p2a' && e.code === t.me.code));
+    // 原本的席位空出來，下一個人補進去
+    assert.strictEqual((await enter('p2f')).me.code, before.code);
+});
+
+test('hourly chime: glimmers counted once each, fly-in positions shared, closed outside the show', async () => {
+    clock = Date.parse('2026-11-02T03:59:20Z'); // 台北 11:59:20
+    for (const u of ['p2a', 'p2d', 'p2f']) await beat(u);
+    assert.strictEqual((await call('p2a', { action: 'chime' })).code, 'closed');
+    let r = await beat('p2a');
+    assert.strictEqual(r.chime.strikes, 12);
+    assert.strictEqual(r.chime.count, 0);
+    clock = Date.parse('2026-11-02T04:00:03Z');
+    assert.strictEqual((await call('p2a', { action: 'chime' })).count, 1);
+    assert.strictEqual((await call('p2a', { action: 'chime' })).first, false);
+    assert.strictEqual((await call('p2d', { action: 'chime' })).count, 2);
+    r = await beat('p2f');
+    assert.strictEqual(r.chime.count, 2);
+    assert.strictEqual(r.chime.fx.length, 2); // 同一個人點兩次只算一道
+    clock = Date.parse('2026-11-02T04:05:00Z');
+    assert.strictEqual((await beat('p2f')).chime, undefined);
 });

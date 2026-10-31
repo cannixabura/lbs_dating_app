@@ -17,6 +17,12 @@
 //   quantum_region:{r}    sorted set：各大區的心跳（只用來算匿名人數）
 //   quantum_users         地理索引：只放量子世界的顯示位置
 //   quantum_collapses     sorted set：剛主動離開的人（score = 時間），讓旁邊的人播放塌縮動畫
+//   ── 第二期 ──
+//   quantum_ent:{uid}       set：這次入場糾纏中的人（雙方各存一份），任一方離開就斷掉
+//   quantum_ent_inv:{uid}   hash：誰邀請我糾纏 → 邀請時間（2 分鐘內有效）
+//   quantum_ent_gone:{uid}  list：糾纏剛塌縮的對方暱稱，下一次心跳告訴我
+//   quantum_chime:{hour}    sorted set：這次整點報時送出報時微光的人
+//   quantum_chime_fx:{hour} sorted set：報時微光的出發點「uid|lat|lng」，讓大家看到光點飛向原點
 // ============================================================================
 
 const parallel = require('./parallel');
@@ -47,7 +53,21 @@ const KEY = {
     region: (r) => `quantum_region:${r}`,
     geo: 'quantum_users',
     collapses: 'quantum_collapses',
+    ent: (uid) => `quantum_ent:${uid}`,
+    invites: (uid) => `quantum_ent_inv:${uid}`,
+    entGone: (uid) => `quantum_ent_gone:${uid}`,
+    chime: (hour) => `quantum_chime:${hour}`,
+    chimeFx: (hour) => `quantum_chime_fx:${hour}`,
 };
+
+const MAX_ENTANGLED = 3; // 每人同時最多糾纏 3 人
+const INVITE_MS = 2 * 60 * 1000;
+const HOUR_MS = 3600 * 1000;
+const CHIME_BEFORE_MS = 60 * 1000; // 整點前 1 分鐘光柱開始變亮
+const CHIME_AFTER_MS = 30 * 1000; // 報時約 15 秒，再留一點時間給慢一點的心跳拿到最後的人數
+const CHIME_FX_MAX = 40;
+const TOPIC_COUNT = 8; // 音樂、電影、科技、散步、美食、旅行、閱讀、運動
+const MAX_TOPICS = 3;
 
 // 大區：只用來顯示匿名人數
 const REGIONS = ['tw', 'jp', 'kr', 'hkmo', 'sea', 'other'];
@@ -122,7 +142,12 @@ function nearestCode(east, north) {
  */
 function accumulate(state, raw, now) {
     if (finite(state.homeEast) && finite(state.homeNorth) &&
-        Math.hypot(raw.east - state.homeEast, raw.north - state.homeNorth) <= HOME_RADIUS_M) return { east: raw.east, north: raw.north };
+        Math.hypot(raw.east - state.homeEast, raw.north - state.homeNorth) <= HOME_RADIUS_M) {
+        // 回到入場（或穿隧）那一刻的累計位移，加上離那裡多遠
+        const baseE = finite(state.homeAccEast) ? state.homeAccEast : state.homeEast;
+        const baseN = finite(state.homeAccNorth) ? state.homeAccNorth : state.homeNorth;
+        return { east: baseE + raw.east - state.homeEast, north: baseN + raw.north - state.homeNorth };
+    }
     const dE = raw.east - state.rawEast, dN = raw.north - state.rawNorth;
     const seconds = Math.max(0.001, (now - state.rawAt) / 1000);
     if (Math.hypot(dE, dN) / seconds > MAX_SPEED_MPS) return { east: state.east, north: state.north };
@@ -192,6 +217,44 @@ function regionCounts(counts) {
     return out;
 }
 
+// ---------- 第二期：讓世界活起來 ----------
+
+/** 最近的整點（毫秒）；台北是整數時區，整點和 UTC 相同 */
+const nearestHour = (now) => Math.round(now / HOUR_MS) * HOUR_MS;
+/** 報時編號：整點時間 / 1 小時 */
+const chimeHour = (now) => Math.round(now / HOUR_MS);
+/** 是否在報時期間（整點前 1 分鐘到整點後 30 秒） */
+function inChime(now) {
+    const d = now - nearestHour(now);
+    return d >= -CHIME_BEFORE_MS && d <= CHIME_AFTER_MS;
+}
+/** 報時微光只在報時那 15 秒（前後各留幾秒）收 */
+function chimeOpen(now) {
+    const d = now - nearestHour(now);
+    return d >= -5000 && d <= 25000;
+}
+/** 台北時間的點數：1 點 1 聲、23 點 23 聲、0 點 24 聲 */
+function chimeStrikes(now) {
+    const h = new Date(nearestHour(now) + 8 * HOUR_MS).getUTCHours();
+    return h === 0 ? 24 : h;
+}
+
+/** 時區偏移（分鐘）：-12:00 ～ +14:00 的整數 */
+const validTz = (v) => Number.isInteger(v) && v >= -720 && v <= 840;
+
+/** 主人的當地時間 → 晝夜色調：清晨 5–8、白天 8–17、黃昏 17–20、深夜 20–5 */
+function dayPart(tz, now) {
+    const minutes = (((Math.floor(now / 60000) + tz) % 1440) + 1440) % 1440;
+    const h = minutes / 60;
+    return h >= 5 && h < 8 ? 'dawn' : h >= 8 && h < 17 ? 'day' : h >= 17 && h < 20 ? 'dusk' : 'night';
+}
+
+/** 量子同頻：最多 3 個主題（0～7），去掉重複和不認得的 */
+function cleanTopics(list) {
+    if (!Array.isArray(list)) return [];
+    return [...new Set(list.filter((t) => Number.isInteger(t) && t >= 0 && t < TOPIC_COUNT))].slice(0, MAX_TOPICS);
+}
+
 // ---------- 世界視角 ----------
 
 /** 雷達半徑（公里）：一般最多 5 公里，世界視角最多 60 公里 */
@@ -205,4 +268,6 @@ module.exports = {
     RADAR_KM, WORLD_MAX_KM, WORLD_MAX_DOTS, MAX_RESULTS, REGION_MIN, STALE_SWEEP, KEY, REGIONS, MAINLAND_CHINA,
     seatOffset, ringOf, seat, toLatLng, toLocal, nearestCode, accumulate, validDisplacement,
     insidePolygon, isMainlandChina, regionOf, regionCounts, clampRadius,
+    MAX_ENTANGLED, INVITE_MS, HOUR_MS, CHIME_FX_MAX, TOPIC_COUNT, MAX_TOPICS,
+    nearestHour, chimeHour, inChime, chimeOpen, chimeStrikes, validTz, dayPart, cleanTopics,
 };

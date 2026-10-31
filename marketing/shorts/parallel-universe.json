@@ -1,0 +1,29 @@
+{
+  "_note": "平行宇宙篇《同一個深夜》。素材在 footage/parallel/（不進 git）；台北方 App 畫面是 Pixel 錄影 app/taipei_take1–4.mp4，東京方是 iPhone Air 模擬器 app/tokyo2.mp4（日文介面）。take2 的 10–16 秒錄到私人通知，用 segments 跳過。執行：python3 tool/make_story_short.py marketing/shorts/parallel-universe.json",
+  "out": "marketing/shorts/out/parallel_universe_midnight",
+  "crossfade": 0.5,
+  "audio": true,
+  "wide": false,
+  "shots": [
+    {"src": "footage/parallel/shot1.mov", "dur": 5, "caption": "今晚的台北，好安靜",
+     "app": {"src": "footage/parallel/app/taipei_take1.mp4", "start": 0.5, "dur": 4.5, "in": 1.2, "x": 44, "y": 880}},
+    {"src": "footage/parallel/shot2.mov", "dur": 4.5, "caption": "那就去別的城市看看",
+     "app": {"src": "footage/parallel/app/taipei_take1.mp4", "segments": [[4.5, 3.5], [14.5, 3.5]], "in": 0.3, "x": 44, "y": 880}},
+    {"src": "footage/parallel/shot3.mov", "dur": 5, "caption": "台北，現在 23:40",
+     "app": {"src": "footage/parallel/app/taipei_take1.mp4", "start": 17, "dur": 6, "in": 0.3, "x": 44, "y": 1100, "w": 360}},
+    {"src": "footage/parallel/shot4.mov", "dur": 4.5, "caption": "東京，現在 00:40"},
+    {"src": "footage/parallel/shot5.mov", "dur": 5.5, "caption": "點一下，就讀得懂",
+     "app": {"src": "footage/parallel/app/taipei_take2.mp4", "segments": [[1, 4.5], [16.5, 5]], "in": 0.3, "x": 44, "y": 880}},
+    {"src": "footage/parallel/shot6.mov", "dur": 5.5, "caption": "台北，有人看見了", "crop": [40, 560, 720, 1280],
+     "app": {"src": "footage/parallel/app/tokyo2.mp4", "segments": [[17.5, 4], [50.5, 3], [66, 3.5]], "in": 0.3, "y": 900, "w": 400}},
+    {"split": [{"src": "footage/parallel/shot7a.mov", "crop": [60, 200, 960, 853]},
+               {"src": "footage/parallel/shot7b.mov", "crop": [20, 760, 770, 684]}],
+     "dur": 7, "caption": "隔著兩千公里，一起等車", "caption_y": 110, "labels": ["台北", "東京"],
+     "app": {"src": "footage/parallel/app/taipei_take3.mp4", "segments": [[27, 3.5], [80, 3], [113, 3.5], [131, 3]], "crop": [0, 0, 1008, 1340], "in": 0.4, "x": 44, "y": 640, "w": 440}},
+    {"src": "footage/parallel/shot8.mov", "dur": 5, "caption": "同一個深夜，兩座城市", "caption_in": 1.5,
+     "blur": [[120, 530, 260, 170, 0, 0.75], [20, 470, 320, 170, 0.6, 1.45], [0, 240, 320, 340, 1.3, 2.6]],
+     "app": {"src": "footage/parallel/app/taipei_take4.mp4", "segments": [[8, 5], [49, 3]], "crop": [0, 0, 1008, 1340], "in": 2.2, "x": 44, "y": 1020, "w": 440}},
+    {"end": true, "dur": 4.5, "title": "在另一座城市的某個角落，有人也還醒著。", "subtitle": "城市低語｜App Store 搜尋「城市低語」",
+     "note": "影片中的 App 畫面為示範情境"}
+  ]
+}

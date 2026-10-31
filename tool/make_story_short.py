@@ -11,12 +11,20 @@ JSON：
     {"src": "footage/shot1.mov", "dur": 5, "caption": "字幕",
      "app": {"src": "footage/app.mov", "start": 15, "dur": 5}   # 或 {"image": "x.png", "crop": [l, t, r, b]}
     },
+    {"card": true, "dur": 2, "title": "一年後"},             # 黑底置中字卡（靜音）
     {"end": true, "dur": 4, "title": "…", "subtitle": "…", "note": "…"}
   ]
 }
 - 真人鏡頭會延展或剪短到 dur（setpts 慢動作），統一 1080×1920、30fps。
 - "wide": false 只輸出直式；同時 "audio": true 時只留一個有環境音的 <out>.mp4。
 - "audio": true 時另外輸出 *_ambient 版本：保留 AI 片段自帶的環境音（跟著慢動作拉長、鏡頭間交叉淡化，結尾卡靜音淡出）。
+- 鏡頭可加 "start"（從第幾秒開始用）與 "blur": [[x, y, w, h, 到第幾秒（可省略）], …]（以 1080×1920 座標、邊緣柔和地模糊 AI 亂畫的招牌）；
+  給 6 個數字 [x, y, w, h, 從第幾秒, 到第幾秒] 可以分段跟著移動的招牌。
+- "caption_y" 可以改字幕高度（預設 250）。
+- "crop": [x, y, w, h]（1080×1920 座標，9:16）把人物放大，例如 AI 鏡頭拍得太遠時。
+- {"split": [{"src", "start", "crop": [x, y, w, h]}, {…}], "dur": 6}：上下分割畫面，各自裁一塊（1080:960 的比例）疊成一個畫面，中間一條細光線；"labels": ["台北", "東京"] 在兩半右上角放地名；環境音兩邊混在一起。
+- App 錄影也可以加 "crop": [l, t, r, b]（原始像素）只露出一部分，例如聊天室上半部、不露鍵盤。
+- App 錄影可用 "segments": [[開始, 長度], …] 取代 start/dur，只接需要的幾段（跳過錄到的私人通知、等待時間）；手機框高度依錄影比例自動算。
 - App 畫面放在右下方的圓角手機框裡，88% 不透明，淡入 0.4 秒（app.y 可調高度）；字幕在上方三分之一的半透明膠囊裡。
 """
 import json
@@ -106,20 +114,49 @@ def end_card(shot, path):
     img.save(path)
 
 
-def build_audio(i, shot, base, tmp):
-    """這一鏡的環境音：跟影片同樣的放慢比例，長度補齊到 dur；結尾卡是靜音。"""
-    out = os.path.join(tmp, f"a{i:02d}.wav")
-    dur = shot["dur"]
-    if shot.get("end"):
-        run(["-f", "lavfi", "-t", str(dur), "-i", "anullsrc=r=48000:cl=stereo", out])
-        return out
-    src = os.path.join(base, shot["src"])
+def title_card(shot, path):
+    img = Image.new("RGB", (W, H), (7, 11, 31))
+    d = ImageDraw.Draw(img)
+    f = font(72)
+    d.text(((W - f.getlength(shot["title"])) / 2, H / 2 - 50), shot["title"], font=f, fill=(243, 240, 255))
+    img.save(path)
+
+
+def src_duration(src):
     probe = subprocess.run([FFMPEG, "-i", src], capture_output=True, text=True).stderr
     hms = probe.split("Duration: ")[1].split(",")[0].split(":")
-    src_dur = float(hms[0]) * 3600 + float(hms[1]) * 60 + float(hms[2])
-    speed = max(0.5, min(1.0, src_dur / dur))
-    run(["-i", src, "-af", f"atempo={speed},aresample=48000,apad,atrim=duration={dur},afade=in:d=0.3,afade=out:st={dur - 0.5}:d=0.5",
-         "-ac", "2", out])
+    return float(hms[0]) * 3600 + float(hms[1]) * 60 + float(hms[2])
+
+
+def src_size(src):
+    probe = subprocess.run([FFMPEG, "-i", src], capture_output=True, text=True).stderr
+    for token in probe.split("Video:")[1].split(","):
+        dims = token.strip().split(" ")[0]
+        if "x" in dims and dims.replace("x", "").isdigit():
+            w, h = dims.split("x")
+            return int(w), int(h)
+    return 1320, 2868
+
+
+def build_audio(i, shot, base, tmp):
+    """這一鏡的環境音：跟影片同樣的放慢比例，長度補齊到 dur；字卡與結尾卡是靜音。"""
+    out = os.path.join(tmp, f"a{i:02d}.wav")
+    dur = shot["dur"]
+    if shot.get("end") or shot.get("card"):
+        run(["-f", "lavfi", "-t", str(dur), "-i", "anullsrc=r=48000:cl=stereo", out])
+        return out
+    parts = shot["split"] if shot.get("split") else [shot]
+    inputs, chains = [], []
+    for k, part in enumerate(parts):
+        src = os.path.join(base, part["src"])
+        start = part.get("start", 0)
+        speed = max(0.5, min(1.0, (src_duration(src) - start) / dur))
+        inputs += ["-ss", str(start), "-i", src]
+        chains.append(f"[{k}:a]atempo={speed},aresample=48000,apad,atrim=duration={dur}[p{k}]")
+    mixed = "".join(f"[p{k}]" for k in range(len(parts)))
+    mix = f"{mixed}amix=inputs={len(parts)}:normalize=0," if len(parts) > 1 else f"{mixed}"
+    run([*inputs, "-filter_complex", ";".join(chains) + f";{mix}afade=in:d=0.3,afade=out:st={dur - 0.5}:d=0.5[o]",
+         "-map", "[o]", "-ac", "2", out])
     return out
 
 
@@ -131,45 +168,109 @@ def build_shot(i, shot, base, tmp):
         end_card(shot, png)
         run(["-loop", "1", "-t", str(dur), "-i", png, "-vf", f"fps={FPS},format=yuv420p,fade=in:st=0:d=0.6", "-c:v", "libx264", "-crf", "18", out])
         return out
+    if shot.get("card"):
+        png = os.path.join(tmp, f"card{i}.png")
+        title_card(shot, png)
+        run(["-loop", "1", "-t", str(dur), "-i", png, "-vf", f"fps={FPS},format=yuv420p", "-c:v", "libx264", "-crf", "18", out])
+        return out
 
-    src = os.path.join(base, shot["src"])
-    probe = subprocess.run([FFMPEG, "-i", src], capture_output=True, text=True).stderr
-    hms = probe.split("Duration: ")[1].split(",")[0].split(":")
-    src_dur = float(hms[0]) * 3600 + float(hms[1]) * 60 + float(hms[2])
-    speed = min(1.0, src_dur / dur)  # 片段比目標短就放慢
-    inputs = ["-i", src]
-    graph = [f"[0:v]setpts=PTS/{speed},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},trim=duration={dur},setpts=PTS-STARTPTS,"
-             f"eq=brightness=-0.02:saturation=1.05[base]"]
+    def clip(k, part, crop, out_h):
+        """第 k 個輸入：放慢到 dur、補滿 1080×1920，再裁一塊放大到 1080×out_h。"""
+        src = os.path.join(base, part["src"])
+        start = part.get("start", 0)
+        speed = min(1.0, (src_duration(src) - start) / dur)  # 片段比目標短就放慢
+        zoom = f"crop={crop[2]}:{crop[3]}:{crop[0]}:{crop[1]},scale={W}:{out_h}," if crop else ""
+        return (["-ss", str(start), "-i", src],
+                f"[{k}:v]setpts=PTS/{speed},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},{zoom}fps={FPS},"
+                f"trim=duration={dur},setpts=PTS-STARTPTS,eq=brightness=-0.02:saturation=1.05")
+
+    if shot.get("split"):
+        top, bottom = shot["split"]
+        i0, c0 = clip(0, top, top.get("crop", [0, 480, W, H // 2]), H // 2)
+        i1, c1 = clip(1, bottom, bottom.get("crop", [0, 480, W, H // 2]), H // 2)
+        line = os.path.join(tmp, f"line{i}.png")
+        glow = Image.new("RGBA", (W, 40), (0, 0, 0, 0))
+        ImageDraw.Draw(glow).rectangle((0, 18, W, 21), fill=(196, 170, 255, 230))
+        glow = glow.filter(ImageFilter.GaussianBlur(4))
+        if shot.get("labels"):  # 兩半各自右上角的地名，例如「台北」「東京」
+            full = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            full.paste(glow, (0, H // 2 - 20))
+            f = font(110)
+            for k, label in enumerate(shot["labels"]):
+                x, y = W - 40 - f.getlength(label), 30 + k * (H // 2)
+                shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                ImageDraw.Draw(shadow).text((x, y), label, font=f, fill=(0, 0, 0, 170))
+                full = Image.alpha_composite(full, shadow.filter(ImageFilter.GaussianBlur(8)))
+                ImageDraw.Draw(full).text((x, y), label, font=f, fill=(255, 255, 255, 255))
+            full.save(line)
+            line_y = 0
+        else:
+            glow.save(line)
+            line_y = H // 2 - 20
+        inputs = [*i0, *i1, "-loop", "1", "-i", line]
+        graph = [f"{c0}[top]", f"{c1}[bot]", f"[top][bot]vstack[stack];[stack][2:v]overlay=0:{line_y}:shortest=1[base]"]
+        n = 3
+    else:
+        inputs, chain = clip(0, shot, shot.get("crop"), H)
+        graph = [f"{chain}[base]"]
+        n = 1
     last = "base"
-    n = 1
+    for k, b in enumerate(shot.get("blur", [])):
+        bx, by, bw, bh = b[:4]
+        if len(b) > 5:  # [x, y, w, h, 從, 到]：只在這段時間模糊
+            until = f":enable='between(t,{b[4]},{b[5]})'"
+        else:
+            until = f":enable='lt(t,{b[4]})'" if len(b) > 4 else ""  # 第 5 個數字：只模糊到第幾秒
+        feather = os.path.join(tmp, f"feather{i}_{k}.png")
+        fm = Image.new("L", (bw, bh), 0)
+        ImageDraw.Draw(fm).rectangle((24, 24, bw - 25, bh - 25), fill=255)
+        fm.filter(ImageFilter.GaussianBlur(14)).save(feather)
+        inputs += ["-loop", "1", "-i", feather]
+        graph.append(f"[{last}]split[bs{k}][bc{k}];[bc{k}]crop={bw}:{bh}:{bx}:{by},boxblur=22:2,format=rgba[bb{k}];"
+                     f"[{n}:v]format=gray[bf{k}];[bb{k}][bf{k}]alphamerge[ba{k}];[bs{k}][ba{k}]overlay={bx}:{by}:shortest=1{until}[bl{k}]")
+        last = f"bl{k}"
+        n += 1
     app = shot.get("app")
     if app:
-        app_h = int(APP_W * 2868 / 1320)
-        mask = os.path.join(tmp, "mask.png")
-        border = os.path.join(tmp, "border.png")
-        if not os.path.exists(mask):
-            phone_frame_mask(APP_W, app_h, mask)
-            phone_border(APP_W, app_h, border)
         aw = app.get("w", APP_W)  # 橫向的 App 畫面（公告卡、面板）可以放寬，字才看得清楚
         ax = app.get("x", W - aw - 44)
+        sw, sh = (1320, 2868) if "image" in app else src_size(os.path.join(base, app["src"]))
+        vcrop = ""
+        if "crop" in app and "image" not in app:  # 只露出錄影的一部分（例如蓋掉鍵盤）：[l, t, r, b]，原始像素
+            l, t, r, b = app["crop"]
+            sw, sh = r - l, b - t
+            vcrop = f"crop={sw}:{sh}:{l}:{t},"
+        app_h = int(aw * sh / sw) // 2 * 2  # 依錄影比例（iPhone、Pixel 不同）
+        mask = os.path.join(tmp, f"mask{i}.png")
+        border = os.path.join(tmp, f"border{i}.png")
+        phone_frame_mask(aw, app_h, mask)
+        phone_border(aw, app_h, border)
         if "image" in app:
             img = Image.open(os.path.join(base, app["image"])).convert("RGB")
             if "crop" in app:
                 img = img.crop(tuple(app["crop"]))
             img = img.resize((aw, int(aw * img.height / img.width)), Image.LANCZOS)
             app_h = img.height
-            mask = os.path.join(tmp, f"mask{i}.png")
-            border = os.path.join(tmp, f"border{i}.png")
             phone_frame_mask(aw, app_h, mask)
             phone_border(aw, app_h, border)
             still = os.path.join(tmp, f"app{i}.png")
             img.save(still)
             inputs += ["-loop", "1", "-t", str(dur), "-i", still]
             app_chain = f"[{n}:v]fps={FPS},format=rgba"
+        elif "segments" in app:
+            # 幾段接起來：每段各自一個輸入，接好之後整體加速到 dur
+            segs = app["segments"]
+            for s0, d0 in segs:
+                inputs += ["-ss", str(s0), "-t", str(d0), "-i", os.path.join(base, app["src"])]
+            sp = sum(d0 for _, d0 in segs) / dur
+            pieces = "".join(f"[{n + k}:v]{vcrop}fps={FPS},scale={aw}:{app_h},setsar=1,setpts=PTS-STARTPTS[sg{i}_{k}];" for k in range(len(segs)))
+            joined = "".join(f"[sg{i}_{k}]" for k in range(len(segs)))
+            app_chain = f"{pieces}{joined}concat=n={len(segs)}:v=1:a=0,setpts=PTS/{sp},fps={FPS},format=rgba"
+            n += len(segs) - 1
         else:
             inputs += ["-ss", str(app["start"]), "-t", str(app["dur"]), "-i", os.path.join(base, app["src"])]
             sp = app["dur"] / dur
-            app_chain = f"[{n}:v]setpts=PTS/{sp},fps={FPS},scale={aw}:{app_h},format=rgba"
+            app_chain = f"[{n}:v]{vcrop}setpts=PTS/{sp},fps={FPS},scale={aw}:{app_h},format=rgba"
         inputs += ["-loop", "1", "-i", mask, "-loop", "1", "-i", border]
         a_in = app.get("in", 0.4)
         graph.append(f"{app_chain}[a{i}];[{n + 1}:v]format=gray,scale={aw}:{app_h}[m{i}];[a{i}][m{i}]alphamerge,fade=in:st={a_in}:d=0.4:alpha=1[am{i}]")
@@ -183,7 +284,7 @@ def build_shot(i, shot, base, tmp):
         caption_png(shot["caption"], cap)
         inputs += ["-loop", "1", "-i", cap]
         c0, c1 = shot.get("caption_in", 0.5), dur - 0.6
-        graph.append(f"[{n}:v]format=rgba,fade=in:st={c0}:d=0.4:alpha=1,fade=out:st={c1}:d=0.4:alpha=1[c{i}];[{last}][c{i}]overlay=0:{CAPTION_Y}:shortest=1[cap]")
+        graph.append(f"[{n}:v]format=rgba,fade=in:st={c0}:d=0.4:alpha=1,fade=out:st={c1}:d=0.4:alpha=1[c{i}];[{last}][c{i}]overlay=0:{shot.get('caption_y', CAPTION_Y)}:shortest=1[cap]")
         last = "cap"
         n += 1
     graph.append(f"[{last}]trim=duration={dur},format=yuv420p[v]")

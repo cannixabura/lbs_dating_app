@@ -1,0 +1,26 @@
+{
+  "_note": "低語穿越篇《一年後的我》。素材在 footage/time-whisper/（不進 git）；App 畫面是模擬器錄影 app/write_letter.mp4、app/unseal.mp4，通知橫幅 app/notification.png 是照伺服器推播文字做的圖。執行：python3 tool/make_story_short.py marketing/shorts/time-whisper.json",
+  "out": "marketing/shorts/out/time_whisper_one_year",
+  "crossfade": 0.5,
+  "audio": true,
+  "wide": false,
+  "shots": [
+    {"src": "footage/time-whisper/shot1.mov", "dur": 5, "caption": "明天，第一次去遊行"},
+    {"src": "footage/time-whisper/shot2.mov", "dur": 5, "caption": "寫給一年後的自己",
+     "app": {"src": "footage/time-whisper/app/write_letter.mp4", "start": 31, "dur": 12.5, "in": 0.6, "y": 860}},
+    {"src": "footage/time-whisper/shot3.mov", "dur": 5,
+     "app": {"image": "footage/time-whisper/app/letter_full.png", "crop": [72, 1780, 1250, 2340], "in": 0.5, "y": 1330, "w": 900, "x": 90}},
+    {"src": "footage/time-whisper/shot4.mov", "dur": 5, "caption": "只有我看得到",
+     "app": {"src": "footage/time-whisper/app/write_letter.mp4", "start": 57.4, "dur": 5, "in": 0.6, "y": 900}},
+    {"card": true, "dur": 2.2, "title": "一年後"},
+    {"src": "footage/time-whisper/shot5.mov", "dur": 5, "caption": "時間到了", "blur": [[460, 40, 500, 270], [440, 230, 260, 200, 1.7]],
+     "app": {"image": "footage/time-whisper/app/notification.png", "in": 1.6, "y": 1300, "w": 920, "x": 80}},
+    {"src": "footage/time-whisper/shot6.mov", "dur": 5, "caption": "回到這裡，才打得開",
+     "app": {"src": "footage/time-whisper/app/unseal.mp4", "start": 47, "dur": 14, "in": 0.6, "y": 900}},
+    {"src": "footage/time-whisper/shot7.mov", "dur": 5.5, "caption": "讀過一次，就不見了", "caption_in": 2.5,
+     "app": {"src": "footage/time-whisper/app/unseal.mp4", "start": 76.5, "dur": 5.5, "in": 0.5, "y": 980}},
+    {"src": "footage/time-whisper/shot8.mov", "dur": 5, "caption": "嗯，我做到了", "caption_in": 1.5},
+    {"end": true, "dur": 4.5, "title": "在城市的某個角落，一年後的你在等你。", "subtitle": "城市低語｜App Store 搜尋「城市低語」",
+     "note": "影片中的 App 畫面為示範情境"}
+  ]
+}

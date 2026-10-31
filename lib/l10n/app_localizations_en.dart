@@ -1005,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings → My mood trail lets you look back at the moods and places you\'ve written. It\'s stored only on your phone, and you can turn it off or clear it at any time.';
 
   @override
-  String get guideS11Title => '14. Settings and notifications';
+  String get guideS11Title => '15. Settings and notifications';
 
   @override
   String get guideS11L1 =>
@@ -1020,7 +1020,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every Friday from 21:00 to 23:00 is Light-up Night, when everyone comes online together and the city shines brightest.';
 
   @override
-  String get guideS12Title => '15. Reporting and blocking';
+  String get guideS12Title => '16. Reporting and blocking';
 
   @override
   String get guideS12L1 =>
@@ -1039,7 +1039,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you\'re in immediate danger, call your local emergency number (110 in Taiwan).';
 
   @override
-  String get guideS13Title => '16. Privacy and your account';
+  String get guideS13Title => '17. Privacy and your account';
 
   @override
   String get guideS13L1 =>
@@ -1077,7 +1077,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Fading echoes, whispers, letters to the future and gatherings stay local.';
 
   @override
-  String get guideS15Title => '13. Translation';
+  String get guideS15Title => '14. Translation';
 
   @override
   String get guideS15L1 =>
@@ -2005,4 +2005,126 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS16L5 =>
       'Guestbook: open a place\'s card while you\'re inside (within about 40 m) to read what people who sat here before left behind, and leave a line for the next person. Notes are anonymous and disappear after 30 days. You can leave one note per place per day, tap a note to translate it, and report anything that bothers you. When you open the guestbook, your phone sends your location to our server to confirm you\'re inside; the server doesn\'t keep it.';
+
+  @override
+  String get quantumWorld => 'Quantum World';
+
+  @override
+  String get quantumWorldSubtitle =>
+      'One room for the whole world, without revealing where you are';
+
+  @override
+  String get quantumIntroTitle => 'Enter the Quantum World';
+
+  @override
+  String get quantumIntroBody =>
+      'Everyone in the Quantum World right now shares one room, arranged as a hive around Taipei 101. You get a seat such as \"Q4-17\" — the smaller the ring, the closer to the origin.\n\nNo one can see your real location. Others see your seat plus how far you have walked since entering: your bubble moves as you walk and pauses while you ride. Your nickname and mood stay the same, and you can still send glimmers, knock and chat, with tap-to-translate.\n\nWhile you are in the Quantum World you temporarily leave the normal radar and Parallel Universe; when you leave, you return to your check-in spot.';
+
+  @override
+  String get quantumEnter => 'Enter';
+
+  @override
+  String get quantumLeave => 'Leave the Quantum World';
+
+  @override
+  String get quantumLeft =>
+      'You left the Quantum World and are back on your radar';
+
+  @override
+  String quantumYourSeat(String code) {
+    return 'Your seat $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return 'Ring $ring · smaller rings are closer to the Taipei 101 origin';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return '$count here now';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return '$count people in the Quantum World right now';
+  }
+
+  @override
+  String get quantumRegionTw => 'Taiwan';
+
+  @override
+  String get quantumRegionJp => 'Japan';
+
+  @override
+  String get quantumRegionKr => 'Korea';
+
+  @override
+  String get quantumRegionHkmo => 'Hong Kong & Macau';
+
+  @override
+  String get quantumRegionSea => 'Southeast Asia';
+
+  @override
+  String get quantumRegionOther => 'Elsewhere';
+
+  @override
+  String get quantumQuiet => 'Quantum Quiet';
+
+  @override
+  String get quantumQuietSubtitle =>
+      'Just watch the world: no one can knock, but glimmers still reach you';
+
+  @override
+  String get quantumQuietTarget =>
+      'They turned on Quantum Quiet — you can only send a glimmer now';
+
+  @override
+  String get quantumClosedRegion =>
+      'The Quantum World isn\'t available where you are';
+
+  @override
+  String get quantumLeftClosed =>
+      'You entered an area where the Quantum World isn\'t available, so you left it';
+
+  @override
+  String get quantumSeatExpired =>
+      'You were away too long and your seat was released; you\'re back on your radar';
+
+  @override
+  String get quantumUnavailable =>
+      'Can\'t reach the Quantum World right now. Please try again later.';
+
+  @override
+  String quantumPersonBody(String code) {
+    return 'This person\'s seat in the Quantum World is $code. No one\'s real location is shown in the Quantum World.';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return 'Quantum World · $code';
+  }
+
+  @override
+  String get guideS17Title => '13. Quantum World';
+
+  @override
+  String get guideS17L1 =>
+      'Tap the hive icon at the top right of the radar (below Parallel Universe), read the note and tap Enter. You enter by tapping each time, just like checking in; every time you open the app you start on the normal radar.';
+
+  @override
+  String get guideS17L2 =>
+      'Everyone in the Quantum World shares one room: a hive around Taipei 101, with seats 100 m apart. You get a seat code such as \"Q4-17\" (ring 4, seat 17) — smaller rings are closer to the origin. New arrivals fill seats others have left first; rings 1–3 are reserved for gathering hosts.';
+
+  @override
+  String get guideS17L3 =>
+      'No one can see your real location: others see your seat plus how far you have walked since entering. Your bubble moves as you walk and pauses above 25 km/h (riding). The Quantum World is not available in mainland China.';
+
+  @override
+  String get guideS17L4 =>
+      'Your nickname and mood stay the same, and you can still send glimmers, knock and chat, with tap-to-translate. Pinch out to see the whole hive; far-away people become points of light. Tap your seat code at the top left to see who\'s online, turn on Quantum Quiet (no knocks, glimmers still arrive), or leave.';
+
+  @override
+  String get guideS17L5 =>
+      'There are no fading echoes, whispers, letters to the future, Mood Places, City Beacon or gatherings in the Quantum World. While inside you temporarily leave the normal radar and Parallel Universe; when you leave, your bubble dissolves into light and you return to your check-in spot. If the app is closed or offline for more than 3 minutes, your seat is released.';
 }

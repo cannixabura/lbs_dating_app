@@ -15,13 +15,15 @@ class ChatScreen extends StatefulWidget {
   final String myName; // 接收自己的名字，用於發送訊息時夾帶[cite: 6]
   final String targetUid;
   final String targetName; // 接收對方的名字，用於顯示在畫面上[cite: 6]
+  final String? targetTag; // 名字旁的小標示，例如量子世界的「量子世界・Q4-17」
 
   const ChatScreen({
     super.key, 
     required this.myUid, 
     required this.myName, 
     required this.targetUid, 
-    required this.targetName
+    required this.targetName,
+    this.targetTag,
   });
 
   @override
@@ -345,6 +347,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                               style: TextStyle(color: lastMinute ? Night.danger : Night.knockPink, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()]),
                             ),
                             TextSpan(text: tr.countdownSuffix),
+                            if (widget.targetTag != null) TextSpan(text: '  ·  ${widget.targetTag}', style: const TextStyle(color: Night.auroraBlue)),
                           ])),
                         ]),
                       ),

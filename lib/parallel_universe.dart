@@ -57,7 +57,8 @@ Future<bool> confirmParallelUniverse(BuildContext context) async {
           const SizedBox(height: Night.space3),
           Text(tr.parallelUniverseIntroTitle, style: Night.title, textAlign: TextAlign.center),
           const SizedBox(height: Night.space2),
-          Text(tr.parallelUniverseIntroBody, style: Night.body),
+          // 說明較長：鍵盤開著或小螢幕時改成可捲動，按鈕永遠看得到
+          Flexible(child: SingleChildScrollView(child: Text(tr.parallelUniverseIntroBody, style: Night.body))),
           const SizedBox(height: Night.space4),
           Row(children: [
             Expanded(child: NightButton(tr.cancel, kind: NightButtonKind.ghost, onPressed: () => Navigator.pop(dialogContext, false))),

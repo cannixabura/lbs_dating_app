@@ -311,6 +311,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   final Set<String> _seenWhisperIds = {};
   bool _whispersLoaded = false;
   int _radarTick = 0;
+  // 最近一次「有動靜」：手指碰螢幕或位置移動。靜止超過 1 分鐘，雷達改成每 30 秒更新（省伺服器請求）
+  DateTime _lastRadarActivity = DateTime.now();
+  void _markRadarActive() => _lastRadarActivity = DateTime.now();
   StreamSubscription<Position>? _positionStream;
   StreamSubscription<CompassEvent>? _compassStream;
   StreamSubscription<AccelerometerEvent>? _accelerometerStream;
@@ -681,6 +684,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           _currentPosition = newPosition;
           if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
         });
+        _markRadarActive();
         _updateMapCamera();
         if (_checkInRequested) _checkIn();
         _checkTimeWhispers();
@@ -812,7 +816,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _fetchNearbyUsers(); 
     _radarTimer?.cancel();
     _radarTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      _fetchNearbyUsers();
+      final idle = DateTime.now().difference(_lastRadarActivity) > const Duration(minutes: 1);
+      if (!idle || _radarTick % 3 == 2) _fetchNearbyUsers(); // 有動靜時每 10 秒，靜止時每 30 秒
       if (++_radarTick % 3 == 0) _fetchWhispers(); // 低語每 30 秒更新一次
       if (_radarTick % 30 == 0) _fetchTimeWhispers(); // 低語穿越每 5 分鐘更新一次
     });
@@ -2576,7 +2581,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     double currentRhythmScore = _coolingSystem.getRhythmScore();
 
     return Scaffold(
-      body: GestureDetector(
+      body: Listener(
+        onPointerDown: (_) => _markRadarActive(),
+        child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onScaleStart: (details) => _baseScale = _scaleNotifier.value,
         onScaleUpdate: (details) {
@@ -2786,6 +2793,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           ],
         ),
       ),
+      ), // Listener
     );
   }
 }

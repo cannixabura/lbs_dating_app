@@ -30,6 +30,7 @@ const METERS_PER_DEG_LAT = 111320;
 const GRACE_MS = 3 * 60 * 1000; // 意外斷線：席位保留 3 分鐘
 const VISIBLE_MS = 75 * 1000; // 超過這麼久沒心跳就先不顯示（心跳最慢 30 秒一次）
 const MAX_SPEED_MPS = 25 / 3.6; // 時速 25 公里
+const HOME_RADIUS_M = 40; // 回到入場的地方 40 公尺內，位移就跟著回到原點（定位飄移、搭車跳過的段落不再留下來）
 const COLLAPSE_MS = 12 * 1000; // 塌縮動畫：離開後這段時間內掃描到的人會看到
 const RADAR_KM = 5; // 一般雷達半徑；超過就是世界視角
 const WORLD_MAX_KM = 60;
@@ -116,9 +117,12 @@ function nearestCode(east, north) {
 /**
  * 手機回報新的原始位移（相對入場那一刻，往東、往北幾公尺）。
  * 和上一次回報比較：時速不超過 25 公里才累加，超過就跳過這一段，停下來後從當下繼續算。
+ * 回到入場的地方（homeEast/homeNorth，原始位移的座標）附近時，累計位移直接等於原始位移，回到自己的席位。
  * @returns {{east:number, north:number}} 新的累計位移
  */
 function accumulate(state, raw, now) {
+    if (finite(state.homeEast) && finite(state.homeNorth) &&
+        Math.hypot(raw.east - state.homeEast, raw.north - state.homeNorth) <= HOME_RADIUS_M) return { east: raw.east, north: raw.north };
     const dE = raw.east - state.rawEast, dN = raw.north - state.rawNorth;
     const seconds = Math.max(0.001, (now - state.rawAt) / 1000);
     if (Math.hypot(dE, dN) / seconds > MAX_SPEED_MPS) return { east: state.east, north: state.north };
@@ -197,7 +201,7 @@ function clampRadius(km) {
 }
 
 module.exports = {
-    ORIGIN, SPACING_M, HOST_RINGS, HOST_SEATS, GRACE_MS, VISIBLE_MS, MAX_SPEED_MPS, COLLAPSE_MS,
+    ORIGIN, SPACING_M, HOST_RINGS, HOST_SEATS, GRACE_MS, VISIBLE_MS, MAX_SPEED_MPS, HOME_RADIUS_M, COLLAPSE_MS,
     RADAR_KM, WORLD_MAX_KM, WORLD_MAX_DOTS, MAX_RESULTS, REGION_MIN, STALE_SWEEP, KEY, REGIONS, MAINLAND_CHINA,
     seatOffset, ringOf, seat, toLatLng, toLocal, nearestCode, accumulate, validDisplacement,
     insidePolygon, isMainlandChina, regionOf, regionCounts, clampRadius,

@@ -140,3 +140,18 @@ test('mainland China cannot enter', async () => {
     const hk = await call('hana', { action: 'enter', lat: 22.2783, lng: 114.1747, mood: 'hi', nickname: 'hana' });
     assert.strictEqual(hk.status, 200);
 });
+
+test('a GPS jump that drifts back slowly does not leave you outside your seat once you are home', async () => {
+    const h = await enter('ivy');
+    const home = h.me;
+    clock += 10000;
+    await beat('ivy', { east: 900, north: 0 }); // 定位瞬間跳 900 公尺：跳過
+    clock += 10000;
+    let r = await beat('ivy', { east: 860, north: 0 }); // 慢慢飄回來：當成走路
+    for (let e = 800; e >= 100; e -= 60) { clock += 10000; r = await beat('ivy', { east: e, north: 0 }); }
+    assert.ok(r.me.east < -500, 'drift is counted while away');
+    clock += 10000;
+    r = await beat('ivy', { east: 12, north: 5 }); // 回到家門口
+    assert.ok(Math.abs(r.me.east - 12) < 1e-9 && Math.abs(r.me.north - 5) < 1e-9);
+    assert.ok(distM(r.me, home) < 20);
+});

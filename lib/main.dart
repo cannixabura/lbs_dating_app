@@ -195,6 +195,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   // ---------- 量子世界 ----------
   QuantumWalk? _quantumWalk; // 入場那一刻的真實位置：只用來算走了多遠
   ({double east, double north})? _quantumLastSent; // 上一次送給伺服器的位移
+  Position? _quantumFix; // 最近一次精度夠好的定位：量子世界的位移只用它算，室內飄移、瞬間跳點不算數
   List<List<double>> _quantumDots = []; // 世界視角的遠方光點
   List<({double lat, double lng})> _quantumBursts = []; // 正在播放塌縮動畫的位置
   bool _quantumSelfCollapse = false;
@@ -203,6 +204,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   bool _quantumLeaving = false; // 塌縮動畫播放中：不再送心跳，也不重複離開
   static const _quantumWorldScale = 0.34; // 縮到比這更小就是世界視角（約 5 公里以外）
   String _quantumEntryCode = ''; // 入場儀式最後亮起的席位代號
+  static const _quantumMaxAccuracy = 30.0; // 公尺：定位誤差比這大就不拿來算走了多遠
   late final AnimationController _quantumEntry = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000));
   late final AnimationController _quantumCollapse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
   late final AnimationController _quantumGlow = AnimationController(vsync: this, duration: const Duration(seconds: 3));
@@ -213,9 +215,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final s = quantumSession.value;
     if (s == null) return (lat: pos.latitude, lng: pos.longitude);
     var lat = s.lat, lng = s.lng;
-    final walk = _quantumWalk, sent = _quantumLastSent;
-    if (walk != null && sent != null) {
-      final raw = walk.at(pos.latitude, pos.longitude);
+    final walk = _quantumWalk, sent = _quantumLastSent, fix = _quantumFix;
+    if (walk != null && sent != null && fix != null) {
+      final raw = walk.at(fix.latitude, fix.longitude);
       final dE = raw.east - sent.east, dN = raw.north - sent.north;
       if (dE * dE + dN * dN < 300 * 300) {
         lat += dN / 111320;
@@ -720,6 +722,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         if (!mounted) return;
         setState(() {
           _currentPosition = newPosition;
+          if (newPosition.accuracy <= _quantumMaxAccuracy) _quantumFix = newPosition;
           if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
         });
         _markRadarActive();
@@ -1186,6 +1189,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final base = (east: (me['east'] as num?)?.toDouble() ?? 0, north: (me['north'] as num?)?.toDouble() ?? 0);
     void arrive() {
       _quantumWalk = QuantumWalk(pos.latitude, pos.longitude, baseEast: base.east, baseNorth: base.north);
+      _quantumFix = pos;
       _quantumLastSent = base;
       _quantumDots = [];
       _seenCollapses.clear();
@@ -1215,11 +1219,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   /// 量子世界的心跳＋掃描（取代一般雷達的掃描）：送出位移與心情，拿回附近的人、遠方光點、塌縮動畫、在線人數
   Future<void> _quantumBeat() async {
-    final s = quantumSession.value, walk = _quantumWalk, pos = _currentPosition;
-    if (s == null || walk == null || pos == null || !_isInForeground || _quantumLeaving) return;
+    final s = quantumSession.value, walk = _quantumWalk, pos = _currentPosition, fix = _quantumFix;
+    if (s == null || walk == null || pos == null || fix == null || !_isInForeground || _quantumLeaving) return;
     // 在場期間移動進入中國大陸：自動離開
     if (isQuantumClosedAt(pos.latitude, pos.longitude)) return _leaveQuantum(message: tr.quantumLeftClosed);
-    final raw = walk.at(pos.latitude, pos.longitude);
+    final raw = walk.at(fix.latitude, fix.longitude);
     // 世界視角：縮得越小，向伺服器要越大的範圍（超過 5 公里的人只回傳光點）
     final radius = _scaleNotifier.value >= _quantumWorldScale ? 5.0 : (1.7 / _scaleNotifier.value).clamp(5.0, 60.0);
     final (status, data) = await QuantumApi.beat(east: raw.east, north: raw.north, mood: _myMood, nickname: _myNickname, quiet: s.quiet, radiusKM: radius);
@@ -1267,7 +1271,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   void _resetQuantum() {
-    _quantumWalk = null; _quantumLastSent = null; _quantumDots = []; _quantumBursts = [];
+    _quantumWalk = null; _quantumLastSent = null; _quantumFix = null; _quantumDots = []; _quantumBursts = [];
     _quantumSelfCollapse = false;
     _quantumLeaving = false;
     _hasScanned = false; // 回到雷達後等第一次掃描，不先閃出「你是今晚第一道光」

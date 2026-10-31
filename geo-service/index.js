@@ -504,6 +504,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["HSET", quantum.KEY.seat(uid), "ord", prev.ord, "enteredAt", prev.enteredAt || String(now), "east", String(st.east), "north", String(st.north),
                 // 入場後手機從 0 開始算位移；回到原位時手機會接著原本的累計位移
                 "rawEast", resumed ? String(st.east) : "0", "rawNorth", resumed ? String(st.north) : "0", "rawAt", String(now),
+                // 入場的地方：走回這裡時位移歸位（斷線回來就從回來的地方算）
+                "homeEast", resumed ? String(st.east) : "0", "homeNorth", resumed ? String(st.north) : "0",
                 "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ["ZADD", quantum.KEY.region(region), String(now), uid],
@@ -525,7 +527,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         let acc = { east: parseFloat(h.east) || 0, north: parseFloat(h.north) || 0 };
         const raw = quantum.validDisplacement(east, north) ? { east, north } : null;
         if (raw) {
-            acc = quantum.accumulate({ ...acc, rawEast: parseFloat(h.rawEast) || 0, rawNorth: parseFloat(h.rawNorth) || 0, rawAt: parseInt(h.rawAt || h.beat || "0", 10) }, raw, now);
+            acc = quantum.accumulate({ ...acc, rawEast: parseFloat(h.rawEast) || 0, rawNorth: parseFloat(h.rawNorth) || 0, rawAt: parseInt(h.rawAt || h.beat || "0", 10),
+                homeEast: h.homeEast == null ? undefined : parseFloat(h.homeEast), homeNorth: h.homeNorth == null ? undefined : parseFloat(h.homeNorth) }, raw, now);
         }
         const st = quantumState({ ...h, east: acc.east, north: acc.north });
         const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0"];

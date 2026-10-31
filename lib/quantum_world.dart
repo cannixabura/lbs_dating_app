@@ -392,20 +392,23 @@ class QuantumHivePainter extends CustomPainter {
     // 格點：鏡頭拉得夠近才畫，不然太密
     final pxPer100m = (quantumSpacingMeters / QuantumProjector.maxVisibleDistance) * p.screenHeight * 0.6 * p.scale;
     if (pxPer100m >= 9) {
-      final reach = min(2500.0, (p.screenHeight * 0.9) / pxPer100m * quantumSpacingMeters);
+      // 只畫身邊一圈，越遠越淡；靠近地平線（景深太小）的不畫，免得擠成一片
+      final reach = min(1200.0, (p.screenHeight * 0.6) / pxPer100m * quantumSpacingMeters);
       final fromCenter = sqrt(p.centerEast * p.centerEast + p.centerNorth * p.centerNorth);
       final minRing = max(1, ((fromCenter - reach) / quantumSpacingMeters).floor());
       final maxRing = ((fromCenter + reach) / quantumSpacingMeters).ceil();
-      final lattice = Paint()..color = Night.auroraBlue.withOpacity(0.22);
-      final hostSeat = Paint()..color = Night.cityAmber.withOpacity(0.28);
+      final dot = Paint();
       for (var ring = minRing; ring <= maxRing; ring++) {
         for (var i = 0; i < 6 * ring; i++) {
           final o = quantumSeatOffset(ring, i);
           final dE = o.east - p.centerEast, dN = o.north - p.centerNorth;
-          if (dE * dE + dN * dN > reach * reach) continue;
+          final d2 = dE * dE + dN * dN;
+          if (d2 > reach * reach) continue;
           final hit = p.project(o.east, o.north);
-          if (hit == null || !rect.inflate(8).contains(hit.$1)) continue;
-          canvas.drawCircle(hit.$1, 1.6 * hit.$2.clamp(0.5, 1.4), ring <= quantumHostRings ? hostSeat : lattice);
+          if (hit == null || hit.$2 < 0.55 || !rect.inflate(8).contains(hit.$1)) continue;
+          final fade = 1 - sqrt(d2) / reach;
+          dot.color = (ring <= quantumHostRings ? Night.cityAmber : Night.auroraBlue).withOpacity(0.32 * fade);
+          canvas.drawCircle(hit.$1, 1.6 * hit.$2.clamp(0.5, 1.4), dot);
         }
       }
     }

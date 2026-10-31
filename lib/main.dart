@@ -200,6 +200,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   bool _quantumSelfCollapse = false;
   final Set<String> _seenCollapses = {};
   bool _quantumBusy = false;
+  bool _quantumLeaving = false; // 塌縮動畫播放中：不再送心跳，也不重複離開
+  static const _quantumWorldScale = 0.34; // 縮到比這更小就是世界視角（約 5 公里以外）
   String _quantumEntryCode = ''; // 入場儀式最後亮起的席位代號
   late final AnimationController _quantumEntry = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000));
   late final AnimationController _quantumCollapse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
@@ -1214,14 +1216,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   /// 量子世界的心跳＋掃描（取代一般雷達的掃描）：送出位移與心情，拿回附近的人、遠方光點、塌縮動畫、在線人數
   Future<void> _quantumBeat() async {
     final s = quantumSession.value, walk = _quantumWalk, pos = _currentPosition;
-    if (s == null || walk == null || pos == null || !_isInForeground) return;
+    if (s == null || walk == null || pos == null || !_isInForeground || _quantumLeaving) return;
     // 在場期間移動進入中國大陸：自動離開
     if (isQuantumClosedAt(pos.latitude, pos.longitude)) return _leaveQuantum(message: tr.quantumLeftClosed);
     final raw = walk.at(pos.latitude, pos.longitude);
     // 世界視角：縮得越小，向伺服器要越大的範圍（超過 5 公里的人只回傳光點）
-    final radius = (1.7 / _scaleNotifier.value).clamp(5.0, 60.0);
+    final radius = _scaleNotifier.value >= _quantumWorldScale ? 5.0 : (1.7 / _scaleNotifier.value).clamp(5.0, 60.0);
     final (status, data) = await QuantumApi.beat(east: raw.east, north: raw.north, mood: _myMood, nickname: _myNickname, quiet: s.quiet, radiusKM: radius);
-    if (!mounted || quantumSession.value == null) return;
+    if (!mounted || quantumSession.value == null || _quantumLeaving) return;
     if (status == 410) return _leaveQuantum(message: tr.quantumSeatExpired, notifyServer: false); // 席位已釋放（斷線超過 3 分鐘）
     if (status != 200 || data['success'] != true) return;
     _quantumLastSent = raw;
@@ -1248,7 +1250,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   /// 離開量子世界：席位立刻釋放，自己的氣泡化成光點散掉，回到原本打卡的雷達
   Future<void> _leaveQuantum({String? message, bool notifyServer = true}) async {
-    if (!quantumOn) return;
+    if (!quantumOn || _quantumLeaving) return;
+    _quantumLeaving = true;
     if (notifyServer) QuantumApi.leave();
     if (!MediaQuery.of(context).disableAnimations) {
       setState(() { _quantumSelfCollapse = true; _quantumBursts = []; });
@@ -1266,6 +1269,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   void _resetQuantum() {
     _quantumWalk = null; _quantumLastSent = null; _quantumDots = []; _quantumBursts = [];
     _quantumSelfCollapse = false;
+    _quantumLeaving = false;
+    _hasScanned = false; // 回到雷達後等第一次掃描，不先閃出「你是今晚第一道光」
     _activeUsersNotifier.value = [];
     _scaleNotifier.value = _scaleNotifier.value.clamp(0.2, 8.0);
     quantumSession.value = null;
@@ -2938,7 +2943,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
-                      ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
+                      // 量子世界的世界視角（縮到超過一般雷達範圍）：每個人都只是一個光點，不顯示心情；放大回來才看得到
+                      if (!quantumOn || currentScale >= _quantumWorldScale)
+                        ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
                       // 還在呼吸的心情據點小燈畫在氣泡上面，才點得到（只有 150 公尺內的一兩盞）
                       if (!quantumOn) ..._placeLamps(seen: false, centerX: centerX, centerY: centerY, screenHeight: screenHeight, pitch: smoothPitch, heading: currentHeading, scale: currentScale, rhythm: currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）

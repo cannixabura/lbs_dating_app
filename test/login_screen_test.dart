@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lbs_dating_app/l10n/l10n.dart';
 import 'package:lbs_dating_app/legal.dart';
 import 'package:lbs_dating_app/login_screen.dart';
 import 'package:lbs_dating_app/ui/night.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> pumpLoginScreen(WidgetTester tester) async {
-  await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+  await tester.pumpWidget(const MaterialApp(
+    locale: Locale('zh'),
+    localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: LoginScreen(),
+  ));
   await tester.pump(const Duration(milliseconds: 500)); // 讀取上次心情 + 自動聚焦的延遲
 }
 
 String moodFieldText(WidgetTester tester) =>
     tester.widget<TextField>(find.byType(TextField)).controller!.text;
 
-bool enterButtonEnabled(WidgetTester tester) =>
-    tester.widget<NightButton>(find.widgetWithText(NightButton, '走進城市低語')).onPressed != null;
+// 打卡只由按鈕觸發（App Store 5.1.2），鍵盤的完成鍵只收起鍵盤
+final enterButton = find.widgetWithText(NightButton, '在這裡打卡，走進城市');
+
+bool enterButtonEnabled(WidgetTester tester) => tester.widget<NightButton>(enterButton).onPressed != null;
 
 final consentRow = find.textContaining('零容忍');
 
@@ -32,11 +41,11 @@ void main() {
   });
 
   testWidgets('empty mood cannot enter the city', (tester) async {
-    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '下雨天'});
+    SharedPreferences.setMockInitialValues({AgeGate.confirmedKey: true, 'saved_mood': '下雨天', 'terms_accepted_version': Legal.termsVersion});
     await pumpLoginScreen(tester);
 
     await tester.enterText(find.byType(TextField), '   ');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.tap(enterButton);
     await tester.pump();
 
     expect(find.text('請留下你此刻的心情，再沒入城市。'), findsOneWidget);

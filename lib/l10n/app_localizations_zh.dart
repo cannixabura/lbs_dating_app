@@ -1907,6 +1907,195 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS17L5 =>
       '量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return '$seconds 秒後整點報時';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => '大家都在看 101 原點';
+
+  @override
+  String get quantumChimeLook => '看原點';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return '台北 $hour 點報時';
+  }
+
+  @override
+  String get quantumChimeSend => '送出報時微光';
+
+  @override
+  String get quantumChimeSent => '你的微光飛向原點';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '這次報時，有 $n 人一起看';
+  }
+
+  @override
+  String get quantumChimeReminder => '整點報時提醒';
+
+  @override
+  String get quantumChimeReminderSubtitle => '整點前提醒你到 101 原點看報時';
+
+  @override
+  String get quantumChimeNotifyBody => '整點報時快開始了，到 101 原點一起看';
+
+  @override
+  String get quantumChimeChannel => '整點報時';
+
+  @override
+  String get quantumChimeChannelDesc => '量子世界的整點報時提醒';
+
+  @override
+  String get quantumEntangleInvite => '邀請量子糾纏';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return '已邀請 $name 糾纏';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => '量子糾纏';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name（$code）想和你量子糾纏。糾纏後，兩顆氣泡之間會有一道光線，不管相隔多遠都看得到；任何一方離開，光線就會塌縮。不留紀錄。';
+  }
+
+  @override
+  String get quantumEntangleAccept => '糾纏';
+
+  @override
+  String quantumEntangled(String name) {
+    return '你和 $name 糾纏了';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return '與 $name 的糾纏已塌縮';
+  }
+
+  @override
+  String get quantumEntangleCut => '解除糾纏';
+
+  @override
+  String get quantumEntangleFull => '你已經和 3 個人糾纏了';
+
+  @override
+  String get quantumEntangleTheirFull => '對方已經和 3 個人糾纏了';
+
+  @override
+  String get quantumEntangleGone => '對方已經離開量子世界';
+
+  @override
+  String get quantumEntangleExpired => '邀請已經過期';
+
+  @override
+  String get quantumEntangledTitle => '糾纏中';
+
+  @override
+  String get quantumTunnel => '量子穿隧';
+
+  @override
+  String get quantumTunnelSubtitle => '跳到蜂巢裡隨機一個空席位，換一群鄰居。每次入場可以用一次。';
+
+  @override
+  String get quantumTunnelUsed => '這次入場已經穿隧過了';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return '穿隧到 $code';
+  }
+
+  @override
+  String get quantumShowTime => '顯示我的當地時間';
+
+  @override
+  String get quantumShowTimeSubtitle => '別人長按你的氣泡時看得到；關閉時只顯示晝夜色調';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return '當地 $time・$part';
+  }
+
+  @override
+  String get quantumDawn => '清晨';
+
+  @override
+  String get quantumDay => '白天';
+
+  @override
+  String get quantumDusk => '黃昏';
+
+  @override
+  String get quantumNight => '深夜';
+
+  @override
+  String get quantumTopicsTitle => '量子同頻';
+
+  @override
+  String get quantumTopicsSubtitle => '選最多 3 個主題，顯示在你的氣泡下方';
+
+  @override
+  String get quantumTopicMusic => '音樂';
+
+  @override
+  String get quantumTopicMovies => '電影';
+
+  @override
+  String get quantumTopicTech => '科技';
+
+  @override
+  String get quantumTopicWalks => '散步';
+
+  @override
+  String get quantumTopicFood => '美食';
+
+  @override
+  String get quantumTopicTravel => '旅行';
+
+  @override
+  String get quantumTopicReading => '閱讀';
+
+  @override
+  String get quantumTopicSports => '運動';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return '你們都喜歡：$topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => '量子訊號';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name 傳來一個訊號';
+  }
+
+  @override
+  String get quantumSignalWait => '剛送過了，等一下再送';
+
+  @override
+  String quantumResonance(String name) {
+    return '你和 $name 產生了共振';
+  }
+
+  @override
+  String get guideS17L6 =>
+      '整點報時：每個整點，101 光柱前 1 分鐘開始變亮，整點時光之使者繞原點一圈、敲出台北時間的鐘聲（0 點 24 聲），最後一道光波擴散到整個蜂巢。報時時點一下「送出報時微光」，一起看的人越多光越盛。面板裡可以開「整點報時提醒」（預設關閉）。';
+
+  @override
+  String get guideS17L7 =>
+      '聊過天的人可以邀請「量子糾纏」：兩顆氣泡之間會有一道光線，不管多遠都看得到，任何一方離開就塌縮，每人最多同時糾纏 3 人。「量子穿隧」每次入場可以用一次，跳到隨機一個空席位、換一群鄰居。';
+
+  @override
+  String get guideS17L8 =>
+      '每顆氣泡帶著主人當地時間的色調：清晨淡金、白天亮白、黃昏橘紫、深夜深藍；開啟「顯示我的當地時間」後，長按氣泡看得到時間。24 小時內互送微光會產生「量子共振」；長按氣泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子訊號；在面板選最多 3 個「量子同頻」主題，共同的主題會亮起來。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3811,4 +4000,193 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS17L5 =>
       '量子世界里没有残影、低语、低语穿越、心情据点、城市灯塔与集会。进入期间会暂时离开一般雷达和平行宇宙；离开时你的气泡化成光点散掉，回到原本打卡的位置。App 关掉或断线超过 3 分钟，席位就会释放。';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return '$seconds 秒后整点报时';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => '大家都在看 101 原点';
+
+  @override
+  String get quantumChimeLook => '看原点';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return '台北 $hour 点报时';
+  }
+
+  @override
+  String get quantumChimeSend => '送出报时微光';
+
+  @override
+  String get quantumChimeSent => '你的微光飞向原点';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '这次报时，有 $n 人一起看';
+  }
+
+  @override
+  String get quantumChimeReminder => '整点报时提醒';
+
+  @override
+  String get quantumChimeReminderSubtitle => '整点前提醒你到 101 原点看报时';
+
+  @override
+  String get quantumChimeNotifyBody => '整点报时快开始了，到 101 原点一起看';
+
+  @override
+  String get quantumChimeChannel => '整点报时';
+
+  @override
+  String get quantumChimeChannelDesc => '量子世界的整点报时提醒';
+
+  @override
+  String get quantumEntangleInvite => '邀请量子纠缠';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return '已邀请 $name 纠缠';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => '量子纠缠';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name（$code）想和你量子纠缠。纠缠后，两颗气泡之间会有一道光线，不管相隔多远都看得到；任何一方离开，光线就会坍缩。不留记录。';
+  }
+
+  @override
+  String get quantumEntangleAccept => '纠缠';
+
+  @override
+  String quantumEntangled(String name) {
+    return '你和 $name 纠缠了';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return '与 $name 的纠缠已坍缩';
+  }
+
+  @override
+  String get quantumEntangleCut => '解除纠缠';
+
+  @override
+  String get quantumEntangleFull => '你已经和 3 个人纠缠了';
+
+  @override
+  String get quantumEntangleTheirFull => '对方已经和 3 个人纠缠了';
+
+  @override
+  String get quantumEntangleGone => '对方已经离开量子世界';
+
+  @override
+  String get quantumEntangleExpired => '邀请已经过期';
+
+  @override
+  String get quantumEntangledTitle => '纠缠中';
+
+  @override
+  String get quantumTunnel => '量子穿隧';
+
+  @override
+  String get quantumTunnelSubtitle => '跳到蜂巢里随机一个空席位，换一群邻居。每次入场可以用一次。';
+
+  @override
+  String get quantumTunnelUsed => '这次入场已经穿隧过了';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return '穿隧到 $code';
+  }
+
+  @override
+  String get quantumShowTime => '显示我的当地时间';
+
+  @override
+  String get quantumShowTimeSubtitle => '别人长按你的气泡时看得到；关闭时只显示昼夜色调';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return '当地 $time・$part';
+  }
+
+  @override
+  String get quantumDawn => '清晨';
+
+  @override
+  String get quantumDay => '白天';
+
+  @override
+  String get quantumDusk => '黄昏';
+
+  @override
+  String get quantumNight => '深夜';
+
+  @override
+  String get quantumTopicsTitle => '量子同频';
+
+  @override
+  String get quantumTopicsSubtitle => '选最多 3 个主题，显示在你的气泡下方';
+
+  @override
+  String get quantumTopicMusic => '音乐';
+
+  @override
+  String get quantumTopicMovies => '电影';
+
+  @override
+  String get quantumTopicTech => '科技';
+
+  @override
+  String get quantumTopicWalks => '散步';
+
+  @override
+  String get quantumTopicFood => '美食';
+
+  @override
+  String get quantumTopicTravel => '旅行';
+
+  @override
+  String get quantumTopicReading => '阅读';
+
+  @override
+  String get quantumTopicSports => '运动';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return '你们都喜欢：$topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => '量子信号';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name 传来一个信号';
+  }
+
+  @override
+  String get quantumSignalWait => '刚送过了，等一下再送';
+
+  @override
+  String quantumResonance(String name) {
+    return '你和 $name 产生了共振';
+  }
+
+  @override
+  String get guideS17L6 =>
+      '整点报时：每个整点，101 光柱前 1 分钟开始变亮，整点时光之使者绕原点一圈、敲出台北时间的钟声（0 点 24 声），最后一道光波扩散到整个蜂巢。报时时点一下「送出报时微光」，一起看的人越多光越盛。面板里可以开「整点报时提醒」（默认关闭）。';
+
+  @override
+  String get guideS17L7 =>
+      '聊过天的人可以邀请「量子纠缠」：两颗气泡之间会有一道光线，不管多远都看得到，任何一方离开就坍缩，每人最多同时纠缠 3 人。「量子穿隧」每次入场可以用一次，跳到随机一个空席位、换一群邻居。';
+
+  @override
+  String get guideS17L8 =>
+      '每颗气泡带着主人当地时间的色调：清晨淡金、白天亮白、黄昏橘紫、深夜深蓝；开启「显示我的当地时间」后，长按气泡看得到时间。24 小时内互送微光会产生「量子共振」；长按气泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子信号；在面板选最多 3 个「量子同频」主题，共同的主题会亮起来。';
 }

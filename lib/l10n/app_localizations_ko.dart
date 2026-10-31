@@ -1969,4 +1969,195 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS17L5 =>
       '양자 세계에는 잔상, 속삭임, 미래로 보내는 편지, 무드 플레이스, 시티 비컨, 모임이 없어요. 들어가 있는 동안 일반 레이더와 평행우주에서 잠시 벗어나고, 나가면 말풍선이 빛이 되어 흩어지며 원래 체크인한 위치로 돌아가요. 앱을 닫거나 3분 넘게 연결이 끊기면 자리가 해제돼요.';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return '$seconds초 후 정각 종';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => '모두 101 원점을 보고 있어요';
+
+  @override
+  String get quantumChimeLook => '원점 보기';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return '타이베이 $hour시 종';
+  }
+
+  @override
+  String get quantumChimeSend => '종소리 반짝임 보내기';
+
+  @override
+  String get quantumChimeSent => '당신의 반짝임이 원점으로 날아가요';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '이번 종은 $n명이 함께 봤어요';
+  }
+
+  @override
+  String get quantumChimeReminder => '정각 종 알림';
+
+  @override
+  String get quantumChimeReminderSubtitle => '매 정각 직전에 101 원점에서 종을 보도록 알려 드려요';
+
+  @override
+  String get quantumChimeNotifyBody => '곧 정각 종이 울려요. 101 원점에서 함께 봐요';
+
+  @override
+  String get quantumChimeChannel => '정각 종';
+
+  @override
+  String get quantumChimeChannelDesc => '양자 세계의 정각 종 알림';
+
+  @override
+  String get quantumEntangleInvite => '양자 얽힘 초대';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return '$name 님에게 얽힘을 제안했어요';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => '양자 얽힘';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name($code) 님이 양자 얽힘을 원해요. 얽히면 아무리 멀리 있어도 두 말풍선이 빛의 선으로 이어져요. 둘 중 한 명이 나가면 선이 붕괴되고 기록은 남지 않아요.';
+  }
+
+  @override
+  String get quantumEntangleAccept => '얽히기';
+
+  @override
+  String quantumEntangled(String name) {
+    return '$name 님과 얽혔어요';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return '$name 님과의 얽힘이 붕괴됐어요';
+  }
+
+  @override
+  String get quantumEntangleCut => '얽힘 풀기';
+
+  @override
+  String get quantumEntangleFull => '이미 3명과 얽혀 있어요';
+
+  @override
+  String get quantumEntangleTheirFull => '상대가 이미 3명과 얽혀 있어요';
+
+  @override
+  String get quantumEntangleGone => '상대가 양자 세계를 떠났어요';
+
+  @override
+  String get quantumEntangleExpired => '초대가 만료됐어요';
+
+  @override
+  String get quantumEntangledTitle => '얽힘 중';
+
+  @override
+  String get quantumTunnel => '양자 터널링';
+
+  @override
+  String get quantumTunnelSubtitle =>
+      '벌집의 무작위 빈자리로 이동해 새 이웃을 만나요. 입장할 때마다 한 번.';
+
+  @override
+  String get quantumTunnelUsed => '이번 입장에서 이미 터널링했어요';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return '$code(으)로 터널링했어요';
+  }
+
+  @override
+  String get quantumShowTime => '내 현지 시간 표시';
+
+  @override
+  String get quantumShowTimeSubtitle =>
+      '다른 사람이 말풍선을 길게 누르면 보여요. 끄면 낮밤 색조만 보여요.';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return '현지 $time · $part';
+  }
+
+  @override
+  String get quantumDawn => '이른 아침';
+
+  @override
+  String get quantumDay => '낮';
+
+  @override
+  String get quantumDusk => '해질녘';
+
+  @override
+  String get quantumNight => '깊은 밤';
+
+  @override
+  String get quantumTopicsTitle => '양자 주파수';
+
+  @override
+  String get quantumTopicsSubtitle => '최대 3개의 주제를 골라 말풍선 아래에 표시해요';
+
+  @override
+  String get quantumTopicMusic => '음악';
+
+  @override
+  String get quantumTopicMovies => '영화';
+
+  @override
+  String get quantumTopicTech => '기술';
+
+  @override
+  String get quantumTopicWalks => '산책';
+
+  @override
+  String get quantumTopicFood => '맛집';
+
+  @override
+  String get quantumTopicTravel => '여행';
+
+  @override
+  String get quantumTopicReading => '독서';
+
+  @override
+  String get quantumTopicSports => '운동';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return '둘 다 좋아해요: $topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => '양자 신호';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name 님이 신호를 보냈어요';
+  }
+
+  @override
+  String get quantumSignalWait => '방금 보냈어요. 잠시 후 다시 보내 주세요';
+
+  @override
+  String quantumResonance(String name) {
+    return '$name 님과 공진했어요';
+  }
+
+  @override
+  String get guideS17L6 =>
+      '정각 종: 매 정각 1분 전부터 101 빛기둥이 밝아져요. 정각이 되면 빛의 사자가 원점을 한 바퀴 돌고, 타이베이 시간만큼 종이 울리며(0시는 24번), 마지막 빛의 파도가 벌집 전체로 퍼져요. 종이 울리는 동안 「종소리 반짝임 보내기」를 누르면, 함께 보는 사람이 많을수록 더 밝아져요. 패널에서 「정각 종 알림」을 켤 수 있어요(기본은 꺼짐).';
+
+  @override
+  String get guideS17L7 =>
+      '대화한 사람에게 「양자 얽힘」을 제안할 수 있어요. 아무리 멀어도 두 말풍선이 빛의 선으로 이어지고, 한 명이 나가면 붕괴돼요(동시에 최대 3명). 「양자 터널링」은 입장할 때마다 한 번, 무작위 빈자리로 이동해 새 이웃을 만나요.';
+
+  @override
+  String get guideS17L8 =>
+      '말풍선마다 주인의 현지 시간 색조가 있어요: 이른 아침은 연한 금색, 낮은 밝은 흰색, 해질녘은 주황보라, 깊은 밤은 짙은 파랑. 「내 현지 시간 표시」를 켜면 길게 눌렀을 때 시간이 보여요. 24시간 안에 반짝임을 주고받으면 「양자 공명」이 생겨요. 말풍선을 길게 눌러 👋 ☕ 🌙 🎵 🌧️ ✨ 양자 신호를 보낼 수 있고, 패널에서 「양자 주파수」 주제를 최대 3개 고르면 공통 주제가 빛나요.';
 }

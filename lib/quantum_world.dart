@@ -166,15 +166,25 @@ class QuantumApi {
   }
 
   /// 入場：真實位置只用來排除中國大陸，伺服器不存
-  static Future<(int, Map<String, dynamic>)> enter({required double lat, required double lng, required String mood, required String nickname}) =>
-      _call({'action': 'enter', 'lat': lat, 'lng': lng, 'mood': mood, 'nickname': nickname});
+  static Future<(int, Map<String, dynamic>)> enter({required double lat, required double lng, required String mood, required String nickname,
+          Map<String, dynamic> extra = const {}}) =>
+      _call({'action': 'enter', 'lat': lat, 'lng': lng, 'mood': mood, 'nickname': nickname, ...extra});
 
   /// 心跳＋掃描：送出位移（公尺）、心情；radiusKM 超過 5 公里時順便拿世界視角的光點
   static Future<(int, Map<String, dynamic>)> beat({required double east, required double north, required String mood,
-          required String nickname, required bool quiet, required double radiusKM}) =>
-      _call({'action': 'beat', 'east': east, 'north': north, 'mood': mood, 'nickname': nickname, 'quiet': quiet, 'radiusKM': radiusKM});
+          required String nickname, required bool quiet, required double radiusKM, Map<String, dynamic> extra = const {}}) =>
+      _call({'action': 'beat', 'east': east, 'north': north, 'mood': mood, 'nickname': nickname, 'quiet': quiet, 'radiusKM': radiusKM, ...extra});
 
   static Future<void> leave() => _call({'action': 'leave'});
+
+  /// 量子穿隧：每次入場一次
+  static Future<(int, Map<String, dynamic>)> tunnel() => _call({'action': 'tunnel'});
+
+  /// 整點報時：送出一道報時微光
+  static Future<(int, Map<String, dynamic>)> chime() => _call({'action': 'chime'});
+
+  /// 量子糾纏：op = invite / accept / decline / cut
+  static Future<(int, Map<String, dynamic>)> entangle(String op, String uid) => _call({'action': 'entangle', 'op': op, 'uid': uid});
 }
 
 // ---------- 介面 ----------
@@ -288,7 +298,7 @@ class QuantumOnlineChip extends StatelessWidget {
 }
 
 /// 量子世界面板：席位、在線人數（各大區只顯示匿名總數）、量子寧靜、離開
-void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuietChanged, required VoidCallback onLeave}) {
+void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuietChanged, required VoidCallback onLeave, WidgetBuilder? extras}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -301,8 +311,11 @@ void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuiet
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
-            child: GlassCard(
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
+              child: GlassCard(
+                child: SingleChildScrollView(
+                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(tr.quantumWorld, style: Night.caption, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space1),
                 ShaderMask(
@@ -340,12 +353,15 @@ void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuiet
                     onChanged: onQuietChanged,
                   ),
                 ]),
+                if (extras != null) ...[const SizedBox(height: Night.space4), extras(context)],
                 const SizedBox(height: Night.space4),
                 NightButton(tr.quantumLeave, kind: NightButtonKind.ghost, icon: Icons.logout, expand: true, onPressed: () {
                   Navigator.pop(sheetContext);
                   onLeave();
                 }),
-              ]),
+                  ]),
+                ),
+              ),
             ),
           ),
         );
@@ -383,8 +399,9 @@ class QuantumHivePainter extends CustomPainter {
   final ({double east, double north}) seat;
   final List<List<double>> dots; // 世界視角：[lat, lng]
   final double glow; // 0～1，光柱呼吸
+  final double boost; // 0～1，整點報時前光柱慢慢變亮
 
-  QuantumHivePainter({required this.p, required this.seat, required this.dots, required this.glow});
+  QuantumHivePainter({required this.p, required this.seat, required this.dots, required this.glow, this.boost = 0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -440,13 +457,14 @@ class QuantumHivePainter extends CustomPainter {
     final origin = p.project(0, 0);
     if (origin != null) {
       final base = origin.$1;
-      final height = (180 + 120 * p.scale).clamp(120.0, 420.0) * (0.6 + 0.4 * sin(p.pitch).abs());
-      final beam = Rect.fromLTWH(base.dx - 7, base.dy - height, 14, height);
+      final height = (180 + 120 * p.scale).clamp(120.0, 420.0) * (0.6 + 0.4 * sin(p.pitch).abs()) * (1 + 0.5 * boost);
+      final half = 7 + 7 * boost;
+      final beam = Rect.fromLTWH(base.dx - half, base.dy - height, half * 2, height);
       canvas.drawRect(beam, Paint()
         ..shader = LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
-            colors: [Colors.white.withOpacity(0.85), Night.auroraViolet.withOpacity(0.45 + 0.2 * glow), Night.auroraViolet.withOpacity(0)]).createShader(beam)
+            colors: [Colors.white.withOpacity(0.85), Color.lerp(Night.auroraViolet, Night.cityAmber, boost * 0.5)!.withOpacity(min(1.0, 0.45 + 0.2 * glow + 0.35 * boost)), Night.auroraViolet.withOpacity(0)]).createShader(beam)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
-      canvas.drawCircle(base, 10 + 4 * glow, Paint()..color = Night.auroraViolet.withOpacity(0.45)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+      canvas.drawCircle(base, 10 + 4 * glow + 14 * boost, Paint()..color = Night.auroraViolet.withOpacity(0.45 + 0.3 * boost)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
       canvas.drawCircle(base, 3, Paint()..color = Colors.white);
     }
   }

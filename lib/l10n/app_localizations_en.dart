@@ -2127,4 +2127,200 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS17L5 =>
       'There are no fading echoes, whispers, letters to the future, Mood Places, City Beacon or gatherings in the Quantum World. While inside you temporarily leave the normal radar and Parallel Universe; when you leave, your bubble dissolves into light and you return to your check-in spot. If the app is closed or offline for more than 3 minutes, your seat is released.';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return 'Hourly chime in ${seconds}s';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => 'Everyone is watching the 101 origin';
+
+  @override
+  String get quantumChimeLook => 'Look';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return 'Taipei $hour o\'clock chime';
+  }
+
+  @override
+  String get quantumChimeSend => 'Send a chime glimmer';
+
+  @override
+  String get quantumChimeSent => 'Your glimmer is flying to the origin';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '$n people watched this chime together';
+  }
+
+  @override
+  String get quantumChimeReminder => 'Hourly chime reminder';
+
+  @override
+  String get quantumChimeReminderSubtitle =>
+      'A nudge just before each hour to watch the chime at the 101 origin';
+
+  @override
+  String get quantumChimeNotifyBody =>
+      'The hourly chime is about to start — come watch at the 101 origin';
+
+  @override
+  String get quantumChimeChannel => 'Hourly chime';
+
+  @override
+  String get quantumChimeChannelDesc =>
+      'Hourly chime reminders for the Quantum World';
+
+  @override
+  String get quantumEntangleInvite => 'Invite to entangle';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return 'Invited $name to entangle';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => 'Quantum entanglement';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name ($code) wants to entangle with you. A thin line of light will join your two bubbles, visible however far apart you are. It collapses when either of you leaves, and nothing is kept.';
+  }
+
+  @override
+  String get quantumEntangleAccept => 'Entangle';
+
+  @override
+  String quantumEntangled(String name) {
+    return 'You and $name are entangled';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return 'Your entanglement with $name has collapsed';
+  }
+
+  @override
+  String get quantumEntangleCut => 'Disentangle';
+
+  @override
+  String get quantumEntangleFull => 'You\'re already entangled with 3 people';
+
+  @override
+  String get quantumEntangleTheirFull =>
+      'They\'re already entangled with 3 people';
+
+  @override
+  String get quantumEntangleGone => 'They\'ve left the Quantum World';
+
+  @override
+  String get quantumEntangleExpired => 'The invitation has expired';
+
+  @override
+  String get quantumEntangledTitle => 'Entangled';
+
+  @override
+  String get quantumTunnel => 'Quantum tunnelling';
+
+  @override
+  String get quantumTunnelSubtitle =>
+      'Jump to a random empty seat in the hive and meet new neighbours. Once per visit.';
+
+  @override
+  String get quantumTunnelUsed => 'You\'ve already tunnelled this visit';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return 'Tunnelled to $code';
+  }
+
+  @override
+  String get quantumShowTime => 'Show my local time';
+
+  @override
+  String get quantumShowTimeSubtitle =>
+      'Others see it when they long-press your bubble. When off, only the day-night tint shows.';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return 'Local $time · $part';
+  }
+
+  @override
+  String get quantumDawn => 'early morning';
+
+  @override
+  String get quantumDay => 'daytime';
+
+  @override
+  String get quantumDusk => 'dusk';
+
+  @override
+  String get quantumNight => 'late night';
+
+  @override
+  String get quantumTopicsTitle => 'Quantum wavelength';
+
+  @override
+  String get quantumTopicsSubtitle =>
+      'Pick up to 3 topics to show under your bubble';
+
+  @override
+  String get quantumTopicMusic => 'Music';
+
+  @override
+  String get quantumTopicMovies => 'Movies';
+
+  @override
+  String get quantumTopicTech => 'Tech';
+
+  @override
+  String get quantumTopicWalks => 'Walks';
+
+  @override
+  String get quantumTopicFood => 'Food';
+
+  @override
+  String get quantumTopicTravel => 'Travel';
+
+  @override
+  String get quantumTopicReading => 'Reading';
+
+  @override
+  String get quantumTopicSports => 'Sports';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return 'You both like: $topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => 'Quantum signals';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name sent you a signal';
+  }
+
+  @override
+  String get quantumSignalWait => 'You just sent one — try again in a moment';
+
+  @override
+  String quantumResonance(String name) {
+    return 'You and $name are resonating';
+  }
+
+  @override
+  String get guideS17L6 =>
+      'Hourly chime: a minute before each hour the 101 beam brightens. On the hour, messengers of light circle the origin, the bell strikes Taipei time (24 strikes at midnight), and a final wave of light sweeps the hive. Tap “Send a chime glimmer” during the chime — the more people watching, the brighter it gets. You can turn on the hourly chime reminder in the panel (off by default).';
+
+  @override
+  String get guideS17L7 =>
+      'After chatting, you can invite someone to entangle: a line of light joins your bubbles however far apart you are, collapsing when either of you leaves (up to 3 at a time). Quantum tunnelling, once per visit, jumps you to a random empty seat with new neighbours.';
+
+  @override
+  String get guideS17L8 =>
+      'Each bubble carries the tint of its owner\'s local time: pale gold at dawn, bright white by day, orange-violet at dusk, deep blue at night. Turn on “Show my local time” to let others see the time when they long-press your bubble. Swapping glimmers within 24 hours makes you resonate; long-press a bubble to send a 👋 ☕ 🌙 🎵 🌧️ ✨ signal; pick up to 3 wavelength topics in the panel and shared ones light up.';
 }

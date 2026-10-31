@@ -40,6 +40,12 @@ class NightlyReminder {
     await reschedule();
   }
 
+  /// 共用的通知外掛（整點報時提醒也用它）
+  static Future<FlutterLocalNotificationsPlugin> plugin() async {
+    await _init();
+    return _plugin;
+  }
+
   static Future<void> _init() async {
     if (_ready) return;
     tzdata.initializeTimeZones();

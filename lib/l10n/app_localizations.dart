@@ -1684,7 +1684,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS11Title.
   ///
   /// In zh, this message translates to:
-  /// **'14. 設定與通知'**
+  /// **'15. 設定與通知'**
   String get guideS11Title;
 
   /// No description provided for @guideS11L1.
@@ -1708,7 +1708,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS12Title.
   ///
   /// In zh, this message translates to:
-  /// **'15. 檢舉與封鎖'**
+  /// **'16. 檢舉與封鎖'**
   String get guideS12Title;
 
   /// No description provided for @guideS12L1.
@@ -1738,7 +1738,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS13Title.
   ///
   /// In zh, this message translates to:
-  /// **'16. 隱私與帳號'**
+  /// **'17. 隱私與帳號'**
   String get guideS13Title;
 
   /// No description provided for @guideS13L1.
@@ -1798,7 +1798,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS15Title.
   ///
   /// In zh, this message translates to:
-  /// **'13. 翻譯'**
+  /// **'14. 翻譯'**
   String get guideS15Title;
 
   /// No description provided for @guideS15L1.
@@ -3336,6 +3336,198 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'店內留言本：人在店裡（約 40 公尺內）打開名片，就讀得到之前坐在這裡的人留下的話，也可以留一句給下一個人。留言匿名、30 天後消失，同一家店一天可以留一則，點一下可以翻譯，不舒服的可以檢舉。打開留言本時，手機會把位置送到伺服器確認你在店裡，伺服器不保存。'**
   String get guideS16L5;
+
+  /// No description provided for @quantumWorld.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子世界'**
+  String get quantumWorld;
+
+  /// No description provided for @quantumWorldSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'全世界一個房間，不透露你的位置'**
+  String get quantumWorldSubtitle;
+
+  /// No description provided for @quantumIntroTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'進入量子世界'**
+  String get quantumIntroTitle;
+
+  /// No description provided for @quantumIntroBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，加上你入場後走了多遠：走路時氣泡跟著移動，搭車時暫停。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。'**
+  String get quantumIntroBody;
+
+  /// No description provided for @quantumEnter.
+  ///
+  /// In zh, this message translates to:
+  /// **'進入'**
+  String get quantumEnter;
+
+  /// No description provided for @quantumLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'離開量子世界'**
+  String get quantumLeave;
+
+  /// No description provided for @quantumLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'你離開了量子世界，回到原本的雷達'**
+  String get quantumLeft;
+
+  /// No description provided for @quantumYourSeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的席位 {code}'**
+  String quantumYourSeat(String code);
+
+  /// No description provided for @quantumSeatHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {ring} 圈 · 圈數越小越靠近 101 原點'**
+  String quantumSeatHint(int ring);
+
+  /// No description provided for @quantumOnlineChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'此刻 {count} 人'**
+  String quantumOnlineChip(int count);
+
+  /// No description provided for @quantumOnlineTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'此刻共有 {count} 人在量子世界'**
+  String quantumOnlineTitle(int count);
+
+  /// No description provided for @quantumRegionTw.
+  ///
+  /// In zh, this message translates to:
+  /// **'台灣'**
+  String get quantumRegionTw;
+
+  /// No description provided for @quantumRegionJp.
+  ///
+  /// In zh, this message translates to:
+  /// **'日本'**
+  String get quantumRegionJp;
+
+  /// No description provided for @quantumRegionKr.
+  ///
+  /// In zh, this message translates to:
+  /// **'韓國'**
+  String get quantumRegionKr;
+
+  /// No description provided for @quantumRegionHkmo.
+  ///
+  /// In zh, this message translates to:
+  /// **'港澳'**
+  String get quantumRegionHkmo;
+
+  /// No description provided for @quantumRegionSea.
+  ///
+  /// In zh, this message translates to:
+  /// **'東南亞'**
+  String get quantumRegionSea;
+
+  /// No description provided for @quantumRegionOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他地區'**
+  String get quantumRegionOther;
+
+  /// No description provided for @quantumQuiet.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子寧靜'**
+  String get quantumQuiet;
+
+  /// No description provided for @quantumQuietSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'只看世界：別人不能敲你的門，仍然收得到微光'**
+  String get quantumQuietSubtitle;
+
+  /// No description provided for @quantumQuietTarget.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方開啟了量子寧靜，現在只能送微光'**
+  String get quantumQuietTarget;
+
+  /// No description provided for @quantumClosedRegion.
+  ///
+  /// In zh, this message translates to:
+  /// **'你所在的地區沒有開放量子世界'**
+  String get quantumClosedRegion;
+
+  /// No description provided for @quantumLeftClosed.
+  ///
+  /// In zh, this message translates to:
+  /// **'你進入了未開放量子世界的地區，已自動離開'**
+  String get quantumLeftClosed;
+
+  /// No description provided for @quantumSeatExpired.
+  ///
+  /// In zh, this message translates to:
+  /// **'你離開太久，席位已經釋放，回到原本的雷達'**
+  String get quantumSeatExpired;
+
+  /// No description provided for @quantumUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子世界暫時進不去，請稍後再試'**
+  String get quantumUnavailable;
+
+  /// No description provided for @quantumPersonBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個人在量子世界的席位 {code}。量子世界裡看不到任何人的真實位置。'**
+  String quantumPersonBody(String code);
+
+  /// No description provided for @quantumChatTag.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子世界・{code}'**
+  String quantumChatTag(String code);
+
+  /// No description provided for @guideS17Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'13. 量子世界'**
+  String get guideS17Title;
+
+  /// No description provided for @guideS17L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'點雷達右上角的蜂巢圖示（平行宇宙下方），看完說明後按「進入」。每次進入都要自己按，就像打卡；每次打開 App 都從一般雷達開始。'**
+  String get guideS17L1;
+
+  /// No description provided for @guideS17L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'全世界在量子世界的人都在同一個房間：以台北 101 為原點排成蜂巢，相鄰席位相距 100 公尺。你會拿到一個席位代號，例如「Q4-17」（第 4 圈第 17 號），圈數越小越靠近原點。入場時先補別人離開的空位；第 1～3 圈保留給集會主持人。'**
+  String get guideS17L2;
+
+  /// No description provided for @guideS17L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有人看得到你的真實位置：大家看到的是你的席位，加上入場後走了多遠。走路時氣泡跟著移動，時速超過 25 公里（搭車）時暫停。中國大陸不開放量子世界。'**
+  String get guideS17L3;
+
+  /// No description provided for @guideS17L4.
+  ///
+  /// In zh, this message translates to:
+  /// **'暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。兩指縮小可以看到整個蜂巢，遠處的人會變成光點。點左上角的席位代號，可以看在線人數、開啟「量子寧靜」（別人不能敲門，仍然收得到微光），或離開。'**
+  String get guideS17L4;
+
+  /// No description provided for @guideS17L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。'**
+  String get guideS17L5;
 }
 
 class _AppLocalizationsDelegate

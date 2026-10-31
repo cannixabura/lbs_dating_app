@@ -887,7 +887,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS10L2 => '設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。';
 
   @override
-  String get guideS11Title => '14. 設定與通知';
+  String get guideS11Title => '15. 設定與通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。';
@@ -899,7 +899,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS11L3 => '每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。';
 
   @override
-  String get guideS12Title => '15. 檢舉與封鎖';
+  String get guideS12Title => '16. 檢舉與封鎖';
 
   @override
   String get guideS12L1 =>
@@ -915,7 +915,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS12L4 => '遇到立即的危險，請直接撥打 110。';
 
   @override
-  String get guideS13Title => '16. 隱私與帳號';
+  String get guideS13Title => '17. 隱私與帳號';
 
   @override
   String get guideS13L1 =>
@@ -950,7 +950,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。';
 
   @override
-  String get guideS15Title => '13. 翻譯';
+  String get guideS15Title => '14. 翻譯';
 
   @override
   String get guideS15L1 => '聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。';
@@ -1793,6 +1793,120 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS16L5 =>
       '店內留言本：人在店裡（約 40 公尺內）打開名片，就讀得到之前坐在這裡的人留下的話，也可以留一句給下一個人。留言匿名、30 天後消失，同一家店一天可以留一則，點一下可以翻譯，不舒服的可以檢舉。打開留言本時，手機會把位置送到伺服器確認你在店裡，伺服器不保存。';
+
+  @override
+  String get quantumWorld => '量子世界';
+
+  @override
+  String get quantumWorldSubtitle => '全世界一個房間，不透露你的位置';
+
+  @override
+  String get quantumIntroTitle => '進入量子世界';
+
+  @override
+  String get quantumIntroBody =>
+      '全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，加上你入場後走了多遠：走路時氣泡跟著移動，搭車時暫停。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。';
+
+  @override
+  String get quantumEnter => '進入';
+
+  @override
+  String get quantumLeave => '離開量子世界';
+
+  @override
+  String get quantumLeft => '你離開了量子世界，回到原本的雷達';
+
+  @override
+  String quantumYourSeat(String code) {
+    return '你的席位 $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return '第 $ring 圈 · 圈數越小越靠近 101 原點';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return '此刻 $count 人';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return '此刻共有 $count 人在量子世界';
+  }
+
+  @override
+  String get quantumRegionTw => '台灣';
+
+  @override
+  String get quantumRegionJp => '日本';
+
+  @override
+  String get quantumRegionKr => '韓國';
+
+  @override
+  String get quantumRegionHkmo => '港澳';
+
+  @override
+  String get quantumRegionSea => '東南亞';
+
+  @override
+  String get quantumRegionOther => '其他地區';
+
+  @override
+  String get quantumQuiet => '量子寧靜';
+
+  @override
+  String get quantumQuietSubtitle => '只看世界：別人不能敲你的門，仍然收得到微光';
+
+  @override
+  String get quantumQuietTarget => '對方開啟了量子寧靜，現在只能送微光';
+
+  @override
+  String get quantumClosedRegion => '你所在的地區沒有開放量子世界';
+
+  @override
+  String get quantumLeftClosed => '你進入了未開放量子世界的地區，已自動離開';
+
+  @override
+  String get quantumSeatExpired => '你離開太久，席位已經釋放，回到原本的雷達';
+
+  @override
+  String get quantumUnavailable => '量子世界暫時進不去，請稍後再試';
+
+  @override
+  String quantumPersonBody(String code) {
+    return '這個人在量子世界的席位 $code。量子世界裡看不到任何人的真實位置。';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return '量子世界・$code';
+  }
+
+  @override
+  String get guideS17Title => '13. 量子世界';
+
+  @override
+  String get guideS17L1 =>
+      '點雷達右上角的蜂巢圖示（平行宇宙下方），看完說明後按「進入」。每次進入都要自己按，就像打卡；每次打開 App 都從一般雷達開始。';
+
+  @override
+  String get guideS17L2 =>
+      '全世界在量子世界的人都在同一個房間：以台北 101 為原點排成蜂巢，相鄰席位相距 100 公尺。你會拿到一個席位代號，例如「Q4-17」（第 4 圈第 17 號），圈數越小越靠近原點。入場時先補別人離開的空位；第 1～3 圈保留給集會主持人。';
+
+  @override
+  String get guideS17L3 =>
+      '沒有人看得到你的真實位置：大家看到的是你的席位，加上入場後走了多遠。走路時氣泡跟著移動，時速超過 25 公里（搭車）時暫停。中國大陸不開放量子世界。';
+
+  @override
+  String get guideS17L4 =>
+      '暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。兩指縮小可以看到整個蜂巢，遠處的人會變成光點。點左上角的席位代號，可以看在線人數、開啟「量子寧靜」（別人不能敲門，仍然收得到微光），或離開。';
+
+  @override
+  String get guideS17L5 =>
+      '量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -2677,7 +2791,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS10L2 => '设置 →「我的心情轨迹」可以回顾你写过的心情与地点，数据只存在你的手机上，可以随时关闭或清除。';
 
   @override
-  String get guideS11Title => '14. 设置与通知';
+  String get guideS11Title => '15. 设置与通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一则温和的提醒，可以在设置里开关。';
@@ -2689,7 +2803,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS11L3 => '每周五 21:00–23:00 是「点亮之夜」，大家一起上线，城市最亮。';
 
   @override
-  String get guideS12Title => '15. 举报与屏蔽';
+  String get guideS12Title => '16. 举报与屏蔽';
 
   @override
   String get guideS12L1 =>
@@ -2705,7 +2819,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS12L4 => '遇到紧急危险，请直接拨打当地的紧急电话（台湾为 110）。';
 
   @override
-  String get guideS13Title => '16. 隐私与账号';
+  String get guideS13Title => '17. 隐私与账号';
 
   @override
   String get guideS13L1 =>
@@ -2740,7 +2854,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。残影、低语、低语穿越与集会都只留在当地。';
 
   @override
-  String get guideS15Title => '13. 翻译';
+  String get guideS15Title => '14. 翻译';
 
   @override
   String get guideS15L1 => '聊天时，对方的消息跟你的语言不同，下方会出现「点一下翻译」；点一下就翻成你的语言，再点一下看原文。';
@@ -3583,4 +3697,118 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS16L5 =>
       '店内留言本：人在店里（约 40 米内）打开名片，就读得到之前坐在这里的人留下的话，也可以留一句给下一个人。留言匿名、30 天后消失，同一家店一天可以留一则，点一下可以翻译，不舒服的可以举报。打开留言本时，手机会把位置发到服务器确认你在店里，服务器不保存。';
+
+  @override
+  String get quantumWorld => '量子世界';
+
+  @override
+  String get quantumWorldSubtitle => '全世界一个房间，不透露你的位置';
+
+  @override
+  String get quantumIntroTitle => '进入量子世界';
+
+  @override
+  String get quantumIntroBody =>
+      '全世界此刻在量子世界的人，都在同一个房间里：以台北 101 为原点排成蜂巢，你会拿到一个席位，例如“Q4-17”，圈数越小越靠近原点。\n\n没有人看得到你的真实位置。大家看到的是你的席位，加上你入场后走了多远：走路时气泡跟着移动，乘车时暂停。昵称和心情照旧，一样可以送微光、敲门和聊天，点一下就翻译。\n\n在量子世界期间，会暂时离开一般雷达和平行宇宙；离开后回到原本打卡的位置。';
+
+  @override
+  String get quantumEnter => '进入';
+
+  @override
+  String get quantumLeave => '离开量子世界';
+
+  @override
+  String get quantumLeft => '你离开了量子世界，回到原本的雷达';
+
+  @override
+  String quantumYourSeat(String code) {
+    return '你的席位 $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return '第 $ring 圈 · 圈数越小越靠近 101 原点';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return '此刻 $count 人';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return '此刻共有 $count 人在量子世界';
+  }
+
+  @override
+  String get quantumRegionTw => '台湾';
+
+  @override
+  String get quantumRegionJp => '日本';
+
+  @override
+  String get quantumRegionKr => '韩国';
+
+  @override
+  String get quantumRegionHkmo => '港澳';
+
+  @override
+  String get quantumRegionSea => '东南亚';
+
+  @override
+  String get quantumRegionOther => '其他地区';
+
+  @override
+  String get quantumQuiet => '量子宁静';
+
+  @override
+  String get quantumQuietSubtitle => '只看世界：别人不能敲你的门，仍然收得到微光';
+
+  @override
+  String get quantumQuietTarget => '对方开启了量子宁静，现在只能送微光';
+
+  @override
+  String get quantumClosedRegion => '你所在的地区没有开放量子世界';
+
+  @override
+  String get quantumLeftClosed => '你进入了未开放量子世界的地区，已自动离开';
+
+  @override
+  String get quantumSeatExpired => '你离开太久，席位已经释放，回到原本的雷达';
+
+  @override
+  String get quantumUnavailable => '量子世界暂时进不去，请稍后再试';
+
+  @override
+  String quantumPersonBody(String code) {
+    return '这个人在量子世界的席位 $code。量子世界里看不到任何人的真实位置。';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return '量子世界・$code';
+  }
+
+  @override
+  String get guideS17Title => '13. 量子世界';
+
+  @override
+  String get guideS17L1 =>
+      '点雷达右上角的蜂巢图标（平行宇宙下方），看完说明后按“进入”。每次进入都要自己按，就像打卡；每次打开 App 都从一般雷达开始。';
+
+  @override
+  String get guideS17L2 =>
+      '全世界在量子世界的人都在同一个房间：以台北 101 为原点排成蜂巢，相邻席位相距 100 米。你会拿到一个席位代号，例如“Q4-17”（第 4 圈第 17 号），圈数越小越靠近原点。入场时先补别人离开的空位；第 1～3 圈保留给集会主持人。';
+
+  @override
+  String get guideS17L3 =>
+      '没有人看得到你的真实位置：大家看到的是你的席位，加上入场后走了多远。走路时气泡跟着移动，时速超过 25 公里（乘车）时暂停。中国大陆不开放量子世界。';
+
+  @override
+  String get guideS17L4 =>
+      '昵称和心情照旧，一样可以送微光、敲门和聊天，点一下就翻译。两指缩小可以看到整个蜂巢，远处的人会变成光点。点左上角的席位代号，可以看在线人数、开启“量子宁静”（别人不能敲门，仍然收得到微光），或离开。';
+
+  @override
+  String get guideS17L5 =>
+      '量子世界里没有残影、低语、低语穿越、心情据点、城市灯塔与集会。进入期间会暂时离开一般雷达和平行宇宙；离开时你的气泡化成光点散掉，回到原本打卡的位置。App 关掉或断线超过 3 分钟，席位就会释放。';
 }

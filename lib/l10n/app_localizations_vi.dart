@@ -955,7 +955,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cài đặt → Dấu vết tâm trạng cho bạn xem lại những tâm trạng và nơi bạn đã viết. Dữ liệu chỉ lưu trên điện thoại, có thể tắt hoặc xóa bất cứ lúc nào.';
 
   @override
-  String get guideS11Title => '14. Cài đặt và thông báo';
+  String get guideS11Title => '15. Cài đặt và thông báo';
 
   @override
   String get guideS11L1 =>
@@ -970,7 +970,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mỗi thứ Sáu từ 21:00 đến 23:00 là Đêm Thắp Sáng, khi mọi người cùng online và thành phố sáng nhất.';
 
   @override
-  String get guideS12Title => '15. Báo cáo và chặn';
+  String get guideS12Title => '16. Báo cáo và chặn';
 
   @override
   String get guideS12L1 =>
@@ -989,7 +989,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn đang gặp nguy hiểm khẩn cấp, hãy gọi ngay số khẩn cấp tại địa phương (113 ở Việt Nam, 110 ở Đài Loan).';
 
   @override
-  String get guideS13Title => '16. Quyền riêng tư và tài khoản';
+  String get guideS13Title => '17. Quyền riêng tư và tài khoản';
 
   @override
   String get guideS13L1 =>
@@ -1027,7 +1027,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Dư ảnh, lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
-  String get guideS15Title => '13. Dịch';
+  String get guideS15Title => '14. Dịch';
 
   @override
   String get guideS15L1 =>
@@ -1933,4 +1933,125 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS16L5 =>
       'Sổ lưu bút: mở thẻ địa điểm khi bạn đang ở trong quán (trong khoảng 40 m) để đọc những lời người ngồi đây trước bạn để lại, và để lại một câu cho người tiếp theo. Lời nhắn ẩn danh và biến mất sau 30 ngày. Mỗi quán bạn được để lại một lời nhắn mỗi ngày, chạm để dịch, và báo cáo những gì khiến bạn khó chịu. Khi bạn mở sổ lưu bút, điện thoại gửi vị trí đến máy chủ để xác nhận bạn đang ở trong quán; máy chủ không lưu lại.';
+
+  @override
+  String get quantumWorld => 'Thế giới lượng tử';
+
+  @override
+  String get quantumWorldSubtitle =>
+      'Một căn phòng cho cả thế giới, không tiết lộ vị trí của bạn';
+
+  @override
+  String get quantumIntroTitle => 'Vào Thế giới lượng tử';
+
+  @override
+  String get quantumIntroBody =>
+      'Mọi người đang ở Thế giới lượng tử lúc này đều chung một căn phòng, xếp thành tổ ong quanh Taipei 101. Bạn nhận một chỗ ngồi như \"Q4-17\" — vòng càng nhỏ càng gần tâm.\n\nKhông ai thấy được vị trí thật của bạn. Người khác chỉ thấy chỗ ngồi của bạn cộng với quãng đường bạn đã đi kể từ lúc vào: bong bóng di chuyển theo khi bạn đi bộ và dừng lại khi bạn đi xe. Biệt danh và tâm trạng giữ nguyên, bạn vẫn có thể gửi đốm sáng, gõ cửa và trò chuyện, chạm để dịch.\n\nTrong thời gian ở Thế giới lượng tử, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bạn trở lại vị trí đã check-in.';
+
+  @override
+  String get quantumEnter => 'Vào';
+
+  @override
+  String get quantumLeave => 'Rời Thế giới lượng tử';
+
+  @override
+  String get quantumLeft => 'Bạn đã rời Thế giới lượng tử và trở lại radar';
+
+  @override
+  String quantumYourSeat(String code) {
+    return 'Chỗ ngồi của bạn $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return 'Vòng $ring · vòng càng nhỏ càng gần tâm Taipei 101';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return '$count người lúc này';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return 'Lúc này có $count người ở Thế giới lượng tử';
+  }
+
+  @override
+  String get quantumRegionTw => 'Đài Loan';
+
+  @override
+  String get quantumRegionJp => 'Nhật Bản';
+
+  @override
+  String get quantumRegionKr => 'Hàn Quốc';
+
+  @override
+  String get quantumRegionHkmo => 'Hồng Kông & Ma Cao';
+
+  @override
+  String get quantumRegionSea => 'Đông Nam Á';
+
+  @override
+  String get quantumRegionOther => 'Nơi khác';
+
+  @override
+  String get quantumQuiet => 'Lượng tử tĩnh lặng';
+
+  @override
+  String get quantumQuietSubtitle =>
+      'Chỉ ngắm thế giới: không ai gõ cửa được, nhưng bạn vẫn nhận đốm sáng';
+
+  @override
+  String get quantumQuietTarget =>
+      'Người này đã bật Lượng tử tĩnh lặng — giờ bạn chỉ có thể gửi đốm sáng';
+
+  @override
+  String get quantumClosedRegion =>
+      'Thế giới lượng tử chưa mở ở khu vực của bạn';
+
+  @override
+  String get quantumLeftClosed =>
+      'Bạn đã vào khu vực chưa mở Thế giới lượng tử nên đã tự động rời đi';
+
+  @override
+  String get quantumSeatExpired =>
+      'Bạn rời đi quá lâu nên chỗ ngồi đã được giải phóng; bạn trở lại radar';
+
+  @override
+  String get quantumUnavailable =>
+      'Hiện không vào được Thế giới lượng tử. Vui lòng thử lại sau.';
+
+  @override
+  String quantumPersonBody(String code) {
+    return 'Chỗ ngồi của người này trong Thế giới lượng tử là $code. Không ai bị hiển thị vị trí thật trong Thế giới lượng tử.';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return 'Thế giới lượng tử · $code';
+  }
+
+  @override
+  String get guideS17Title => '13. Thế giới lượng tử';
+
+  @override
+  String get guideS17L1 =>
+      'Chạm biểu tượng tổ ong ở góc trên bên phải radar (dưới Vũ trụ song song), đọc phần giới thiệu rồi chạm Vào. Mỗi lần vào đều do bạn tự chạm, giống như check-in; mỗi lần mở ứng dụng bạn bắt đầu từ radar thường.';
+
+  @override
+  String get guideS17L2 =>
+      'Mọi người trong Thế giới lượng tử chung một căn phòng: tổ ong quanh Taipei 101, các chỗ ngồi cách nhau 100 m. Bạn nhận mã chỗ ngồi như \"Q4-17\" (vòng 4, chỗ 17) — vòng càng nhỏ càng gần tâm. Người mới vào sẽ lấp chỗ người khác vừa rời trước; vòng 1–3 dành cho người tổ chức buổi tụ họp.';
+
+  @override
+  String get guideS17L3 =>
+      'Không ai thấy được vị trí thật của bạn: người khác thấy chỗ ngồi của bạn cộng với quãng đường bạn đã đi kể từ lúc vào. Bong bóng di chuyển theo khi bạn đi bộ và dừng lại khi trên 25 km/h (đi xe). Thế giới lượng tử không mở ở Trung Quốc đại lục.';
+
+  @override
+  String get guideS17L4 =>
+      'Biệt danh và tâm trạng giữ nguyên, bạn vẫn có thể gửi đốm sáng, gõ cửa và trò chuyện, chạm để dịch. Chụm hai ngón để thu nhỏ và xem toàn bộ tổ ong; người ở xa trở thành chấm sáng. Chạm mã chỗ ngồi ở góc trên bên trái để xem số người trực tuyến, bật Lượng tử tĩnh lặng (không ai gõ cửa, vẫn nhận đốm sáng), hoặc rời đi.';
+
+  @override
+  String get guideS17L5 =>
+      'Thế giới lượng tử không có dư ảnh, lời thì thầm, thư gửi tương lai, điểm tâm trạng, Hải đăng thành phố hay buổi tụ họp. Trong thời gian ở trong, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bong bóng tan thành ánh sáng và bạn trở lại vị trí đã check-in. Nếu ứng dụng bị đóng hoặc mất kết nối quá 3 phút, chỗ ngồi sẽ được giải phóng.';
 }

@@ -907,7 +907,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定 →「ムードの軌跡」で、これまで書いたムードと場所を振り返れます。データはこの端末にだけ保存され、いつでもオフにしたり消去したりできます。';
 
   @override
-  String get guideS11Title => '14. 設定と通知';
+  String get guideS11Title => '15. 設定と通知';
 
   @override
   String get guideS11L1 => '「夜のリマインダー」：毎晩 21:30 にやさしいお知らせが届きます。設定でオン・オフできます。';
@@ -921,7 +921,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週金曜 21:00〜23:00 は「ライトアップナイト」。みんなで一緒にオンラインになると、街がいちばん明るくなります。';
 
   @override
-  String get guideS12Title => '15. 通報とブロック';
+  String get guideS12Title => '16. 通報とブロック';
 
   @override
   String get guideS12L1 =>
@@ -940,7 +940,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '差し迫った危険があるときは、すぐに現地の緊急通報番号（日本は 110、台湾は 110）に電話してください。';
 
   @override
-  String get guideS13Title => '16. プライバシーとアカウント';
+  String get guideS13Title => '17. プライバシーとアカウント';
 
   @override
   String get guideS13L1 =>
@@ -977,7 +977,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'パラレルユニバースの人には点線の輪があり、いる街が表示されます。光を送る・ノック・チャットもできます。残像・ささやき・未来への手紙・集いはその街だけのものです。';
 
   @override
-  String get guideS15Title => '13. 翻訳';
+  String get guideS15Title => '14. 翻訳';
 
   @override
   String get guideS15L1 =>
@@ -1838,4 +1838,118 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS16L5 =>
       '店内ノート：お店の中（約 40 m 以内）でカードを開くと、前にここに座っていた人たちが残した言葉が読めて、次の人へひとこと残すこともできます。ノートは匿名で 30 日後に消えます。同じお店には 1 日 1 件まで。タップすると翻訳でき、嫌なものは通報できます。店内ノートを開くとき、お店の中にいるか確かめるため位置情報をサーバーに送りますが、保存はしません。';
+
+  @override
+  String get quantumWorld => '量子世界';
+
+  @override
+  String get quantumWorldSubtitle => '世界でひとつの部屋。あなたの位置は明かしません';
+
+  @override
+  String get quantumIntroTitle => '量子世界に入る';
+
+  @override
+  String get quantumIntroBody =>
+      'いま量子世界にいる人は、みんな同じひとつの部屋にいます。台北101を原点にハチの巣状に並び、あなたには「Q4-17」のような席が割り当てられます。輪が小さいほど原点に近い席です。\n\nあなたの本当の位置は誰にも見えません。ほかの人に見えるのは、あなたの席と、入ってから歩いた距離だけです。歩くとバブルも動き、乗り物に乗っている間は止まります。ニックネームと気分はそのまま、きらめきを送る・ノック・チャットもでき、タップで翻訳できます。\n\n量子世界にいる間は、通常のレーダーとパラレルユニバースから一時的に離れます。出ると、チェックインした場所に戻ります。';
+
+  @override
+  String get quantumEnter => '入る';
+
+  @override
+  String get quantumLeave => '量子世界を出る';
+
+  @override
+  String get quantumLeft => '量子世界を出て、いつものレーダーに戻りました';
+
+  @override
+  String quantumYourSeat(String code) {
+    return 'あなたの席 $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return '第$ring輪 · 輪が小さいほど台北101の原点に近い';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return 'いま$count人';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return 'いま量子世界に$count人';
+  }
+
+  @override
+  String get quantumRegionTw => '台湾';
+
+  @override
+  String get quantumRegionJp => '日本';
+
+  @override
+  String get quantumRegionKr => '韓国';
+
+  @override
+  String get quantumRegionHkmo => '香港・マカオ';
+
+  @override
+  String get quantumRegionSea => '東南アジア';
+
+  @override
+  String get quantumRegionOther => 'その他の地域';
+
+  @override
+  String get quantumQuiet => '量子の静けさ';
+
+  @override
+  String get quantumQuietSubtitle => '世界を眺めるだけ。ノックは届きませんが、きらめきは受け取れます';
+
+  @override
+  String get quantumQuietTarget => '相手は量子の静けさをオンにしています。いまはきらめきだけ送れます';
+
+  @override
+  String get quantumClosedRegion => 'いる地域では量子世界を利用できません';
+
+  @override
+  String get quantumLeftClosed => '量子世界を利用できない地域に入ったため、自動的に退出しました';
+
+  @override
+  String get quantumSeatExpired => '離れていた時間が長かったため席が解放されました。いつものレーダーに戻ります';
+
+  @override
+  String get quantumUnavailable => 'いま量子世界に入れません。しばらくしてからお試しください。';
+
+  @override
+  String quantumPersonBody(String code) {
+    return 'この人の量子世界での席は$codeです。量子世界では誰の本当の位置も表示されません。';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return '量子世界・$code';
+  }
+
+  @override
+  String get guideS17Title => '13. 量子世界';
+
+  @override
+  String get guideS17L1 =>
+      'レーダー右上のハチの巣アイコン（パラレルユニバースの下）をタップし、説明を読んで「入る」を押します。入るたびに自分で押す、チェックインと同じ操作です。アプリを開くと毎回いつものレーダーから始まります。';
+
+  @override
+  String get guideS17L2 =>
+      '量子世界にいる人はみんな同じ部屋にいます。台北101を原点にハチの巣状に並び、席と席の間は100 mです。「Q4-17」（第4輪の17番）のような席が割り当てられ、輪が小さいほど原点に近い席です。入るときは、誰かが空けた席から先に埋まります。第1〜3輪は集いの主催者用です。';
+
+  @override
+  String get guideS17L3 =>
+      'あなたの本当の位置は誰にも見えません。ほかの人に見えるのは、あなたの席と、入ってから歩いた距離だけです。歩くとバブルも動き、時速25 kmを超えると（乗り物）止まります。中国大陸では量子世界を利用できません。';
+
+  @override
+  String get guideS17L4 =>
+      'ニックネームと気分はそのまま、きらめき・ノック・チャットもでき、タップで翻訳できます。ピンチで縮小するとハチの巣全体が見え、遠くの人は光の点になります。左上の席番号をタップすると、オンライン人数の確認、「量子の静けさ」（ノックは届かず、きらめきは届く）のオン、退出ができます。';
+
+  @override
+  String get guideS17L5 =>
+      '量子世界には残影、ささやき、未来への手紙、ムードスポット、シティ・ビーコン、集いはありません。入っている間は通常のレーダーとパラレルユニバースから一時的に離れ、出るとバブルが光になって消え、チェックインした場所に戻ります。アプリを閉じたり3分以上オフラインになると、席は解放されます。';
 }

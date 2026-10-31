@@ -958,7 +958,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Tetapan → Jejak mood saya membolehkan anda melihat semula mood dan tempat yang pernah anda tulis. Ia disimpan hanya dalam telefon anda, dan anda boleh mematikan atau mengosongkannya bila-bila masa.';
 
   @override
-  String get guideS11Title => '14. Tetapan dan pemberitahuan';
+  String get guideS11Title => '15. Tetapan dan pemberitahuan';
 
   @override
   String get guideS11L1 =>
@@ -973,7 +973,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Setiap Jumaat 21:00 hingga 23:00 ialah Malam Bercahaya, apabila semua dalam talian bersama dan bandar paling terang.';
 
   @override
-  String get guideS12Title => '15. Laporan dan sekatan';
+  String get guideS12Title => '16. Laporan dan sekatan';
 
   @override
   String get guideS12L1 =>
@@ -992,7 +992,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika anda dalam bahaya segera, hubungi nombor kecemasan tempatan (999 di Malaysia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '16. Privasi dan akaun anda';
+  String get guideS13Title => '17. Privasi dan akaun anda';
 
   @override
   String get guideS13L1 =>
@@ -1030,7 +1030,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Gema pudar, bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
 
   @override
-  String get guideS15Title => '13. Terjemahan';
+  String get guideS15Title => '14. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -1943,4 +1943,126 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS16L5 =>
       'Buku pelawat: buka kad tempat ketika anda di dalam (dalam lingkungan kira-kira 40 m) untuk membaca kata-kata orang yang pernah duduk di sini, dan tinggalkan satu baris untuk orang seterusnya. Nota adalah tanpa nama dan hilang selepas 30 hari. Anda boleh meninggalkan satu nota setiap tempat sehari, ketik nota untuk menterjemah, dan laporkan apa-apa yang mengganggu. Apabila anda membuka buku pelawat, telefon anda menghantar lokasi ke pelayan kami untuk mengesahkan anda di dalam; pelayan tidak menyimpannya.';
+
+  @override
+  String get quantumWorld => 'Dunia Kuantum';
+
+  @override
+  String get quantumWorldSubtitle =>
+      'Satu bilik untuk seluruh dunia, tanpa mendedahkan lokasi anda';
+
+  @override
+  String get quantumIntroTitle => 'Masuk Dunia Kuantum';
+
+  @override
+  String get quantumIntroBody =>
+      'Semua orang dalam Dunia Kuantum sekarang berkongsi satu bilik, tersusun seperti sarang lebah di sekeliling Taipei 101. Anda mendapat tempat duduk seperti \"Q4-17\" — lebih kecil gelangnya, lebih dekat dengan titik asal.\n\nTiada siapa dapat melihat lokasi sebenar anda. Orang lain hanya melihat tempat duduk anda dan sejauh mana anda berjalan sejak masuk: gelembung anda bergerak semasa berjalan dan berhenti semasa menaiki kenderaan. Nama panggilan dan mood kekal sama, dan anda masih boleh menghantar kerlipan, mengetuk dan bersembang, dengan terjemahan sekali ketik.\n\nSemasa dalam Dunia Kuantum, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, anda kembali ke tempat daftar masuk anda.';
+
+  @override
+  String get quantumEnter => 'Masuk';
+
+  @override
+  String get quantumLeave => 'Keluar dari Dunia Kuantum';
+
+  @override
+  String get quantumLeft =>
+      'Anda telah keluar dari Dunia Kuantum dan kembali ke radar anda';
+
+  @override
+  String quantumYourSeat(String code) {
+    return 'Tempat duduk anda $code';
+  }
+
+  @override
+  String quantumSeatHint(int ring) {
+    return 'Gelang $ring · gelang lebih kecil lebih dekat dengan titik asal Taipei 101';
+  }
+
+  @override
+  String quantumOnlineChip(int count) {
+    return '$count di sini sekarang';
+  }
+
+  @override
+  String quantumOnlineTitle(int count) {
+    return '$count orang dalam Dunia Kuantum sekarang';
+  }
+
+  @override
+  String get quantumRegionTw => 'Taiwan';
+
+  @override
+  String get quantumRegionJp => 'Jepun';
+
+  @override
+  String get quantumRegionKr => 'Korea';
+
+  @override
+  String get quantumRegionHkmo => 'Hong Kong & Macau';
+
+  @override
+  String get quantumRegionSea => 'Asia Tenggara';
+
+  @override
+  String get quantumRegionOther => 'Tempat lain';
+
+  @override
+  String get quantumQuiet => 'Senyap Kuantum';
+
+  @override
+  String get quantumQuietSubtitle =>
+      'Hanya melihat dunia: tiada siapa boleh mengetuk, tetapi kerlipan masih sampai kepada anda';
+
+  @override
+  String get quantumQuietTarget =>
+      'Dia menghidupkan Senyap Kuantum — anda hanya boleh menghantar kerlipan sekarang';
+
+  @override
+  String get quantumClosedRegion =>
+      'Dunia Kuantum tidak tersedia di kawasan anda';
+
+  @override
+  String get quantumLeftClosed =>
+      'Anda memasuki kawasan yang tiada Dunia Kuantum, jadi anda telah dikeluarkan';
+
+  @override
+  String get quantumSeatExpired =>
+      'Anda pergi terlalu lama dan tempat duduk anda telah dilepaskan; anda kembali ke radar anda';
+
+  @override
+  String get quantumUnavailable =>
+      'Tidak dapat masuk ke Dunia Kuantum sekarang. Sila cuba sebentar lagi.';
+
+  @override
+  String quantumPersonBody(String code) {
+    return 'Tempat duduk orang ini dalam Dunia Kuantum ialah $code. Lokasi sebenar sesiapa tidak dipaparkan dalam Dunia Kuantum.';
+  }
+
+  @override
+  String quantumChatTag(String code) {
+    return 'Dunia Kuantum · $code';
+  }
+
+  @override
+  String get guideS17Title => '13. Dunia Kuantum';
+
+  @override
+  String get guideS17L1 =>
+      'Ketik ikon sarang lebah di penjuru kanan atas radar (di bawah Alam Selari), baca nota dan ketik Masuk. Anda masuk dengan mengetik setiap kali, sama seperti daftar masuk; setiap kali membuka aplikasi anda bermula di radar biasa.';
+
+  @override
+  String get guideS17L2 =>
+      'Semua orang dalam Dunia Kuantum berkongsi satu bilik: sarang lebah di sekeliling Taipei 101, dengan tempat duduk 100 m antara satu sama lain. Anda mendapat kod tempat duduk seperti \"Q4-17\" (gelang 4, tempat duduk 17) — gelang lebih kecil lebih dekat dengan titik asal. Pendatang baru mengisi tempat yang ditinggalkan orang lain dahulu; gelang 1–3 dikhaskan untuk hos perhimpunan.';
+
+  @override
+  String get guideS17L3 =>
+      'Tiada siapa dapat melihat lokasi sebenar anda: orang lain melihat tempat duduk anda dan sejauh mana anda berjalan sejak masuk. Gelembung anda bergerak semasa berjalan dan berhenti melebihi 25 km/j (menaiki kenderaan). Dunia Kuantum tidak tersedia di tanah besar China.';
+
+  @override
+  String get guideS17L4 =>
+      'Nama panggilan dan mood kekal sama, dan anda masih boleh menghantar kerlipan, mengetuk dan bersembang, dengan terjemahan sekali ketik. Cubit untuk mengecil bagi melihat seluruh sarang; orang yang jauh menjadi titik cahaya. Ketik kod tempat duduk di kiri atas untuk melihat siapa dalam talian, menghidupkan Senyap Kuantum (tiada ketukan, kerlipan masih sampai), atau keluar.';
+
+  @override
+  String get guideS17L5 =>
+      'Tiada gema pudar, bisikan, surat ke masa depan, Tempat Mood, Suar Bandar atau perhimpunan dalam Dunia Kuantum. Semasa di dalam, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, gelembung anda larut menjadi cahaya dan anda kembali ke tempat daftar masuk. Jika aplikasi ditutup atau di luar talian lebih 3 minit, tempat duduk anda dilepaskan.';
 }

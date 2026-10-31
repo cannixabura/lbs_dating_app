@@ -75,6 +75,22 @@
   .more-grid span { color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
   .guide-link { margin-top: 18px; font-size: 15px; }
 
+  /* ---------- Videos：先放縮圖，點了才載入 YouTube 播放器 ---------- */
+  .videos { display: grid; grid-auto-flow: column; grid-auto-columns: 62%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding-bottom: 12px; margin-inline: -20px; padding-inline: 20px; scrollbar-width: none; }
+  .videos::-webkit-scrollbar { display: none; }
+  .vcard { scroll-snap-align: center; margin: 0; min-width: 0; }
+  .vthumb, .vcard iframe { position: relative; display: block; width: 100%; aspect-ratio: 9 / 16; border-radius: 22px; overflow: hidden;
+    border: 1px solid var(--glass-line); background: var(--night-800); padding: 0; cursor: pointer; }
+  .vthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vthumb .play { position: absolute; inset: 0; margin: auto; width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(7, 11, 31, .6); border: 1px solid var(--glass-line); box-shadow: 0 0 30px rgba(180,76,255,.45); }
+  .vthumb .play::after { content: ""; position: absolute; left: 26px; top: 20px; border-style: solid; border-width: 12px 0 12px 19px;
+    border-color: transparent transparent transparent var(--ink); }
+  .vthumb:hover .play, .vthumb:focus-visible .play { background: rgba(142, 45, 226, .75); }
+  .vcard figcaption { margin-top: 12px; color: var(--ink-muted); font-size: 14px; line-height: 1.7; }
+  .vcard figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 16px; margin-bottom: 2px; }
+
   .safe { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .safe div { padding: 18px 20px; border-radius: 20px; background: var(--glass-fill); border: 1px solid var(--glass-line); }
   .safe b { display: block; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
@@ -92,6 +108,7 @@
     .gallery { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; }
     .safe { grid-template-columns: repeat(4, 1fr); }
     .more-grid { grid-template-columns: repeat(3, 1fr); }
+    .videos { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; }
   }
 </style>
 </head>
@@ -124,6 +141,31 @@
         <figcaption><b>溫柔的距離</b>不想被打擾？婉拒或封鎖。冷卻系統會為你隔絕喧囂，還你安靜的角落。</figcaption></figure>
       <figure class="card"><img src="img/intro_5.jpg" alt="準備進入城市低語" loading="lazy" width="675" height="1200">
         <figcaption><b>準備好相遇了嗎？</b>寫下你此刻的心情，走進城市低語。</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="stories">
+    <h2 id="stories">城市裡的故事</h2>
+    <p class="sub">每一支都是一個晚上、一個人、一段沒有說出口的心情。</p>
+    <div class="videos">
+      <figure class="vcard"><button class="vthumb" type="button" data-id="wS05-XjhfE8" aria-label="播放：今晚，你的心情在城市裡發光"><img src="https://i.ytimg.com/vi/wS05-XjhfE8/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/wS05-XjhfE8/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>今晚，你的心情在城市裡發光</b>剛結束一場不太順利的工作會議，還不想立刻回家，只想在街上走一段路。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="lnrbnCypVfo" aria-label="播放：城市開始低聲說話"><img src="https://i.ytimg.com/vi/lnrbnCypVfo/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/lnrbnCypVfo/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>城市開始低聲說話</b>沒有照片、沒有名字、沒有年齡。這些話來自附近同樣正在街上步行的人。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="ymZpbdohmYY" aria-label="播放：她留下自己的此刻"><img src="https://i.ytimg.com/vi/ymZpbdohmYY/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/ymZpbdohmYY/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>她留下自己的此刻</b>沒有讚、沒有瀏覽數。它只是被放進夜晚裡。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="Wja_oHzPKbk" aria-label="播放：有一個氣泡稍微清楚了一點"><img src="https://i.ytimg.com/vi/Wja_oHzPKbk/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/Wja_oHzPKbk/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>有一個氣泡稍微清楚了一點</b>像有人把一個念頭放在路邊，沒有要求任何人撿起來。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="U8BErNq85dI" aria-label="播放：第一次，一個人去彩虹遊行 🌈"><img src="https://i.ytimg.com/vi/U8BErNq85dI/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/U8BErNq85dI/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>第一次，一個人去彩虹遊行 🌈</b>她還沒準備好讓任何人知道。但在城市低語，她被看見了，不用被認出來。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="CbGeKL5vdG8" aria-label="播放：一個人跨年，也不孤單 🎆"><img src="https://i.ytimg.com/vi/CbGeKL5vdG8/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/CbGeKL5vdG8/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>一個人跨年，也不孤單 🎆</b>跟著集會的公告找到最好的位置，和整座城市一起倒數。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="Am2-ppg__5E" aria-label="播放：九份自由活動，全員準時到齊 🚩"><img src="https://i.ytimg.com/vi/Am2-ppg__5E/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/Am2-ppg__5E/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>九份自由活動，全員準時到齊 🚩</b>領隊發一則公告，全團都收到；走散了，打開雷達就找得到領隊。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="YAet78O-p3U" aria-label="播放：低語穿越《一年後的我》"><img src="https://i.ytimg.com/vi/YAet78O-p3U/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/YAet78O-p3U/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>低語穿越《一年後的我》</b>在河堤寫信給一年後的自己。一年後通知響起，她回到同一段階梯。</figcaption></figure>
+      <figure class="vcard"><button class="vthumb" type="button" data-id="tyzMdgbPbVE" aria-label="播放：台北下雨的深夜，東京有人錯過末班車 🪐"><img src="https://i.ytimg.com/vi/tyzMdgbPbVE/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/tyzMdgbPbVE/hqdefault.jpg'" alt="" loading="lazy" width="270" height="480"><span class="play" aria-hidden="true"></span></button>
+        <figcaption><b>台北下雨的深夜，東京有人錯過末班車 🪐</b>打開平行宇宙，點一下就翻譯。隔著兩千公里，一起等車。</figcaption></figure>
     </div>
   </section>
 
@@ -169,6 +211,17 @@
   </footer>
 </main>
 <script>
+  // 影片：點縮圖才換成 YouTube 播放器（不點就不載入 YouTube）
+  document.querySelectorAll('.vthumb').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.id + '?autoplay=1&playsinline=1&rel=0';
+      f.title = btn.getAttribute('aria-label');
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      btn.replaceWith(f);
+    });
+  });
   // 依來源顯示歡迎詞：?ref=invite（朋友邀請）或 ?ref=card（心情卡）
   (function () {
     var ref = new URLSearchParams(location.search).get('ref');

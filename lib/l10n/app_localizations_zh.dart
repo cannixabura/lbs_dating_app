@@ -1921,7 +1921,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return '台北 $hour 點報時';
+    return '量子中心 $hour 點報時';
   }
 
   @override
@@ -4014,7 +4014,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String quantumChimeNow(int hour) {
-    return '台北 $hour 点报时';
+    return '量子中心 $hour 点报时';
   }
 
   @override

@@ -573,7 +573,7 @@
   "quantumChimeCountdown": "Hourly chime in {seconds}s",
   "quantumChimeLookOrigin": "Everyone is watching the 101 origin",
   "quantumChimeLook": "Look",
-  "quantumChimeNow": "Taipei {hour} o'clock chime",
+  "quantumChimeNow": "Quantum Center {hour} o'clock chime",
   "quantumChimeSend": "Send a chime glimmer",
   "quantumChimeSent": "Your glimmer is flying to the origin",
   "quantumChimeWatched": "{n} people watched this chime together",

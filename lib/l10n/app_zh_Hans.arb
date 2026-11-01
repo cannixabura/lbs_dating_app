@@ -573,7 +573,7 @@
   "quantumChimeCountdown": "{seconds} 秒后整点报时",
   "quantumChimeLookOrigin": "大家都在看 101 原点",
   "quantumChimeLook": "看原点",
-  "quantumChimeNow": "台北 {hour} 点报时",
+  "quantumChimeNow": "量子中心 {hour} 点报时",
   "quantumChimeSend": "送出报时微光",
   "quantumChimeSent": "你的微光飞向原点",
   "quantumChimeWatched": "这次报时，有 {n} 人一起看",

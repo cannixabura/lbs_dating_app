@@ -573,7 +573,7 @@
   "quantumChimeCountdown": "{seconds}초 후 정각 종",
   "quantumChimeLookOrigin": "모두 101 원점을 보고 있어요",
   "quantumChimeLook": "원점 보기",
-  "quantumChimeNow": "타이베이 {hour}시 종",
+  "quantumChimeNow": "양자 중심 {hour}시 종",
   "quantumChimeSend": "종소리 반짝임 보내기",
   "quantumChimeSent": "당신의 반짝임이 원점으로 날아가요",
   "quantumChimeWatched": "이번 종은 {n}명이 함께 봤어요",

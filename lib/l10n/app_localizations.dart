@@ -3550,7 +3550,7 @@ abstract class AppLocalizations {
   /// No description provided for @quantumChimeNow.
   ///
   /// In zh, this message translates to:
-  /// **'台北 {hour} 點報時'**
+  /// **'量子中心 {hour} 點報時'**
   String quantumChimeNow(int hour);
 
   /// No description provided for @quantumChimeSend.

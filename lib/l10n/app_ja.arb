@@ -573,7 +573,7 @@
   "quantumChimeCountdown": "{seconds} 秒後に時報",
   "quantumChimeLookOrigin": "みんなが 101 の原点を見ています",
   "quantumChimeLook": "原点を見る",
-  "quantumChimeNow": "台北 {hour} 時の時報",
+  "quantumChimeNow": "量子センター {hour} 時の時報",
   "quantumChimeSend": "時報のきらめきを送る",
   "quantumChimeSent": "あなたのきらめきが原点へ飛んでいきます",
   "quantumChimeWatched": "今回の時報は {n} 人で見ました",

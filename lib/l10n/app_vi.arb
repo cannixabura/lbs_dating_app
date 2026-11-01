@@ -573,7 +573,7 @@
   "quantumChimeCountdown": "Chuông giờ sau {seconds} giây",
   "quantumChimeLookOrigin": "Mọi người đang nhìn về gốc 101",
   "quantumChimeLook": "Xem gốc",
-  "quantumChimeNow": "Chuông {hour} giờ Đài Bắc",
+  "quantumChimeNow": "Chuông {hour} giờ Trung tâm Lượng tử",
   "quantumChimeSend": "Gửi đốm sáng chuông giờ",
   "quantumChimeSent": "Đốm sáng của bạn đang bay về gốc",
   "quantumChimeWatched": "{n} người đã cùng xem lần chuông này",

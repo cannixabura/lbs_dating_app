@@ -2141,7 +2141,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return 'Taipei $hour o\'clock chime';
+    return 'Quantum Center $hour o\'clock chime';
   }
 
   @override

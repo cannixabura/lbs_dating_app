@@ -1966,7 +1966,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return '台北 $hour 時の時報';
+    return '量子センター $hour 時の時報';
   }
 
   @override

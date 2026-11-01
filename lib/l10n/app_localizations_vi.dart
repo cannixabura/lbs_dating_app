@@ -2068,7 +2068,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return 'Chuông $hour giờ Đài Bắc';
+    return 'Chuông $hour giờ Trung tâm Lượng tử';
   }
 
   @override

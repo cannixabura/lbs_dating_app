@@ -2070,7 +2070,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return 'Lonceng pukul $hour Taipei';
+    return 'Lonceng pukul $hour Pusat Kuantum';
   }
 
   @override

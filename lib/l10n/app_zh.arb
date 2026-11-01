@@ -1154,7 +1154,7 @@
   },
   "quantumChimeLookOrigin": "大家都在看 101 原點",
   "quantumChimeLook": "看原點",
-  "quantumChimeNow": "台北 {hour} 點報時",
+  "quantumChimeNow": "量子中心 {hour} 點報時",
   "@quantumChimeNow": {
     "placeholders": {
       "hour": {

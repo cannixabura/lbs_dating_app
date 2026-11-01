@@ -1983,7 +1983,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String quantumChimeNow(int hour) {
-    return '타이베이 $hour시 종';
+    return '양자 중심 $hour시 종';
   }
 
   @override

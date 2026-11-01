@@ -13,6 +13,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'l10n/l10n.dart';
 import 'nightly_reminder.dart';
 import 'quantum_newyear.dart';
+import 'quantum_orb.dart';
 import 'quantum_world.dart';
 import 'ui/night.dart';
 
@@ -55,8 +56,9 @@ class QuantumPrefs {
     await QuantumChimeReminder.reschedule();
   }
 
-  /// 送給伺服器的第二期欄位：時區偏移（晝夜色調）、是否顯示當地時間、主題
-  static Map<String, dynamic> get payload => {'tz': DateTime.now().timeZoneOffset.inMinutes, 'showTime': showTime.value, 'topics': topics.value};
+  /// 送給伺服器的個人欄位：時區偏移（晝夜色調）、是否顯示當地時間、主題、量子化身的款式
+  static Map<String, dynamic> get payload =>
+      {'tz': DateTime.now().timeZoneOffset.inMinutes, 'showTime': showTime.value, 'topics': topics.value, 'orb': OrbPrefs.style.value};
 }
 
 // ---------- 量子同頻、量子訊號、晝夜蜂巢 ----------
@@ -634,7 +636,9 @@ class QuantumSheetExtras extends StatelessWidget {
   final VoidCallback onTunnel;
   final ValueChanged<QuantumPartner> onCut;
   final VoidCallback onPrefsChanged;
-  const QuantumSheetExtras({super.key, required this.tunneled, required this.partners, required this.onTunnel, required this.onCut, required this.onPrefsChanged});
+  final Color moodColor; // 量子化身的預覽用自己現在的心情色
+  const QuantumSheetExtras({super.key, required this.tunneled, required this.partners, required this.onTunnel, required this.onCut, required this.onPrefsChanged,
+      required this.moodColor});
 
   Widget _switchRow(IconData icon, String title, String subtitle, bool value, ValueChanged<bool> onChanged) => Row(children: [
         Icon(icon, color: Night.inkMuted, size: 22),
@@ -678,6 +682,31 @@ class QuantumSheetExtras extends StatelessWidget {
         const SizedBox(width: Night.space2),
         NightButton(tr.quantumTunnel, kind: NightButtonKind.ghost, onPressed: tunneled ? null : onTunnel),
       ]),
+      const SizedBox(height: Night.space4),
+      // 量子化身：目前的光球，點一下打開款式面板；關掉面板時把新款式送給伺服器
+      InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          final before = OrbPrefs.style.value;
+          await showOrbSheet(context, moodColor: moodColor);
+          if (OrbPrefs.style.value != before) onPrefsChanged();
+        },
+        child: Row(children: [
+          ValueListenableBuilder<String>(
+            valueListenable: OrbPrefs.style,
+            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 30),
+          ),
+          const SizedBox(width: Night.space3),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(tr.quantumOrbEntry, style: const TextStyle(color: Night.ink, fontSize: 15)),
+              const SizedBox(height: 2),
+              Text(tr.quantumOrbEntrySubtitle, style: Night.caption),
+            ]),
+          ),
+          const Icon(Icons.chevron_right, color: Night.inkMuted),
+        ]),
+      ),
       const SizedBox(height: Night.space4),
       Text(tr.quantumTopicsTitle, style: const TextStyle(color: Night.ink, fontSize: 15)),
       const SizedBox(height: 2),

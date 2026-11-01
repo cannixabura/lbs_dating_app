@@ -2320,4 +2320,58 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS17L10 =>
       'Kartu Pertemuan Kuantum: setelah mengobrol, tekan lama gelembungnya untuk mengajak membuat bersama. Jika keduanya setuju, masing-masing mendapat kartu untuk dibagikan berisi nama panggilan, kode kursi, waktu lokal dengan warna siang-malam, dan mood — tanpa lokasi. Kode kursi lingkaran 4 berwarna emas.';
+
+  @override
+  String get quantumOrbEntry => 'Avatar kuantum';
+
+  @override
+  String get quantumOrbEntrySubtitle =>
+      'Pilih bola cahaya sebagai avatarmu di Dunia Kuantum';
+
+  @override
+  String get orbTitle => 'Avatar kuantum';
+
+  @override
+  String get orbSubtitle =>
+      'Bolamu selalu bersinar dengan warna suasana hatimu';
+
+  @override
+  String get orbStyleGlow => 'Cahaya';
+
+  @override
+  String get orbStyleRing => 'Cincin';
+
+  @override
+  String get orbStyleRainbow => 'Pelangi';
+
+  @override
+  String get orbFree => 'Gratis';
+
+  @override
+  String get orbOwned => 'Dimiliki';
+
+  @override
+  String get orbInUse => 'Sedang dipakai';
+
+  @override
+  String get orbCosmeticNote =>
+      'Bola spesial hanya tampilan — tidak mengubah fitur atau hak apa pun. Bola yang dibeli tersimpan di akunmu.';
+
+  @override
+  String get orbRestore => 'Pulihkan pembelian';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name sekarang milikmu ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed => 'Pembelian belum berhasil. Coba lagi nanti.';
+
+  @override
+  String get orbOwnedElsewhere => 'Pembelian ini sudah dipakai di akun lain';
+
+  @override
+  String get orbStoreUnavailable =>
+      'Toko tidak dapat dihubungi saat ini. Coba lagi nanti.';
 }

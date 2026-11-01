@@ -2317,4 +2317,59 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS17L10 =>
       'Thẻ Gặp gỡ lượng tử: sau khi đã trò chuyện, nhấn giữ bong bóng của họ để mời cùng tạo. Khi cả hai đồng ý, mỗi người nhận một tấm thẻ để chia sẻ với biệt danh, mã chỗ ngồi, giờ địa phương kèm màu ngày đêm và tâm trạng — không có vị trí. Mã chỗ ngồi vòng 4 có màu vàng.';
+
+  @override
+  String get quantumOrbEntry => 'Hình đại diện lượng tử';
+
+  @override
+  String get quantumOrbEntrySubtitle =>
+      'Chọn một quả cầu ánh sáng làm hình đại diện trong Thế giới Lượng tử';
+
+  @override
+  String get orbTitle => 'Hình đại diện lượng tử';
+
+  @override
+  String get orbSubtitle => 'Quả cầu luôn sáng theo màu tâm trạng của bạn';
+
+  @override
+  String get orbStyleGlow => 'Ánh sáng';
+
+  @override
+  String get orbStyleRing => 'Vành sao';
+
+  @override
+  String get orbStyleRainbow => 'Cầu vồng';
+
+  @override
+  String get orbFree => 'Miễn phí';
+
+  @override
+  String get orbOwned => 'Đã sở hữu';
+
+  @override
+  String get orbInUse => 'Đang dùng';
+
+  @override
+  String get orbCosmeticNote =>
+      'Mẫu đặc biệt chỉ là vẻ ngoài, không thay đổi bất kỳ tính năng hay quyền lợi nào. Mẫu đã mua được lưu theo tài khoản.';
+
+  @override
+  String get orbRestore => 'Khôi phục giao dịch mua';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name đã là của bạn ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed =>
+      'Giao dịch chưa hoàn tất. Vui lòng thử lại sau.';
+
+  @override
+  String get orbOwnedElsewhere =>
+      'Giao dịch này đã được dùng cho một tài khoản khác';
+
+  @override
+  String get orbStoreUnavailable =>
+      'Hiện không kết nối được cửa hàng. Vui lòng thử lại sau.';
 }

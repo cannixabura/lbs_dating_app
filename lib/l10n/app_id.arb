@@ -641,5 +641,21 @@
   "quantumMeetFooter": "Kami bertemu di Dunia Kuantum",
   "quantumMeetShare": "Bagikan kartu",
   "quantumMeetShareText": "{a} × {b} — kami bertemu di Dunia Kuantum ✨",
-  "guideS17L10": "Kartu Pertemuan Kuantum: setelah mengobrol, tekan lama gelembungnya untuk mengajak membuat bersama. Jika keduanya setuju, masing-masing mendapat kartu untuk dibagikan berisi nama panggilan, kode kursi, waktu lokal dengan warna siang-malam, dan mood — tanpa lokasi. Kode kursi lingkaran 4 berwarna emas."
+  "guideS17L10": "Kartu Pertemuan Kuantum: setelah mengobrol, tekan lama gelembungnya untuk mengajak membuat bersama. Jika keduanya setuju, masing-masing mendapat kartu untuk dibagikan berisi nama panggilan, kode kursi, waktu lokal dengan warna siang-malam, dan mood — tanpa lokasi. Kode kursi lingkaran 4 berwarna emas.",
+  "quantumOrbEntry": "Avatar kuantum",
+  "quantumOrbEntrySubtitle": "Pilih bola cahaya sebagai avatarmu di Dunia Kuantum",
+  "orbTitle": "Avatar kuantum",
+  "orbSubtitle": "Bolamu selalu bersinar dengan warna suasana hatimu",
+  "orbStyleGlow": "Cahaya",
+  "orbStyleRing": "Cincin",
+  "orbStyleRainbow": "Pelangi",
+  "orbFree": "Gratis",
+  "orbOwned": "Dimiliki",
+  "orbInUse": "Sedang dipakai",
+  "orbCosmeticNote": "Bola spesial hanya tampilan — tidak mengubah fitur atau hak apa pun. Bola yang dibeli tersimpan di akunmu.",
+  "orbRestore": "Pulihkan pembelian",
+  "orbPurchased": "{name} sekarang milikmu ✨",
+  "orbPurchaseFailed": "Pembelian belum berhasil. Coba lagi nanti.",
+  "orbOwnedElsewhere": "Pembelian ini sudah dipakai di akun lain",
+  "orbStoreUnavailable": "Toko tidak dapat dihubungi saat ini. Coba lagi nanti."
 }

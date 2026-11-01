@@ -2330,4 +2330,60 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS17L10 =>
       'Kad Pertemuan Kuantum: selepas berbual, tekan lama gelembung mereka untuk mengajak membuatnya bersama. Apabila kedua-dua bersetuju, setiap orang menerima kad untuk dikongsi dengan nama panggilan, kod tempat duduk, waktu tempatan berserta warna siang-malam, dan mood — tiada lokasi. Kod tempat duduk gelang 4 berwarna emas.';
+
+  @override
+  String get quantumOrbEntry => 'Avatar kuantum';
+
+  @override
+  String get quantumOrbEntrySubtitle =>
+      'Pilih bebola cahaya sebagai avatar anda dalam Dunia Kuantum';
+
+  @override
+  String get orbTitle => 'Avatar kuantum';
+
+  @override
+  String get orbSubtitle =>
+      'Bebola anda sentiasa bercahaya mengikut warna mood anda';
+
+  @override
+  String get orbStyleGlow => 'Cahaya';
+
+  @override
+  String get orbStyleRing => 'Gelang';
+
+  @override
+  String get orbStyleRainbow => 'Pelangi';
+
+  @override
+  String get orbFree => 'Percuma';
+
+  @override
+  String get orbOwned => 'Dimiliki';
+
+  @override
+  String get orbInUse => 'Sedang digunakan';
+
+  @override
+  String get orbCosmeticNote =>
+      'Bebola istimewa hanyalah rupa — ia tidak mengubah sebarang ciri atau keistimewaan. Bebola yang dibeli kekal dalam akaun anda.';
+
+  @override
+  String get orbRestore => 'Pulihkan pembelian';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name kini milik anda ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed =>
+      'Pembelian tidak berjaya. Sila cuba lagi nanti.';
+
+  @override
+  String get orbOwnedElsewhere =>
+      'Pembelian ini sudah digunakan pada akaun lain';
+
+  @override
+  String get orbStoreUnavailable =>
+      'Kedai tidak dapat dihubungi sekarang. Sila cuba lagi nanti.';
 }

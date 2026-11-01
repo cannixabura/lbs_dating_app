@@ -2210,4 +2210,55 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS17L10 =>
       '量子の出会いカード：チャットした相手なら、バブルを長押ししていっしょに作ろうと誘えます。ふたりが同意すると、それぞれにシェア用のカードが届きます。ふたりのニックネーム、席コード、現地時刻と昼夜の色、ムードが入り、位置情報は入りません。第 4 輪の席コードは金色です。';
+
+  @override
+  String get quantumOrbEntry => '量子アバター';
+
+  @override
+  String get quantumOrbEntrySubtitle => '量子ワールドでのアイコンになる光の球を選ぼう';
+
+  @override
+  String get orbTitle => '量子アバター';
+
+  @override
+  String get orbSubtitle => '光の球の色はいつもあなたの気分に合わせて変わります';
+
+  @override
+  String get orbStyleGlow => 'グロー';
+
+  @override
+  String get orbStyleRing => 'リング';
+
+  @override
+  String get orbStyleRainbow => 'レインボー';
+
+  @override
+  String get orbFree => '無料';
+
+  @override
+  String get orbOwned => '購入済み';
+
+  @override
+  String get orbInUse => '使用中';
+
+  @override
+  String get orbCosmeticNote =>
+      '特別なデザインは見た目だけで、機能や権利には影響しません。購入したデザインはアカウントに保存されます。';
+
+  @override
+  String get orbRestore => '購入を復元';
+
+  @override
+  String orbPurchased(String name) {
+    return '$nameがあなたのものになりました ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed => '購入が完了しませんでした。しばらくしてからもう一度お試しください';
+
+  @override
+  String get orbOwnedElsewhere => 'この購入は別のアカウントで使われています';
+
+  @override
+  String get orbStoreUnavailable => 'ストアに接続できません。しばらくしてからもう一度お試しください';
 }

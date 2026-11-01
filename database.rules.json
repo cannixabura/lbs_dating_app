@@ -171,6 +171,11 @@
       }
     },
 
+    // 量子化身：買過的光球款式（只由 Cloud Functions 驗證內購後寫入），自己讀得到
+    "orbOwned": {
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
+
     // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
     "resonancePush": {
       "$uid": { ".read": false }

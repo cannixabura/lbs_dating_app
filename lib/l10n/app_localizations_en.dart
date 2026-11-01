@@ -2392,4 +2392,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS17L10 =>
       'Quantum Encounter card: after you\'ve chatted, long-press their bubble to invite them to make one together. Once you both agree, each of you gets a card to share with both nicknames, seat codes, local times with their day-night tint, and moods — never any location. Ring 4 seat codes shine in gold.';
+
+  @override
+  String get quantumOrbEntry => 'Quantum avatar';
+
+  @override
+  String get quantumOrbEntrySubtitle =>
+      'Pick a light orb as your avatar in the Quantum World';
+
+  @override
+  String get orbTitle => 'Quantum avatar';
+
+  @override
+  String get orbSubtitle => 'Your orb always glows in the color of your mood';
+
+  @override
+  String get orbStyleGlow => 'Glow';
+
+  @override
+  String get orbStyleRing => 'Ring';
+
+  @override
+  String get orbStyleRainbow => 'Rainbow';
+
+  @override
+  String get orbFree => 'Free';
+
+  @override
+  String get orbOwned => 'Owned';
+
+  @override
+  String get orbInUse => 'In use';
+
+  @override
+  String get orbCosmeticNote =>
+      'Special orbs are only a look — they don\'t change any feature or privilege. Orbs you buy stay with your account.';
+
+  @override
+  String get orbRestore => 'Restore purchases';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name is yours ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed =>
+      'The purchase didn\'t go through. Please try again later.';
+
+  @override
+  String get orbOwnedElsewhere =>
+      'This purchase is already used on another account';
+
+  @override
+  String get orbStoreUnavailable =>
+      'Can\'t reach the store right now. Please try again later.';
 }

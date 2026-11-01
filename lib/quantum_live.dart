@@ -12,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'l10n/l10n.dart';
 import 'nightly_reminder.dart';
+import 'quantum_newyear.dart';
 import 'quantum_world.dart';
 import 'ui/night.dart';
 
@@ -85,7 +86,7 @@ Color? quantumDayTint(Object? part) => switch (part) {
       _ => null,
     };
 
-String _dayName(String part) => switch (part) {
+String quantumDayName(String part) => switch (part) {
       'dawn' => tr.quantumDawn,
       'day' => tr.quantumDay,
       'dusk' => tr.quantumDusk,
@@ -97,7 +98,7 @@ String? quantumLocalTimeLabel(Object? tzMinutes, Object? part) {
   if (tzMinutes is! num || part is! String) return null;
   final local = DateTime.now().toUtc().add(Duration(minutes: tzMinutes.toInt()));
   final hh = local.hour.toString().padLeft(2, '0'), mm = local.minute.toString().padLeft(2, '0');
-  return tr.quantumLocalTime('$hh:$mm', _dayName(part));
+  return tr.quantumLocalTime('$hh:$mm', quantumDayName(part));
 }
 
 // ---------- 量子共振 ----------
@@ -651,6 +652,7 @@ class QuantumSheetExtras extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      const QuantumNewYearTeaser(),
       if (partners.isNotEmpty) ...[
         Text(tr.quantumEntangledTitle, style: const TextStyle(color: Night.ink, fontSize: 15)),
         const SizedBox(height: Night.space1),

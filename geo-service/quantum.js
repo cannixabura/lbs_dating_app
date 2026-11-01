@@ -58,6 +58,8 @@ const KEY = {
     entGone: (uid) => `quantum_ent_gone:${uid}`,
     chime: (hour) => `quantum_chime:${hour}`,
     chimeFx: (hour) => `quantum_chime_fx:${hour}`,
+    tz: 'quantum_tz', // hash uid → 時區偏移（分鐘）：量子跨年時世界視角的光點也要知道誰已經跨年
+    newYear: (at) => `quantum_ny:${at}`, // sorted set：台北午夜前後在量子世界一起跨年的人
 };
 
 const MAX_ENTANGLED = 3; // 每人同時最多糾纏 3 人
@@ -256,6 +258,38 @@ function cleanTopics(list) {
     return [...new Set(list.filter((t) => Number.isInteger(t) && t >= 0 && t < TOPIC_COUNT))].slice(0, MAX_TOPICS);
 }
 
+// ---------- 第三期：量子跨年 ----------
+
+const TAIPEI_TZ = 480;
+const NY_LEAD_MS = 7 * HOUR_MS; // 台北午夜前 7 小時起（UTC+14 的吉里巴斯最先跨年，前 6 小時）
+const NY_TRAIL_MS = 21 * HOUR_MS; // 到台北午夜後 21 小時（UTC-12 最後跨年，後 20 小時）
+const NY_TOGETHER_BEFORE_MS = 2 * 60 * 1000; // 午夜前 2 分鐘到後 5 分半在量子世界，就算一起跨年
+const NY_TOGETHER_AFTER_MS = 330 * 1000;
+
+/** 這一次跨年的台北午夜（毫秒）：12/31 16:00 UTC。測試時可以用環境變數 QUANTUM_NY_AT 指定 */
+function newYearAt(now) {
+    const test = Number(process.env.QUANTUM_NY_AT);
+    if (Number.isFinite(test) && test > 0) return test;
+    const d = new Date(now);
+    const year = d.getUTCMonth() >= 6 ? d.getUTCFullYear() + 1 : d.getUTCFullYear();
+    return Date.UTC(year - 1, 11, 31, 16);
+}
+
+/** 是否在量子跨年期間（全世界最早到最晚的時區跨年） */
+function inNewYear(now) {
+    const at = newYearAt(now);
+    return now >= at - NY_LEAD_MS && now <= at + NY_TRAIL_MS;
+}
+
+/** 這個時區已經跨年了嗎：當地午夜 = 台北午夜 +（台北時區 − 當地時區） */
+const crossedNewYear = (tz, now) => now >= newYearAt(now) + (TAIPEI_TZ - tz) * 60000;
+
+/** 台北午夜前後，在量子世界的人都算一起跨年 */
+function newYearTogether(now) {
+    const d = now - newYearAt(now);
+    return d >= -NY_TOGETHER_BEFORE_MS && d <= NY_TOGETHER_AFTER_MS;
+}
+
 // ---------- 世界視角 ----------
 
 /** 雷達半徑（公里）：一般最多 5 公里，世界視角最多 60 公里 */
@@ -271,4 +305,5 @@ module.exports = {
     insidePolygon, isMainlandChina, regionOf, regionCounts, clampRadius,
     MAX_ENTANGLED, INVITE_MS, HOUR_MS, CHIME_FX_MAX, TOPIC_COUNT, MAX_TOPICS,
     nearestHour, chimeHour, inChime, chimeOpen, chimeStrikes, validTz, dayPart, cleanTopics,
+    newYearAt, inNewYear, crossedNewYear, newYearTogether,
 };

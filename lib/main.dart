@@ -43,6 +43,8 @@ import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
 import 'quantum_live.dart';
+import 'quantum_meet.dart';
+import 'quantum_newyear.dart';
 import 'quantum_world.dart';
 import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -221,6 +223,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   int _chimeHour = -1; // 這次報時的編號：換整點就重來
   bool _chimeSent = false;
   bool _chimeWatchedShown = false;
+  int _newYearCount = 0; // 量子跨年：台北午夜前後一起在量子世界的人數
+  bool _nyTogetherShown = false;
+  int? _nyZoneShown; // 剛跨年的時區：每個時區只提示一次
+  final Map<String, QuantumMeetPerson> _meetAsked = {}; // 我邀請製作相遇卡的人：對方同意時用這份資料做卡
+  final Set<String> _meetShown = {}; // 已經跳出過的相遇卡邀請
   int _quantumClockTicks = 0;
   Timer? _quantumClock;
   QuantumChimeBell? _chimeBell;
@@ -1177,7 +1184,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     quantumOn ? _quantumGlow.repeat(reverse: true) : _quantumGlow.stop();
     if (quantumOn && _quantumClock == null) {
       _quantumClock = Timer.periodic(const Duration(seconds: 1), (_) => _quantumTick());
-      _signalSubs = QuantumSignals.listen(widget.uid, _onQuantumSignal);
+      _signalSubs = [...QuantumSignals.listen(widget.uid, _onQuantumSignal), ...QuantumMeetCards.listen(widget.uid, onAsk: _onMeetAsk, onYes: _onMeetYes)];
     } else if (!quantumOn && _quantumClock != null) {
       _quantumClock?.cancel(); _quantumClock = null;
       for (final sub in _signalSubs) { sub.cancel(); }
@@ -1189,14 +1196,29 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   /// 每秒一次：整點報時（倒數、鐘聲、報時期間加快心跳）
   int? _chimeLookedHour; // 這個整點已經自動看過原點
 
+  /// 這次整點是不是量子跨年（量子中心午夜）
+  bool _isNewYearChime(DateTime now) => QuantumNewYear.serverAt != null && QuantumChime.hourKey(now) * 3600000 == QuantumNewYear.serverAt;
+
+  /// 每一聲的時間；量子跨年不敲 24 聲，午夜一聲之後就是光爆和煙火
+  List<double> _strikeTimes(DateTime now) => _isNewYearChime(now) ? const [0.3] : QuantumChime.strikeTimes(QuantumChime.strikes(now));
+
   void _quantumTick() {
     if (!quantumOn || !mounted) return;
     final now = DateTime.now();
+    // 量子跨年：各時區跨年時提示一次
+    if (QuantumNewYear.serverAt case final at?) {
+      final zone = QuantumNewYear.zoneJustCrossed(at, now.millisecondsSinceEpoch);
+      if (zone != null && zone != _nyZoneShown) {
+        _nyZoneShown = zone;
+        showGlassToast(context, tr.quantumNyZone(QuantumNewYear.places(zone)), icon: Icons.celebration_outlined);
+        HapticFeedback.mediumImpact();
+      }
+    }
     if (!QuantumChime.active(now)) return;
     final t = QuantumChime.offset(now);
     final hour = QuantumChime.hourKey(now);
     if (hour != _chimeHour) {
-      _chimeHour = hour; _chimeSent = false; _chimeWatchedShown = false; _chimeCount = 0; _seenChimeFx.clear();
+      _chimeHour = hour; _chimeSent = false; _chimeWatchedShown = false; _chimeCount = 0; _seenChimeFx.clear(); _nyTogetherShown = false;
     }
     // 整點前 5 秒：鏡頭自動拉遠看 101，不然原點在畫面外就看不到光之使者
     if (t >= -5 && t < QuantumChime.show && _chimeLookedHour != hour) {
@@ -1206,12 +1228,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     // 能送報時微光的那 1 分鐘每 3 秒心跳一次，報時微光和人數才跟得上；之後的光環儀式靠一般心跳更新人數
     if (t <= QuantumChime.send + 5 && _quantumClockTicks++ % 3 == 0) _quantumBeat();
     if (t >= -1.2 && t < QuantumChime.show && _chimeBell == null && _isInForeground) {
-      _chimeBell = QuantumChimeBell()..schedule(QuantumChime.strikeTimes(QuantumChime.strikes(now)), max(0, t), onStrike: HapticFeedback.selectionClick);
+      _chimeBell = QuantumChimeBell()..schedule(_strikeTimes(now), max(0, t), onStrike: HapticFeedback.selectionClick);
+    }
+    final newYear = _isNewYearChime(now);
+    if (newYear && t >= 0 && t < 1) HapticFeedback.heavyImpact();
+    if (newYear && t >= QuantumNewYearBanner.from && !_nyTogetherShown) {
+      _nyTogetherShown = true;
+      HapticFeedback.mediumImpact();
     }
     if (t >= QuantumChime.send + 2 && !_chimeWatchedShown) {
       _chimeWatchedShown = true;
       final watched = max(max(1, quantumSession.value?.online ?? 1), _chimeCount);
-      showGlassToast(context, tr.quantumChimeWatched(watched), icon: Icons.notifications_active_outlined);
+      if (!newYear) showGlassToast(context, tr.quantumChimeWatched(watched), icon: Icons.notifications_active_outlined);
       Future.delayed(const Duration(seconds: 4), () { _chimeBell?.dispose(); _chimeBell = null; });
     }
     setState(() {});
@@ -1246,6 +1274,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     for (final name in (data['entGone'] as List? ?? const [])) {
       showGlassToast(context, tr.quantumEntangleCollapsed('$name'), icon: Icons.all_inclusive);
     }
+    final ny = data['newYear'];
+    QuantumNewYear.serverAt = ny is Map && ny['at'] is num ? (ny['at'] as num).toInt() : (QuantumNewYear.testAt > 0 ? QuantumNewYear.testAt : null);
+    if (ny is Map && ny['count'] is num) _newYearCount = max(_newYearCount, (ny['count'] as num).toInt());
     final chime = data['chime'];
     if (chime is Map) {
       _chimeCount = max(_chimeCount, (chime['count'] as num?)?.toInt() ?? 0);
@@ -1333,6 +1364,57 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     setState(() { _quantumSelfCollapse = false; _quantumReform = false; });
     showGlassToast(context, tr.quantumTunnelDone('${me['code']}'), icon: Icons.blur_on);
     _quantumBeat();
+  }
+
+  // ---------- 量子相遇卡 ----------
+
+  QuantumMeetPerson? _meetPersonOf(String uid, int? tz) {
+    final user = _activeUsersNotifier.value.where((u) => u['uid'] == uid).firstOrNull;
+    if (user == null || user['quantumSeat'] == null) return null;
+    final name = '${user['nickname'] ?? ''}'.trim();
+    return QuantumMeetPerson(nickname: name.isEmpty ? '#${uid.substring(max(0, uid.length - 4)).toUpperCase()}' : name,
+        code: '${user['quantumSeat']}', mood: '${user['mood'] ?? ''}', tz: tz);
+  }
+
+  QuantumMeetPerson get _meetMe => QuantumMeetPerson(nickname: _myNickname, code: '${quantumSession.value?.code ?? ''}', mood: _myMood,
+      tz: DateTime.now().timeZoneOffset.inMinutes);
+
+  Future<void> _askMeetCard(String uid) async {
+    final them = _meetPersonOf(uid, null);
+    if (them == null) return;
+    final ok = await QuantumMeetCards.ask(widget.uid, uid);
+    if (!mounted) return;
+    if (!ok) { showGlassToast(context, tr.quantumMeetWait, icon: Icons.timer_outlined); return; }
+    _meetAsked[uid] = them;
+    HapticFeedback.selectionClick();
+    showGlassToast(context, tr.quantumMeetAsked(them.nickname), icon: Icons.style_outlined);
+  }
+
+  /// 收到邀請：同意就回覆，並打開自己的那一張
+  Future<void> _onMeetAsk(String sender, int? tz) async {
+    if (!mounted || !quantumOn || _isDialogShowing || _blockedUids.contains(sender) || _blockedByUids.contains(sender) || HiddenContent.instance.users.contains(sender)) return;
+    final them = _meetPersonOf(sender, tz);
+    if (them == null || !_meetShown.add(sender)) return;
+    _isDialogShowing = true;
+    HapticFeedback.mediumImpact();
+    final yes = await showQuantumMeetAsk(context, name: them.nickname, code: them.code);
+    _isDialogShowing = false;
+    _meetShown.remove(sender); // 之後再邀請還會跳出
+    if (!yes || !mounted || !quantumOn) return;
+    if (!await QuantumMeetCards.accept(widget.uid, sender)) {
+      if (mounted) showGlassToast(context, tr.quantumUnavailable, icon: Icons.style_outlined);
+      return;
+    }
+    if (mounted) showQuantumMeetCard(context, me: _meetMe, them: them);
+  }
+
+  /// 對方同意了我的邀請：打開我的那一張
+  void _onMeetYes(String sender, int? tz) {
+    final asked = _meetAsked.remove(sender);
+    if (asked == null || !mounted || !quantumOn) return;
+    HapticFeedback.mediumImpact();
+    final them = QuantumMeetPerson(nickname: asked.nickname, code: _meetPersonOf(sender, tz)?.code ?? asked.code, mood: asked.mood, tz: tz);
+    showQuantumMeetCard(context, me: _meetMe, them: them);
   }
 
   /// 量子訊號：點一下就送，在對方氣泡旁浮出 3 秒
@@ -1475,7 +1557,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       online: (online['total'] as num?)?.toInt(),
       regions: (online['regions'] as Map?)?.map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
     );
-    _quantumDots = [for (final d in (data['dots'] as List? ?? const [])) if (d is List && d.length == 2) [(d[0] as num).toDouble(), (d[1] as num).toDouble()]];
+    // 第三個值是 1：這個人的時區已經跨年（量子跨年期間才有）
+    _quantumDots = [for (final d in (data['dots'] as List? ?? const [])) if (d is List && d.length >= 2) [(d[0] as num).toDouble(), (d[1] as num).toDouble(), if (d.length > 2) 1.0]];
     // 旁邊的人主動離開：播一次塌縮動畫
     final fresh = <({double lat, double lng})>[];
     for (final c in (data['collapses'] as List? ?? const [])) {
@@ -1513,9 +1596,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _quantumWalk = null; _quantumLastSent = null; _quantumFix = null; _quantumDots = []; _quantumBursts = [];
     // 第二期的公開內容離場即消失：糾纏、訊號、共振都不留
     _quantumPartners = []; _quantumTunneled = false; _quantumReform = false; _quantumChatted.clear(); _shownInvites.clear();
+    _newYearCount = 0; _nyTogetherShown = false; _nyZoneShown = null;
     _quantumFlights.clear(); _seenChimeFx.clear(); _resonanceUntil.clear(); _signalFloats.clear();
     _chimeBell?.dispose(); _chimeBell = null; _chimeHour = -1;
     QuantumSignals.clear(widget.uid);
+    QuantumMeetCards.clear(widget.uid); _meetAsked.clear(); _meetShown.clear();
     _quantumSelfCollapse = false;
     _quantumLeaving = false;
     _hasScanned = false; // 回到雷達後等第一次掃描，不先閃出「你是今晚第一道光」
@@ -1583,6 +1668,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'day': user['day'],
         'tz': user['tz'],
         'topics': quantumTopicsOf(user['topics']),
+        // 第三期：量子跨年，對方的時區已經跨年
+        'ny': user['ny'] == true,
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -2557,9 +2644,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               // 量子世界的位置不是真實距離：顯示席位代號
               // 量子同頻的主題用小圖示接在後面
               distanceLabel: user['quantumSeat'] != null
-                  ? ['⬡ ${user['quantumSeat']}', ...[for (final t in (user['topics'] as List<int>? ?? const [])) quantumTopicEmoji[t]]].join(' ')
+                  ? ['⬡ ${user['quantumSeat']}', ...[for (final t in (user['topics'] as List<int>? ?? const [])) quantumTopicEmoji[t]], if (user['ny'] == true) '🎆'].join(' ')
                   : WhisperEngine.formatDistance(p.render.distance),
               dayTint: quantumDayTint(user['day']),
+              newYear: user['ny'] == true,
               baseColor: _getMoodColor(user['mood']),
               isShadow: isShadow,
               isInactive: user['isInactive'] ?? false,
@@ -2790,6 +2878,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.all_inclusive, Night.inkMuted, tr.quantumEntangleCut, () { Navigator.pop(dialogContext); _cutEntangle(targetUid); })
                 else if (quantumSeat != null && !isDemo && _quantumChatted.contains(targetUid))
                   item(Icons.all_inclusive, Night.knockPink, tr.quantumEntangleInvite, () { Navigator.pop(dialogContext); _inviteEntangle(targetUid, displayName); }),
+                // 量子相遇卡：聊過天（或糾纏中）的人，雙方同意後各拿一張分享卡
+                if (quantumSeat != null && !isDemo && (entangled || _quantumChatted.contains(targetUid)))
+                  item(Icons.style_outlined, Night.cityAmber, tr.quantumMeetAction, () { Navigator.pop(dialogContext); _askMeetCard(targetUid); }),
                 item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
                 // 集會是在地的：平行宇宙的人不能接主持
@@ -3213,7 +3304,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 return Stack(children: [
                                   if (chiming || _quantumFlights.isNotEmpty)
                                     Positioned.fill(child: CustomPaint(painter: QuantumChimePainter(
-                                      p: proj, t: QuantumChime.offset(now), strikes: QuantumChime.strikeTimes(QuantumChime.strikes(now)),
+                                      p: proj, t: QuantumChime.offset(now), strikes: _strikeTimes(now),
                                       count: _chimeCount, flights: _quantumFlights, nowMs: now.millisecondsSinceEpoch,
                                     ))),
                                   if (ends.isNotEmpty && !_quantumSelfCollapse)
@@ -3408,6 +3499,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             sent: _chimeSent, count: _chimeCount, onLook: _lookAtOrigin, onSend: _sendChimeGlimmer,
                           )),
                         ),
+                      // 量子跨年：一起跨年的人數，在報時列下面留 1 分鐘
+                      if (quantumOn && _isNewYearChime(DateTime.now()) && QuantumChime.offset(DateTime.now()) >= QuantumNewYearBanner.from && QuantumChime.offset(DateTime.now()) <= QuantumNewYearBanner.until)
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + (_ritualTarget != null ? 104 : 56) + 54, left: Night.space4, right: Night.space4,
+                          child: Center(child: QuantumNewYearBanner(count: max(max(1, quantumSession.value?.online ?? 1), _newYearCount))),
+                        ),
                       // 城市心情天氣
                       // 城市心情天氣；在量子世界改成席位代號＋世界在線人數
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4,
@@ -3441,6 +3538,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             child: AnimatedBuilder(
                               animation: _quantumGlow,
                               builder: (context, _) => CustomPaint(painter: QuantumCountdownPainter(t: QuantumChime.offset(DateTime.now()))),
+                            ),
+                          ),
+                        ),
+                      // 量子跨年：量子中心午夜的光爆、新年數字和 5 分鐘煙火
+                      if (quantumOn && _isNewYearChime(DateTime.now()) && QuantumChime.offset(DateTime.now()) >= -1 && QuantumChime.offset(DateTime.now()) <= QuantumFireworksPainter.duration)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) => CustomPaint(painter: QuantumFireworksPainter(
+                                t: QuantumChime.offset(DateTime.now()), year: QuantumNewYear.year(QuantumNewYear.serverAt!),
+                                intensity: min(1.0, sqrt(max(_newYearCount, _chimeCount).toDouble()) / 10),
+                              )),
                             ),
                           ),
                         ),
@@ -3482,6 +3592,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
   final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
   final Color? dayTint; // 量子世界的晝夜色調：依主人的當地時間
+  final bool newYear; // 量子跨年：主人的時區已經跨年，頭像外一圈金色光環
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -3499,6 +3610,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.hostEmoji,
     this.parallelCity,
     this.dayTint,
+    this.newYear = false,
     this.shadowOpacity = 1.0
   });
 
@@ -3638,6 +3750,16 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                             shape: BoxShape.circle,
                             border: Border.all(color: tint.withOpacity(0.85), width: 2),
                             boxShadow: [BoxShadow(color: tint.withOpacity(0.35), blurRadius: 10)],
+                          ),
+                        ),
+                      // 量子跨年：已經跨年的人，頭像外一圈金色光環
+                      if (widget.newYear)
+                        Container(
+                          width: avatarSize + 16, height: avatarSize + 16,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFFFD54F), width: 2.5),
+                            boxShadow: const [BoxShadow(color: Color(0x99FFD54F), blurRadius: 18, spreadRadius: 2)],
                           ),
                         ),
                       // 集會主持人：頭像外一圈亮漸層光環

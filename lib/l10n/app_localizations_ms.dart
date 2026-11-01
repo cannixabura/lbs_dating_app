@@ -2260,4 +2260,74 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS17L8 =>
       'Setiap gelembung membawa warna waktu tempatan pemiliknya: emas pucat waktu subuh, putih terang waktu siang, jingga-ungu waktu senja, biru pekat waktu malam. Hidupkan “Tunjukkan waktu tempatan saya” supaya orang lain nampak waktunya apabila menekan lama gelembung anda. Saling menghantar kerlipan dalam 24 jam akan mencetuskan gema kuantum; tekan lama gelembung untuk menghantar isyarat 👋 ☕ 🌙 🎵 🌧️ ✨; pilih sehingga 3 topik frekuensi dalam panel dan topik yang sama akan menyala.';
+
+  @override
+  String get quantumNyTitle => 'Tahun Baharu Kuantum';
+
+  @override
+  String quantumNyDays(int n) {
+    return 'Lagi $n hari: pada tengah malam Pusat Kuantum 12/31, kira detik bersama dunia di titik asal 101';
+  }
+
+  @override
+  String get quantumNyTonight =>
+      'Malam ini pada tengah malam Pusat Kuantum, kira detik bersama dunia di titik asal 101';
+
+  @override
+  String quantumNyZone(String places) {
+    return 'Selamat Tahun Baharu, $places 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '$n orang di seluruh dunia menyambut tahun baharu bersama dalam Dunia Kuantum';
+  }
+
+  @override
+  String get quantumNyHappy => 'Selamat Tahun Baharu';
+
+  @override
+  String get guideS17L9 =>
+      'Tahun Baharu Kuantum: pada 12/31, setiap kali zon waktu mencapai tengah malam, gelembung di sana menyala dengan gelang emas secara berombak, dan titik paparan dunia turut bertukar emas. Pada tengah malam Pusat Kuantum, seluruh sarang mengira detik 10 saat terakhir, titik asal 101 melepaskan letupan cahaya terbesar di dunia dan bunga api selama 5 minit, serta menunjukkan bilangan orang yang menyambut tahun baharu bersama.';
+
+  @override
+  String get quantumMeetAction => 'Buat kad Pertemuan Kuantum';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return 'Telah ajak $name membuat kad Pertemuan Kuantum bersama';
+  }
+
+  @override
+  String get quantumMeetWait =>
+      'Anda baru sahaja mengajak — cuba lagi sebentar lagi';
+
+  @override
+  String get quantumMeetAskTitle => 'Kad Pertemuan Kuantum';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name (⬡ $code) mahu menjadikan pertemuan ini kad untuk dikongsi. Kad memaparkan nama panggilan, kod tempat duduk, waktu tempatan dan mood anda berdua — tiada lokasi langsung.';
+  }
+
+  @override
+  String get quantumMeetAccept => 'Buat bersama';
+
+  @override
+  String get quantumMeetEyebrow => 'PERTEMUAN KUANTUM';
+
+  @override
+  String get quantumMeetFooter => 'Kami bertemu dalam Dunia Kuantum';
+
+  @override
+  String get quantumMeetShare => 'Kongsi kad';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b — kami bertemu dalam Dunia Kuantum ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      'Kad Pertemuan Kuantum: selepas berbual, tekan lama gelembung mereka untuk mengajak membuatnya bersama. Apabila kedua-dua bersetuju, setiap orang menerima kad untuk dikongsi dengan nama panggilan, kod tempat duduk, waktu tempatan berserta warna siang-malam, dan mood — tiada lokasi. Kod tempat duduk gelang 4 berwarna emas.';
 }

@@ -2096,6 +2096,74 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS17L8 =>
       '每顆氣泡帶著主人當地時間的色調：清晨淡金、白天亮白、黃昏橘紫、深夜深藍；開啟「顯示我的當地時間」後，長按氣泡看得到時間。24 小時內互送微光會產生「量子共振」；長按氣泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子訊號；在面板選最多 3 個「量子同頻」主題，共同的主題會亮起來。';
+
+  @override
+  String get quantumNyTitle => '量子跨年';
+
+  @override
+  String quantumNyDays(int n) {
+    return '還有 $n 天：12/31 量子中心午夜，到 101 原點和全世界一起倒數';
+  }
+
+  @override
+  String get quantumNyTonight => '今晚量子中心午夜，到 101 原點和全世界一起倒數';
+
+  @override
+  String quantumNyZone(String places) {
+    return '$places 跨年了 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '此刻全世界共 $n 人在量子世界一起跨年';
+  }
+
+  @override
+  String get quantumNyHappy => '新年快樂';
+
+  @override
+  String get guideS17L9 =>
+      '量子跨年：12/31 各時區跨年時，那裡的氣泡一波波亮起金色光環，世界視角的光點也跟著變金色。量子中心午夜時，全蜂巢一起倒數最後 10 秒，101 原點放出全世界最大的光爆和 5 分鐘的煙火，並顯示這一刻一起跨年的人數。';
+
+  @override
+  String get quantumMeetAction => '製作量子相遇卡';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return '已邀請 $name 一起製作量子相遇卡';
+  }
+
+  @override
+  String get quantumMeetWait => '剛剛邀請過了，稍等一下再試';
+
+  @override
+  String get quantumMeetAskTitle => '量子相遇卡';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name（⬡ $code）想和你把這次相遇做成一張分享卡。卡片上有雙方的暱稱、席位代號、當地時間和心情，不含任何位置。';
+  }
+
+  @override
+  String get quantumMeetAccept => '一起製作';
+
+  @override
+  String get quantumMeetEyebrow => '量子相遇';
+
+  @override
+  String get quantumMeetFooter => '我們在量子世界相遇';
+
+  @override
+  String get quantumMeetShare => '分享相遇卡';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b，我們在量子世界相遇了 ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      '量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4189,4 +4257,72 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS17L8 =>
       '每颗气泡带着主人当地时间的色调：清晨淡金、白天亮白、黄昏橘紫、深夜深蓝；开启「显示我的当地时间」后，长按气泡看得到时间。24 小时内互送微光会产生「量子共振」；长按气泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子信号；在面板选最多 3 个「量子同频」主题，共同的主题会亮起来。';
+
+  @override
+  String get quantumNyTitle => '量子跨年';
+
+  @override
+  String quantumNyDays(int n) {
+    return '还有 $n 天：12/31 量子中心午夜，到 101 原点和全世界一起倒数';
+  }
+
+  @override
+  String get quantumNyTonight => '今晚量子中心午夜，到 101 原点和全世界一起倒数';
+
+  @override
+  String quantumNyZone(String places) {
+    return '$places 跨年了 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '此刻全世界共 $n 人在量子世界一起跨年';
+  }
+
+  @override
+  String get quantumNyHappy => '新年快乐';
+
+  @override
+  String get guideS17L9 =>
+      '量子跨年：12/31 各时区跨年时，那里的气泡一波波亮起金色光环，世界视角的光点也跟着变金色。量子中心午夜时，全蜂巢一起倒数最后 10 秒，101 原点放出全世界最大的光爆和 5 分钟的烟火，并显示这一刻一起跨年的人数。';
+
+  @override
+  String get quantumMeetAction => '制作量子相遇卡';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return '已邀请 $name 一起制作量子相遇卡';
+  }
+
+  @override
+  String get quantumMeetWait => '刚刚邀请过了，稍等一下再试';
+
+  @override
+  String get quantumMeetAskTitle => '量子相遇卡';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name（⬡ $code）想和你把这次相遇做成一张分享卡。卡片上有双方的昵称、席位代号、当地时间和心情，不含任何位置。';
+  }
+
+  @override
+  String get quantumMeetAccept => '一起制作';
+
+  @override
+  String get quantumMeetEyebrow => '量子相遇';
+
+  @override
+  String get quantumMeetFooter => '我们在量子世界相遇';
+
+  @override
+  String get quantumMeetShare => '分享相遇卡';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b，我们在量子世界相遇了 ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      '量子相遇卡：聊过天的人，长按气泡可以邀请对方一起制作。双方都同意后，各自拿到一张分享卡，上面有两人的昵称、席位代号、当地时间与昼夜色和心情，不含任何位置；第 4 圈的席位代号是金色的。';
 }

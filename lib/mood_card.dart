@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'quantum_meet.dart';
 import 'ui/night.dart';
 
 /// 心情卡與邀請卡：每次隨機一張夜景插畫，可以按「換一張」。
@@ -74,6 +75,21 @@ Future<void> showMoodCard(BuildContext context, {required String mood, required 
   );
 }
 
+/// 量子相遇卡：雙方同意後各自打開，三種配色可以換，分享時輸出 1080×1920 圖片
+Future<void> showQuantumMeetCard(BuildContext context, {required QuantumMeetPerson me, required QuantumMeetPerson them}) {
+  final at = DateTime.now();
+  return _showShareCard(
+    context,
+    random: Random(),
+    count: quantumMeetThemes.length,
+    image: (_) => '',
+    shareLabel: tr.quantumMeetShare,
+    fileName: 'city_whisper_quantum_meet',
+    build: (i) => QuantumMeetCard(a: me, b: them, at: at, theme: i),
+    shareText: (_) => '${tr.quantumMeetShareText(me.nickname, them.nickname)}\n$_landingUrl?ref=quantum',
+  );
+}
+
 Future<void> _showShareCard(
   BuildContext context, {
   required Random random,
@@ -102,8 +118,8 @@ Future<void> _showShareCard(
             await SharePlus.instance.share(ShareParams(text: text, subject: subject, sharePositionOrigin: _shareOrigin(dialogContext)));
             return;
           }
-          // 圖還沒解碼完就截圖會是一片黑，先確定載入好
-          await precacheImage(AssetImage(image(index)), dialogContext);
+          // 圖還沒解碼完就截圖會是一片黑，先確定載入好（量子相遇卡是畫出來的，沒有插畫）
+          if (image(index).isNotEmpty) await precacheImage(AssetImage(image(index)), dialogContext);
           await WidgetsBinding.instance.endOfFrame;
           final boundary = boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
           // 卡片以 360×640 繪製，3 倍輸出成 1080×1920

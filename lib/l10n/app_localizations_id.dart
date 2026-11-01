@@ -2242,7 +2242,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS17L6 =>
-      'Lonceng jam: semenit sebelum setiap jam, pilar cahaya 101 makin terang. Tepat pada jamnya, utusan cahaya mengelilingi titik asal, lonceng berbunyi sesuai waktu Taipei (24 kali tengah malam), dan gelombang cahaya terakhir menyebar ke seluruh sarang. Ketuk “Kirim kilauan lonceng” saat lonceng — makin banyak yang menonton, makin terang cahayanya. Pengingat lonceng jam menyala secara bawaan; kamu bisa mematikannya di panel.';
+      'Lonceng jam: semenit sebelum setiap jam, pilar cahaya 101 makin terang. Tepat pada jamnya, utusan cahaya mengelilingi titik asal, lonceng berbunyi sesuai waktu Pusat Kuantum (24 kali tengah malam), dan gelombang cahaya terakhir menyebar ke seluruh sarang. Ketuk “Kirim kilauan lonceng” saat lonceng — makin banyak yang menonton, makin terang cahayanya. Pengingat lonceng jam menyala secara bawaan; kamu bisa mematikannya di panel.';
 
   @override
   String get guideS17L7 =>

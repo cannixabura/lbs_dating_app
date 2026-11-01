@@ -2314,7 +2314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS17L6 =>
-      'Hourly chime: a minute before each hour the 101 beam brightens. On the hour, messengers of light circle the origin, the bell strikes Taipei time (24 strikes at midnight), and a final wave of light sweeps the hive. Tap “Send a chime glimmer” during the chime — the more people watching, the brighter it gets. The hourly chime reminder is on by default; you can turn it off in the panel.';
+      'Hourly chime: a minute before each hour the 101 beam brightens. On the hour, messengers of light circle the origin, the bell strikes Quantum Center time (24 strikes at midnight), and a final wave of light sweeps the hive. Tap “Send a chime glimmer” during the chime — the more people watching, the brighter it gets. The hourly chime reminder is on by default; you can turn it off in the panel.';
 
   @override
   String get guideS17L7 =>

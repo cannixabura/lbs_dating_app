@@ -2239,7 +2239,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS17L6 =>
-      'Chuông giờ: một phút trước mỗi giờ, cột sáng 101 sáng dần. Đúng giờ, sứ giả ánh sáng đi một vòng quanh gốc, chuông gõ theo giờ Đài Bắc (0 giờ gõ 24 tiếng), và làn sóng sáng cuối cùng lan khắp tổ ong. Trong lúc chuông, chạm “Gửi đốm sáng chuông giờ” — càng nhiều người cùng xem, ánh sáng càng rực. Nhắc chuông giờ được bật sẵn; bạn có thể tắt trong bảng điều khiển.';
+      'Chuông giờ: một phút trước mỗi giờ, cột sáng 101 sáng dần. Đúng giờ, sứ giả ánh sáng đi một vòng quanh gốc, chuông gõ theo giờ Trung tâm Lượng tử (0 giờ gõ 24 tiếng), và làn sóng sáng cuối cùng lan khắp tổ ong. Trong lúc chuông, chạm “Gửi đốm sáng chuông giờ” — càng nhiều người cùng xem, ánh sáng càng rực. Nhắc chuông giờ được bật sẵn; bạn có thể tắt trong bảng điều khiển.';
 
   @override
   String get guideS17L7 =>

@@ -3838,7 +3838,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS17L6.
   ///
   /// In zh, this message translates to:
-  /// **'整點報時：每個整點，101 光柱前 1 分鐘開始變亮，整點時光之使者繞原點一圈、敲出台北時間的鐘聲（0 點 24 聲），最後一道光波擴散到整個蜂巢。報時時點一下「送出報時微光」，一起看的人越多光越盛。「整點報時提醒」預設打開，可以在面板裡關掉。'**
+  /// **'整點報時：每個整點，101 光柱前 1 分鐘開始變亮，整點時光之使者繞原點一圈、敲出量子中心時間的鐘聲（0 點 24 聲），最後一道光波擴散到整個蜂巢。報時時點一下「送出報時微光」，一起看的人越多光越盛。「整點報時提醒」預設打開，可以在面板裡關掉。'**
   String get guideS17L6;
 
   /// No description provided for @guideS17L7.

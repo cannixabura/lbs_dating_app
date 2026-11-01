@@ -2096,6 +2096,34 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS17L8 =>
       '每顆氣泡帶著主人當地時間的色調：清晨淡金、白天亮白、黃昏橘紫、深夜深藍；開啟「顯示我的當地時間」後，長按氣泡看得到時間。24 小時內互送微光會產生「量子共振」；長按氣泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子訊號；在面板選最多 3 個「量子同頻」主題，共同的主題會亮起來。';
+
+  @override
+  String get quantumNyTitle => '量子跨年';
+
+  @override
+  String quantumNyDays(int n) {
+    return '還有 $n 天：12/31 量子中心午夜，到 101 原點和全世界一起倒數';
+  }
+
+  @override
+  String get quantumNyTonight => '今晚量子中心午夜，到 101 原點和全世界一起倒數';
+
+  @override
+  String quantumNyZone(String places) {
+    return '$places 跨年了 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '此刻全世界共 $n 人在量子世界一起跨年';
+  }
+
+  @override
+  String get quantumNyHappy => '新年快樂';
+
+  @override
+  String get guideS17L9 =>
+      '量子跨年：12/31 各時區跨年時，那裡的氣泡一波波亮起金色光環，世界視角的光點也跟著變金色。量子中心午夜時，全蜂巢一起倒數最後 10 秒，101 原點放出全世界最大的光爆和 5 分鐘的煙火，並顯示這一刻一起跨年的人數。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4189,4 +4217,32 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS17L8 =>
       '每颗气泡带着主人当地时间的色调：清晨淡金、白天亮白、黄昏橘紫、深夜深蓝；开启「显示我的当地时间」后，长按气泡看得到时间。24 小时内互送微光会产生「量子共振」；长按气泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子信号；在面板选最多 3 个「量子同频」主题，共同的主题会亮起来。';
+
+  @override
+  String get quantumNyTitle => '量子跨年';
+
+  @override
+  String quantumNyDays(int n) {
+    return '还有 $n 天：12/31 量子中心午夜，到 101 原点和全世界一起倒数';
+  }
+
+  @override
+  String get quantumNyTonight => '今晚量子中心午夜，到 101 原点和全世界一起倒数';
+
+  @override
+  String quantumNyZone(String places) {
+    return '$places 跨年了 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '此刻全世界共 $n 人在量子世界一起跨年';
+  }
+
+  @override
+  String get quantumNyHappy => '新年快乐';
+
+  @override
+  String get guideS17L9 =>
+      '量子跨年：12/31 各时区跨年时，那里的气泡一波波亮起金色光环，世界视角的光点也跟着变金色。量子中心午夜时，全蜂巢一起倒数最后 10 秒，101 原点放出全世界最大的光爆和 5 分钟的烟火，并显示这一刻一起跨年的人数。';
 }

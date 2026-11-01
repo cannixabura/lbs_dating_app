@@ -2248,4 +2248,33 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS17L8 =>
       'Mỗi bong bóng mang sắc giờ địa phương của chủ nhân: vàng nhạt lúc sáng sớm, trắng sáng ban ngày, cam tím lúc hoàng hôn, xanh thẫm đêm khuya. Bật “Hiện giờ địa phương của tôi” để người khác thấy giờ khi nhấn giữ bong bóng của bạn. Gửi đốm sáng cho nhau trong 24 giờ sẽ tạo cộng hưởng lượng tử; nhấn giữ bong bóng để gửi tín hiệu 👋 ☕ 🌙 🎵 🌧️ ✨; chọn tối đa 3 chủ đề đồng tần trong bảng điều khiển, chủ đề chung sẽ sáng lên.';
+
+  @override
+  String get quantumNyTitle => 'Năm mới lượng tử';
+
+  @override
+  String quantumNyDays(int n) {
+    return 'Còn $n ngày: nửa đêm Trung tâm Lượng tử 12/31, cùng cả thế giới đếm ngược tại gốc 101';
+  }
+
+  @override
+  String get quantumNyTonight =>
+      'Nửa đêm nay tại Trung tâm Lượng tử, cùng cả thế giới đếm ngược tại gốc 101';
+
+  @override
+  String quantumNyZone(String places) {
+    return 'Chúc mừng năm mới, $places 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '$n người trên khắp thế giới đã cùng đón năm mới trong Thế giới lượng tử';
+  }
+
+  @override
+  String get quantumNyHappy => 'Chúc mừng năm mới';
+
+  @override
+  String get guideS17L9 =>
+      'Năm mới lượng tử: ngày 12/31, mỗi khi một múi giờ đến nửa đêm, các bong bóng ở đó lần lượt sáng vòng vàng như từng đợt sóng, và các đốm sáng trong chế độ xem thế giới cũng chuyển vàng. Đúng nửa đêm Trung tâm Lượng tử, cả tổ ong cùng đếm ngược 10 giây cuối, gốc 101 bùng lên vụ nổ ánh sáng lớn nhất thế giới và 5 phút pháo hoa, kèm số người đã cùng nhau đón năm mới.';
 }

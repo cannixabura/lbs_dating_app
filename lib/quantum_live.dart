@@ -12,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'l10n/l10n.dart';
 import 'nightly_reminder.dart';
+import 'quantum_newyear.dart';
 import 'quantum_world.dart';
 import 'ui/night.dart';
 
@@ -651,6 +652,7 @@ class QuantumSheetExtras extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      const QuantumNewYearTeaser(),
       if (partners.isNotEmpty) ...[
         Text(tr.quantumEntangledTitle, style: const TextStyle(color: Night.ink, fontSize: 15)),
         const SizedBox(height: Night.space1),

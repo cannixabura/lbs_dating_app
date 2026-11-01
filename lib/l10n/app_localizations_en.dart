@@ -2323,4 +2323,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS17L8 =>
       'Each bubble carries the tint of its owner\'s local time: pale gold at dawn, bright white by day, orange-violet at dusk, deep blue at night. Turn on “Show my local time” to let others see the time when they long-press your bubble. Swapping glimmers within 24 hours makes you resonate; long-press a bubble to send a 👋 ☕ 🌙 🎵 🌧️ ✨ signal; pick up to 3 wavelength topics in the panel and shared ones light up.';
+
+  @override
+  String get quantumNyTitle => 'Quantum New Year';
+
+  @override
+  String quantumNyDays(int n) {
+    return '$n days to go: at Quantum Center midnight on 12/31, count down with the world at the 101 origin';
+  }
+
+  @override
+  String get quantumNyTonight =>
+      'Tonight at Quantum Center midnight, count down with the world at the 101 origin';
+
+  @override
+  String quantumNyZone(String places) {
+    return 'Happy New Year, $places 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '$n people around the world welcomed the new year together in the Quantum World';
+  }
+
+  @override
+  String get quantumNyHappy => 'Happy New Year';
+
+  @override
+  String get guideS17L9 =>
+      'Quantum New Year: on 12/31, as each time zone reaches midnight, its bubbles light up with golden rings in waves, and world-view dots turn gold too. At Quantum Center midnight the whole hive counts down the last 10 seconds, the 101 origin releases the world\'s biggest burst of light and 5 minutes of fireworks, and you see how many people crossed into the new year together.';
 }

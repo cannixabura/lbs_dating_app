@@ -2251,4 +2251,33 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS17L8 =>
       'Setiap gelembung membawa warna waktu lokal pemiliknya: emas pucat saat fajar, putih terang saat siang, jingga-ungu saat senja, biru tua saat malam. Nyalakan “Tampilkan waktu lokalku” agar orang lain melihat waktunya saat menekan lama gelembungmu. Saling mengirim kilauan dalam 24 jam memicu resonansi kuantum; tekan lama gelembung untuk mengirim sinyal 👋 ☕ 🌙 🎵 🌧️ ✨; pilih hingga 3 topik frekuensi di panel dan topik yang sama akan menyala.';
+
+  @override
+  String get quantumNyTitle => 'Tahun Baru Kuantum';
+
+  @override
+  String quantumNyDays(int n) {
+    return '$n hari lagi: saat tengah malam Pusat Kuantum 12/31, hitung mundur bersama dunia di titik asal 101';
+  }
+
+  @override
+  String get quantumNyTonight =>
+      'Malam ini saat tengah malam Pusat Kuantum, hitung mundur bersama dunia di titik asal 101';
+
+  @override
+  String quantumNyZone(String places) {
+    return 'Selamat Tahun Baru, $places 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return '$n orang di seluruh dunia menyambut tahun baru bersama di Dunia Kuantum';
+  }
+
+  @override
+  String get quantumNyHappy => 'Selamat Tahun Baru';
+
+  @override
+  String get guideS17L9 =>
+      'Tahun Baru Kuantum: pada 12/31, setiap zona waktu mencapai tengah malam, gelembung di sana menyala dengan cincin emas bergelombang, dan titik di tampilan dunia ikut berubah emas. Saat tengah malam Pusat Kuantum, seluruh sarang menghitung mundur 10 detik terakhir, titik asal 101 melepaskan ledakan cahaya terbesar di dunia dan kembang api selama 5 menit, lalu menampilkan jumlah orang yang menyambut tahun baru bersama.';
 }

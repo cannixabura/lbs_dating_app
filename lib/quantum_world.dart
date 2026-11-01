@@ -408,7 +408,7 @@ class QuantumProjector {
 class QuantumHivePainter extends CustomPainter {
   final QuantumProjector p;
   final ({double east, double north}) seat;
-  final List<List<double>> dots; // 世界視角：[lat, lng]
+  final List<List<double>> dots; // 世界視角：[lat, lng]，已經跨年的多一個 1
   final double glow; // 0～1，光柱呼吸
   final double boost; // 0～1，整點報時前光柱慢慢變亮
 
@@ -442,12 +442,15 @@ class QuantumHivePainter extends CustomPainter {
     }
 
     // 世界視角的遠方光點：不帶心情，只看得到有人
+    // 量子跨年：已經跨年的人是金色、大一點
     final dotPaint = Paint()..color = Night.auroraBlue.withOpacity(0.8)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
+    final goldPaint = Paint()..color = const Color(0xFFFFD54F)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
     for (final d in dots) {
       final o = quantumLocal(d[0], d[1]);
       final hit = p.project(o.east, o.north);
       if (hit == null || !rect.contains(hit.$1)) continue;
-      canvas.drawCircle(hit.$1, 2.2, dotPaint);
+      final gold = d.length > 2;
+      canvas.drawCircle(hit.$1, gold ? 3.2 : 2.2, gold ? goldPaint : dotPaint);
     }
 
     // 自己的席位：一圈淡藍色的六角形

@@ -250,3 +250,32 @@ test('hourly chime: glimmers counted once each, fly-in positions shared, closed 
     clock = Date.parse('2026-11-02T04:06:00Z');
     assert.strictEqual((await beat('p2f')).chime, undefined);
 });
+
+test('new year: time zones light up in waves, people at Taipei midnight counted together', async () => {
+    assert.strictEqual(q.newYearAt(Date.parse('2026-11-01T00:00:00Z')), Date.parse('2026-12-31T16:00:00Z'));
+    assert.strictEqual(q.newYearAt(Date.parse('2027-01-01T05:00:00Z')), Date.parse('2026-12-31T16:00:00Z'));
+    clock = Date.parse('2026-11-02T05:00:00Z');
+    assert.strictEqual((await beat('p2a')).newYear, undefined); // 不是跨年期間
+
+    clock = Date.parse('2026-12-31T10:30:00Z'); // 吉里巴斯（+14）00:30、紐西蘭（+13）23:30、東京 19:30
+    const zones = { ny14: 840, ny13: 780, ny9: 540, ny8: 480 };
+    for (const [u, tz] of Object.entries(zones)) await enter(u, { tz });
+    let r = await beat('ny8', { tz: 480, radiusKM: 20 });
+    assert.strictEqual(r.newYear.at, Date.parse('2026-12-31T16:00:00Z'));
+    assert.strictEqual(r.newYear.count, undefined); // 離台北午夜還早
+    const ny = (u) => r.data.find((x) => x.uid === u)?.ny === true;
+    assert.deepStrictEqual([ny('ny14'), ny('ny13'), ny('ny9')], [true, false, false]);
+    assert.strictEqual(r.dots.filter((d) => d[2] === 1).length, 1);
+
+    clock = Date.parse('2026-12-31T15:59:30Z'); // 台北 23:59:30
+    for (const u of Object.keys(zones)) await beat(u, { tz: zones[u] });
+    clock = Date.parse('2026-12-31T16:00:20Z');
+    r = await beat('ny8', { tz: 480, radiusKM: 20 });
+    assert.deepStrictEqual([ny('ny14'), ny('ny13'), ny('ny9')], [true, true, true]);
+    assert.strictEqual(r.newYear.count, 4);
+
+    await call('ny14', { action: 'leave' });
+    assert.strictEqual(run(['HGET', 'quantum_tz', 'ny14']), null);
+    clock = Date.parse('2027-01-02T00:00:00Z');
+    assert.strictEqual((await beat('ny8')).newYear, undefined);
+});

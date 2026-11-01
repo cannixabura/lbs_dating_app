@@ -377,6 +377,7 @@ function releaseSeatCommands(uid, ordinal, region) {
         ["ZREM", quantum.KEY.beats, uid],
         ["ZREM", quantum.KEY.region(region || 'other'), uid],
         ["ZREM", quantum.KEY.geo, uid],
+        ["HDEL", quantum.KEY.tz, uid],
     ];
 }
 
@@ -412,6 +413,9 @@ function quantumProfileFields(body) {
     return fields;
 }
 
+/** 量子跨年用：世界視角的光點只帶座標，時區另外放在一個 hash */
+const quantumTzCommands = (uid, body) => (quantum.validTz(body.tz) ? [["HSET", quantum.KEY.tz, uid, String(body.tz)]] : []);
+
 const parseTopics = (v) => (v ? String(v).split(",").map(Number).filter((t) => Number.isInteger(t)) : []);
 
 /** 兩人之間有沒有封鎖（任一方） */
@@ -425,12 +429,15 @@ async function eitherBlocked(a, b) {
 async function quantumExtras(uid, now) {
     const hour = quantum.chimeHour(now);
     const chiming = quantum.inChime(now);
-    const [partners, invitesRaw, gone, chimeCount, chimeFx] = await sendUpstashPipeline([
+    const nyAt = quantum.newYearAt(now);
+    const together = quantum.newYearTogether(now);
+    const [partners, invitesRaw, gone, chimeCount, chimeFx, nyCount] = await sendUpstashPipeline([
         ["SMEMBERS", quantum.KEY.ent(uid)],
         ["HGETALL", quantum.KEY.invites(uid)],
         ["LRANGE", quantum.KEY.entGone(uid), "0", "-1"],
         chiming ? ["ZCARD", quantum.KEY.chime(hour)] : ["ECHO", ""],
         chiming ? ["ZRANGE", quantum.KEY.chimeFx(hour), String(-quantum.CHIME_FX_MAX), "-1"] : ["ECHO", ""],
+        together ? ["ZCARD", quantum.KEY.newYear(nyAt)] : ["ECHO", ""],
     ]);
     const partnerList = Array.isArray(partners) ? partners : [];
     const invites = Object.entries(hashToObject(invitesRaw)).filter(([, at]) => now - parseInt(at, 10) <= quantum.INVITE_MS).map(([from]) => from);
@@ -458,6 +465,8 @@ async function quantumExtras(uid, now) {
             fx: (Array.isArray(chimeFx) ? chimeFx : []).map((e) => String(e).split("|")).filter((x) => x[0] !== uid).map((x) => [parseFloat(x[1]), parseFloat(x[2])]),
         };
     }
+    // 量子跨年：台北午夜的時間（測試時可以改），以及一起跨年的人數
+    if (quantum.inNewYear(now)) out.newYear = { at: nyAt, ...(together ? { count: Number(nyCount) || 0 } : {}) };
     return out;
 }
 
@@ -514,6 +523,7 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
         ["ZRANGEBYSCORE", quantum.KEY.collapses, String(now - quantum.COLLAPSE_MS), "+inf"],
         ["SISMEMBER", demo.REVIEWERS_KEY, uid],
     ]);
+    const nyWave = quantum.inNewYear(now);
     // 斷線保留席位的 3 分鐘內不顯示任何東西（這不是殘影）
     const visible = new Set(Array.isArray(visibleUids) ? visibleUids : []);
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
@@ -529,7 +539,9 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
             quantum: quantum.seat(parseInt(ord, 10)).code, ...(quiet === "1" ? { quiet: true } : {}),
             // 晝夜色調一律有；當地時間只在對方同意時才給
             ...(quantum.validTz(tz) ? { day: quantum.dayPart(tz, now), ...(showTime === "1" ? { tz } : {}) } : {}),
-            ...(topics ? { topics: parseTopics(topics) } : {}) });
+            ...(topics ? { topics: parseTopics(topics) } : {}),
+            // 量子跨年：這個人的時區已經跨年
+            ...(nyWave && quantum.validTz(tz) && quantum.crossedNewYear(tz, now) ? { ny: true } : {}) });
     });
 
     // 審核示範對象：只有輸入過通關碼的帳號看得到，放在自己周圍
@@ -545,9 +557,14 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
         });
     }
 
-    const dots = (Array.isArray(dotsRaw) ? dotsRaw : [])
-        .filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]))
-        .map((m) => { const c = coordOf(m); return [c.lat, c.lng]; });
+    const dotMembers = (Array.isArray(dotsRaw) ? dotsRaw : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
+    // 量子跨年：已經跨年的光點多帶一個 1，世界視角看得到一波波亮起來
+    const dotTz = nyWave && dotMembers.length > 0 ? await sendUpstashCommand(["HMGET", quantum.KEY.tz, ...dotMembers.map((m) => m[0])]) : [];
+    const dots = dotMembers.map((m, i) => {
+        const c = coordOf(m);
+        const tz = Array.isArray(dotTz) && dotTz[i] != null ? parseInt(dotTz[i], 10) : NaN;
+        return quantum.validTz(tz) && quantum.crossedNewYear(tz, now) ? [c.lat, c.lng, 1] : [c.lat, c.lng];
+    });
     const collapses = (Array.isArray(collapsesRaw) ? collapsesRaw : []).map((entry) => {
         const [who, lat, lng] = String(entry).split('|');
         return { uid: who, lat: parseFloat(lat), lng: parseFloat(lng) };
@@ -599,6 +616,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 ...quantumProfileFields(req.body),
                 "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
+            ...quantumTzCommands(uid, req.body),
             ["ZADD", quantum.KEY.region(region), String(now), uid],
             ["GEOADD", quantum.KEY.geo, String(st.pos.lng), String(st.pos.lat), uid],
             // 進入量子世界時，暫時離開一般雷達和平行宇宙
@@ -637,6 +655,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         await sendUpstashPipeline([
             ["HSET", quantum.KEY.seat(uid), ...fields],
             ["ZADD", quantum.KEY.beats, String(now), uid],
+            ...quantumTzCommands(uid, req.body),
+            ...(quantum.newYearTogether(now) ? [["ZADD", quantum.KEY.newYear(quantum.newYearAt(now)), "NX", String(now), uid], ["EXPIRE", quantum.KEY.newYear(quantum.newYearAt(now)), "172800"]] : []),
             ["ZADD", quantum.KEY.region(h.region || 'other'), String(now), uid],
             ["GEOADD", quantum.KEY.geo, String(st.pos.lng), String(st.pos.lat), uid],
             ...profile,

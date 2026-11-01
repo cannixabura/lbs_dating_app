@@ -2142,4 +2142,32 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS17L8 =>
       '吹き出しには持ち主の現地時刻の色合いがつきます：早朝は淡い金、昼は白、夕暮れはオレンジ紫、深夜は深い青。「現地時刻を表示する」をオンにすると、長押しで時刻が見えます。24 時間以内にきらめきを送り合うと「量子共振」。吹き出しを長押しして 👋 ☕ 🌙 🎵 🌧️ ✨ の量子シグナルを送れます。パネルで「量子の周波数」のテーマを 3 つまで選ぶと、共通のテーマが光ります。';
+
+  @override
+  String get quantumNyTitle => '量子カウントダウン';
+
+  @override
+  String quantumNyDays(int n) {
+    return 'あと $n 日：12/31 量子センターの真夜中、101 の原点で世界といっしょにカウントダウン';
+  }
+
+  @override
+  String get quantumNyTonight => '今夜、量子センターの真夜中に 101 の原点で世界といっしょにカウントダウン';
+
+  @override
+  String quantumNyZone(String places) {
+    return '$placesが新年を迎えました 🎆';
+  }
+
+  @override
+  String quantumNyTogether(int n) {
+    return 'いま世界中の $n 人が量子世界でいっしょに新年を迎えました';
+  }
+
+  @override
+  String get quantumNyHappy => 'あけましておめでとう';
+
+  @override
+  String get guideS17L9 =>
+      '量子カウントダウン：12/31、各タイムゾーンが真夜中を迎えるたびに、その地域のバブルが金色の光の輪で波のように輝き、ワールドビューの光点も金色になります。量子センターの真夜中には、ハイブ全体で最後の 10 秒をカウントダウン。101 の原点から世界最大の光の爆発と 5 分間の花火が上がり、いっしょに新年を迎えた人数が表示されます。';
 }

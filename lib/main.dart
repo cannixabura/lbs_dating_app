@@ -3328,10 +3328,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 量子世界裡自己也是球型頭像（款式和心情色同別人看到的一樣；不畫系統藍點，那是真實位置）
                       if (quantumOn && !_quantumSelfCollapse && !_quantumReform)
                         Positioned(
-                          left: centerX - 24, top: centerY - 24,
+                          left: centerX - 28, top: centerY - 28,
                           child: IgnorePointer(child: ValueListenableBuilder<String>(
                             valueListenable: OrbPrefs.style,
-                            builder: (context, style, _) => QuantumOrb(style: style, color: _getMoodColor(_myMood), size: 48, image: orbImage(_myAvatarUrl)),
+                            builder: (context, style, _) => QuantumOrb(style: style, color: _getMoodColor(_myMood), size: 56, image: orbImage(_myAvatarUrl)),
                           )),
                         ),
 

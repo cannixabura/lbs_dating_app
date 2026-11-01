@@ -1,0 +1,27 @@
+{
+  "_note": "心情據點篇《給下一個坐在這裡的人》。素材在 footage/mood/（不進 git）；App 畫面是 iPhone 18 Pro Max 模擬器 app/seg1_radar.mov（打卡、提示、名片）、seg2_guestbook.mov（留言本、留言）、seg3_stranger.mov（另一個帳號讀到阿澄那則）。shot8_design.mov 是第 8 鏡貼上真的窗貼與立牌設計稿。執行：FFMPEG=<ffmpeg> python3 tool/make_story_short.py marketing/shorts/mood-place.json",
+  "out": "marketing/shorts/out/mood_place_guestbook",
+  "crossfade": 0.5,
+  "audio": true,
+  "wide": false,
+  "shots": [
+    {"src": "footage/mood/shot1.mov", "dur": 5, "caption": "週六，沒有計畫",
+     "app": {"src": "footage/mood/app/seg1_radar.mov", "start": 14, "dur": 4.5, "in": 1.2, "y": 900}},
+    {"src": "footage/mood/shot2.mov", "dur": 5, "caption": "附近，有一盞燈在呼吸",
+     "app": {"src": "footage/mood/app/seg1_radar.mov", "start": 7.5, "dur": 5, "in": 0.3, "y": 1000}},
+    {"src": "footage/mood/shot3.mov", "dur": 5, "caption": "一家店，一段故事",
+     "app": {"src": "footage/mood/app/seg1_radar.mov", "start": 40.5, "dur": 4.5, "in": 0.3, "y": 1000}},
+    {"src": "footage/mood/shot4.mov", "dur": 5, "caption": "走進來，才讀得到",
+     "app": {"src": "footage/mood/app/seg2_guestbook.mov", "start": 44.3, "dur": 4.7, "in": 0.3, "y": 1000}},
+    {"src": "footage/mood/shot5.mov", "dur": 6, "caption": "之前坐在這裡的人，\n留下的話",
+     "app": {"src": "footage/mood/app/seg2_guestbook.mov", "start": 47, "dur": 5.5, "crop": [0, 1300, 1320, 2420], "in": 0.4, "y": 1080, "w": 480}},
+    {"src": "footage/mood/shot6.mov", "dur": 5.5, "caption": "那我也留一句",
+     "app": {"src": "footage/mood/app/seg2_guestbook.mov", "segments": [[231.3, 1.5], [260.6, 1.6], [276.6, 3.2]], "crop": [0, 1050, 1320, 2868], "in": 0.3, "x": 44, "y": 900, "w": 460}},
+    {"card": true, "dur": 2, "title": "幾天後"},
+    {"src": "footage/mood/shot7.mov", "dur": 5,
+     "app": {"src": "footage/mood/app/seg3_stranger.mov", "start": 3, "dur": 5, "crop": [0, 1390, 1320, 2050], "in": 1.0, "x": 44, "y": 1000, "w": 500}},
+    {"src": "footage/mood/shot8_design.mov", "dur": 4.5, "caption": "有些話，只留在這家店裡", "caption_in": 1},
+    {"end": true, "dur": 4.5, "title": "在城市的某個角落，有人留了一句話給你。", "subtitle": "城市低語｜App Store 搜尋「城市低語」",
+     "note": "影片中的店家與 App 畫面為示範情境"}
+  ]
+}

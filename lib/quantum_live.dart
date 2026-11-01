@@ -176,7 +176,8 @@ class QuantumChime {
   QuantumChime._();
   static const lead = 60.0; // 整點前幾秒開始
   static const show = 15.0;
-  static const tail = 25.0; // 報時結束後再留一點時間顯示人數
+  static const send = 60.0; // 整點後 1 分鐘內都能送報時微光
+  static const tail = 330.0; // 報時後的光環儀式維持 5 分鐘以上
 
   static DateTime _top(DateTime now) {
     final ms = now.millisecondsSinceEpoch;
@@ -376,16 +377,38 @@ class QuantumChimePainter extends CustomPainter {
           canvas.drawCircle(origin.$1, 8 + 46 * k, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = Colors.white.withOpacity(0.7 * (1 - k)));
         }
       }
-      // 3. 最後一聲：光波從原點擴散到整個蜂巢；參加的人越多越大越亮
-      final last = strikes.isEmpty ? 1.5 : strikes.last;
-      final k = (t - last) / 2.6;
-      if (k >= 0 && k <= 1) {
-        final reach = min(3000.0, 700 + 160 * sqrt(count.toDouble()));
-        final bright = 0.45 + 0.5 * min(1.0, count / 50);
+    }
+    // 3. 最後一聲之後的光環儀式：第一道光波擴散到整個蜂巢，之後每 8 秒從原點再送出一道，
+    //    外圍留著一圈呼吸的光環；送報時微光的人越多，光波越大越亮（人數一直更新），維持 5 分鐘以上
+    final last = strikes.isEmpty ? 1.5 : strikes.last;
+    if (t >= last && t <= QuantumChime.tail) {
+      final reach = min(3000.0, 700 + 160 * sqrt(count.toDouble()));
+      final bright = 0.45 + 0.5 * min(1.0, count / 50);
+      final end = (QuantumChime.tail - t) / 30; // 最後 30 秒慢慢退場
+      final fadeOut = end.clamp(0.0, 1.0);
+      final since = t - last;
+      void wave(double k, double strength) {
         final path = _ring(reach * Curves.easeOut.transform(k));
-        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 10..color = Night.auroraViolet.withOpacity(bright * 0.5 * (1 - k))
+        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 10..color = Night.auroraViolet.withOpacity(bright * 0.5 * (1 - k) * strength)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
-        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = Colors.white.withOpacity(bright * (1 - k)));
+        canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = Colors.white.withOpacity(bright * (1 - k) * strength));
+      }
+      if (since <= 2.6) {
+        wave(since / 2.6, 1);
+      } else {
+        final k = ((since - 2.6) % 8) / 4; // 4 秒擴散、4 秒休息
+        if (k <= 1) wave(k, 0.75 * fadeOut);
+        // 外圍呼吸的光環：在光波到達的地方
+        final settle = ((since - 2.6) / 2).clamp(0.0, 1.0);
+        final breathe = 0.75 + 0.25 * sin(t * 2 * pi / 4);
+        final halo = _ring(reach);
+        canvas.drawPath(halo, Paint()..style = PaintingStyle.stroke..strokeWidth = 14..color = Night.auroraViolet.withOpacity(bright * 0.35 * breathe * settle * fadeOut)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+        canvas.drawPath(halo, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.6..color = Night.cityAmber.withOpacity(bright * 0.8 * breathe * settle * fadeOut));
+        // 原點的餘暉
+        if (origin != null) {
+          canvas.drawCircle(origin.$1, 26 + 6 * breathe, Paint()..color = Night.cityAmber.withOpacity(0.35 * bright * fadeOut)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14));
+        }
       }
     }
     // 報時微光：從各自的席位飛向原點，拖著一小段光尾
@@ -504,9 +527,10 @@ class QuantumChimeBanner extends StatelessWidget {
   final double t;
   final int hour;
   final bool sent;
+  final int count; // 送出報時微光的人數
   final VoidCallback onLook;
   final VoidCallback onSend;
-  const QuantumChimeBanner({super.key, required this.t, required this.hour, required this.sent, required this.onLook, required this.onSend});
+  const QuantumChimeBanner({super.key, required this.t, required this.hour, required this.sent, required this.count, required this.onLook, required this.onSend});
 
   @override
   Widget build(BuildContext context) {
@@ -522,13 +546,14 @@ class QuantumChimeBanner extends StatelessWidget {
           const Icon(Icons.notifications_active_outlined, color: Night.cityAmber, size: 18),
           const SizedBox(width: Night.space2),
           Flexible(
-            child: Text(before ? '${tr.quantumChimeCountdown((-t).ceil())} · ${tr.quantumChimeLookOrigin}' : tr.quantumChimeNow(hour),
+            child: Text(before ? '${tr.quantumChimeCountdown((-t).ceil())} · ${tr.quantumChimeLookOrigin}'
+                : count > 0 ? '${tr.quantumChimeNow(hour)} · ✨ $count' : tr.quantumChimeNow(hour),
                 style: const TextStyle(color: Night.ink, fontSize: 13), overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: Night.space1),
           if (before)
             TextButton(onPressed: onLook, style: TextButton.styleFrom(foregroundColor: Night.cityAmber, minimumSize: const Size(44, 36)), child: Text(tr.quantumChimeLook))
-          else if (!sent && t <= 20)
+          else if (!sent && t <= QuantumChime.send)
             TextButton.icon(
               onPressed: onSend,
               style: TextButton.styleFrom(foregroundColor: Night.cityAmber, minimumSize: const Size(44, 36)),

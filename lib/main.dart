@@ -1203,12 +1203,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _chimeLookedHour = hour;
       _lookAtOrigin();
     }
-    // 報時期間每 3 秒心跳一次，報時微光和人數才跟得上
-    if (_quantumClockTicks++ % 3 == 0) _quantumBeat();
+    // 能送報時微光的那 1 分鐘每 3 秒心跳一次，報時微光和人數才跟得上；之後的光環儀式靠一般心跳更新人數
+    if (t <= QuantumChime.send + 5 && _quantumClockTicks++ % 3 == 0) _quantumBeat();
     if (t >= -1.2 && t < QuantumChime.show && _chimeBell == null && _isInForeground) {
       _chimeBell = QuantumChimeBell()..schedule(QuantumChime.strikeTimes(QuantumChime.strikes(now)), max(0, t), onStrike: HapticFeedback.selectionClick);
     }
-    if (t >= QuantumChime.show + 1 && !_chimeWatchedShown) {
+    if (t >= QuantumChime.send + 2 && !_chimeWatchedShown) {
       _chimeWatchedShown = true;
       final watched = max(max(1, quantumSession.value?.online ?? 1), _chimeCount);
       showGlassToast(context, tr.quantumChimeWatched(watched), icon: Icons.notifications_active_outlined);
@@ -1371,7 +1371,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   /// 整點報時的光柱亮度：整點前 1 分鐘慢慢變亮，報時後慢慢退回
   double _chimeBoost(double t) => t < -QuantumChime.lead || t > QuantumChime.tail ? 0
       : t < 0 ? (t + QuantumChime.lead) / QuantumChime.lead
-      : t <= QuantumChime.show ? 1 : 1 - (t - QuantumChime.show) / (QuantumChime.tail - QuantumChime.show);
+      : t <= QuantumChime.send ? 1 : 1 - (t - QuantumChime.send) / (QuantumChime.tail - QuantumChime.send);
 
   /// 糾纏光線的另一端：對方在畫面裡就連到對方，不在就沿著方向連到畫面邊緣
   (Offset, bool)? _entangleEnd(QuantumProjector proj, Rect screen, double east, double north) {
@@ -3405,7 +3405,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           top: MediaQuery.of(context).padding.top + (_ritualTarget != null ? 104 : 56), left: Night.space4, right: Night.space4,
                           child: Center(child: QuantumChimeBanner(
                             t: QuantumChime.offset(DateTime.now()), hour: QuantumChime.strikes(DateTime.now()) % 24,
-                            sent: _chimeSent, onLook: _lookAtOrigin, onSend: _sendChimeGlimmer,
+                            sent: _chimeSent, count: _chimeCount, onLook: _lookAtOrigin, onSend: _sendChimeGlimmer,
                           )),
                         ),
                       // 城市心情天氣

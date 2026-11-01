@@ -64,7 +64,8 @@ const MAX_ENTANGLED = 3; // 每人同時最多糾纏 3 人
 const INVITE_MS = 2 * 60 * 1000;
 const HOUR_MS = 3600 * 1000;
 const CHIME_BEFORE_MS = 60 * 1000; // 整點前 1 分鐘光柱開始變亮
-const CHIME_AFTER_MS = 30 * 1000; // 報時約 15 秒，再留一點時間給慢一點的心跳拿到最後的人數
+const CHIME_AFTER_MS = 330 * 1000; // 報時約 15 秒，之後的光環儀式留 5 分鐘以上，心跳一直帶回最新人數
+const CHIME_SEND_MS = 60 * 1000; // 整點後 1 分鐘內都能送報時微光
 const CHIME_FX_MAX = 40;
 const TOPIC_COUNT = 8; // 音樂、電影、科技、散步、美食、旅行、閱讀、運動
 const MAX_TOPICS = 3;
@@ -223,15 +224,15 @@ function regionCounts(counts) {
 const nearestHour = (now) => Math.round(now / HOUR_MS) * HOUR_MS;
 /** 報時編號：整點時間 / 1 小時 */
 const chimeHour = (now) => Math.round(now / HOUR_MS);
-/** 是否在報時期間（整點前 1 分鐘到整點後 30 秒） */
+/** 是否在報時期間（整點前 1 分鐘到整點後 5 分半） */
 function inChime(now) {
     const d = now - nearestHour(now);
     return d >= -CHIME_BEFORE_MS && d <= CHIME_AFTER_MS;
 }
-/** 報時微光只在報時那 15 秒（前後各留幾秒）收 */
+/** 報時微光從整點前幾秒收到整點後 1 分鐘（再多留 5 秒給網路慢的人） */
 function chimeOpen(now) {
     const d = now - nearestHour(now);
-    return d >= -5000 && d <= 25000;
+    return d >= -5000 && d <= CHIME_SEND_MS + 5000;
 }
 /** 台北時間的點數：1 點 1 聲、23 點 23 聲、0 點 24 聲 */
 function chimeStrikes(now) {

@@ -241,6 +241,12 @@ test('hourly chime: glimmers counted once each, fly-in positions shared, closed 
     r = await beat('p2f');
     assert.strictEqual(r.chime.count, 2);
     assert.strictEqual(r.chime.fx.length, 2); // 同一個人點兩次只算一道
-    clock = Date.parse('2026-11-02T04:05:00Z');
+    clock = Date.parse('2026-11-02T04:00:58Z'); // 整點後 1 分鐘內都還能送
+    assert.strictEqual((await call('p2f', { action: 'chime' })).count, 3);
+    clock = Date.parse('2026-11-02T04:01:10Z');
+    assert.strictEqual((await call('p2d', { action: 'chime' })).code, 'closed');
+    clock = Date.parse('2026-11-02T04:05:00Z'); // 光環儀式還在，心跳照樣帶回人數
+    assert.strictEqual((await beat('p2f')).chime.count, 3);
+    clock = Date.parse('2026-11-02T04:06:00Z');
     assert.strictEqual((await beat('p2f')).chime, undefined);
 });

@@ -154,7 +154,8 @@ class QuantumMeetCard extends StatelessWidget {
           Positioned(
             left: 28, right: 28, top: 48,
             child: Column(children: [
-              Text(tr.quantumMeetEyebrow, style: TextStyle(color: accent, fontSize: 13, letterSpacing: 4, fontWeight: FontWeight.w500)),
+              Text(tr.quantumMeetEyebrow, style: TextStyle(color: accent, fontSize: 26, letterSpacing: 6, fontWeight: FontWeight.w600,
+                  shadows: [Shadow(color: accent.withOpacity(0.6), blurRadius: 16)])),
               const SizedBox(height: 6),
               Text(date, style: const TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: 2)),
             ]),
@@ -213,7 +214,7 @@ class _MeetBackdrop extends CustomPainter {
       }
     }
     // 101 原點的光柱
-    final beam = Rect.fromLTWH(size.width / 2 - 1.5, 90, 3, 150);
+    final beam = Rect.fromLTWH(size.width / 2 - 1.5, 116, 3, 124);
     canvas.drawRect(beam.inflate(6), Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
         colors: [Colors.transparent, Night.auroraBlue.withOpacity(0.25)]).createShader(beam.inflate(6))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
     canvas.drawRect(beam, Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,

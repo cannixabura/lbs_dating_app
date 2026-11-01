@@ -2188,4 +2188,44 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS17L9 =>
       '양자 새해: 12/31 각 시간대가 자정을 맞을 때마다 그곳의 버블이 금빛 고리로 물결처럼 빛나고, 월드 뷰의 빛점도 금빛으로 바뀌어요. 양자 중심 자정에는 벌집 전체가 마지막 10초를 함께 카운트다운하고, 101 원점에서 세계에서 가장 큰 빛의 폭발과 5분간의 불꽃놀이가 터지며, 함께 새해를 맞은 인원이 표시돼요.';
+
+  @override
+  String get quantumMeetAction => '양자 만남 카드 만들기';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return '$name님에게 양자 만남 카드를 함께 만들자고 했어요';
+  }
+
+  @override
+  String get quantumMeetWait => '방금 요청했어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get quantumMeetAskTitle => '양자 만남 카드';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name님(⬡ $code)이 이번 만남을 공유 카드로 만들고 싶어 해요. 카드에는 두 사람의 닉네임, 자리 코드, 현지 시간, 무드가 들어가며 위치는 전혀 들어가지 않아요.';
+  }
+
+  @override
+  String get quantumMeetAccept => '함께 만들기';
+
+  @override
+  String get quantumMeetEyebrow => '양자 만남';
+
+  @override
+  String get quantumMeetFooter => '우리는 양자 세계에서 만났어요';
+
+  @override
+  String get quantumMeetShare => '카드 공유';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b, 우리는 양자 세계에서 만났어요 ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      '양자 만남 카드: 대화한 상대라면 버블을 길게 눌러 함께 만들자고 할 수 있어요. 두 사람이 모두 동의하면 각자 공유 카드를 받아요. 두 사람의 닉네임, 자리 코드, 현지 시간과 낮밤 색, 무드가 들어가고 위치는 들어가지 않아요. 4번째 고리의 자리 코드는 금색이에요.';
 }

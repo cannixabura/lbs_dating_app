@@ -630,5 +630,16 @@
   "quantumNyZone": "{places} 跨年了 🎆",
   "quantumNyTogether": "此刻全世界共 {n} 人在量子世界一起跨年",
   "quantumNyHappy": "新年快乐",
-  "guideS17L9": "量子跨年：12/31 各时区跨年时，那里的气泡一波波亮起金色光环，世界视角的光点也跟着变金色。量子中心午夜时，全蜂巢一起倒数最后 10 秒，101 原点放出全世界最大的光爆和 5 分钟的烟火，并显示这一刻一起跨年的人数。"
+  "guideS17L9": "量子跨年：12/31 各时区跨年时，那里的气泡一波波亮起金色光环，世界视角的光点也跟着变金色。量子中心午夜时，全蜂巢一起倒数最后 10 秒，101 原点放出全世界最大的光爆和 5 分钟的烟火，并显示这一刻一起跨年的人数。",
+  "quantumMeetAction": "制作量子相遇卡",
+  "quantumMeetAsked": "已邀请 {name} 一起制作量子相遇卡",
+  "quantumMeetWait": "刚刚邀请过了，稍等一下再试",
+  "quantumMeetAskTitle": "量子相遇卡",
+  "quantumMeetAskBody": "{name}（⬡ {code}）想和你把这次相遇做成一张分享卡。卡片上有双方的昵称、席位代号、当地时间和心情，不含任何位置。",
+  "quantumMeetAccept": "一起制作",
+  "quantumMeetEyebrow": "量子相遇",
+  "quantumMeetFooter": "我们在量子世界相遇",
+  "quantumMeetShare": "分享相遇卡",
+  "quantumMeetShareText": "{a} × {b}，我们在量子世界相遇了 ✨",
+  "guideS17L10": "量子相遇卡：聊过天的人，长按气泡可以邀请对方一起制作。双方都同意后，各自拿到一张分享卡，上面有两人的昵称、席位代号、当地时间与昼夜色和心情，不含任何位置；第 4 圈的席位代号是金色的。"
 }

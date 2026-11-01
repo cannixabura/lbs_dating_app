@@ -630,5 +630,16 @@
   "quantumNyZone": "Selamat Tahun Baru, {places} 🎆",
   "quantumNyTogether": "{n} orang di seluruh dunia menyambut tahun baru bersama di Dunia Kuantum",
   "quantumNyHappy": "Selamat Tahun Baru",
-  "guideS17L9": "Tahun Baru Kuantum: pada 12/31, setiap zona waktu mencapai tengah malam, gelembung di sana menyala dengan cincin emas bergelombang, dan titik di tampilan dunia ikut berubah emas. Saat tengah malam Pusat Kuantum, seluruh sarang menghitung mundur 10 detik terakhir, titik asal 101 melepaskan ledakan cahaya terbesar di dunia dan kembang api selama 5 menit, lalu menampilkan jumlah orang yang menyambut tahun baru bersama."
+  "guideS17L9": "Tahun Baru Kuantum: pada 12/31, setiap zona waktu mencapai tengah malam, gelembung di sana menyala dengan cincin emas bergelombang, dan titik di tampilan dunia ikut berubah emas. Saat tengah malam Pusat Kuantum, seluruh sarang menghitung mundur 10 detik terakhir, titik asal 101 melepaskan ledakan cahaya terbesar di dunia dan kembang api selama 5 menit, lalu menampilkan jumlah orang yang menyambut tahun baru bersama.",
+  "quantumMeetAction": "Buat kartu Pertemuan Kuantum",
+  "quantumMeetAsked": "Sudah mengajak {name} membuat kartu Pertemuan Kuantum bersama",
+  "quantumMeetWait": "Kamu baru saja mengajak — coba lagi sebentar",
+  "quantumMeetAskTitle": "Kartu Pertemuan Kuantum",
+  "quantumMeetAskBody": "{name} (⬡ {code}) ingin menjadikan pertemuan ini kartu untuk dibagikan. Kartu berisi nama panggilan, kode kursi, waktu lokal, dan mood kalian berdua — tanpa lokasi apa pun.",
+  "quantumMeetAccept": "Buat bersama",
+  "quantumMeetEyebrow": "PERTEMUAN KUANTUM",
+  "quantumMeetFooter": "Kami bertemu di Dunia Kuantum",
+  "quantumMeetShare": "Bagikan kartu",
+  "quantumMeetShareText": "{a} × {b} — kami bertemu di Dunia Kuantum ✨",
+  "guideS17L10": "Kartu Pertemuan Kuantum: setelah mengobrol, tekan lama gelembungnya untuk mengajak membuat bersama. Jika keduanya setuju, masing-masing mendapat kartu untuk dibagikan berisi nama panggilan, kode kursi, waktu lokal dengan warna siang-malam, dan mood — tanpa lokasi. Kode kursi lingkaran 4 berwarna emas."
 }

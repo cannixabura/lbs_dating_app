@@ -155,6 +155,22 @@
       }
     },
 
+    // 量子相遇卡：quantumMeet/{收到的人}/{送出的人} = { op: 'ask' 邀請 | 'yes' 同意, tz: 時區偏移（分鐘）, at }
+    // 同一人 30 秒內只能送一次；'yes' 只能回覆對方送給我的邀請；被封鎖、被隱藏的人不能送；收到的人可讀、可清除
+    "quantumMeet": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && newData.exists() && (!data.exists() || data.child('at').val() < now - 30000) && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists() && !root.child('blocks/' + $senderUid + '/' + $targetUid).exists() && root.child('moderation/' + auth.uid + '/hidden').val() !== true && (newData.child('op').val() === 'ask' || root.child('quantumMeet/' + $senderUid + '/' + $targetUid + '/op').val() === 'ask')) || (auth.uid === $targetUid && !newData.exists()))",
+          ".validate": "newData.hasChildren(['op', 'tz', 'at'])",
+          "op": { ".validate": "newData.val() === 'ask' || newData.val() === 'yes'" },
+          "tz": { ".validate": "newData.isNumber() && newData.val() >= -720 && newData.val() <= 840 && newData.val() % 1 === 0" },
+          "at": { ".validate": "newData.isNumber() && newData.val() <= now && newData.val() > now - 60000" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+
     // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
     "resonancePush": {
       "$uid": { ".read": false }

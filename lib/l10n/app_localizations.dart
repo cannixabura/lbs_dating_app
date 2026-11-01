@@ -3894,6 +3894,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'量子跨年：12/31 各時區跨年時，那裡的氣泡一波波亮起金色光環，世界視角的光點也跟著變金色。量子中心午夜時，全蜂巢一起倒數最後 10 秒，101 原點放出全世界最大的光爆和 5 分鐘的煙火，並顯示這一刻一起跨年的人數。'**
   String get guideS17L9;
+
+  /// No description provided for @quantumMeetAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'製作量子相遇卡'**
+  String get quantumMeetAction;
+
+  /// No description provided for @quantumMeetAsked.
+  ///
+  /// In zh, this message translates to:
+  /// **'已邀請 {name} 一起製作量子相遇卡'**
+  String quantumMeetAsked(String name);
+
+  /// No description provided for @quantumMeetWait.
+  ///
+  /// In zh, this message translates to:
+  /// **'剛剛邀請過了，稍等一下再試'**
+  String get quantumMeetWait;
+
+  /// No description provided for @quantumMeetAskTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子相遇卡'**
+  String get quantumMeetAskTitle;
+
+  /// No description provided for @quantumMeetAskBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}（⬡ {code}）想和你把這次相遇做成一張分享卡。卡片上有雙方的暱稱、席位代號、當地時間和心情，不含任何位置。'**
+  String quantumMeetAskBody(String name, String code);
+
+  /// No description provided for @quantumMeetAccept.
+  ///
+  /// In zh, this message translates to:
+  /// **'一起製作'**
+  String get quantumMeetAccept;
+
+  /// No description provided for @quantumMeetEyebrow.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子相遇'**
+  String get quantumMeetEyebrow;
+
+  /// No description provided for @quantumMeetFooter.
+  ///
+  /// In zh, this message translates to:
+  /// **'我們在量子世界相遇'**
+  String get quantumMeetFooter;
+
+  /// No description provided for @quantumMeetShare.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享相遇卡'**
+  String get quantumMeetShare;
+
+  /// No description provided for @quantumMeetShareText.
+  ///
+  /// In zh, this message translates to:
+  /// **'{a} × {b}，我們在量子世界相遇了 ✨'**
+  String quantumMeetShareText(String a, String b);
+
+  /// No description provided for @guideS17L10.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。'**
+  String get guideS17L10;
 }
 
 class _AppLocalizationsDelegate

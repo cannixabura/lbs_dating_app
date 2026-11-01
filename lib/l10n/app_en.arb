@@ -630,5 +630,16 @@
   "quantumNyZone": "Happy New Year, {places} 🎆",
   "quantumNyTogether": "{n} people around the world welcomed the new year together in the Quantum World",
   "quantumNyHappy": "Happy New Year",
-  "guideS17L9": "Quantum New Year: on 12/31, as each time zone reaches midnight, its bubbles light up with golden rings in waves, and world-view dots turn gold too. At Quantum Center midnight the whole hive counts down the last 10 seconds, the 101 origin releases the world's biggest burst of light and 5 minutes of fireworks, and you see how many people crossed into the new year together."
+  "guideS17L9": "Quantum New Year: on 12/31, as each time zone reaches midnight, its bubbles light up with golden rings in waves, and world-view dots turn gold too. At Quantum Center midnight the whole hive counts down the last 10 seconds, the 101 origin releases the world's biggest burst of light and 5 minutes of fireworks, and you see how many people crossed into the new year together.",
+  "quantumMeetAction": "Make a Quantum Encounter card",
+  "quantumMeetAsked": "Asked {name} to make a Quantum Encounter card together",
+  "quantumMeetWait": "You just asked — try again in a moment",
+  "quantumMeetAskTitle": "Quantum Encounter card",
+  "quantumMeetAskBody": "{name} (⬡ {code}) would like to turn this encounter into a card to share. It shows both your nicknames, seat codes, local times and moods — never any location.",
+  "quantumMeetAccept": "Make it together",
+  "quantumMeetEyebrow": "QUANTUM ENCOUNTER",
+  "quantumMeetFooter": "We met in the Quantum World",
+  "quantumMeetShare": "Share card",
+  "quantumMeetShareText": "{a} × {b} — we met in the Quantum World ✨",
+  "guideS17L10": "Quantum Encounter card: after you've chatted, long-press their bubble to invite them to make one together. Once you both agree, each of you gets a card to share with both nicknames, seat codes, local times with their day-night tint, and moods — never any location. Ring 4 seat codes shine in gold."
 }

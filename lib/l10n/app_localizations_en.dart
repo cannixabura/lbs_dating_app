@@ -2352,4 +2352,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS17L9 =>
       'Quantum New Year: on 12/31, as each time zone reaches midnight, its bubbles light up with golden rings in waves, and world-view dots turn gold too. At Quantum Center midnight the whole hive counts down the last 10 seconds, the 101 origin releases the world\'s biggest burst of light and 5 minutes of fireworks, and you see how many people crossed into the new year together.';
+
+  @override
+  String get quantumMeetAction => 'Make a Quantum Encounter card';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return 'Asked $name to make a Quantum Encounter card together';
+  }
+
+  @override
+  String get quantumMeetWait => 'You just asked — try again in a moment';
+
+  @override
+  String get quantumMeetAskTitle => 'Quantum Encounter card';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name (⬡ $code) would like to turn this encounter into a card to share. It shows both your nicknames, seat codes, local times and moods — never any location.';
+  }
+
+  @override
+  String get quantumMeetAccept => 'Make it together';
+
+  @override
+  String get quantumMeetEyebrow => 'QUANTUM ENCOUNTER';
+
+  @override
+  String get quantumMeetFooter => 'We met in the Quantum World';
+
+  @override
+  String get quantumMeetShare => 'Share card';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b — we met in the Quantum World ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      'Quantum Encounter card: after you\'ve chatted, long-press their bubble to invite them to make one together. Once you both agree, each of you gets a card to share with both nicknames, seat codes, local times with their day-night tint, and moods — never any location. Ring 4 seat codes shine in gold.';
 }

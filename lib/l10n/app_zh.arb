@@ -1315,5 +1315,43 @@
     }
   },
   "quantumNyHappy": "新年快樂",
-  "guideS17L9": "量子跨年：12/31 各時區跨年時，那裡的氣泡一波波亮起金色光環，世界視角的光點也跟著變金色。量子中心午夜時，全蜂巢一起倒數最後 10 秒，101 原點放出全世界最大的光爆和 5 分鐘的煙火，並顯示這一刻一起跨年的人數。"
+  "guideS17L9": "量子跨年：12/31 各時區跨年時，那裡的氣泡一波波亮起金色光環，世界視角的光點也跟著變金色。量子中心午夜時，全蜂巢一起倒數最後 10 秒，101 原點放出全世界最大的光爆和 5 分鐘的煙火，並顯示這一刻一起跨年的人數。",
+  "quantumMeetAction": "製作量子相遇卡",
+  "quantumMeetAsked": "已邀請 {name} 一起製作量子相遇卡",
+  "@quantumMeetAsked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumMeetWait": "剛剛邀請過了，稍等一下再試",
+  "quantumMeetAskTitle": "量子相遇卡",
+  "quantumMeetAskBody": "{name}（⬡ {code}）想和你把這次相遇做成一張分享卡。卡片上有雙方的暱稱、席位代號、當地時間和心情，不含任何位置。",
+  "@quantumMeetAskBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumMeetAccept": "一起製作",
+  "quantumMeetEyebrow": "量子相遇",
+  "quantumMeetFooter": "我們在量子世界相遇",
+  "quantumMeetShare": "分享相遇卡",
+  "quantumMeetShareText": "{a} × {b}，我們在量子世界相遇了 ✨",
+  "@quantumMeetShareText": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "guideS17L10": "量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。"
 }

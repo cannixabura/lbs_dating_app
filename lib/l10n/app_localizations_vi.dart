@@ -2277,4 +2277,44 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS17L9 =>
       'Năm mới lượng tử: ngày 12/31, mỗi khi một múi giờ đến nửa đêm, các bong bóng ở đó lần lượt sáng vòng vàng như từng đợt sóng, và các đốm sáng trong chế độ xem thế giới cũng chuyển vàng. Đúng nửa đêm Trung tâm Lượng tử, cả tổ ong cùng đếm ngược 10 giây cuối, gốc 101 bùng lên vụ nổ ánh sáng lớn nhất thế giới và 5 phút pháo hoa, kèm số người đã cùng nhau đón năm mới.';
+
+  @override
+  String get quantumMeetAction => 'Tạo thẻ Gặp gỡ lượng tử';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return 'Đã mời $name cùng tạo thẻ Gặp gỡ lượng tử';
+  }
+
+  @override
+  String get quantumMeetWait => 'Bạn vừa mời xong — thử lại sau một chút nhé';
+
+  @override
+  String get quantumMeetAskTitle => 'Thẻ Gặp gỡ lượng tử';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$name (⬡ $code) muốn biến lần gặp này thành một tấm thẻ để chia sẻ. Thẻ có biệt danh, mã chỗ ngồi, giờ địa phương và tâm trạng của cả hai — không có bất kỳ vị trí nào.';
+  }
+
+  @override
+  String get quantumMeetAccept => 'Cùng tạo';
+
+  @override
+  String get quantumMeetEyebrow => 'GẶP GỠ LƯỢNG TỬ';
+
+  @override
+  String get quantumMeetFooter => 'Chúng mình gặp nhau trong Thế giới lượng tử';
+
+  @override
+  String get quantumMeetShare => 'Chia sẻ thẻ';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b — chúng mình gặp nhau trong Thế giới lượng tử ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      'Thẻ Gặp gỡ lượng tử: sau khi đã trò chuyện, nhấn giữ bong bóng của họ để mời cùng tạo. Khi cả hai đồng ý, mỗi người nhận một tấm thẻ để chia sẻ với biệt danh, mã chỗ ngồi, giờ địa phương kèm màu ngày đêm và tâm trạng — không có vị trí. Mã chỗ ngồi vòng 4 có màu vàng.';
 }

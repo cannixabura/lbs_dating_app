@@ -2170,4 +2170,44 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS17L9 =>
       '量子カウントダウン：12/31、各タイムゾーンが真夜中を迎えるたびに、その地域のバブルが金色の光の輪で波のように輝き、ワールドビューの光点も金色になります。量子センターの真夜中には、ハイブ全体で最後の 10 秒をカウントダウン。101 の原点から世界最大の光の爆発と 5 分間の花火が上がり、いっしょに新年を迎えた人数が表示されます。';
+
+  @override
+  String get quantumMeetAction => '量子の出会いカードを作る';
+
+  @override
+  String quantumMeetAsked(String name) {
+    return '$nameさんに量子の出会いカードづくりを誘いました';
+  }
+
+  @override
+  String get quantumMeetWait => 'さっき誘ったばかりです。少し待ってからどうぞ';
+
+  @override
+  String get quantumMeetAskTitle => '量子の出会いカード';
+
+  @override
+  String quantumMeetAskBody(String name, String code) {
+    return '$nameさん（⬡ $code）が、この出会いをシェア用のカードにしたいそうです。カードにはふたりのニックネーム、席コード、現地時刻、ムードが入り、位置情報は一切入りません。';
+  }
+
+  @override
+  String get quantumMeetAccept => 'いっしょに作る';
+
+  @override
+  String get quantumMeetEyebrow => '量子の出会い';
+
+  @override
+  String get quantumMeetFooter => '量子世界で出会いました';
+
+  @override
+  String get quantumMeetShare => 'カードをシェア';
+
+  @override
+  String quantumMeetShareText(String a, String b) {
+    return '$a × $b、量子世界で出会いました ✨';
+  }
+
+  @override
+  String get guideS17L10 =>
+      '量子の出会いカード：チャットした相手なら、バブルを長押ししていっしょに作ろうと誘えます。ふたりが同意すると、それぞれにシェア用のカードが届きます。ふたりのニックネーム、席コード、現地時刻と昼夜の色、ムードが入り、位置情報は入りません。第 4 輪の席コードは金色です。';
 }

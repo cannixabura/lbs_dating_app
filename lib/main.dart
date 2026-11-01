@@ -43,6 +43,7 @@ import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
 import 'quantum_live.dart';
+import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
 import 'quantum_world.dart';
 import 'translate.dart';
@@ -225,6 +226,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   int _newYearCount = 0; // 量子跨年：台北午夜前後一起在量子世界的人數
   bool _nyTogetherShown = false;
   int? _nyZoneShown; // 剛跨年的時區：每個時區只提示一次
+  final Map<String, QuantumMeetPerson> _meetAsked = {}; // 我邀請製作相遇卡的人：對方同意時用這份資料做卡
+  final Set<String> _meetShown = {}; // 已經跳出過的相遇卡邀請
   int _quantumClockTicks = 0;
   Timer? _quantumClock;
   QuantumChimeBell? _chimeBell;
@@ -1181,7 +1184,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     quantumOn ? _quantumGlow.repeat(reverse: true) : _quantumGlow.stop();
     if (quantumOn && _quantumClock == null) {
       _quantumClock = Timer.periodic(const Duration(seconds: 1), (_) => _quantumTick());
-      _signalSubs = QuantumSignals.listen(widget.uid, _onQuantumSignal);
+      _signalSubs = [...QuantumSignals.listen(widget.uid, _onQuantumSignal), ...QuantumMeetCards.listen(widget.uid, onAsk: _onMeetAsk, onYes: _onMeetYes)];
     } else if (!quantumOn && _quantumClock != null) {
       _quantumClock?.cancel(); _quantumClock = null;
       for (final sub in _signalSubs) { sub.cancel(); }
@@ -1361,6 +1364,57 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     setState(() { _quantumSelfCollapse = false; _quantumReform = false; });
     showGlassToast(context, tr.quantumTunnelDone('${me['code']}'), icon: Icons.blur_on);
     _quantumBeat();
+  }
+
+  // ---------- 量子相遇卡 ----------
+
+  QuantumMeetPerson? _meetPersonOf(String uid, int? tz) {
+    final user = _activeUsersNotifier.value.where((u) => u['uid'] == uid).firstOrNull;
+    if (user == null || user['quantumSeat'] == null) return null;
+    final name = '${user['nickname'] ?? ''}'.trim();
+    return QuantumMeetPerson(nickname: name.isEmpty ? '#${uid.substring(max(0, uid.length - 4)).toUpperCase()}' : name,
+        code: '${user['quantumSeat']}', mood: '${user['mood'] ?? ''}', tz: tz);
+  }
+
+  QuantumMeetPerson get _meetMe => QuantumMeetPerson(nickname: _myNickname, code: '${quantumSession.value?.code ?? ''}', mood: _myMood,
+      tz: DateTime.now().timeZoneOffset.inMinutes);
+
+  Future<void> _askMeetCard(String uid) async {
+    final them = _meetPersonOf(uid, null);
+    if (them == null) return;
+    final ok = await QuantumMeetCards.ask(widget.uid, uid);
+    if (!mounted) return;
+    if (!ok) { showGlassToast(context, tr.quantumMeetWait, icon: Icons.timer_outlined); return; }
+    _meetAsked[uid] = them;
+    HapticFeedback.selectionClick();
+    showGlassToast(context, tr.quantumMeetAsked(them.nickname), icon: Icons.style_outlined);
+  }
+
+  /// 收到邀請：同意就回覆，並打開自己的那一張
+  Future<void> _onMeetAsk(String sender, int? tz) async {
+    if (!mounted || !quantumOn || _isDialogShowing || _blockedUids.contains(sender) || _blockedByUids.contains(sender) || HiddenContent.instance.users.contains(sender)) return;
+    final them = _meetPersonOf(sender, tz);
+    if (them == null || !_meetShown.add(sender)) return;
+    _isDialogShowing = true;
+    HapticFeedback.mediumImpact();
+    final yes = await showQuantumMeetAsk(context, name: them.nickname, code: them.code);
+    _isDialogShowing = false;
+    _meetShown.remove(sender); // 之後再邀請還會跳出
+    if (!yes || !mounted || !quantumOn) return;
+    if (!await QuantumMeetCards.accept(widget.uid, sender)) {
+      if (mounted) showGlassToast(context, tr.quantumUnavailable, icon: Icons.style_outlined);
+      return;
+    }
+    if (mounted) showQuantumMeetCard(context, me: _meetMe, them: them);
+  }
+
+  /// 對方同意了我的邀請：打開我的那一張
+  void _onMeetYes(String sender, int? tz) {
+    final asked = _meetAsked.remove(sender);
+    if (asked == null || !mounted || !quantumOn) return;
+    HapticFeedback.mediumImpact();
+    final them = QuantumMeetPerson(nickname: asked.nickname, code: _meetPersonOf(sender, tz)?.code ?? asked.code, mood: asked.mood, tz: tz);
+    showQuantumMeetCard(context, me: _meetMe, them: them);
   }
 
   /// 量子訊號：點一下就送，在對方氣泡旁浮出 3 秒
@@ -1546,6 +1600,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _quantumFlights.clear(); _seenChimeFx.clear(); _resonanceUntil.clear(); _signalFloats.clear();
     _chimeBell?.dispose(); _chimeBell = null; _chimeHour = -1;
     QuantumSignals.clear(widget.uid);
+    QuantumMeetCards.clear(widget.uid); _meetAsked.clear(); _meetShown.clear();
     _quantumSelfCollapse = false;
     _quantumLeaving = false;
     _hasScanned = false; // 回到雷達後等第一次掃描，不先閃出「你是今晚第一道光」
@@ -2823,6 +2878,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.all_inclusive, Night.inkMuted, tr.quantumEntangleCut, () { Navigator.pop(dialogContext); _cutEntangle(targetUid); })
                 else if (quantumSeat != null && !isDemo && _quantumChatted.contains(targetUid))
                   item(Icons.all_inclusive, Night.knockPink, tr.quantumEntangleInvite, () { Navigator.pop(dialogContext); _inviteEntangle(targetUid, displayName); }),
+                // 量子相遇卡：聊過天（或糾纏中）的人，雙方同意後各拿一張分享卡
+                if (quantumSeat != null && !isDemo && (entangled || _quantumChatted.contains(targetUid)))
+                  item(Icons.style_outlined, Night.cityAmber, tr.quantumMeetAction, () { Navigator.pop(dialogContext); _askMeetCard(targetUid); }),
                 item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
                 // 集會是在地的：平行宇宙的人不能接主持

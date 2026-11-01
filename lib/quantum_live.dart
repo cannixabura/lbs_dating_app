@@ -86,7 +86,7 @@ Color? quantumDayTint(Object? part) => switch (part) {
       _ => null,
     };
 
-String _dayName(String part) => switch (part) {
+String quantumDayName(String part) => switch (part) {
       'dawn' => tr.quantumDawn,
       'day' => tr.quantumDay,
       'dusk' => tr.quantumDusk,
@@ -98,7 +98,7 @@ String? quantumLocalTimeLabel(Object? tzMinutes, Object? part) {
   if (tzMinutes is! num || part is! String) return null;
   final local = DateTime.now().toUtc().add(Duration(minutes: tzMinutes.toInt()));
   final hh = local.hour.toString().padLeft(2, '0'), mm = local.minute.toString().padLeft(2, '0');
-  return tr.quantumLocalTime('$hh:$mm', _dayName(part));
+  return tr.quantumLocalTime('$hh:$mm', quantumDayName(part));
 }
 
 // ---------- 量子共振 ----------

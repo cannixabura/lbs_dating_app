@@ -172,6 +172,32 @@ class QuantumFireworksPainter extends CustomPainter {
   bool shouldRepaint(covariant QuantumFireworksPainter old) => true;
 }
 
+/// 量子中心午夜後第 10 秒起，顯示 1 分鐘：「此刻全世界共 N 人在量子世界一起跨年」；放在整點報時列下面，不互相蓋住
+class QuantumNewYearBanner extends StatelessWidget {
+  final int count;
+  const QuantumNewYearBanner({super.key, required this.count});
+
+  static const from = 10.0, until = 70.0;
+
+  @override
+  Widget build(BuildContext context) {
+    const gold = Color(0xFFFFD54F);
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: Night.space3, vertical: 8),
+        decoration: BoxDecoration(color: Night.glassFill, borderRadius: BorderRadius.circular(999), border: Border.all(color: gold.withOpacity(0.8)),
+            boxShadow: [BoxShadow(color: gold.withOpacity(0.3), blurRadius: 16)]),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.celebration_outlined, color: gold, size: 18),
+          const SizedBox(width: Night.space2),
+          Flexible(child: Text(tr.quantumNyTogether(count), style: const TextStyle(color: Night.ink, fontSize: 13), textAlign: TextAlign.center)),
+        ]),
+      ),
+    );
+  }
+}
+
 /// 量子世界面板：量子跨年的預告（12/31 前 75 天開始）
 class QuantumNewYearTeaser extends StatelessWidget {
   const QuantumNewYearTeaser({super.key});

@@ -1229,9 +1229,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
     final newYear = _isNewYearChime(now);
     if (newYear && t >= 0 && t < 1) HapticFeedback.heavyImpact();
-    if (newYear && t >= 10 && !_nyTogetherShown) {
+    if (newYear && t >= QuantumNewYearBanner.from && !_nyTogetherShown) {
       _nyTogetherShown = true;
-      showGlassToast(context, tr.quantumNyTogether(max(max(1, quantumSession.value?.online ?? 1), _newYearCount)), icon: Icons.celebration_outlined);
+      HapticFeedback.mediumImpact();
     }
     if (t >= QuantumChime.send + 2 && !_chimeWatchedShown) {
       _chimeWatchedShown = true;
@@ -3440,6 +3440,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             t: QuantumChime.offset(DateTime.now()), hour: QuantumChime.strikes(DateTime.now()) % 24,
                             sent: _chimeSent, count: _chimeCount, onLook: _lookAtOrigin, onSend: _sendChimeGlimmer,
                           )),
+                        ),
+                      // 量子跨年：一起跨年的人數，在報時列下面留 1 分鐘
+                      if (quantumOn && _isNewYearChime(DateTime.now()) && QuantumChime.offset(DateTime.now()) >= QuantumNewYearBanner.from && QuantumChime.offset(DateTime.now()) <= QuantumNewYearBanner.until)
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + (_ritualTarget != null ? 104 : 56) + 54, left: Night.space4, right: Night.space4,
+                          child: Center(child: QuantumNewYearBanner(count: max(max(1, quantumSession.value?.online ?? 1), _newYearCount))),
                         ),
                       // 城市心情天氣
                       // 城市心情天氣；在量子世界改成席位代號＋世界在線人數

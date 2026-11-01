@@ -126,6 +126,20 @@
       "art": "assets/images/intro_4.png",
       "headline": "準備好相遇了嗎？",
       "sub": "城市低語公測報名中\niPhone 與 Android 都能參加"
+    },
+    {
+      "id": "q1a",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_meet_gold.png",
+      "headline": "我們在量子世界相遇",
+      "sub": "聊過天的兩個人，一起按下同意，\n才會做出這張只屬於你們的卡。"
+    },
+    {
+      "id": "q1b",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_panel_ny.png",
+      "headline": "量子跨年，倒數 61 天",
+      "sub": "12/31 量子中心午夜，\n全世界的人一起看 101 原點的煙火。"
     }
   ]
 }

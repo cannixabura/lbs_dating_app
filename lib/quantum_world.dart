@@ -316,7 +316,18 @@ void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuiet
               child: GlassCard(
                 child: SingleChildScrollView(
                   child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(tr.quantumWorld, style: Night.caption, textAlign: TextAlign.center),
+                Stack(alignment: Alignment.center, children: [
+                  Text(tr.quantumWorld, style: Night.caption, textAlign: TextAlign.center),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Night.inkMuted),
+                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ),
+                ]),
                 const SizedBox(height: Night.space1),
                 ShaderMask(
                   shaderCallback: (r) => Night.brightGradient.createShader(r),

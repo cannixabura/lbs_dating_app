@@ -29,13 +29,13 @@ class QuantumPrefs {
 
   static final topics = ValueNotifier<List<int>>(const []);
   static final showTime = ValueNotifier<bool>(false); // 預設只顯示晝夜色調
-  static final chimeReminder = ValueNotifier<bool>(false); // 預設關閉
+  static final chimeReminder = ValueNotifier<bool>(true); // 預設打開
 
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     topics.value = (prefs.getStringList(_topicsKey) ?? const []).map(int.tryParse).whereType<int>().where((t) => t >= 0 && t < quantumTopicEmoji.length).take(3).toList();
     showTime.value = prefs.getBool(_showTimeKey) ?? false;
-    chimeReminder.value = prefs.getBool(_chimeKey) ?? false;
+    chimeReminder.value = prefs.getBool(_chimeKey) ?? true;
   }
 
   static Future<void> setTopics(List<int> list) async {
@@ -240,7 +240,7 @@ class QuantumChimeBell {
   }
 }
 
-/// 整點報時提醒：整點前 2 分鐘一則通知，在手機上排好接下來 24 小時，預設關閉
+/// 整點報時提醒：整點前 2 分鐘一則通知，在手機上排好接下來 24 小時，預設打開
 class QuantumChimeReminder {
   QuantumChimeReminder._();
   static const _baseId = 2200; // 2200–2223
@@ -333,17 +333,41 @@ class QuantumChimePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final origin = p.project(0, 0);
     if (t >= 0 && t <= QuantumChime.show) {
-      // 1. 光之使者：從光柱底部浮出，繞原點走一圈
+      // 1. 光之使者：從光柱底部浮出，拖著光尾繞原點走一圈；離得再遠畫面上也至少 80 像素寬
       final rise = Curves.easeOut.transform((t / 1.5).clamp(0.0, 1.0));
       final fade = t > 13 ? (1 - (t - 13) / 2).clamp(0.0, 1.0) : 1.0;
-      final glow = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-      for (var k = 0; k < 12; k++) {
-        final a = k * 2 * pi / 12 + (t / 12) * 2 * pi;
-        final hit = p.project(sin(a) * 90 * rise, cos(a) * 90 * rise);
-        if (hit == null) continue;
-        glow.color = Color.lerp(Colors.white, Night.cityAmber, k.isEven ? 0.2 : 0.6)!.withOpacity(0.9 * fade);
-        canvas.drawCircle(hit.$1, 3.2 * hit.$2.clamp(0.6, 1.4), glow);
+      var radius = 90.0;
+      final east = p.project(100, 0);
+      if (origin != null && east != null) {
+        final px100 = (east.$1 - origin.$1).distance;
+        if (px100 > 0) radius = max(90.0, 80 * 100 / px100);
       }
+      final turn = (t / 13) * 2 * pi; // 13 秒走完一圈
+      final glow = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+      final core = Paint();
+      for (var k = 0; k < 12; k++) {
+        final color = Color.lerp(Colors.white, Night.cityAmber, k.isEven ? 0.15 : 0.65)!;
+        // 光尾：往回 0.5 弧度的一串漸淡光點
+        for (var j = 6; j >= 0; j--) {
+          final a = k * 2 * pi / 12 + turn - j * 0.08;
+          final hit = p.project(sin(a) * radius * rise, cos(a) * radius * rise);
+          if (hit == null) continue;
+          final depth = hit.$2.clamp(0.7, 1.4);
+          if (j == 0) {
+            glow.color = color.withOpacity(0.85 * fade);
+            canvas.drawCircle(hit.$1, 9 * depth, glow);
+            core.color = Colors.white.withOpacity(fade);
+            canvas.drawCircle(hit.$1, 3.6 * depth, core);
+          } else {
+            core.color = color.withOpacity(0.55 * fade * (1 - j / 7));
+            canvas.drawCircle(hit.$1, (3.4 - j * 0.35) * depth, core);
+          }
+        }
+      }
+      // 使者走過的軌道：一圈淡淡的光環
+      final orbit = _ring(radius * rise);
+      canvas.drawPath(orbit, Paint()..style = PaintingStyle.stroke..strokeWidth = 6..color = Night.cityAmber.withOpacity(0.18 * fade)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
       // 2. 每一聲：原點迸出一圈光
       if (origin != null) {
         for (final s in strikes) {
@@ -416,23 +440,58 @@ class QuantumEntanglePainter extends CustomPainter {
   bool shouldRepaint(covariant QuantumEntanglePainter old) => true;
 }
 
-/// 量子共振：兩顆氣泡同時出現一圈共振光環，持續 10 秒
+/// 量子共振：兩顆氣泡之間一道流動的光橋，各自亮起光暈和往外擴散的光環，持續 10 秒
 class QuantumResonancePainter extends CustomPainter {
-  final List<Offset> points;
+  final List<(Offset, Offset?)> pairs; // 自己的氣泡、對方的氣泡（對方在畫面外時是 null）
   final double t; // 0～1
-  QuantumResonancePainter({required this.points, required this.t});
+  QuantumResonancePainter({required this.pairs, required this.t});
+
+  void _bubble(Canvas canvas, Offset c, double alpha) {
+    final beat = 0.5 + 0.5 * sin(t * 10 * 2 * pi); // 每秒脈動一次
+    // 光暈
+    canvas.drawCircle(c, 46 + 8 * beat, Paint()..shader = RadialGradient(colors: [
+      Night.knockPink.withOpacity(0.55 * alpha), Night.cityAmber.withOpacity(0.25 * alpha), Colors.transparent,
+    ], stops: const [0.35, 0.7, 1]).createShader(Rect.fromCircle(center: c, radius: 54)));
+    // 往外擴散的三圈光環
+    for (var j = 0; j < 3; j++) {
+      final k = ((t * 10) + j / 3) % 1.0;
+      final color = Color.lerp(Night.knockPink, Night.cityAmber, k)!;
+      canvas.drawCircle(c, 26 + 64 * k, Paint()..style = PaintingStyle.stroke..strokeWidth = 7..color = color.withOpacity(alpha * (1 - k) * 0.45)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5));
+      canvas.drawCircle(c, 26 + 64 * k, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.5..color = color.withOpacity(alpha * (1 - k)));
+    }
+    // 貼著氣泡的亮框
+    canvas.drawCircle(c, 25, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = Colors.white.withOpacity(alpha * (0.6 + 0.4 * beat))
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+    // 一開始迸出的星芒
+    if (t < 0.12) {
+      final k = t / 0.12;
+      for (var i = 0; i < 10; i++) {
+        final a = i * 2 * pi / 10;
+        final from = c + Offset(cos(a), sin(a)) * (28 + 20 * k), to = c + Offset(cos(a), sin(a)) * (40 + 50 * k);
+        canvas.drawLine(from, to, Paint()..strokeWidth = 2.5..strokeCap = StrokeCap.round..color = Colors.white.withOpacity(1 - k));
+      }
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final alpha = t < 0.1 ? t / 0.1 : t > 0.85 ? (1 - t) / 0.15 : 1.0;
-    for (final c in points) {
-      for (var j = 0; j < 2; j++) {
-        final k = ((t * 10) + j * 0.5) % 1.0; // 每秒一圈往外擴
-        canvas.drawCircle(c, 22 + 26 * k, Paint()..style = PaintingStyle.stroke..strokeWidth = 2
-          ..color = Color.lerp(Night.knockPink, Night.cityAmber, k)!.withOpacity(alpha * (1 - k) * 0.9));
+    final alpha = t < 0.05 ? t / 0.05 : t > 0.85 ? (1 - t) / 0.15 : 1.0;
+    for (final (me, them) in pairs) {
+      if (them != null) {
+        final shader = LinearGradient(colors: [Night.knockPink.withOpacity(alpha), Night.cityAmber.withOpacity(alpha), Night.knockPink.withOpacity(alpha)])
+            .createShader(Rect.fromPoints(me, them));
+        canvas.drawLine(me, them, Paint()..shader = shader..strokeWidth = 10..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+        canvas.drawLine(me, them, Paint()..shader = shader..strokeWidth = 2.5);
+        // 光橋上來回流動的光點
+        for (var i = 0; i < 4; i++) {
+          final k = ((t * 5) + i / 4) % 1.0;
+          canvas.drawCircle(Offset.lerp(me, them, i.isEven ? k : 1 - k)!, 4, Paint()..color = Colors.white.withOpacity(alpha)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+        }
       }
-      canvas.drawCircle(c, 24, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.4..color = Colors.white.withOpacity(alpha * 0.6)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
+      _bubble(canvas, me, alpha);
+      if (them != null) _bubble(canvas, them, alpha);
     }
   }
 

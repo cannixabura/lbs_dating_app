@@ -621,7 +621,7 @@
   "quantumSignalReceived": "{name} gửi cho bạn một tín hiệu",
   "quantumSignalWait": "Bạn vừa gửi — chờ chút rồi gửi lại",
   "quantumResonance": "Bạn và {name} đã cộng hưởng",
-  "guideS17L6": "Chuông giờ: một phút trước mỗi giờ, cột sáng 101 sáng dần. Đúng giờ, sứ giả ánh sáng đi một vòng quanh gốc, chuông gõ theo giờ Đài Bắc (0 giờ gõ 24 tiếng), và làn sóng sáng cuối cùng lan khắp tổ ong. Trong lúc chuông, chạm “Gửi đốm sáng chuông giờ” — càng nhiều người cùng xem, ánh sáng càng rực. Bạn có thể bật nhắc chuông giờ trong bảng điều khiển (mặc định tắt).",
+  "guideS17L6": "Chuông giờ: một phút trước mỗi giờ, cột sáng 101 sáng dần. Đúng giờ, sứ giả ánh sáng đi một vòng quanh gốc, chuông gõ theo giờ Đài Bắc (0 giờ gõ 24 tiếng), và làn sóng sáng cuối cùng lan khắp tổ ong. Trong lúc chuông, chạm “Gửi đốm sáng chuông giờ” — càng nhiều người cùng xem, ánh sáng càng rực. Nhắc chuông giờ được bật sẵn; bạn có thể tắt trong bảng điều khiển.",
   "guideS17L7": "Sau khi trò chuyện, bạn có thể mời rối lượng tử: một sợi sáng nối hai bong bóng dù cách xa bao nhiêu, sụp đổ khi một người rời đi (tối đa 3 người cùng lúc). Xuyên hầm lượng tử, mỗi lần vào một lần, đưa bạn tới một chỗ trống ngẫu nhiên với hàng xóm mới.",
   "guideS17L8": "Mỗi bong bóng mang sắc giờ địa phương của chủ nhân: vàng nhạt lúc sáng sớm, trắng sáng ban ngày, cam tím lúc hoàng hôn, xanh thẫm đêm khuya. Bật “Hiện giờ địa phương của tôi” để người khác thấy giờ khi nhấn giữ bong bóng của bạn. Gửi đốm sáng cho nhau trong 24 giờ sẽ tạo cộng hưởng lượng tử; nhấn giữ bong bóng để gửi tín hiệu 👋 ☕ 🌙 🎵 🌧️ ✨; chọn tối đa 3 chủ đề đồng tần trong bảng điều khiển, chủ đề chung sẽ sáng lên."
 }

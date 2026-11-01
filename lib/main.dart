@@ -1187,6 +1187,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   /// 每秒一次：整點報時（倒數、鐘聲、報時期間加快心跳）
+  int? _chimeLookedHour; // 這個整點已經自動看過原點
+
   void _quantumTick() {
     if (!quantumOn || !mounted) return;
     final now = DateTime.now();
@@ -1195,6 +1197,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final hour = QuantumChime.hourKey(now);
     if (hour != _chimeHour) {
       _chimeHour = hour; _chimeSent = false; _chimeWatchedShown = false; _chimeCount = 0; _seenChimeFx.clear();
+    }
+    // 整點前 5 秒：鏡頭自動拉遠看 101，不然原點在畫面外就看不到光之使者
+    if (t >= -5 && t < QuantumChime.show && _chimeLookedHour != hour) {
+      _chimeLookedHour = hour;
+      _lookAtOrigin();
     }
     // 報時期間每 3 秒心跳一次，報時微光和人數才跟得上
     if (_quantumClockTicks++ % 3 == 0) _quantumBeat();
@@ -1355,7 +1362,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final user = _activeUsersNotifier.value.where((u) => u['uid'] == uid).firstOrNull;
     if (user == null) return; // 對方不在量子世界裡
     setState(() => _resonanceUntil[uid] = DateTime.now().millisecondsSinceEpoch + 10000);
-    HapticFeedback.mediumImpact();
+    HapticFeedback.heavyImpact();
+    Future.delayed(const Duration(milliseconds: 180), HapticFeedback.heavyImpact);
     final name = '${user['nickname'] ?? ''}'.trim();
     showGlassToast(context, tr.quantumResonance(name.isEmpty ? '#${uid.substring(max(0, uid.length - 4)).toUpperCase()}' : name), icon: Icons.auto_awesome);
   }
@@ -3298,15 +3306,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 final now = DateTime.now().millisecondsSinceEpoch;
                                 _resonanceUntil.removeWhere((_, until) => until < now);
                                 _signalFloats.removeWhere((f) => now - f.startMs > QuantumSignalFloat.durationMs);
-                                final ring = <Offset>[];
+                                final ring = <(Offset, Offset?)>[];
                                 var ringT = 0.0;
                                 for (final e in _resonanceUntil.entries) {
                                   ringT = 1 - (e.value - now) / 10000;
-                                  ring.add(Offset(centerX, centerY));
-                                  if (_bubbleAnchors[e.key] case final at?) ring.add(at);
+                                  ring.add((Offset(centerX, centerY), _bubbleAnchors[e.key]));
                                 }
                                 return Stack(children: [
-                                  if (ring.isNotEmpty) Positioned.fill(child: CustomPaint(painter: QuantumResonancePainter(points: ring, t: ringT.clamp(0.0, 1.0)))),
+                                  if (ring.isNotEmpty) Positioned.fill(child: CustomPaint(painter: QuantumResonancePainter(pairs: ring, t: ringT.clamp(0.0, 1.0)))),
                                   for (final f in _signalFloats)
                                     if (_bubbleAnchors[f.uid] case final at?)
                                       Builder(builder: (context) {

@@ -2251,7 +2251,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS17L6 =>
-      'Loceng jam: seminit sebelum setiap jam, pancaran 101 semakin terang. Tepat pada jamnya, utusan cahaya mengelilingi titik asal, loceng berbunyi mengikut waktu Taipei (24 kali pada tengah malam), dan gelombang cahaya terakhir merebak ke seluruh sarang. Ketik “Hantar kerlipan loceng” semasa loceng — lebih ramai yang menonton, lebih terang cahayanya. Anda boleh hidupkan peringatan loceng jam dalam panel (mati secara lalai).';
+      'Loceng jam: seminit sebelum setiap jam, pancaran 101 semakin terang. Tepat pada jamnya, utusan cahaya mengelilingi titik asal, loceng berbunyi mengikut waktu Taipei (24 kali pada tengah malam), dan gelombang cahaya terakhir merebak ke seluruh sarang. Ketik “Hantar kerlipan loceng” semasa loceng — lebih ramai yang menonton, lebih terang cahayanya. Peringatan loceng jam hidup secara lalai; anda boleh matikannya dalam panel.';
 
   @override
   String get guideS17L7 =>

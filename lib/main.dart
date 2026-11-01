@@ -3434,6 +3434,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
                       ),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
+                      // 整點前 10 秒的大倒數
+                      if (quantumOn && QuantumChime.offset(DateTime.now()) >= -11 && QuantumChime.offset(DateTime.now()) < 0)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) => CustomPaint(painter: QuantumCountdownPainter(t: QuantumChime.offset(DateTime.now()))),
+                            ),
+                          ),
+                        ),
                       // 量子世界的入場儀式：蓋在最上面
                       if (_quantumEntry.isAnimating)
                         Positioned.fill(

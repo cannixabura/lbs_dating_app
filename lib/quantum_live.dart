@@ -522,6 +522,35 @@ class QuantumResonancePainter extends CustomPainter {
   bool shouldRepaint(covariant QuantumResonancePainter old) => true;
 }
 
+/// 整點前 10 秒的大倒數：和入場時席位代號亮起同一種字（白字、藍色光暈），每一秒淡入、放大、淡出
+class QuantumCountdownPainter extends CustomPainter {
+  final double t; // 整點前是負的，-10～0
+  QuantumCountdownPainter({required this.t});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (t < -10 || t >= 0) return;
+    final n = (-t).ceil(); // 10、9、…、1
+    final k = 1 - ((-t) - (n - 1)); // 這一秒過了多少：0～1
+    final alpha = sin(k * pi).clamp(0.0, 1.0);
+    final tp = TextPainter(
+      text: TextSpan(text: '$n', style: TextStyle(color: Colors.white.withOpacity(alpha), fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: 3,
+          shadows: const [Shadow(color: Night.auroraBlue, blurRadius: 18)])),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final c = size.center(Offset.zero) - const Offset(0, 90);
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    final scale = 0.85 + 0.3 * Curves.easeOut.transform(k);
+    canvas.scale(scale);
+    tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant QuantumCountdownPainter old) => old.t != t;
+}
+
 /// 整點前 1 分鐘：倒數＋「大家都在看原點」＋看原點；報時中：台北幾點＋送出報時微光
 class QuantumChimeBanner extends StatelessWidget {
   final double t;

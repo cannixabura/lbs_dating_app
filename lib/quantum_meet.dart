@@ -154,8 +154,11 @@ class QuantumMeetCard extends StatelessWidget {
           Positioned(
             left: 28, right: 28, top: 48,
             child: Column(children: [
-              Text(tr.quantumMeetEyebrow, style: TextStyle(color: accent, fontSize: 26, letterSpacing: 6, fontWeight: FontWeight.w600,
-                  shadows: [Shadow(color: accent.withOpacity(0.6), blurRadius: 16)])),
+              // 中日韓字距寬才好看；拉丁字母字距收小，並縮放成一行
+              FittedBox(fit: BoxFit.scaleDown, child: Text(tr.quantumMeetEyebrow, maxLines: 1,
+                  style: TextStyle(color: accent, fontSize: 26, fontWeight: FontWeight.w600,
+                      letterSpacing: RegExp(r'[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]').hasMatch(tr.quantumMeetEyebrow) ? 6 : 1.5,
+                      shadows: [Shadow(color: accent.withOpacity(0.6), blurRadius: 16)]))),
               const SizedBox(height: 6),
               Text(date, style: const TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: 2)),
             ]),

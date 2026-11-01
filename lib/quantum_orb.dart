@@ -71,14 +71,14 @@ class QuantumOrbPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    // 球本身比畫布小一點，留空間給光暈和光環
-    final r = size.shortestSide * (style == 'glow' ? 0.36 : 0.3);
+    // 光暈和光環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形），所以球本身只佔畫布的一半多一點
+    final r = size.shortestSide * (style == 'glow' ? 0.3 : 0.26);
     final base = dim ? Color.lerp(color, Night.shadowInk, 0.6)! : color;
 
     // 光暈
     if (!dim) {
-      canvas.drawCircle(c, r * (1.25 + 0.2 * glow),
-          Paint()..color = base.withOpacity(0.28 + 0.25 * glow)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.55));
+      canvas.drawCircle(c, r * (1.15 + 0.15 * glow),
+          Paint()..color = base.withOpacity(0.3 + 0.25 * glow)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.25));
     }
 
     // 星環：一圈傾斜的細環，後半圈在球後面
@@ -306,6 +306,8 @@ class _OrbSheet extends StatefulWidget {
 
 class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixin {
   late final AnimationController _breath = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))..repeat(reverse: true);
+  String? _notice; // 購買結果：顯示在面板裡（SnackBar 會被面板蓋住）
+  Timer? _noticeTimer;
 
   @override
   void initState() {
@@ -316,6 +318,7 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
   @override
   void dispose() {
     OrbStore.notice.removeListener(_showNotice);
+    _noticeTimer?.cancel();
     _breath.dispose();
     super.dispose();
   }
@@ -324,7 +327,9 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
     final text = OrbStore.notice.value;
     if (text == null || !mounted) return;
     OrbStore.notice.value = null;
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(text)));
+    setState(() => _notice = text);
+    _noticeTimer?.cancel();
+    _noticeTimer = Timer(const Duration(seconds: 5), () { if (mounted) setState(() => _notice = null); });
   }
 
   Widget _tile(String style, String selected, Set<String> owned, Map<String, ProductDetails> products, bool busy) {
@@ -365,7 +370,10 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(Night.space3),
-        child: GlassCard(
+        // 面板疊在量子世界設定上面：先墊一層實心底色，後面的文字才不會透出來
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: Night.night900, borderRadius: BorderRadius.circular(Night.radiusLg)),
+          child: GlassCard(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(tr.orbTitle, style: Night.title, textAlign: TextAlign.center),
             const SizedBox(height: Night.space1),
@@ -380,6 +388,10 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
                 ],
               ]),
             ),
+            if (_notice case final notice?) ...[
+              const SizedBox(height: Night.space3),
+              Text(notice, style: const TextStyle(color: Night.knockPink, fontSize: 14), textAlign: TextAlign.center),
+            ],
             const SizedBox(height: Night.space3),
             Text(tr.orbCosmeticNote, style: Night.caption, textAlign: TextAlign.center),
             const SizedBox(height: Night.space2),
@@ -390,6 +402,7 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
                   : TextButton(onPressed: OrbStore.restore, style: TextButton.styleFrom(foregroundColor: Night.inkMuted, minimumSize: const Size(44, 44)), child: Text(tr.orbRestore)),
             ),
           ]),
+          ),
         ),
       ),
     );

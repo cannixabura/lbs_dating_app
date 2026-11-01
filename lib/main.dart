@@ -3784,7 +3784,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                         ),
                       if (widget.orb case final orb?)
                         // 量子化身：光球的主色跟著心情；敲門中、殘影的顏色規則和大頭貼一樣
-                        QuantumOrb(style: orb, color: accent, size: avatarSize + 8, glow: glowValue,
+                        QuantumOrb(style: orb, color: accent, size: avatarSize + 16, glow: glowValue,
                             dim: widget.isShadow || (widget.isInactive && !isPending))
                       else
                       Container(

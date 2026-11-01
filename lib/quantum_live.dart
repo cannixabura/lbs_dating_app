@@ -694,7 +694,7 @@ class QuantumSheetExtras extends StatelessWidget {
         child: Row(children: [
           ValueListenableBuilder<String>(
             valueListenable: OrbPrefs.style,
-            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 30),
+            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 40),
           ),
           const SizedBox(width: Night.space3),
           Expanded(

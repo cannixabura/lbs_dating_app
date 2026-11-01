@@ -2169,13 +2169,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quantumOrbEntry => '量子化身';
 
   @override
-  String get quantumOrbEntrySubtitle => '選一顆光球當你在量子世界的頭像';
+  String get quantumOrbEntrySubtitle => '你的頭像在量子世界裡會變成一顆水晶球';
 
   @override
   String get orbTitle => '量子化身';
 
   @override
-  String get orbSubtitle => '光球的顏色永遠跟著你的心情';
+  String get orbSubtitle => '球緣和光暈永遠跟著你的心情';
 
   @override
   String get orbStyleGlow => '光球';
@@ -4380,13 +4380,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get quantumOrbEntry => '量子化身';
 
   @override
-  String get quantumOrbEntrySubtitle => '选一颗光球当你在量子世界的头像';
+  String get quantumOrbEntrySubtitle => '你的头像在量子世界里会变成一颗水晶球';
 
   @override
   String get orbTitle => '量子化身';
 
   @override
-  String get orbSubtitle => '光球的颜色永远跟着你的心情';
+  String get orbSubtitle => '球缘和光晕永远跟着你的心情';
 
   @override
   String get orbStyleGlow => '光球';

@@ -2233,13 +2233,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get quantumOrbEntry => '양자 아바타';
 
   @override
-  String get quantumOrbEntrySubtitle => '양자 세계에서 나를 나타낼 빛의 구슬을 골라 보세요';
+  String get quantumOrbEntrySubtitle => '양자 세계에서는 내 사진이 수정 구슬이 돼요';
 
   @override
   String get orbTitle => '양자 아바타';
 
   @override
-  String get orbSubtitle => '빛의 구슬 색은 언제나 내 기분을 따라 바뀌어요';
+  String get orbSubtitle => '유리 테두리와 빛은 언제나 내 기분의 색이에요';
 
   @override
   String get orbStyleGlow => '글로우';

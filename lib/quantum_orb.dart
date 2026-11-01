@@ -37,105 +37,181 @@ String orbStyleName(String style) => switch (style) {
 
 // ---------- 光球 ----------
 
-/// 一顆光球：心情色的玻璃球，左上有高光、邊緣有反光，外面一圈呼吸光暈。
-/// 用 2D 漸層畫出立體感，不跑 3D 模型，蜂巢裡幾百顆也不會卡。
+/// 大頭貼網址 → 球型頭像用的圖；沒有大頭貼時是 null（畫成一顆心情色的光球）
+ImageProvider? orbImage(String? url) => url == null || url.isEmpty ? null : NetworkImage(url);
+
+/// 球型頭像：大頭貼包在一顆玻璃球裡，球緣透出心情色、左上有高光，外面一圈呼吸光暈。
+/// 星環款外面多一圈傾斜的環（後半圈在球後面，看起來是立體的），彩虹款是整圈繞著頭像、慢慢轉的正圓虹光。
+/// 用 2D 漸層畫出立體感，不跑 3D 模型，蜂巢裡幾百顆也不會卡。沒有大頭貼時是一顆心情色的光球。
 class QuantumOrb extends StatelessWidget {
   final String style;
   final Color color;
   final double size;
   final double glow; // 0～1：呼吸光暈
   final bool dim; // 殘影、休息中
-  const QuantumOrb({super.key, required this.style, required this.color, this.size = 30, this.glow = 0.5, this.dim = false});
+  final ImageProvider? image; // 大頭貼
+  const QuantumOrb({super.key, required this.style, required this.color, this.size = 30, this.glow = 0.5, this.dim = false, this.image});
+
+  /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）
+  static const sphereRatio = 0.56;
 
   @override
   Widget build(BuildContext context) {
-    // 彩虹款的光環會轉：用時間算角度，跟著氣泡的呼吸動畫一起重畫
+    // 彩虹光環會轉：用時間算角度，跟著氣泡的呼吸動畫一起重畫
     final spin = style == 'rainbow' ? (DateTime.now().millisecondsSinceEpoch % 6000) / 6000 * 2 * pi : 0.0;
+    final d = size * sphereRatio;
+    final photo = image;
+    painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, front: front, photo: photo != null);
     return SizedBox(
       width: size, height: size,
-      child: CustomPaint(painter: QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin)),
+      child: Stack(alignment: Alignment.center, children: [
+        Positioned.fill(child: CustomPaint(painter: painter(false))),
+        if (photo != null)
+          ClipOval(
+            child: ColorFiltered(
+              // 殘影的大頭貼去色，和活躍的人一眼分得出來
+              colorFilter: dim
+                  ? const ColorFilter.matrix(<double>[0.33,0.33,0.33,0,0, 0.33,0.33,0.33,0,0, 0.33,0.33,0.33,0,0, 0,0,0,1,0])
+                  : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+              child: Image(image: photo, width: d, height: d, fit: BoxFit.cover, errorBuilder: (_, __, ___) => SizedBox(width: d, height: d)),
+            ),
+          ),
+        Positioned.fill(child: CustomPaint(painter: painter(true))),
+      ]),
     );
   }
 }
 
+/// 分兩層畫：後層（光暈、環的後半圈、球底色）在大頭貼下面，前層（球面光澤、環的前半圈）在大頭貼上面
 class QuantumOrbPainter extends CustomPainter {
   final String style;
   final Color color;
   final double glow;
   final bool dim;
   final double spin;
-  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0});
+  final bool front;
+  final bool photo;
+  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0, this.front = false, this.photo = false});
 
   static const _rainbow = [Color(0xFFFF6B6B), Color(0xFFFFD166), Color(0xFF6BE38E), Color(0xFF4FC3F7), Color(0xFF9C7BFF), Color(0xFFFF7BD5), Color(0xFFFF6B6B)];
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    // 光暈和光環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形），所以球本身只佔畫布的一半多一點
-    final r = size.shortestSide * (style == 'glow' ? 0.3 : 0.26);
+    final r = size.shortestSide * QuantumOrb.sphereRatio / 2;
     final base = dim ? Color.lerp(color, Night.shadowInk, 0.6)! : color;
+    final sphere = Rect.fromCircle(center: c, radius: r);
 
-    // 光暈
-    if (!dim) {
-      canvas.drawCircle(c, r * (1.15 + 0.15 * glow),
-          Paint()..color = base.withOpacity(0.3 + 0.25 * glow)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.25));
-    }
-
-    // 星環：一圈傾斜的細環，後半圈在球後面
-    final ringRect = Rect.fromCenter(center: c, width: r * 3.1, height: r * 1.0);
-    final ringPaint = Paint()..style = PaintingStyle.stroke..strokeWidth = max(1.2, r * 0.13)..color = Color.lerp(base, Colors.white, 0.45)!.withOpacity(dim ? 0.4 : 0.9);
+    // 星環：傾斜的橢圓，後半圈在球後面、前半圈在球前面
     void ring(bool back) {
+      if (style != 'ring') return;
+      final rect = Rect.fromCenter(center: c, width: r * 3.05, height: r * 0.95);
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(1.4, r * 0.13)
+        ..color = Color.lerp(base, Colors.white, 0.45)!.withOpacity(dim ? 0.4 : 0.9);
       canvas.save();
       canvas.translate(c.dx, c.dy);
       canvas.rotate(-0.38);
       canvas.translate(-c.dx, -c.dy);
-      canvas.drawArc(ringRect, back ? pi : 0, pi, false, ringPaint);
+      if (!dim) {
+        canvas.drawArc(rect, back ? pi : 0, pi, false, Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = paint.strokeWidth * 2.2
+          ..color = base.withOpacity(0.25)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.1));
+      }
+      canvas.drawArc(rect, back ? pi : 0, pi, false, paint);
       canvas.restore();
     }
-    if (style == 'ring') ring(true);
 
-    // 彩虹款：球外一圈慢慢轉的虹光；主色仍然是心情色
-    if (style == 'rainbow') {
-      final halo = Rect.fromCircle(center: c, radius: r * 1.42);
-      canvas.drawCircle(c, r * 1.42, Paint()
+    // 彩虹款：整圈繞著頭像的正圓虹光，顏色慢慢轉
+    void halo() {
+      if (style != 'rainbow') return;
+      final rect = Rect.fromCircle(center: c, radius: r * 1.36);
+      final shader = SweepGradient(colors: [for (final k in _rainbow) k.withOpacity(dim ? 0.35 : 0.95)], transform: GradientRotation(spin)).createShader(rect);
+      if (!dim) {
+        canvas.drawCircle(c, r * 1.36, Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = r * 0.32
+          ..shader = shader
+          ..color = Colors.white.withOpacity(0.5)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.14));
+      }
+      canvas.drawCircle(c, r * 1.36, Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.24
-        ..shader = SweepGradient(colors: [for (final k in _rainbow) k.withOpacity(dim ? 0.35 : 0.95)], transform: GradientRotation(spin)).createShader(halo)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08));
+        ..strokeWidth = max(2.0, r * 0.14)
+        ..shader = shader);
     }
 
-    // 球體：高光偏左上的放射漸層，暗面偏右下
-    final sphere = Rect.fromCircle(center: c, radius: r);
+    if (!front) {
+      // 光暈
+      if (!dim) {
+        canvas.drawCircle(c, r * (1.12 + 0.15 * glow),
+            Paint()..color = base.withOpacity(0.3 + 0.25 * glow)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.25));
+      }
+      ring(true);
+      halo();
+      // 球的底色：沒有大頭貼時就是一顆心情色的光球
+      canvas.drawCircle(c, r, Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.35, -0.4),
+          radius: 1.05,
+          colors: [Color.lerp(base, Colors.white, 0.65)!, base, Color.lerp(base, const Color(0xFF070B1F), 0.55)!],
+          stops: const [0, 0.5, 1],
+        ).createShader(sphere));
+      return;
+    }
+
+    if (photo) {
+      // 玻璃球：中間清楚看得到大頭貼，越往球緣越透出心情色，右下偏暗
+      canvas.drawCircle(c, r, Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.2, -0.25),
+          radius: 1.0,
+          colors: [Colors.transparent, base.withOpacity(0.18), base.withOpacity(dim ? 0.4 : 0.75)],
+          stops: const [0, 0.55, 1],
+        ).createShader(sphere));
+      canvas.drawCircle(c, r, Paint()
+        ..shader = LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
+            colors: [Colors.transparent, Colors.transparent, const Color(0xFF070B1F).withOpacity(0.5)], stops: const [0, 0.5, 1]).createShader(sphere));
+      // 球緣一圈心情色的細邊
+      canvas.drawCircle(c, r - 0.6, Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = base.withOpacity(dim ? 0.5 : 0.9));
+    }
+
+    // 水晶球：球緣一圈厚玻璃的亮邊、上方一片窗光倒影、底部聚光、左上一點銳利的反光
+    final k = dim ? 0.4 : 1.0;
+    canvas.save();
+    canvas.clipPath(Path()..addOval(sphere));
     canvas.drawCircle(c, r, Paint()
       ..shader = RadialGradient(
-        center: const Alignment(-0.35, -0.4),
-        radius: 1.05,
-        colors: [Color.lerp(base, Colors.white, 0.65)!, base, Color.lerp(base, const Color(0xFF070B1F), 0.55)!],
-        stops: const [0, 0.5, 1],
+        colors: [Colors.transparent, Colors.transparent, Colors.white.withOpacity(0.22 * k), Colors.white.withOpacity(0.55 * k)],
+        stops: const [0, 0.78, 0.94, 1],
       ).createShader(sphere));
-
-    // 彩虹款：球面上一層淡淡的虹彩薄膜（很淡，一眼仍然看得出心情色）
-    if (style == 'rainbow') {
-      canvas.drawCircle(c, r, Paint()
-        ..blendMode = BlendMode.softLight
-        ..shader = SweepGradient(colors: [for (final k in _rainbow) k.withOpacity(dim ? 0.1 : 0.4)], transform: GradientRotation(-spin * 0.5)).createShader(sphere));
-    }
-
-    // 邊緣反光（右下）與高光點（左上）
-    canvas.drawCircle(c, r * 0.94, Paint()
+    final window = Rect.fromCenter(center: c + Offset(-r * 0.05, -r * 0.5), width: r * 1.45, height: r * 0.85);
+    canvas.drawOval(window, Paint()
+      ..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
+          colors: [Colors.white.withOpacity(0.6 * k), Colors.white.withOpacity(0.12 * k), Colors.transparent], stops: const [0, 0.55, 1]).createShader(window));
+    final caustic = Rect.fromCenter(center: c + Offset(r * 0.05, r * 0.78), width: r * 1.3, height: r * 0.6);
+    canvas.drawOval(caustic, Paint()
+      ..shader = RadialGradient(colors: [Color.lerp(base, Colors.white, 0.6)!.withOpacity(0.6 * k), Colors.transparent]).createShader(caustic)
+      ..blendMode = BlendMode.screen);
+    canvas.restore();
+    // 球緣：左上亮、右下淡的細光邊
+    canvas.drawCircle(c, r - 0.5, Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = r * 0.1
+      ..strokeWidth = max(1.0, r * 0.05)
       ..shader = LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Colors.transparent, Colors.white.withOpacity(dim ? 0.1 : 0.35)]).createShader(sphere));
-    canvas.drawOval(Rect.fromCenter(center: c + Offset(-r * 0.36, -r * 0.42), width: r * 0.62, height: r * 0.4),
-        Paint()..color = Colors.white.withOpacity(dim ? 0.3 : 0.75)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08));
+          colors: [Colors.white.withOpacity(0.85 * k), Colors.white.withOpacity(0.15 * k), Colors.white.withOpacity(0.5 * k)]).createShader(sphere));
+    canvas.drawOval(Rect.fromCenter(center: c + Offset(-r * 0.5, -r * 0.42), width: r * 0.26, height: r * 0.16),
+        Paint()..color = Colors.white.withOpacity(0.9 * k)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.03));
 
-    if (style == 'ring') ring(false);
+    ring(false);
   }
 
   @override
   bool shouldRepaint(QuantumOrbPainter old) =>
-      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin;
+      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.front != front || old.photo != photo;
 }
 
 // ---------- 選擇的款式 ----------
@@ -286,20 +362,21 @@ class OrbStore {
 // ---------- 面板 ----------
 
 /// 量子化身面板：預覽每一款（用自己現在的心情色），免費款直接換，特殊款購買
-Future<void> showOrbSheet(BuildContext context, {required Color moodColor}) {
+Future<void> showOrbSheet(BuildContext context, {required Color moodColor, String avatarUrl = ''}) {
   OrbStore.loadProducts();
   OrbStore.loadOwned();
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (sheetContext) => _OrbSheet(moodColor: moodColor),
+    builder: (sheetContext) => _OrbSheet(moodColor: moodColor, image: orbImage(avatarUrl)),
   );
 }
 
 class _OrbSheet extends StatefulWidget {
   final Color moodColor;
-  const _OrbSheet({required this.moodColor});
+  final ImageProvider? image;
+  const _OrbSheet({required this.moodColor, this.image});
   @override
   State<_OrbSheet> createState() => _OrbSheetState();
 }
@@ -350,7 +427,7 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           AnimatedBuilder(
             animation: _breath,
-            builder: (context, _) => QuantumOrb(style: style, color: widget.moodColor, size: 72, glow: _breath.value),
+            builder: (context, _) => QuantumOrb(style: style, color: widget.moodColor, size: 84, glow: _breath.value, image: widget.image),
           ),
           const SizedBox(height: Night.space2),
           Text(orbStyleName(style), style: const TextStyle(color: Night.ink, fontSize: 14)),

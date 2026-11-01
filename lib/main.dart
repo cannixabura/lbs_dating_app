@@ -1533,6 +1533,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             onCut: (p) { Navigator.pop(sheetContext); _cutEntangle(p.uid); },
             onPrefsChanged: _quantumBeat,
             moodColor: _getMoodColor(_myMood),
+            avatarUrl: _myAvatarUrl,
           ));
 
   void _setQuantumQuiet(bool quiet) {
@@ -3324,16 +3325,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
-                      // 量子世界沒有大頭貼時：自己是一顆小光點（不畫系統藍點，那是真實位置）
-                      if (quantumOn && _myAvatarUrl.isEmpty && !_quantumSelfCollapse && !_quantumReform)
+                      // 量子世界裡自己也是球型頭像（款式和心情色同別人看到的一樣；不畫系統藍點，那是真實位置）
+                      if (quantumOn && !_quantumSelfCollapse && !_quantumReform)
                         Positioned(
-                          left: centerX - 7, top: centerY - 7,
-                          child: IgnorePointer(child: Container(width: 14, height: 14, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white,
-                              border: Border.all(color: Night.auroraBlue, width: 2), boxShadow: const [BoxShadow(color: Night.auroraBlue, blurRadius: 10)]))),
+                          left: centerX - 24, top: centerY - 24,
+                          child: IgnorePointer(child: ValueListenableBuilder<String>(
+                            valueListenable: OrbPrefs.style,
+                            builder: (context, style, _) => QuantumOrb(style: style, color: _getMoodColor(_myMood), size: 48, image: orbImage(_myAvatarUrl)),
+                          )),
                         ),
 
                       // 🌟 完美維持你自己的定位點縮小設定
-                      if (_myAvatarUrl.isNotEmpty && !_quantumSelfCollapse && !_quantumReform) 
+                      if (!quantumOn && _myAvatarUrl.isNotEmpty && !_quantumSelfCollapse && !_quantumReform) 
                         Positioned(
                           left: centerX - 13.5, 
                           top: centerY - 13.5,
@@ -3783,8 +3786,8 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                           ),
                         ),
                       if (widget.orb case final orb?)
-                        // 量子化身：光球的主色跟著心情；敲門中、殘影的顏色規則和大頭貼一樣
-                        QuantumOrb(style: orb, color: accent, size: avatarSize + 16, glow: glowValue,
+                        // 量子化身：大頭貼合成的球型頭像，球緣和光暈是心情色；敲門中、殘影的顏色規則和大頭貼一樣
+                        QuantumOrb(style: orb, color: accent, size: 56, glow: glowValue, image: orbImage(peerAvatarUrl),
                             dim: widget.isShadow || (widget.isInactive && !isPending))
                       else
                       Container(

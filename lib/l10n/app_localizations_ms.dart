@@ -2336,14 +2336,13 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get quantumOrbEntrySubtitle =>
-      'Pilih bebola cahaya sebagai avatar anda dalam Dunia Kuantum';
+      'Foto anda menjadi bebola kristal dalam Dunia Kuantum';
 
   @override
   String get orbTitle => 'Avatar kuantum';
 
   @override
-  String get orbSubtitle =>
-      'Bebola anda sentiasa bercahaya mengikut warna mood anda';
+  String get orbSubtitle => 'Kaca dan cahayanya sentiasa mengikut mood anda';
 
   @override
   String get orbStyleGlow => 'Cahaya';

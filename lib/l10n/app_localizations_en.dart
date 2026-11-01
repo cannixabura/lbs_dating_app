@@ -2398,13 +2398,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quantumOrbEntrySubtitle =>
-      'Pick a light orb as your avatar in the Quantum World';
+      'Your photo becomes a crystal orb in the Quantum World';
 
   @override
   String get orbTitle => 'Quantum avatar';
 
   @override
-  String get orbSubtitle => 'Your orb always glows in the color of your mood';
+  String get orbSubtitle => 'The glass and glow always follow your mood';
 
   @override
   String get orbStyleGlow => 'Glow';

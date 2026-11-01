@@ -2215,13 +2215,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get quantumOrbEntry => '量子アバター';
 
   @override
-  String get quantumOrbEntrySubtitle => '量子ワールドでのアイコンになる光の球を選ぼう';
+  String get quantumOrbEntrySubtitle => '量子ワールドでは、あなたの写真がクリスタルの球になります';
 
   @override
   String get orbTitle => '量子アバター';
 
   @override
-  String get orbSubtitle => '光の球の色はいつもあなたの気分に合わせて変わります';
+  String get orbSubtitle => 'ガラスの縁と光は、いつもあなたの気分の色';
 
   @override
   String get orbStyleGlow => 'グロー';

@@ -637,8 +637,9 @@ class QuantumSheetExtras extends StatelessWidget {
   final ValueChanged<QuantumPartner> onCut;
   final VoidCallback onPrefsChanged;
   final Color moodColor; // 量子化身的預覽用自己現在的心情色
+  final String avatarUrl; // 和自己的大頭貼合成球型頭像
   const QuantumSheetExtras({super.key, required this.tunneled, required this.partners, required this.onTunnel, required this.onCut, required this.onPrefsChanged,
-      required this.moodColor});
+      required this.moodColor, this.avatarUrl = ''});
 
   Widget _switchRow(IconData icon, String title, String subtitle, bool value, ValueChanged<bool> onChanged) => Row(children: [
         Icon(icon, color: Night.inkMuted, size: 22),
@@ -688,13 +689,13 @@ class QuantumSheetExtras extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         onTap: () async {
           final before = OrbPrefs.style.value;
-          await showOrbSheet(context, moodColor: moodColor);
+          await showOrbSheet(context, moodColor: moodColor, avatarUrl: avatarUrl);
           if (OrbPrefs.style.value != before) onPrefsChanged();
         },
         child: Row(children: [
           ValueListenableBuilder<String>(
             valueListenable: OrbPrefs.style,
-            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 40),
+            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 52, image: orbImage(avatarUrl)),
           ),
           const SizedBox(width: Night.space3),
           Expanded(

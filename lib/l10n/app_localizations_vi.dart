@@ -2323,13 +2323,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get quantumOrbEntrySubtitle =>
-      'Chọn một quả cầu ánh sáng làm hình đại diện trong Thế giới Lượng tử';
+      'Ảnh của bạn trở thành quả cầu pha lê trong Thế giới Lượng tử';
 
   @override
   String get orbTitle => 'Hình đại diện lượng tử';
 
   @override
-  String get orbSubtitle => 'Quả cầu luôn sáng theo màu tâm trạng của bạn';
+  String get orbSubtitle =>
+      'Viền kính và ánh sáng luôn theo màu tâm trạng của bạn';
 
   @override
   String get orbStyleGlow => 'Ánh sáng';

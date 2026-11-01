@@ -3970,7 +3970,7 @@ abstract class AppLocalizations {
   /// No description provided for @quantumOrbEntrySubtitle.
   ///
   /// In zh, this message translates to:
-  /// **'選一顆光球當你在量子世界的頭像'**
+  /// **'你的頭像在量子世界裡會變成一顆水晶球'**
   String get quantumOrbEntrySubtitle;
 
   /// No description provided for @orbTitle.
@@ -3982,7 +3982,7 @@ abstract class AppLocalizations {
   /// No description provided for @orbSubtitle.
   ///
   /// In zh, this message translates to:
-  /// **'光球的顏色永遠跟著你的心情'**
+  /// **'球緣和光暈永遠跟著你的心情'**
   String get orbSubtitle;
 
   /// No description provided for @orbStyleGlow.

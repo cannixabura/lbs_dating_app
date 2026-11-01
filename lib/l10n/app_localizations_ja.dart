@@ -1952,4 +1952,194 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS17L5 =>
       '量子世界には残影、ささやき、未来への手紙、ムードスポット、シティ・ビーコン、集いはありません。入っている間は通常のレーダーとパラレルユニバースから一時的に離れ、出るとバブルが光になって消え、チェックインした場所に戻ります。アプリを閉じたり3分以上オフラインになると、席は解放されます。';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return '$seconds 秒後に時報';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => 'みんなが 101 の原点を見ています';
+
+  @override
+  String get quantumChimeLook => '原点を見る';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return '量子センター $hour 時の時報';
+  }
+
+  @override
+  String get quantumChimeSend => '時報のきらめきを送る';
+
+  @override
+  String get quantumChimeSent => 'あなたのきらめきが原点へ飛んでいきます';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '今回の時報は $n 人で見ました';
+  }
+
+  @override
+  String get quantumChimeReminder => '時報のお知らせ';
+
+  @override
+  String get quantumChimeReminderSubtitle => '毎正時の少し前に、101 の原点で時報を見るようお知らせします';
+
+  @override
+  String get quantumChimeNotifyBody => 'まもなく時報です。101 の原点で一緒に見よう';
+
+  @override
+  String get quantumChimeChannel => '時報';
+
+  @override
+  String get quantumChimeChannelDesc => '量子世界の時報のお知らせ';
+
+  @override
+  String get quantumEntangleInvite => '量子もつれに誘う';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return '$name さんを量子もつれに誘いました';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => '量子もつれ';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name（$code）さんがあなたと量子もつれになりたがっています。もつれると、どれだけ離れていても 2 つの吹き出しが光の線でつながります。どちらかが出ると線は崩れ、記録は残りません。';
+  }
+
+  @override
+  String get quantumEntangleAccept => 'もつれる';
+
+  @override
+  String quantumEntangled(String name) {
+    return '$name さんと量子もつれになりました';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return '$name さんとの量子もつれが崩れました';
+  }
+
+  @override
+  String get quantumEntangleCut => 'もつれを解く';
+
+  @override
+  String get quantumEntangleFull => 'すでに 3 人と量子もつれ中です';
+
+  @override
+  String get quantumEntangleTheirFull => '相手はすでに 3 人と量子もつれ中です';
+
+  @override
+  String get quantumEntangleGone => '相手は量子世界を出ました';
+
+  @override
+  String get quantumEntangleExpired => 'お誘いの期限が切れました';
+
+  @override
+  String get quantumEntangledTitle => 'もつれ中';
+
+  @override
+  String get quantumTunnel => '量子トンネル';
+
+  @override
+  String get quantumTunnelSubtitle =>
+      'ハイブのランダムな空席へ跳んで、新しいご近所さんに会えます。入場ごとに 1 回。';
+
+  @override
+  String get quantumTunnelUsed => '今回の入場ではもうトンネルを使いました';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return '$code へトンネルしました';
+  }
+
+  @override
+  String get quantumShowTime => '現地時刻を表示する';
+
+  @override
+  String get quantumShowTimeSubtitle => '吹き出しを長押しした人に表示されます。オフのときは昼夜の色合いだけ。';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return '現地 $time・$part';
+  }
+
+  @override
+  String get quantumDawn => '早朝';
+
+  @override
+  String get quantumDay => '昼';
+
+  @override
+  String get quantumDusk => '夕暮れ';
+
+  @override
+  String get quantumNight => '深夜';
+
+  @override
+  String get quantumTopicsTitle => '量子の周波数';
+
+  @override
+  String get quantumTopicsSubtitle => '最大 3 つのテーマを選ぶと、吹き出しの下に表示されます';
+
+  @override
+  String get quantumTopicMusic => '音楽';
+
+  @override
+  String get quantumTopicMovies => '映画';
+
+  @override
+  String get quantumTopicTech => 'テック';
+
+  @override
+  String get quantumTopicWalks => '散歩';
+
+  @override
+  String get quantumTopicFood => 'グルメ';
+
+  @override
+  String get quantumTopicTravel => '旅行';
+
+  @override
+  String get quantumTopicReading => '読書';
+
+  @override
+  String get quantumTopicSports => 'スポーツ';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return 'ふたりとも好き：$topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => '量子シグナル';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name さんからシグナルが届きました';
+  }
+
+  @override
+  String get quantumSignalWait => 'さっき送ったばかりです。少し待ってから';
+
+  @override
+  String quantumResonance(String name) {
+    return '$name さんと共振しました';
+  }
+
+  @override
+  String get guideS17L6 =>
+      '時報：毎正時の 1 分前に 101 の光の柱が明るくなります。正時には光の使者が原点をひと回りし、台北時間の数だけ鐘が鳴り（0 時は 24 回）、最後に光の波がハイブ全体に広がります。時報中に「時報のきらめきを送る」をタップ。見ている人が多いほど光が強くなります。「時報のお知らせ」は初期設定でオン。パネルでオフにできます。';
+
+  @override
+  String get guideS17L7 =>
+      'チャットした相手を「量子もつれ」に誘えます。どれだけ離れていても 2 つの吹き出しが光の線でつながり、どちらかが出ると崩れます（同時に 3 人まで）。「量子トンネル」は入場ごとに 1 回、ランダムな空席へ跳んで新しいご近所さんに会えます。';
+
+  @override
+  String get guideS17L8 =>
+      '吹き出しには持ち主の現地時刻の色合いがつきます：早朝は淡い金、昼は白、夕暮れはオレンジ紫、深夜は深い青。「現地時刻を表示する」をオンにすると、長押しで時刻が見えます。24 時間以内にきらめきを送り合うと「量子共振」。吹き出しを長押しして 👋 ☕ 🌙 🎵 🌧️ ✨ の量子シグナルを送れます。パネルで「量子の周波数」のテーマを 3 つまで選ぶと、共通のテーマが光ります。';
 }

@@ -2065,4 +2065,199 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS17L5 =>
       'Tiada gema pudar, bisikan, surat ke masa depan, Tempat Mood, Suar Bandar atau perhimpunan dalam Dunia Kuantum. Semasa di dalam, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, gelembung anda larut menjadi cahaya dan anda kembali ke tempat daftar masuk. Jika aplikasi ditutup atau di luar talian lebih 3 minit, tempat duduk anda dilepaskan.';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return 'Loceng jam dalam $seconds saat';
+  }
+
+  @override
+  String get quantumChimeLookOrigin =>
+      'Semua orang sedang melihat titik asal 101';
+
+  @override
+  String get quantumChimeLook => 'Lihat';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return 'Loceng pukul $hour Pusat Kuantum';
+  }
+
+  @override
+  String get quantumChimeSend => 'Hantar kerlipan loceng';
+
+  @override
+  String get quantumChimeSent => 'Kerlipan anda terbang ke titik asal';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '$n orang menonton loceng ini bersama';
+  }
+
+  @override
+  String get quantumChimeReminder => 'Peringatan loceng jam';
+
+  @override
+  String get quantumChimeReminderSubtitle =>
+      'Peringatan sebelum setiap jam untuk menonton loceng di titik asal 101';
+
+  @override
+  String get quantumChimeNotifyBody =>
+      'Loceng jam hampir bermula — mari tonton di titik asal 101';
+
+  @override
+  String get quantumChimeChannel => 'Loceng jam';
+
+  @override
+  String get quantumChimeChannelDesc => 'Peringatan loceng jam Dunia Kuantum';
+
+  @override
+  String get quantumEntangleInvite => 'Ajak berbelit kuantum';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return '$name telah diajak berbelit';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => 'Belitan kuantum';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name ($code) mahu berbelit dengan anda. Satu garis cahaya akan menyambung dua gelembung anda, kelihatan sejauh mana pun. Ia runtuh apabila salah seorang keluar, dan tiada rekod disimpan.';
+  }
+
+  @override
+  String get quantumEntangleAccept => 'Berbelit';
+
+  @override
+  String quantumEntangled(String name) {
+    return 'Anda dan $name kini berbelit';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return 'Belitan dengan $name telah runtuh';
+  }
+
+  @override
+  String get quantumEntangleCut => 'Leraikan belitan';
+
+  @override
+  String get quantumEntangleFull => 'Anda sudah berbelit dengan 3 orang';
+
+  @override
+  String get quantumEntangleTheirFull => 'Mereka sudah berbelit dengan 3 orang';
+
+  @override
+  String get quantumEntangleGone => 'Mereka sudah keluar dari Dunia Kuantum';
+
+  @override
+  String get quantumEntangleExpired => 'Jemputan telah tamat tempoh';
+
+  @override
+  String get quantumEntangledTitle => 'Sedang berbelit';
+
+  @override
+  String get quantumTunnel => 'Terowong kuantum';
+
+  @override
+  String get quantumTunnelSubtitle =>
+      'Lompat ke tempat duduk kosong secara rawak dalam sarang dan bertemu jiran baharu. Sekali setiap lawatan.';
+
+  @override
+  String get quantumTunnelUsed => 'Anda sudah menggunakan terowong lawatan ini';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return 'Melalui terowong ke $code';
+  }
+
+  @override
+  String get quantumShowTime => 'Tunjukkan waktu tempatan saya';
+
+  @override
+  String get quantumShowTimeSubtitle =>
+      'Orang lain melihatnya apabila menekan lama gelembung anda. Jika dimatikan, hanya warna siang-malam ditunjukkan.';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return 'Tempatan $time · $part';
+  }
+
+  @override
+  String get quantumDawn => 'awal pagi';
+
+  @override
+  String get quantumDay => 'siang';
+
+  @override
+  String get quantumDusk => 'senja';
+
+  @override
+  String get quantumNight => 'lewat malam';
+
+  @override
+  String get quantumTopicsTitle => 'Frekuensi kuantum';
+
+  @override
+  String get quantumTopicsSubtitle =>
+      'Pilih sehingga 3 topik untuk dipaparkan di bawah gelembung anda';
+
+  @override
+  String get quantumTopicMusic => 'Muzik';
+
+  @override
+  String get quantumTopicMovies => 'Filem';
+
+  @override
+  String get quantumTopicTech => 'Teknologi';
+
+  @override
+  String get quantumTopicWalks => 'Berjalan';
+
+  @override
+  String get quantumTopicFood => 'Makanan';
+
+  @override
+  String get quantumTopicTravel => 'Melancong';
+
+  @override
+  String get quantumTopicReading => 'Membaca';
+
+  @override
+  String get quantumTopicSports => 'Sukan';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return 'Anda berdua suka: $topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => 'Isyarat kuantum';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name menghantar isyarat kepada anda';
+  }
+
+  @override
+  String get quantumSignalWait => 'Anda baru menghantar — cuba sebentar lagi';
+
+  @override
+  String quantumResonance(String name) {
+    return 'Anda dan $name sedang bergema';
+  }
+
+  @override
+  String get guideS17L6 =>
+      'Loceng jam: seminit sebelum setiap jam, pancaran 101 semakin terang. Tepat pada jamnya, utusan cahaya mengelilingi titik asal, loceng berbunyi mengikut waktu Taipei (24 kali pada tengah malam), dan gelombang cahaya terakhir merebak ke seluruh sarang. Ketik “Hantar kerlipan loceng” semasa loceng — lebih ramai yang menonton, lebih terang cahayanya. Peringatan loceng jam hidup secara lalai; anda boleh matikannya dalam panel.';
+
+  @override
+  String get guideS17L7 =>
+      'Selepas berbual, anda boleh ajak seseorang berbelit: satu garis cahaya menyambung gelembung anda sejauh mana pun, dan runtuh apabila salah seorang keluar (sehingga 3 orang serentak). Terowong kuantum, sekali setiap lawatan, membawa anda ke tempat duduk kosong rawak dengan jiran baharu.';
+
+  @override
+  String get guideS17L8 =>
+      'Setiap gelembung membawa warna waktu tempatan pemiliknya: emas pucat waktu subuh, putih terang waktu siang, jingga-ungu waktu senja, biru pekat waktu malam. Hidupkan “Tunjukkan waktu tempatan saya” supaya orang lain nampak waktunya apabila menekan lama gelembung anda. Saling menghantar kerlipan dalam 24 jam akan mencetuskan gema kuantum; tekan lama gelembung untuk menghantar isyarat 👋 ☕ 🌙 🎵 🌧️ ✨; pilih sehingga 3 topik frekuensi dalam panel dan topik yang sama akan menyala.';
 }

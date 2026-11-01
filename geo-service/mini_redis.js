@@ -22,9 +22,28 @@ function run([cmd, ...a]) {
         case 'HGET': return db.has(a[0]) ? (hash(a[0]).get(a[1]) ?? null) : null;
         case 'HMGET': return a.slice(1).map((f) => (db.has(a[0]) ? (hash(a[0]).get(f) ?? null) : null));
         case 'HGETALL': return db.has(a[0]) ? [...hash(a[0]).entries()].flat() : [];
+        case 'GET': return db.has(a[0]) ? db.get(a[0]) : null;
+        case 'EXPIRE': return db.has(a[0]) ? 1 : 0;
+        case 'HDEL': { if (!db.has(a[0])) return 0; let n = 0; a.slice(1).forEach((f) => { if (hash(a[0]).delete(f)) n++; }); return n; }
         case 'SADD': { const h = hash(a[0]); a.slice(1).forEach((m) => h.set(m, 1)); return 1; }
+        case 'SREM': { if (!db.has(a[0])) return 0; let n = 0; a.slice(1).forEach((m) => { if (hash(a[0]).delete(m)) n++; }); return n; }
+        case 'SMEMBERS': return db.has(a[0]) ? [...hash(a[0]).keys()] : [];
+        case 'SCARD': return db.has(a[0]) ? hash(a[0]).size : 0;
+        case 'RPUSH': { if (!db.has(a[0])) db.set(a[0], []); db.get(a[0]).push(...a.slice(1).map(String)); return db.get(a[0]).length; }
+        case 'LRANGE': { const l = db.get(a[0]) || []; const end = Number(a[2]) < 0 ? l.length + Number(a[2]) + 1 : Number(a[2]) + 1; return l.slice(Number(a[1]), end); }
         case 'SISMEMBER': return db.has(a[0]) && hash(a[0]).has(a[1]) ? 1 : 0;
-        case 'ZADD': zset(a[0]).set(a[2], Number(a[1])); return 1;
+        case 'ZADD': {
+            if (a[1] === 'NX') { if (zset(a[0]).has(a[3])) return 0; zset(a[0]).set(a[3], Number(a[2])); return 1; }
+            zset(a[0]).set(a[2], Number(a[1])); return 1;
+        }
+        case 'ZCARD': return db.has(a[0]) ? zset(a[0]).size : 0;
+        case 'ZRANDMEMBER': { const all = sorted(a[0]); return all.length ? all[Math.floor(Math.random() * all.length)][0] : null; }
+        case 'ZRANGE': {
+            const all = sorted(a[0]).map(([m]) => m);
+            const from = Number(a[1]) < 0 ? Math.max(0, all.length + Number(a[1])) : Number(a[1]);
+            const to = Number(a[2]) < 0 ? all.length + Number(a[2]) : Number(a[2]);
+            return all.slice(from, to + 1);
+        }
         case 'ZREM': {
             let n = 0;
             for (const m of a.slice(1)) { if (zset(a[0]).delete(m)) n++; if (geo.get(a[0])?.delete(m)) n++; }

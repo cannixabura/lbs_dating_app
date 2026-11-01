@@ -140,6 +140,21 @@
       }
     },
 
+    // 量子訊號：quantumSignals/{收到的人}/{送出的人} = { s: 圖示 0～5, at: 送出時間 }
+    // 同一人 30 秒內只能送一次；被封鎖、被隱藏的人不能送；收到的人可讀、可清除
+    "quantumSignals": {
+      "$targetUid": {
+        ".read": "auth != null && auth.uid === $targetUid",
+        "$senderUid": {
+          ".write": "auth != null && ((auth.uid === $senderUid && $senderUid !== $targetUid && newData.exists() && (!data.exists() || data.child('at').val() < now - 30000) && !root.child('blocks/' + $targetUid + '/' + $senderUid).exists() && root.child('moderation/' + auth.uid + '/hidden').val() !== true) || (auth.uid === $targetUid && !newData.exists()))",
+          ".validate": "newData.hasChildren(['s', 'at'])",
+          "s": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5 && newData.val() % 1 === 0" },
+          "at": { ".validate": "newData.isNumber() && newData.val() <= now && newData.val() > now - 60000" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+
     // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
     "resonancePush": {
       "$uid": { ".read": false }

@@ -42,6 +42,7 @@ import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
+import 'quantum_live.dart';
 import 'quantum_world.dart';
 import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -208,6 +209,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   late final AnimationController _quantumEntry = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000));
   late final AnimationController _quantumCollapse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
   late final AnimationController _quantumGlow = AnimationController(vsync: this, duration: const Duration(seconds: 3));
+  // 第二期：讓世界活起來
+  List<QuantumPartner> _quantumPartners = []; // 糾纏中的人：不管多遠都畫一道光線
+  bool _quantumTunneled = false; // 這次入場已經穿隧過
+  bool _quantumReform = false; // 穿隧：在新席位重組
+  final Set<String> _quantumChatted = {}; // 這次入場聊過天的人，才能邀請糾纏
+  final Set<String> _shownInvites = {};
+  final List<QuantumFlight> _quantumFlights = []; // 飛向原點的報時微光
+  final Set<String> _seenChimeFx = {};
+  int _chimeCount = 0;
+  int _chimeHour = -1; // 這次報時的編號：換整點就重來
+  bool _chimeSent = false;
+  bool _chimeWatchedShown = false;
+  int _quantumClockTicks = 0;
+  Timer? _quantumClock;
+  QuantumChimeBell? _chimeBell;
+  final Map<String, int> _resonanceUntil = {}; // 共振光環：uid → 結束時間
+  final List<QuantumSignalFloat> _signalFloats = [];
+  List<StreamSubscription<DatabaseEvent>> _signalSubs = [];
+  Map<String, int> _glimmersReceived = {}; // resonance/{我}：誰在什麼時候送了微光
 
   /// 雷達中心：平常是自己的真實位置；在量子世界是自己的顯示位置（席位＋走過的位移），兩次心跳之間依手機算的位移平順移動
   ({double lat, double lng}) get _radarCenter {
@@ -389,6 +409,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     HiddenContent.instance.load();
     quantumSession.value = null; // 每次打開 App 都從一般雷達開始
     quantumSession.addListener(_onQuantumChanged);
+    QuantumPrefs.load().then((_) => QuantumChimeReminder.reschedule());
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
@@ -1154,7 +1175,216 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   void _onQuantumChanged() {
     if (!mounted) return;
     quantumOn ? _quantumGlow.repeat(reverse: true) : _quantumGlow.stop();
+    if (quantumOn && _quantumClock == null) {
+      _quantumClock = Timer.periodic(const Duration(seconds: 1), (_) => _quantumTick());
+      _signalSubs = QuantumSignals.listen(widget.uid, _onQuantumSignal);
+    } else if (!quantumOn && _quantumClock != null) {
+      _quantumClock?.cancel(); _quantumClock = null;
+      for (final sub in _signalSubs) { sub.cancel(); }
+      _signalSubs = [];
+    }
     setState(() {});
+  }
+
+  /// 每秒一次：整點報時（倒數、鐘聲、報時期間加快心跳）
+  int? _chimeLookedHour; // 這個整點已經自動看過原點
+
+  void _quantumTick() {
+    if (!quantumOn || !mounted) return;
+    final now = DateTime.now();
+    if (!QuantumChime.active(now)) return;
+    final t = QuantumChime.offset(now);
+    final hour = QuantumChime.hourKey(now);
+    if (hour != _chimeHour) {
+      _chimeHour = hour; _chimeSent = false; _chimeWatchedShown = false; _chimeCount = 0; _seenChimeFx.clear();
+    }
+    // 整點前 5 秒：鏡頭自動拉遠看 101，不然原點在畫面外就看不到光之使者
+    if (t >= -5 && t < QuantumChime.show && _chimeLookedHour != hour) {
+      _chimeLookedHour = hour;
+      _lookAtOrigin();
+    }
+    // 能送報時微光的那 1 分鐘每 3 秒心跳一次，報時微光和人數才跟得上；之後的光環儀式靠一般心跳更新人數
+    if (t <= QuantumChime.send + 5 && _quantumClockTicks++ % 3 == 0) _quantumBeat();
+    if (t >= -1.2 && t < QuantumChime.show && _chimeBell == null && _isInForeground) {
+      _chimeBell = QuantumChimeBell()..schedule(QuantumChime.strikeTimes(QuantumChime.strikes(now)), max(0, t), onStrike: HapticFeedback.selectionClick);
+    }
+    if (t >= QuantumChime.send + 2 && !_chimeWatchedShown) {
+      _chimeWatchedShown = true;
+      final watched = max(max(1, quantumSession.value?.online ?? 1), _chimeCount);
+      showGlassToast(context, tr.quantumChimeWatched(watched), icon: Icons.notifications_active_outlined);
+      Future.delayed(const Duration(seconds: 4), () { _chimeBell?.dispose(); _chimeBell = null; });
+    }
+    setState(() {});
+  }
+
+  /// 整點前：鏡頭拉遠，看得到 101 原點
+  void _lookAtOrigin() {
+    final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+    final dist = max(300.0, sqrt(c.east * c.east + c.north * c.north));
+    _scaleNotifier.value = (1100 / dist).clamp(0.03, 1.0);
+    _baseScale = _scaleNotifier.value;
+    HapticFeedback.selectionClick();
+  }
+
+  /// 報時期間送出一道報時微光：光點從自己的席位飛向原點
+  Future<void> _sendChimeGlimmer() async {
+    if (_chimeSent) return;
+    setState(() => _chimeSent = true);
+    final me = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+    _quantumFlights.add(QuantumFlight(me.east, me.north, DateTime.now().millisecondsSinceEpoch));
+    HapticFeedback.lightImpact();
+    showGlassToast(context, tr.quantumChimeSent, icon: Icons.auto_awesome);
+    final (status, data) = await QuantumApi.chime();
+    if (status == 200 && mounted) setState(() => _chimeCount = max(_chimeCount, (data['count'] as num?)?.toInt() ?? 0));
+  }
+
+  /// 心跳帶回的第二期資料：糾纏、邀請、剛塌縮的糾纏、整點報時
+  void _applyQuantumLive(Map<String, dynamic> data) {
+    _quantumPartners = [for (final e in (data['ent'] as List? ?? const [])) if (QuantumPartner.fromJson(e) case final p?) if (!_blockedUids.contains(p.uid)) p];
+    final me = data['me'];
+    if (me is Map && me['tunneled'] == true) _quantumTunneled = true;
+    for (final name in (data['entGone'] as List? ?? const [])) {
+      showGlassToast(context, tr.quantumEntangleCollapsed('$name'), icon: Icons.all_inclusive);
+    }
+    final chime = data['chime'];
+    if (chime is Map) {
+      _chimeCount = max(_chimeCount, (chime['count'] as num?)?.toInt() ?? 0);
+      final now = DateTime.now().millisecondsSinceEpoch;
+      var stagger = 0;
+      for (final f in (chime['fx'] as List? ?? const [])) {
+        if (f is! List || f.length != 2 || !_seenChimeFx.add('${f[0]}|${f[1]}')) continue;
+        final o = quantumLocal((f[0] as num).toDouble(), (f[1] as num).toDouble());
+        _quantumFlights.add(QuantumFlight(o.east, o.north, now + 180 * stagger++)); // 一道一道飛，不擠在同一瞬間
+      }
+    }
+    _quantumFlights.removeWhere((f) => DateTime.now().millisecondsSinceEpoch - f.startMs > QuantumFlight.durationMs + 6000);
+    for (final inv in (data['invites'] as List? ?? const [])) {
+      if (inv is! Map || inv['uid'] is! String) continue;
+      final from = inv['uid'] as String;
+      if (_blockedUids.contains(from) || _isDialogShowing || !_shownInvites.add(from)) continue;
+      _answerEntangleInvite(from, '${inv['nickname'] ?? ''}', '${inv['code'] ?? ''}');
+      break; // 一次只問一個
+    }
+  }
+
+  Future<void> _answerEntangleInvite(String from, String name, String code) async {
+    _isDialogShowing = true;
+    HapticFeedback.mediumImpact();
+    final yes = await showQuantumEntangleInvite(context, name: name, code: code);
+    _isDialogShowing = false;
+    if (!mounted || !quantumOn) return;
+    final (status, data) = await QuantumApi.entangle(yes ? 'accept' : 'decline', from);
+    if (!mounted || !yes) return;
+    if (status == 200 && data['entangled'] == true) {
+      showGlassToast(context, tr.quantumEntangled(name), icon: Icons.all_inclusive);
+      _quantumBeat();
+    } else {
+      _showEntangleError(status, data);
+    }
+  }
+
+  void _showEntangleError(int status, Map<String, dynamic> data) {
+    final msg = switch (data['code']) {
+      'full' => tr.quantumEntangleFull,
+      'theirFull' => tr.quantumEntangleTheirFull,
+      'gone' => tr.quantumEntangleGone,
+      'inviteExpired' => tr.quantumEntangleExpired,
+      _ => tr.quantumUnavailable,
+    };
+    showGlassToast(context, msg, icon: Icons.all_inclusive);
+  }
+
+  Future<void> _inviteEntangle(String uid, String name) async {
+    final (status, data) = await QuantumApi.entangle('invite', uid);
+    if (!mounted) return;
+    if (status == 200 && data['entangled'] == true) { _quantumBeat(); return; }
+    status == 200 ? showGlassToast(context, tr.quantumEntangleInvited(name), icon: Icons.all_inclusive) : _showEntangleError(status, data);
+  }
+
+  Future<void> _cutEntangle(String uid) async {
+    setState(() => _quantumPartners = _quantumPartners.where((p) => p.uid != uid).toList());
+    await QuantumApi.entangle('cut', uid);
+  }
+
+  /// 量子穿隧：原位化成光點，在新席位重組
+  Future<void> _quantumTunnel() async {
+    if (_quantumTunneled || _quantumLeaving) return;
+    final (status, data) = await QuantumApi.tunnel();
+    if (!mounted || !quantumOn) return;
+    if (status == 409) { setState(() => _quantumTunneled = true); showGlassToast(context, tr.quantumTunnelUsed, icon: Icons.blur_on); return; }
+    if (status != 200 || data['success'] != true) { showGlassToast(context, tr.quantumUnavailable, icon: Icons.error_outline, danger: true); return; }
+    final me = Map<String, dynamic>.from(data['me'] as Map);
+    _quantumTunneled = true;
+    HapticFeedback.mediumImpact();
+    final animate = !MediaQuery.of(context).disableAnimations;
+    if (animate) {
+      setState(() { _quantumSelfCollapse = true; _quantumBursts = []; });
+      await _quantumCollapse.forward(from: 0);
+      if (!mounted || !quantumOn) return;
+    }
+    quantumSession.value = quantumSession.value!.copyWith(me: me);
+    _jumpCamera(quantumSession.value!.lat, quantumSession.value!.lng);
+    _activeUsersNotifier.value = [];
+    if (animate) {
+      setState(() { _quantumSelfCollapse = false; _quantumReform = true; });
+      await _quantumCollapse.reverse(from: 1);
+      if (!mounted) return;
+    }
+    setState(() { _quantumSelfCollapse = false; _quantumReform = false; });
+    showGlassToast(context, tr.quantumTunnelDone('${me['code']}'), icon: Icons.blur_on);
+    _quantumBeat();
+  }
+
+  /// 量子訊號：點一下就送，在對方氣泡旁浮出 3 秒
+  Future<void> _sendQuantumSignal(String uid, int signal) async {
+    final ok = await QuantumSignals.send(widget.uid, uid, signal);
+    if (!mounted) return;
+    if (!ok) { showGlassToast(context, tr.quantumSignalWait, icon: Icons.timer_outlined); return; }
+    HapticFeedback.selectionClick();
+    setState(() => _signalFloats.add(QuantumSignalFloat(uid, signal, DateTime.now().millisecondsSinceEpoch)));
+  }
+
+  void _onQuantumSignal(String sender, int signal) {
+    if (!mounted || !quantumOn || _blockedUids.contains(sender) || _blockedByUids.contains(sender) || HiddenContent.instance.users.contains(sender)) return;
+    HapticFeedback.lightImpact();
+    setState(() => _signalFloats.add(QuantumSignalFloat(sender, signal, DateTime.now().millisecondsSinceEpoch)));
+    // 對方不在畫面上：用提示告訴我是誰
+    if (_bubbleAnchors[sender] == null) {
+      final user = _activeUsersNotifier.value.where((u) => u['uid'] == sender).firstOrNull;
+      final name = '${user?['nickname'] ?? ''}'.trim();
+      showGlassToast(context, '${quantumSignalEmoji[signal]} ${tr.quantumSignalReceived(name.isEmpty ? '#${sender.substring(max(0, sender.length - 4)).toUpperCase()}' : name)}');
+    }
+  }
+
+  /// 量子共振：24 小時內互送微光，兩顆氣泡同時亮起共振光環 10 秒
+  void _resonate(String uid) {
+    if (!mounted || !quantumOn) return;
+    final user = _activeUsersNotifier.value.where((u) => u['uid'] == uid).firstOrNull;
+    if (user == null) return; // 對方不在量子世界裡
+    setState(() => _resonanceUntil[uid] = DateTime.now().millisecondsSinceEpoch + 10000);
+    HapticFeedback.heavyImpact();
+    Future.delayed(const Duration(milliseconds: 180), HapticFeedback.heavyImpact);
+    final name = '${user['nickname'] ?? ''}'.trim();
+    showGlassToast(context, tr.quantumResonance(name.isEmpty ? '#${uid.substring(max(0, uid.length - 4)).toUpperCase()}' : name), icon: Icons.auto_awesome);
+  }
+
+  /// 整點報時的光柱亮度：整點前 1 分鐘慢慢變亮，報時後慢慢退回
+  double _chimeBoost(double t) => t < -QuantumChime.lead || t > QuantumChime.tail ? 0
+      : t < 0 ? (t + QuantumChime.lead) / QuantumChime.lead
+      : t <= QuantumChime.send ? 1 : 1 - (t - QuantumChime.send) / (QuantumChime.tail - QuantumChime.send);
+
+  /// 糾纏光線的另一端：對方在畫面裡就連到對方，不在就沿著方向連到畫面邊緣
+  (Offset, bool)? _entangleEnd(QuantumProjector proj, Rect screen, double east, double north) {
+    final hit = proj.project(east, north);
+    if (hit != null && screen.contains(hit.$1)) return (hit.$1, false);
+    var lo = 0.0, hi = 1.0;
+    Offset? best;
+    for (var i = 0; i < 18; i++) {
+      final mid = (lo + hi) / 2;
+      final h = proj.project(proj.centerEast + (east - proj.centerEast) * mid, proj.centerNorth + (north - proj.centerNorth) * mid);
+      if (h != null && screen.contains(h.$1)) { best = h.$1; lo = mid; } else { hi = mid; }
+    }
+    return best == null ? null : (best, true);
   }
 
   /// 鏡頭直接跳到某處（進出量子世界時，距離太遠不適合動畫）
@@ -1176,7 +1406,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
     if (!await confirmQuantumWorld(context) || !mounted) return;
     _quantumBusy = true;
-    final (status, data) = await QuantumApi.enter(lat: pos.latitude, lng: pos.longitude, mood: _myMood, nickname: _myNickname);
+    final (status, data) = await QuantumApi.enter(lat: pos.latitude, lng: pos.longitude, mood: _myMood, nickname: _myNickname, extra: QuantumPrefs.payload);
     _quantumBusy = false;
     if (!mounted) return;
     if (status == 403) { showGlassToast(context, tr.quantumClosedRegion, icon: Icons.block); return; }
@@ -1195,6 +1425,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _seenCollapses.clear();
       _activeUsersNotifier.value = [];
       _scaleNotifier.value = 1.0;
+      _quantumTunneled = me['tunneled'] == true;
       quantumSession.value = QuantumSession.fromMe(me, quiet: data['quiet'] == true);
       _jumpCamera(quantumSession.value!.lat, quantumSession.value!.lng);
       _fetchNearbyUsers();
@@ -1208,7 +1439,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (mounted) arrive();
   }
 
-  void _openQuantumSheet() => showQuantumSheet(context, onQuietChanged: _setQuantumQuiet, onLeave: _leaveQuantum);
+  void _openQuantumSheet() => showQuantumSheet(context, onQuietChanged: _setQuantumQuiet, onLeave: _leaveQuantum,
+      extras: (sheetContext) => QuantumSheetExtras(
+            tunneled: _quantumTunneled,
+            partners: _quantumPartners,
+            onTunnel: () { Navigator.pop(sheetContext); _quantumTunnel(); },
+            onCut: (p) { Navigator.pop(sheetContext); _cutEntangle(p.uid); },
+            onPrefsChanged: _quantumBeat,
+          ));
 
   void _setQuantumQuiet(bool quiet) {
     final s = quantumSession.value;
@@ -1226,7 +1464,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final raw = walk.at(fix.latitude, fix.longitude);
     // 世界視角：縮得越小，向伺服器要越大的範圍（超過 5 公里的人只回傳光點）
     final radius = _scaleNotifier.value >= _quantumWorldScale ? 5.0 : (1.7 / _scaleNotifier.value).clamp(5.0, 60.0);
-    final (status, data) = await QuantumApi.beat(east: raw.east, north: raw.north, mood: _myMood, nickname: _myNickname, quiet: s.quiet, radiusKM: radius);
+    final (status, data) = await QuantumApi.beat(east: raw.east, north: raw.north, mood: _myMood, nickname: _myNickname, quiet: s.quiet, radiusKM: radius, extra: QuantumPrefs.payload);
     if (!mounted || quantumSession.value == null || _quantumLeaving) return;
     if (status == 410) return _leaveQuantum(message: tr.quantumSeatExpired, notifyServer: false); // 席位已釋放（斷線超過 3 分鐘）
     if (status != 200 || data['success'] != true) return;
@@ -1248,6 +1486,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _quantumBursts = fresh;
       _quantumCollapse.forward(from: 0);
     }
+    _applyQuantumLive(data);
     _processNearbyData(data['data'] as List? ?? const []);
     _updateMapCamera();
   }
@@ -1272,6 +1511,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _resetQuantum() {
     _quantumWalk = null; _quantumLastSent = null; _quantumFix = null; _quantumDots = []; _quantumBursts = [];
+    // 第二期的公開內容離場即消失：糾纏、訊號、共振都不留
+    _quantumPartners = []; _quantumTunneled = false; _quantumReform = false; _quantumChatted.clear(); _shownInvites.clear();
+    _quantumFlights.clear(); _seenChimeFx.clear(); _resonanceUntil.clear(); _signalFloats.clear();
+    _chimeBell?.dispose(); _chimeBell = null; _chimeHour = -1;
+    QuantumSignals.clear(widget.uid);
     _quantumSelfCollapse = false;
     _quantumLeaving = false;
     _hasScanned = false; // 回到雷達後等第一次掃描，不先閃出「你是今晚第一道光」
@@ -1335,6 +1579,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         // 量子世界：席位代號，以及對方是否開啟量子寧靜（不能敲門）
         'quantumSeat': user['quantum'],
         'quiet': user['quiet'] == true,
+        // 第二期：晝夜色調、當地時間（對方同意才有）、量子同頻主題
+        'day': user['day'],
+        'tz': user['tz'],
+        'topics': quantumTopicsOf(user['topics']),
         // 殘影隨時間淡出：剛離開 0.8 → 即將消失 0.1
         'shadowOpacity': isShadow ? 0.8 - 0.7 * shadowAge : 1.0, 
       });
@@ -1462,6 +1710,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               Text(tr.knockCardTitle, style: Night.title),
               const SizedBox(height: Night.space2),
               Text(tr.knockCardBody(senderName), style: Night.body, textAlign: TextAlign.center),
+              // 量子同頻：雙方共同的主題亮起來，讓聊天有開頭
+              if (quantumOn)
+                if ([for (final t in quantumTopicsOf(_activeUsersNotifier.value.where((u) => u['uid'] == senderUid).firstOrNull?['topics'])) if (QuantumPrefs.topics.value.contains(t)) t]
+                    case final common when common.isNotEmpty) ...[
+                  const SizedBox(height: Night.space2),
+                  Text(tr.quantumTopicsCommon(common.map((t) => '${quantumTopicEmoji[t]} ${quantumTopicName(t)}').join('、')),
+                      style: Night.caption.copyWith(color: Night.cityAmber), textAlign: TextAlign.center),
+                ],
               const SizedBox(height: Night.space4),
               Row(children: [
                 Expanded(child: NightButton(tr.skip, kind: NightButtonKind.text, onPressed: () { close(dialogContext); _dbRef.child('requests/${widget.uid}/$senderUid').remove(); })),
@@ -2277,7 +2533,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         onLongPress: () {
           _focusBubble(uid);
           _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?,
-              quantumSeat: user['quantumSeat'] as String?, quiet: user['quiet'] == true, moodColor: _getMoodColor(user['mood']));
+              quantumSeat: user['quantumSeat'] as String?, quiet: user['quiet'] == true, moodColor: _getMoodColor(user['mood']), user: user);
         },
         // 點一下：心情不是你的語言就直接翻譯，再點一下回到原文
         onTap: isShadow ? null : () => _toggleMoodTranslation(uid, '${user['mood'] ?? ''}'),
@@ -2299,7 +2555,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               status: _outgoingRequests[uid] ?? RequestStatus.none,
               displayName: displayName,
               // 量子世界的位置不是真實距離：顯示席位代號
-              distanceLabel: user['quantumSeat'] != null ? '⬡ ${user['quantumSeat']}' : WhisperEngine.formatDistance(p.render.distance),
+              // 量子同頻的主題用小圖示接在後面
+              distanceLabel: user['quantumSeat'] != null
+                  ? ['⬡ ${user['quantumSeat']}', ...[for (final t in (user['topics'] as List<int>? ?? const [])) quantumTopicEmoji[t]]].join(' ')
+                  : WhisperEngine.formatDistance(p.render.distance),
+              dayTint: quantumDayTint(user['day']),
               baseColor: _getMoodColor(user['mood']),
               isShadow: isShadow,
               isInactive: user['isInactive'] ?? false,
@@ -2455,7 +2715,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   void _showInteractionMenu(String targetUid, String displayName, {bool isShadow = false, bool isDemo = false, String? parallelCity,
-      String? quantumSeat, bool quiet = false, Color moodColor = Night.moodDefault}) {
+      String? quantumSeat, bool quiet = false, Color moodColor = Night.moodDefault, Map<String, dynamic>? user}) {
+    final localTime = quantumLocalTimeLabel(user?['tz'], user?['day']);
+    final common = [for (final t in quantumTopicsOf(user?['topics'])) if (QuantumPrefs.topics.value.contains(t)) t];
+    final entangled = _quantumPartners.any((p) => p.uid == targetUid);
     Widget item(IconData icon, Color color, String label, VoidCallback onTap) => InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Night.radiusSm),
@@ -2488,6 +2751,30 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               if (quantumSeat != null) ...[
                 const SizedBox(height: Night.space2),
                 Text(tr.quantumPersonBody(quantumSeat), style: Night.body, textAlign: TextAlign.center),
+                // 地球時間窗（對方同意才有）、量子同頻的共同主題
+                if (localTime != null) ...[
+                  const SizedBox(height: Night.space1),
+                  Text(localTime, style: Night.caption.copyWith(color: quantumDayTint(user?['day']) ?? Night.inkMuted), textAlign: TextAlign.center),
+                ],
+                if (common.isNotEmpty) ...[
+                  const SizedBox(height: Night.space1),
+                  Text(tr.quantumTopicsCommon(common.map((t) => '${quantumTopicEmoji[t]} ${quantumTopicName(t)}').join('、')),
+                      style: Night.caption.copyWith(color: Night.cityAmber), textAlign: TextAlign.center),
+                ],
+                if (!isDemo) ...[
+                  const SizedBox(height: Night.space3),
+                  Semantics(
+                    label: tr.quantumSignalsTitle,
+                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                      for (var i = 0; i < quantumSignalEmoji.length; i++)
+                        InkResponse(
+                          onTap: () { Navigator.pop(dialogContext); _sendQuantumSignal(targetUid, i); },
+                          radius: 24,
+                          child: SizedBox(width: 44, height: 44, child: Center(child: Text(quantumSignalEmoji[i], style: const TextStyle(fontSize: 24)))),
+                        ),
+                    ]),
+                  ),
+                ],
               ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
@@ -2498,6 +2785,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   if (quiet) { showGlassToast(context, tr.quantumQuietTarget, icon: Icons.do_not_disturb_on_outlined); return; }
                   _handleBubbleLongPress(targetUid, displayName);
                 }),
+                // 量子糾纏：聊過天之後才能邀請；糾纏中可以解除
+                if (quantumSeat != null && !isDemo && entangled)
+                  item(Icons.all_inclusive, Night.inkMuted, tr.quantumEntangleCut, () { Navigator.pop(dialogContext); _cutEntangle(targetUid); })
+                else if (quantumSeat != null && !isDemo && _quantumChatted.contains(targetUid))
+                  item(Icons.all_inclusive, Night.knockPink, tr.quantumEntangleInvite, () { Navigator.pop(dialogContext); _inviteEntangle(targetUid, displayName); }),
                 item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
                 // 集會是在地的：平行宇宙的人不能接主持
@@ -2551,15 +2843,25 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       final raw = event.snapshot.value;
       final now = DateTime.now().millisecondsSinceEpoch;
       int count = 0;
+      final received = <String, int>{};
       if (raw is Map) {
         raw.forEach((sender, at) {
           if (at is int && now - at <= 86400000) {
             count++;
+            received['$sender'] = at;
           } else {
             _dbRef.child('resonance/${widget.uid}/$sender').remove();
           }
         });
       }
+      // 量子共振：剛收到的微光來自 24 小時內我也送過的人
+      if (_resonanceCount >= 0) {
+        for (final e in received.entries) {
+          if (_glimmersReceived[e.key] == e.value) continue;
+          QuantumResonance.sentRecently(e.key).then((yes) { if (yes) _resonate(e.key); });
+        }
+      }
+      _glimmersReceived = received;
       if (!mounted) return;
       final bool isNew = _resonanceCount >= 0 && count > _resonanceCount;
       setState(() => _resonanceCount = count);
@@ -2575,6 +2877,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     try {
       await _dbRef.child('resonance/$targetUid/${widget.uid}').set(ServerValue.timestamp);
       HapticFeedback.selectionClick();
+      QuantumResonance.recordSent(targetUid);
+      // 量子共振：對方 24 小時內也送過我微光
+      final theirs = _glimmersReceived[targetUid];
+      if (theirs != null && DateTime.now().millisecondsSinceEpoch - theirs <= 86400000) _resonate(targetUid);
       final anchor = _bubbleAnchors[targetUid];
       if (mounted && anchor != null && !MediaQuery.of(context).disableAnimations) {
         setState(() { _sparkleAt = anchor; _sparkleColor = moodColor; });
@@ -2709,6 +3015,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       }
       if (user['quantumSeat'] != null) targetTag = tr.quantumChatTag(user['quantumSeat'] as String);
     } catch (_) {}
+    if (quantumOn) _quantumChatted.add(targetUid); // 聊過天之後才能邀請糾纏
 
     await Navigator.of(context).push(PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => ChatScreen(
@@ -2759,6 +3066,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     HiddenContent.instance.removeListener(_onHiddenContentChanged);
     quantumSession.removeListener(_onQuantumChanged);
     _quantumEntry.dispose(); _quantumCollapse.dispose(); _quantumGlow.dispose();
+    _quantumClock?.cancel(); _chimeBell?.dispose();
+    for (final sub in _signalSubs) { sub.cancel(); }
     _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
@@ -2873,14 +3182,51 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                     p: QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
                                         scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY)),
                                     seat: qs.seatCenter, dots: _quantumDots, glow: _quantumGlow.value,
+                                    boost: _chimeBoost(QuantumChime.offset(DateTime.now())),
                                   ),
                                 );
                               },
                             ),
                           ),
                         ),
+                      // 整點報時（光之使者、鐘聲光圈、光波、報時微光）與糾纏光線：畫在氣泡底下
+                      if (quantumOn)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) {
+                                final now = DateTime.now();
+                                final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+                                final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
+                                    scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
+                                final screen = (Offset.zero & Size(screenWidth, screenHeight)).deflate(24);
+                                final ends = <(Offset, String)>[], offscreen = <bool>[];
+                                for (final partner in _quantumPartners) {
+                                  final o = quantumLocal(partner.lat, partner.lng);
+                                  if (_entangleEnd(proj, screen, o.east, o.north) case (final at, final out)?) {
+                                    ends.add((at, out || currentScale < _quantumWorldScale ? partner.nickname : ''));
+                                    offscreen.add(out);
+                                  }
+                                }
+                                final chiming = QuantumChime.active(now);
+                                return Stack(children: [
+                                  if (chiming || _quantumFlights.isNotEmpty)
+                                    Positioned.fill(child: CustomPaint(painter: QuantumChimePainter(
+                                      p: proj, t: QuantumChime.offset(now), strikes: QuantumChime.strikeTimes(QuantumChime.strikes(now)),
+                                      count: _chimeCount, flights: _quantumFlights, nowMs: now.millisecondsSinceEpoch,
+                                    ))),
+                                  if (ends.isNotEmpty && !_quantumSelfCollapse)
+                                    Positioned.fill(child: CustomPaint(painter: QuantumEntanglePainter(
+                                      me: Offset(centerX, centerY), ends: ends, offscreen: offscreen, phase: (now.millisecondsSinceEpoch % 2400) / 2400,
+                                    ))),
+                                ]);
+                              },
+                            ),
+                          ),
+                        ),
                       // 量子世界沒有大頭貼時：自己是一顆小光點（不畫系統藍點，那是真實位置）
-                      if (quantumOn && _myAvatarUrl.isEmpty && !_quantumSelfCollapse)
+                      if (quantumOn && _myAvatarUrl.isEmpty && !_quantumSelfCollapse && !_quantumReform)
                         Positioned(
                           left: centerX - 7, top: centerY - 7,
                           child: IgnorePointer(child: Container(width: 14, height: 14, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white,
@@ -2888,7 +3234,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         ),
 
                       // 🌟 完美維持你自己的定位點縮小設定
-                      if (_myAvatarUrl.isNotEmpty && !_quantumSelfCollapse) 
+                      if (_myAvatarUrl.isNotEmpty && !_quantumSelfCollapse && !_quantumReform) 
                         Positioned(
                           left: centerX - 13.5, 
                           top: centerY - 13.5,
@@ -2950,6 +3296,39 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 量子世界的世界視角（縮到超過一般雷達範圍）：每個人都只是一個光點，不顯示心情；放大回來才看得到
                       if (!quantumOn || currentScale >= _quantumWorldScale)
                         ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
+                      // 量子共振光環、量子訊號：浮在氣泡上面
+                      if (quantumOn && (_resonanceUntil.isNotEmpty || _signalFloats.isNotEmpty))
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) {
+                                final now = DateTime.now().millisecondsSinceEpoch;
+                                _resonanceUntil.removeWhere((_, until) => until < now);
+                                _signalFloats.removeWhere((f) => now - f.startMs > QuantumSignalFloat.durationMs);
+                                final ring = <(Offset, Offset?)>[];
+                                var ringT = 0.0;
+                                for (final e in _resonanceUntil.entries) {
+                                  ringT = 1 - (e.value - now) / 10000;
+                                  ring.add((Offset(centerX, centerY), _bubbleAnchors[e.key]));
+                                }
+                                return Stack(children: [
+                                  if (ring.isNotEmpty) Positioned.fill(child: CustomPaint(painter: QuantumResonancePainter(pairs: ring, t: ringT.clamp(0.0, 1.0)))),
+                                  for (final f in _signalFloats)
+                                    if (_bubbleAnchors[f.uid] case final at?)
+                                      Builder(builder: (context) {
+                                        final k = (now - f.startMs) / QuantumSignalFloat.durationMs;
+                                        return Positioned(
+                                          left: at.dx + 26, top: at.dy - 70 - 36 * k,
+                                          child: Opacity(opacity: (k < 0.15 ? k / 0.15 : 1 - max(0.0, k - 0.6) / 0.4).clamp(0.0, 1.0),
+                                              child: Text(quantumSignalEmoji[f.signal], style: TextStyle(fontSize: 26 + 6 * sin(k * pi)))),
+                                        );
+                                      }),
+                                ]);
+                              },
+                            ),
+                          ),
+                        ),
                       // 還在呼吸的心情據點小燈畫在氣泡上面，才點得到（只有 150 公尺內的一兩盞）
                       if (!quantumOn) ..._placeLamps(seen: false, centerX: centerX, centerY: centerY, screenHeight: screenHeight, pitch: smoothPitch, heading: currentHeading, scale: currentScale, rhythm: currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
@@ -2980,7 +3359,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           ),
                         ),
                       // 塌縮離場：自己或旁邊的人主動離開量子世界，氣泡化成光點散掉
-                      if (_quantumCollapse.isAnimating && (_quantumSelfCollapse || _quantumBursts.isNotEmpty))
+                      if (_quantumCollapse.isAnimating && (_quantumSelfCollapse || _quantumReform || _quantumBursts.isNotEmpty))
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedBuilder(
@@ -2990,7 +3369,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
                                     scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
                                 return Stack(children: [
-                                  if (_quantumSelfCollapse)
+                                  // 穿隧時在新席位重組：倒著播，光點往中心聚攏
+                                  if (_quantumSelfCollapse || _quantumReform)
                                     Positioned.fill(child: CustomPaint(painter: ParticleBurstPainter(origin: Offset(centerX, centerY), progress: _quantumCollapse.value, color: Night.auroraBlue))),
                                   for (final b in _quantumBursts)
                                     if (proj.project(quantumLocal(b.lat, b.lng).east, quantumLocal(b.lat, b.lng).north) case (final at, _)?)
@@ -3019,6 +3399,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ],
                           ]),
                         ),
+                      // 整點報時的倒數與報時微光
+                      if (quantumOn && QuantumChime.active(DateTime.now()))
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + (_ritualTarget != null ? 104 : 56), left: Night.space4, right: Night.space4,
+                          child: Center(child: QuantumChimeBanner(
+                            t: QuantumChime.offset(DateTime.now()), hour: QuantumChime.strikes(DateTime.now()) % 24,
+                            sent: _chimeSent, count: _chimeCount, onLook: _lookAtOrigin, onSend: _sendChimeGlimmer,
+                          )),
+                        ),
                       // 城市心情天氣
                       // 城市心情天氣；在量子世界改成席位代號＋世界在線人數
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4,
@@ -3045,6 +3434,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
                       ),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
+                      // 整點前 10 秒的大倒數
+                      if (quantumOn && QuantumChime.offset(DateTime.now()) >= -11 && QuantumChime.offset(DateTime.now()) < 0)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) => CustomPaint(painter: QuantumCountdownPainter(t: QuantumChime.offset(DateTime.now()))),
+                            ),
+                          ),
+                        ),
                       // 量子世界的入場儀式：蓋在最上面
                       if (_quantumEntry.isAnimating)
                         Positioned.fill(
@@ -3082,6 +3481,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isDemo; // 示範對象：名字前面加上「示範」
   final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
   final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
+  final Color? dayTint; // 量子世界的晝夜色調：依主人的當地時間
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -3098,6 +3498,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isDemo = false,
     this.hostEmoji,
     this.parallelCity,
+    this.dayTint,
     this.shadowOpacity = 1.0
   });
 
@@ -3227,6 +3628,16 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                             shape: BoxShape.circle,
                             border: Border.all(color: Night.auroraViolet.withOpacity(0.75), width: 1),
                             boxShadow: [BoxShadow(color: Night.auroraViolet.withOpacity(0.25), blurRadius: 10)],
+                          ),
+                        ),
+                      // 晝夜蜂巢：頭像外一圈主人當地時間的色調（清晨淡金、白天亮白、黃昏橘紫、深夜深藍）
+                      if (widget.dayTint case final tint?)
+                        Container(
+                          width: avatarSize + 10, height: avatarSize + 10,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: tint.withOpacity(0.85), width: 2),
+                            boxShadow: [BoxShadow(color: tint.withOpacity(0.35), blurRadius: 10)],
                           ),
                         ),
                       // 集會主持人：頭像外一圈亮漸層光環

@@ -1143,5 +1143,149 @@
   "guideS17L2": "全世界在量子世界的人都在同一個房間：以台北 101 為原點排成蜂巢，相鄰席位相距 100 公尺。你會拿到一個席位代號，例如「Q4-17」（第 4 圈第 17 號），圈數越小越靠近原點。入場時先補別人離開的空位；第 1～3 圈保留給集會主持人。",
   "guideS17L3": "沒有人看得到你的真實位置：大家看到的是你的席位，加上入場後走了多遠。走路時氣泡跟著移動，時速超過 25 公里（搭車）時暫停。中國大陸不開放量子世界。",
   "guideS17L4": "暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。兩指縮小可以看到整個蜂巢，遠處的人會變成光點。點左上角的席位代號，可以看在線人數、開啟「量子寧靜」（別人不能敲門，仍然收得到微光），或離開。",
-  "guideS17L5": "量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。"
+  "guideS17L5": "量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。",
+  "quantumChimeCountdown": "{seconds} 秒後整點報時",
+  "@quantumChimeCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "quantumChimeLookOrigin": "大家都在看 101 原點",
+  "quantumChimeLook": "看原點",
+  "quantumChimeNow": "量子中心 {hour} 點報時",
+  "@quantumChimeNow": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "quantumChimeSend": "送出報時微光",
+  "quantumChimeSent": "你的微光飛向原點",
+  "quantumChimeWatched": "這次報時，有 {n} 人一起看",
+  "@quantumChimeWatched": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "quantumChimeReminder": "整點報時提醒",
+  "quantumChimeReminderSubtitle": "整點前提醒你到 101 原點看報時",
+  "quantumChimeNotifyBody": "整點報時快開始了，到 101 原點一起看",
+  "quantumChimeChannel": "整點報時",
+  "quantumChimeChannelDesc": "量子世界的整點報時提醒",
+  "quantumEntangleInvite": "邀請量子糾纏",
+  "quantumEntangleInvited": "已邀請 {name} 糾纏",
+  "@quantumEntangleInvited": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumEntangleAskTitle": "量子糾纏",
+  "quantumEntangleAskBody": "{name}（{code}）想和你量子糾纏。糾纏後，兩顆氣泡之間會有一道光線，不管相隔多遠都看得到；任何一方離開，光線就會塌縮。不留紀錄。",
+  "@quantumEntangleAskBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumEntangleAccept": "糾纏",
+  "quantumEntangled": "你和 {name} 糾纏了",
+  "@quantumEntangled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumEntangleCollapsed": "與 {name} 的糾纏已塌縮",
+  "@quantumEntangleCollapsed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumEntangleCut": "解除糾纏",
+  "quantumEntangleFull": "你已經和 3 個人糾纏了",
+  "quantumEntangleTheirFull": "對方已經和 3 個人糾纏了",
+  "quantumEntangleGone": "對方已經離開量子世界",
+  "quantumEntangleExpired": "邀請已經過期",
+  "quantumEntangledTitle": "糾纏中",
+  "quantumTunnel": "量子穿隧",
+  "quantumTunnelSubtitle": "跳到蜂巢裡隨機一個空席位，換一群鄰居。每次入場可以用一次。",
+  "quantumTunnelUsed": "這次入場已經穿隧過了",
+  "quantumTunnelDone": "穿隧到 {code}",
+  "@quantumTunnelDone": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumShowTime": "顯示我的當地時間",
+  "quantumShowTimeSubtitle": "別人長按你的氣泡時看得到；關閉時只顯示晝夜色調",
+  "quantumLocalTime": "當地 {time}・{part}",
+  "@quantumLocalTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumDawn": "清晨",
+  "quantumDay": "白天",
+  "quantumDusk": "黃昏",
+  "quantumNight": "深夜",
+  "quantumTopicsTitle": "量子同頻",
+  "quantumTopicsSubtitle": "選最多 3 個主題，顯示在你的氣泡下方",
+  "quantumTopicMusic": "音樂",
+  "quantumTopicMovies": "電影",
+  "quantumTopicTech": "科技",
+  "quantumTopicWalks": "散步",
+  "quantumTopicFood": "美食",
+  "quantumTopicTravel": "旅行",
+  "quantumTopicReading": "閱讀",
+  "quantumTopicSports": "運動",
+  "quantumTopicsCommon": "你們都喜歡：{topics}",
+  "@quantumTopicsCommon": {
+    "placeholders": {
+      "topics": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumSignalsTitle": "量子訊號",
+  "quantumSignalReceived": "{name} 傳來一個訊號",
+  "@quantumSignalReceived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quantumSignalWait": "剛送過了，等一下再送",
+  "quantumResonance": "你和 {name} 產生了共振",
+  "@quantumResonance": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guideS17L6": "整點報時：每個整點，101 光柱前 1 分鐘開始變亮，整點時光之使者繞原點一圈、敲出台北時間的鐘聲（0 點 24 聲），最後一道光波擴散到整個蜂巢。報時時點一下「送出報時微光」，一起看的人越多光越盛。「整點報時提醒」預設打開，可以在面板裡關掉。",
+  "guideS17L7": "聊過天的人可以邀請「量子糾纏」：兩顆氣泡之間會有一道光線，不管多遠都看得到，任何一方離開就塌縮，每人最多同時糾纏 3 人。「量子穿隧」每次入場可以用一次，跳到隨機一個空席位、換一群鄰居。",
+  "guideS17L8": "每顆氣泡帶著主人當地時間的色調：清晨淡金、白天亮白、黃昏橘紫、深夜深藍；開啟「顯示我的當地時間」後，長按氣泡看得到時間。24 小時內互送微光會產生「量子共振」；長按氣泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子訊號；在面板選最多 3 個「量子同頻」主題，共同的主題會亮起來。"
 }

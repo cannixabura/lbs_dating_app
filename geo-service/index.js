@@ -363,6 +363,10 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
 //   enter：入場（真實位置只用來排除中國大陸，不存）；3 分鐘內重新入場回到原本的席位
 //   beat ：心跳＋掃描（位移、心情、量子寧靜），回傳附近的人、世界視角的光點、塌縮動畫、在線人數
 //   leave：主動離開，席位立刻釋放，旁邊的人看到塌縮動畫
+//   ── 第二期 ──
+//   entangle：量子糾纏（invite / accept / decline / cut），任一方離開就塌縮
+//   tunnel  ：量子穿隧，每次入場一次，跳到隨機一個空席位
+//   chime   ：整點報時時送出一道報時微光
 // ============================================================================
 
 /** 釋放席位：空位放回清單，這次入場的資料全部刪掉 */
@@ -376,12 +380,85 @@ function releaseSeatCommands(uid, ordinal, region) {
     ];
 }
 
+/** 釋放席位，連同這次入場的糾纏：對方的光線斷掉，下一次心跳看到「糾纏已塌縮」 */
+async function quantumReleaseCommands(list) {
+    if (list.length === 0) return [];
+    const info = await sendUpstashPipeline(list.flatMap(({ uid }) => [["SMEMBERS", quantum.KEY.ent(uid)], ["HGET", quantum.KEY.seat(uid), "nickname"]]));
+    return list.flatMap(({ uid, ord, region }, i) => {
+        const partners = Array.isArray(info[2 * i]) ? info[2 * i] : [];
+        const nickname = info[2 * i + 1] || "";
+        return [
+            ...releaseSeatCommands(uid, ord, region),
+            ["DEL", quantum.KEY.ent(uid), quantum.KEY.invites(uid), quantum.KEY.entGone(uid)],
+            ...partners.flatMap((p) => [["SREM", quantum.KEY.ent(p), uid], ["RPUSH", quantum.KEY.entGone(p), nickname], ["EXPIRE", quantum.KEY.entGone(p), "600"]]),
+        ];
+    });
+}
+
 /** 順手釋放超過 3 分鐘沒心跳的席位 */
 async function sweepQuantumSeats(now) {
     const stale = await sendUpstashCommand(["ZRANGEBYSCORE", quantum.KEY.beats, "-inf", String(now - quantum.GRACE_MS), "LIMIT", "0", String(quantum.STALE_SWEEP)]);
     if (!Array.isArray(stale) || stale.length === 0) return;
     const seats = await sendUpstashPipeline(stale.map((u) => ["HMGET", quantum.KEY.seat(u), "ord", "region"]));
-    await sendUpstashPipeline(stale.flatMap((u, i) => releaseSeatCommands(u, seats[i]?.[0] ?? null, seats[i]?.[1])));
+    await sendUpstashPipeline(await quantumReleaseCommands(stale.map((u, i) => ({ uid: u, ord: seats[i]?.[0] ?? null, region: seats[i]?.[1] }))));
+}
+
+/** 第二期的個人設定：時區（晝夜色調）、是否顯示當地時間、量子同頻主題 */
+function quantumProfileFields(body) {
+    const fields = [];
+    if (quantum.validTz(body.tz)) fields.push("tz", String(body.tz));
+    if (typeof body.showTime === "boolean") fields.push("showTime", body.showTime ? "1" : "0");
+    if (Array.isArray(body.topics)) fields.push("topics", quantum.cleanTopics(body.topics).join(","));
+    return fields;
+}
+
+const parseTopics = (v) => (v ? String(v).split(",").map(Number).filter((t) => Number.isInteger(t)) : []);
+
+/** 兩人之間有沒有封鎖（任一方） */
+async function eitherBlocked(a, b) {
+    const db = admin.database();
+    const [x, y] = await Promise.all([db.ref(`blocks/${a}/${b}`).once("value"), db.ref(`blocks/${b}/${a}`).once("value")]);
+    return x.exists() || y.exists();
+}
+
+/** 心跳附帶的第二期資料：糾纏的人（不管多遠都回傳位置）、糾纏邀請、剛塌縮的糾纏、整點報時 */
+async function quantumExtras(uid, now) {
+    const hour = quantum.chimeHour(now);
+    const chiming = quantum.inChime(now);
+    const [partners, invitesRaw, gone, chimeCount, chimeFx] = await sendUpstashPipeline([
+        ["SMEMBERS", quantum.KEY.ent(uid)],
+        ["HGETALL", quantum.KEY.invites(uid)],
+        ["LRANGE", quantum.KEY.entGone(uid), "0", "-1"],
+        chiming ? ["ZCARD", quantum.KEY.chime(hour)] : ["ECHO", ""],
+        chiming ? ["ZRANGE", quantum.KEY.chimeFx(hour), String(-quantum.CHIME_FX_MAX), "-1"] : ["ECHO", ""],
+    ]);
+    const partnerList = Array.isArray(partners) ? partners : [];
+    const invites = Object.entries(hashToObject(invitesRaw)).filter(([, at]) => now - parseInt(at, 10) <= quantum.INVITE_MS).map(([from]) => from);
+    const seats = await sendUpstashPipeline([...partnerList, ...invites].map((u) => ["HMGET", quantum.KEY.seat(u), "ord", "east", "north", "nickname", "beat"]));
+    const ent = [], cleanup = [];
+    partnerList.forEach((p, i) => {
+        const [ord, east, north, nickname, beat] = seats[i] || [];
+        if (ord == null) { cleanup.push(["SREM", quantum.KEY.ent(uid), p]); return; }
+        if (now - parseInt(beat || "0", 10) > quantum.VISIBLE_MS) return; // 斷線中先不畫光線
+        const st = quantumState({ ord, east, north });
+        ent.push({ uid: p, nickname: nickname || "", code: st.s.code, lat: st.pos.lat, lng: st.pos.lng });
+    });
+    const invitesOut = [];
+    invites.forEach((from, j) => {
+        const [ord, , , nickname] = seats[partnerList.length + j] || [];
+        if (ord != null && !partnerList.includes(from)) invitesOut.push({ uid: from, nickname: nickname || "", code: quantum.seat(parseInt(ord, 10)).code });
+    });
+    const goneList = Array.isArray(gone) ? gone : [];
+    if (goneList.length > 0) cleanup.push(["DEL", quantum.KEY.entGone(uid)]);
+    if (cleanup.length > 0) await sendUpstashPipeline(cleanup);
+    const out = { ent, invites: invitesOut, entGone: goneList };
+    if (chiming) {
+        out.chime = {
+            at: quantum.nearestHour(now), strikes: quantum.chimeStrikes(now), count: Number(chimeCount) || 0,
+            fx: (Array.isArray(chimeFx) ? chimeFx : []).map((e) => String(e).split("|")).filter((x) => x[0] !== uid).map((x) => [parseFloat(x[1]), parseFloat(x[2])]),
+        };
+    }
+    return out;
 }
 
 function hashToObject(list) {
@@ -395,6 +472,14 @@ function quantumState(h) {
     const s = quantum.seat(parseInt(h.ord, 10));
     const east = parseFloat(h.east) || 0, north = parseFloat(h.north) || 0;
     return { s, east, north, pos: quantum.toLatLng(s.east + east, s.north + north) };
+}
+
+/** 塌縮動畫：旁邊的人在接下來幾秒的掃描裡會看到光點散掉 */
+function collapseCommands(uid, pos, now) {
+    return [
+        ["ZADD", quantum.KEY.collapses, String(now), `${uid}|${pos.lat.toFixed(6)}|${pos.lng.toFixed(6)}|${now}`],
+        ["ZREMRANGEBYSCORE", quantum.KEY.collapses, "-inf", String(now - quantum.COLLAPSE_MS)],
+    ];
 }
 
 function quantumMe(st) {
@@ -434,13 +519,17 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
 
     const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
-    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat"]));
+    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics"]));
     const users = [];
     members.forEach((m, i) => {
-        const [ord, mood, nickname, hidden, quiet, beat] = profiles[i] || [];
+        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics] = profiles[i] || [];
         if (ord == null || hidden === "1" || !nickname) return;
+        const tz = tzRaw == null ? NaN : parseInt(tzRaw, 10);
         users.push({ uid: m[0], ...coordOf(m), mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: parseInt(beat || "0", 10),
-            quantum: quantum.seat(parseInt(ord, 10)).code, ...(quiet === "1" ? { quiet: true } : {}) });
+            quantum: quantum.seat(parseInt(ord, 10)).code, ...(quiet === "1" ? { quiet: true } : {}),
+            // 晝夜色調一律有；當地時間只在對方同意時才給
+            ...(quantum.validTz(tz) ? { day: quantum.dayPart(tz, now), ...(showTime === "1" ? { tz } : {}) } : {}),
+            ...(topics ? { topics: parseTopics(topics) } : {}) });
     });
 
     // 審核示範對象：只有輸入過通關碼的帳號看得到，放在自己周圍
@@ -491,7 +580,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         if (prev.ord != null && now - parseInt(prev.beat || "0", 10) < quantum.GRACE_MS) {
             resumed = true; // 斷線 3 分鐘內回來：回到原本的席位
         } else {
-            if (prev.ord != null) await sendUpstashPipeline(releaseSeatCommands(uid, prev.ord, prev.region));
+            if (prev.ord != null) await sendUpstashPipeline(await quantumReleaseCommands([{ uid, ord: prev.ord, region: prev.region }]));
             // 先補別人離開留下的空位，沒有空位才往外排
             const popped = await sendUpstashCommand(["ZPOPMIN", quantum.KEY.free, "1"]);
             const ordinal = Array.isArray(popped) && popped.length > 0 ? parseInt(popped[0], 10) : (await sendUpstashCommand(["INCR", quantum.KEY.next])) - 1;
@@ -506,6 +595,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 "rawEast", resumed ? String(st.east) : "0", "rawNorth", resumed ? String(st.north) : "0", "rawAt", String(now),
                 // 入場的地方：走回這裡時位移歸位（斷線回來就從回來的地方算）
                 "homeEast", resumed ? String(st.east) : "0", "homeNorth", resumed ? String(st.north) : "0",
+                "homeAccEast", resumed ? String(st.east) : "0", "homeAccNorth", resumed ? String(st.north) : "0",
+                ...quantumProfileFields(req.body),
                 "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ["ZADD", quantum.KEY.region(region), String(now), uid],
@@ -516,7 +607,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)],
             ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : []),
         ]);
-        return res.status(200).json({ success: true, resumed, me: quantumMe(st), quiet: prev.quiet === "1" });
+        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1" });
       }
 
       if (action === "beat") {
@@ -528,12 +619,14 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const raw = quantum.validDisplacement(east, north) ? { east, north } : null;
         if (raw) {
             acc = quantum.accumulate({ ...acc, rawEast: parseFloat(h.rawEast) || 0, rawNorth: parseFloat(h.rawNorth) || 0, rawAt: parseInt(h.rawAt || h.beat || "0", 10),
-                homeEast: h.homeEast == null ? undefined : parseFloat(h.homeEast), homeNorth: h.homeNorth == null ? undefined : parseFloat(h.homeNorth) }, raw, now);
+                homeEast: h.homeEast == null ? undefined : parseFloat(h.homeEast), homeNorth: h.homeNorth == null ? undefined : parseFloat(h.homeNorth),
+                homeAccEast: h.homeAccEast == null ? undefined : parseFloat(h.homeAccEast), homeAccNorth: h.homeAccNorth == null ? undefined : parseFloat(h.homeAccNorth) }, raw, now);
         }
         const st = quantumState({ ...h, east: acc.east, north: acc.north });
         const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0"];
         if (raw) fields.push("rawEast", String(raw.east), "rawNorth", String(raw.north), "rawAt", String(now));
         if (typeof req.body.quiet === "boolean") fields.push("quiet", req.body.quiet ? "1" : "0");
+        fields.push(...quantumProfileFields(req.body));
         const profile = [];
         if (typeof req.body.mood === "string" || typeof req.body.nickname === "string") {
             const mood = maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
@@ -549,9 +642,9 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ...profile,
         ]);
         const radiusKM = quantum.clampRadius(req.body.radiusKM);
-        const [scan, online] = await Promise.all([quantumScan(uid, st.pos, radiusKM, lang, now), quantumOnlineCounts(now)]);
+        const [scan, online, extras] = await Promise.all([quantumScan(uid, st.pos, radiusKM, lang, now), quantumOnlineCounts(now), quantumExtras(uid, now)]);
         if (Math.random() < 0.1) sweepQuantumSeats(now).catch((e) => console.error('quantum sweep failed:', e));
-        return res.status(200).json({ success: true, me: quantumMe(st), ...scan, online });
+        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online });
       }
 
       if (action === "leave") {
@@ -559,12 +652,91 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         if (h.ord == null) return res.status(200).json({ success: true });
         const st = quantumState(h);
         await sendUpstashPipeline([
-            ...releaseSeatCommands(uid, h.ord, h.region),
+            ...(await quantumReleaseCommands([{ uid, ord: h.ord, region: h.region }])),
             // 塌縮離場：旁邊的人在接下來幾秒的掃描裡會看到光點散掉
-            ["ZADD", quantum.KEY.collapses, String(now), `${uid}|${st.pos.lat.toFixed(6)}|${st.pos.lng.toFixed(6)}|${now}`],
-            ["ZREMRANGEBYSCORE", quantum.KEY.collapses, "-inf", String(now - quantum.COLLAPSE_MS)],
+            ...collapseCommands(uid, st.pos, now),
         ]);
         return res.status(200).json({ success: true });
+      }
+
+      if (action === "tunnel") {
+        // 量子穿隧：每次入場一次，跳到蜂巢裡隨機一個空席位，換一群鄰居；原本的席位釋放
+        const h = hashToObject(await sendUpstashCommand(["HGETALL", quantum.KEY.seat(uid)]));
+        if (h.ord == null) return res.status(410).json({ success: false, code: "expired" });
+        if (h.tunneled === "1") return res.status(409).json({ success: false, code: "used" });
+        const from = quantumState(h);
+        let ordinal = null;
+        for (let tries = 0; tries < 5 && ordinal == null; tries++) {
+            const pick = await sendUpstashCommand(["ZRANDMEMBER", quantum.KEY.free]);
+            if (pick == null) break;
+            if ((await sendUpstashCommand(["ZREM", quantum.KEY.free, String(pick)])) === 1) ordinal = parseInt(pick, 10);
+        }
+        if (ordinal == null) ordinal = (await sendUpstashCommand(["INCR", quantum.KEY.next])) - 1; // 沒有空位就到最外圈
+        const st = quantumState({ ord: String(ordinal), east: "0", north: "0" });
+        const rawE = h.rawEast ?? "0", rawN = h.rawNorth ?? "0";
+        await sendUpstashPipeline([
+            ["ZADD", quantum.KEY.free, h.ord, h.ord],
+            // 新席位從 0 開始算位移；走回穿隧的地方時歸位到新席位
+            ["HSET", quantum.KEY.seat(uid), "ord", String(ordinal), "east", "0", "north", "0", "tunneled", "1",
+                "homeEast", rawE, "homeNorth", rawN, "homeAccEast", "0", "homeAccNorth", "0", "beat", String(now)],
+            ["ZADD", quantum.KEY.beats, String(now), uid],
+            ["GEOADD", quantum.KEY.geo, String(st.pos.lng), String(st.pos.lat), uid],
+            ...collapseCommands(uid, from.pos, now),
+        ]);
+        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: true }, from: { lat: from.pos.lat, lng: from.pos.lng } });
+      }
+
+      if (action === "chime") {
+        // 整點報時：送出一道報時微光，光點從自己的席位飛向原點
+        if (!quantum.chimeOpen(now)) return res.status(409).json({ success: false, code: "closed" });
+        const h = hashToObject(await sendUpstashCommand(["HGETALL", quantum.KEY.seat(uid)]));
+        if (h.ord == null) return res.status(410).json({ success: false, code: "expired" });
+        const st = quantumState(h);
+        const hour = quantum.chimeHour(now);
+        const [added, , count] = await sendUpstashPipeline([
+            ["ZADD", quantum.KEY.chime(hour), "NX", String(now), uid],
+            ["ZADD", quantum.KEY.chimeFx(hour), String(now), `${uid}|${st.pos.lat.toFixed(6)}|${st.pos.lng.toFixed(6)}`],
+            ["ZCARD", quantum.KEY.chime(hour)],
+            ["EXPIRE", quantum.KEY.chime(hour), "3600"],
+            ["EXPIRE", quantum.KEY.chimeFx(hour), "3600"],
+        ]);
+        return res.status(200).json({ success: true, first: added === 1, count: Number(count) || 0 });
+      }
+
+      if (action === "entangle") {
+        const { op } = req.body;
+        const other = typeof req.body.uid === "string" && req.body.uid.length <= 128 ? req.body.uid : null;
+        if (!other || other === uid || !["invite", "accept", "decline", "cut"].includes(op)) return res.status(400).json({ success: false });
+        if (op === "decline") {
+            await sendUpstashCommand(["HDEL", quantum.KEY.invites(uid), other]);
+            return res.status(200).json({ success: true });
+        }
+        if (op === "cut") {
+            const [, removed, nickname] = await sendUpstashPipeline([
+                ["SREM", quantum.KEY.ent(uid), other], ["SREM", quantum.KEY.ent(other), uid], ["HGET", quantum.KEY.seat(uid), "nickname"]]);
+            if (removed === 1) await sendUpstashPipeline([["RPUSH", quantum.KEY.entGone(other), nickname || ""], ["EXPIRE", quantum.KEY.entGone(other), "600"]]);
+            return res.status(200).json({ success: true });
+        }
+        const [mine, theirs, myCount, theirCount, invitedAt, already] = await sendUpstashPipeline([
+            ["HGET", quantum.KEY.seat(uid), "ord"], ["HGET", quantum.KEY.seat(other), "ord"],
+            ["SCARD", quantum.KEY.ent(uid)], ["SCARD", quantum.KEY.ent(other)],
+            ["HGET", quantum.KEY.invites(uid), other], ["SISMEMBER", quantum.KEY.ent(uid), other]]);
+        if (mine == null) return res.status(410).json({ success: false, code: "expired" });
+        if (theirs == null) return res.status(404).json({ success: false, code: "gone" }); // 對方已經離開量子世界
+        if (already === 1) return res.status(200).json({ success: true, entangled: true });
+        if (myCount >= quantum.MAX_ENTANGLED) return res.status(409).json({ success: false, code: "full" });
+        if (theirCount >= quantum.MAX_ENTANGLED) return res.status(409).json({ success: false, code: "theirFull" });
+        if (await eitherBlocked(uid, other)) return res.status(404).json({ success: false, code: "gone" });
+        if (op === "invite") {
+            await sendUpstashPipeline([["HSET", quantum.KEY.invites(other), uid, String(now)], ["EXPIRE", quantum.KEY.invites(other), "600"]]);
+            return res.status(200).json({ success: true });
+        }
+        // accept：邀請 2 分鐘內有效
+        if (invitedAt == null || now - parseInt(invitedAt, 10) > quantum.INVITE_MS) return res.status(410).json({ success: false, code: "inviteExpired" });
+        await sendUpstashPipeline([
+            ["SADD", quantum.KEY.ent(uid), other], ["SADD", quantum.KEY.ent(other), uid],
+            ["HDEL", quantum.KEY.invites(uid), other], ["HDEL", quantum.KEY.invites(other), uid]]);
+        return res.status(200).json({ success: true, entangled: true });
       }
 
       res.status(400).json({ success: false, error: "unknown action" });
@@ -800,7 +972,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       if (hostingGid) await endGathering(hostingGid, 'host_left');
       const [quantumOrd, quantumRegion] = (await sendUpstashCommand(["HMGET", quantum.KEY.seat(uid), "ord", "region"])) || [];
       await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`],
-          ...releaseSeatCommands(uid, quantumOrd ?? null, quantumRegion)]);
+          ...(await quantumReleaseCommands([{ uid, ord: quantumOrd ?? null, region: quantumRegion }]))]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
           await sendUpstashPipeline([["ZREM", "whispers", ...myWhispers], ...myWhispers.map((id) => ["DEL", `whisper:${id}`, `whisper_readers:${id}`]), ["DEL", `whispers_by:${uid}`]]);

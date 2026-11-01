@@ -3528,6 +3528,330 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。'**
   String get guideS17L5;
+
+  /// No description provided for @quantumChimeCountdown.
+  ///
+  /// In zh, this message translates to:
+  /// **'{seconds} 秒後整點報時'**
+  String quantumChimeCountdown(int seconds);
+
+  /// No description provided for @quantumChimeLookOrigin.
+  ///
+  /// In zh, this message translates to:
+  /// **'大家都在看 101 原點'**
+  String get quantumChimeLookOrigin;
+
+  /// No description provided for @quantumChimeLook.
+  ///
+  /// In zh, this message translates to:
+  /// **'看原點'**
+  String get quantumChimeLook;
+
+  /// No description provided for @quantumChimeNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子中心 {hour} 點報時'**
+  String quantumChimeNow(int hour);
+
+  /// No description provided for @quantumChimeSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出報時微光'**
+  String get quantumChimeSend;
+
+  /// No description provided for @quantumChimeSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的微光飛向原點'**
+  String get quantumChimeSent;
+
+  /// No description provided for @quantumChimeWatched.
+  ///
+  /// In zh, this message translates to:
+  /// **'這次報時，有 {n} 人一起看'**
+  String quantumChimeWatched(int n);
+
+  /// No description provided for @quantumChimeReminder.
+  ///
+  /// In zh, this message translates to:
+  /// **'整點報時提醒'**
+  String get quantumChimeReminder;
+
+  /// No description provided for @quantumChimeReminderSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'整點前提醒你到 101 原點看報時'**
+  String get quantumChimeReminderSubtitle;
+
+  /// No description provided for @quantumChimeNotifyBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'整點報時快開始了，到 101 原點一起看'**
+  String get quantumChimeNotifyBody;
+
+  /// No description provided for @quantumChimeChannel.
+  ///
+  /// In zh, this message translates to:
+  /// **'整點報時'**
+  String get quantumChimeChannel;
+
+  /// No description provided for @quantumChimeChannelDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子世界的整點報時提醒'**
+  String get quantumChimeChannelDesc;
+
+  /// No description provided for @quantumEntangleInvite.
+  ///
+  /// In zh, this message translates to:
+  /// **'邀請量子糾纏'**
+  String get quantumEntangleInvite;
+
+  /// No description provided for @quantumEntangleInvited.
+  ///
+  /// In zh, this message translates to:
+  /// **'已邀請 {name} 糾纏'**
+  String quantumEntangleInvited(String name);
+
+  /// No description provided for @quantumEntangleAskTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子糾纏'**
+  String get quantumEntangleAskTitle;
+
+  /// No description provided for @quantumEntangleAskBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}（{code}）想和你量子糾纏。糾纏後，兩顆氣泡之間會有一道光線，不管相隔多遠都看得到；任何一方離開，光線就會塌縮。不留紀錄。'**
+  String quantumEntangleAskBody(String name, String code);
+
+  /// No description provided for @quantumEntangleAccept.
+  ///
+  /// In zh, this message translates to:
+  /// **'糾纏'**
+  String get quantumEntangleAccept;
+
+  /// No description provided for @quantumEntangled.
+  ///
+  /// In zh, this message translates to:
+  /// **'你和 {name} 糾纏了'**
+  String quantumEntangled(String name);
+
+  /// No description provided for @quantumEntangleCollapsed.
+  ///
+  /// In zh, this message translates to:
+  /// **'與 {name} 的糾纏已塌縮'**
+  String quantumEntangleCollapsed(String name);
+
+  /// No description provided for @quantumEntangleCut.
+  ///
+  /// In zh, this message translates to:
+  /// **'解除糾纏'**
+  String get quantumEntangleCut;
+
+  /// No description provided for @quantumEntangleFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經和 3 個人糾纏了'**
+  String get quantumEntangleFull;
+
+  /// No description provided for @quantumEntangleTheirFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經和 3 個人糾纏了'**
+  String get quantumEntangleTheirFull;
+
+  /// No description provided for @quantumEntangleGone.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經離開量子世界'**
+  String get quantumEntangleGone;
+
+  /// No description provided for @quantumEntangleExpired.
+  ///
+  /// In zh, this message translates to:
+  /// **'邀請已經過期'**
+  String get quantumEntangleExpired;
+
+  /// No description provided for @quantumEntangledTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'糾纏中'**
+  String get quantumEntangledTitle;
+
+  /// No description provided for @quantumTunnel.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子穿隧'**
+  String get quantumTunnel;
+
+  /// No description provided for @quantumTunnelSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳到蜂巢裡隨機一個空席位，換一群鄰居。每次入場可以用一次。'**
+  String get quantumTunnelSubtitle;
+
+  /// No description provided for @quantumTunnelUsed.
+  ///
+  /// In zh, this message translates to:
+  /// **'這次入場已經穿隧過了'**
+  String get quantumTunnelUsed;
+
+  /// No description provided for @quantumTunnelDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'穿隧到 {code}'**
+  String quantumTunnelDone(String code);
+
+  /// No description provided for @quantumShowTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'顯示我的當地時間'**
+  String get quantumShowTime;
+
+  /// No description provided for @quantumShowTimeSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'別人長按你的氣泡時看得到；關閉時只顯示晝夜色調'**
+  String get quantumShowTimeSubtitle;
+
+  /// No description provided for @quantumLocalTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'當地 {time}・{part}'**
+  String quantumLocalTime(String time, String part);
+
+  /// No description provided for @quantumDawn.
+  ///
+  /// In zh, this message translates to:
+  /// **'清晨'**
+  String get quantumDawn;
+
+  /// No description provided for @quantumDay.
+  ///
+  /// In zh, this message translates to:
+  /// **'白天'**
+  String get quantumDay;
+
+  /// No description provided for @quantumDusk.
+  ///
+  /// In zh, this message translates to:
+  /// **'黃昏'**
+  String get quantumDusk;
+
+  /// No description provided for @quantumNight.
+  ///
+  /// In zh, this message translates to:
+  /// **'深夜'**
+  String get quantumNight;
+
+  /// No description provided for @quantumTopicsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子同頻'**
+  String get quantumTopicsTitle;
+
+  /// No description provided for @quantumTopicsSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'選最多 3 個主題，顯示在你的氣泡下方'**
+  String get quantumTopicsSubtitle;
+
+  /// No description provided for @quantumTopicMusic.
+  ///
+  /// In zh, this message translates to:
+  /// **'音樂'**
+  String get quantumTopicMusic;
+
+  /// No description provided for @quantumTopicMovies.
+  ///
+  /// In zh, this message translates to:
+  /// **'電影'**
+  String get quantumTopicMovies;
+
+  /// No description provided for @quantumTopicTech.
+  ///
+  /// In zh, this message translates to:
+  /// **'科技'**
+  String get quantumTopicTech;
+
+  /// No description provided for @quantumTopicWalks.
+  ///
+  /// In zh, this message translates to:
+  /// **'散步'**
+  String get quantumTopicWalks;
+
+  /// No description provided for @quantumTopicFood.
+  ///
+  /// In zh, this message translates to:
+  /// **'美食'**
+  String get quantumTopicFood;
+
+  /// No description provided for @quantumTopicTravel.
+  ///
+  /// In zh, this message translates to:
+  /// **'旅行'**
+  String get quantumTopicTravel;
+
+  /// No description provided for @quantumTopicReading.
+  ///
+  /// In zh, this message translates to:
+  /// **'閱讀'**
+  String get quantumTopicReading;
+
+  /// No description provided for @quantumTopicSports.
+  ///
+  /// In zh, this message translates to:
+  /// **'運動'**
+  String get quantumTopicSports;
+
+  /// No description provided for @quantumTopicsCommon.
+  ///
+  /// In zh, this message translates to:
+  /// **'你們都喜歡：{topics}'**
+  String quantumTopicsCommon(String topics);
+
+  /// No description provided for @quantumSignalsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子訊號'**
+  String get quantumSignalsTitle;
+
+  /// No description provided for @quantumSignalReceived.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} 傳來一個訊號'**
+  String quantumSignalReceived(String name);
+
+  /// No description provided for @quantumSignalWait.
+  ///
+  /// In zh, this message translates to:
+  /// **'剛送過了，等一下再送'**
+  String get quantumSignalWait;
+
+  /// No description provided for @quantumResonance.
+  ///
+  /// In zh, this message translates to:
+  /// **'你和 {name} 產生了共振'**
+  String quantumResonance(String name);
+
+  /// No description provided for @guideS17L6.
+  ///
+  /// In zh, this message translates to:
+  /// **'整點報時：每個整點，101 光柱前 1 分鐘開始變亮，整點時光之使者繞原點一圈、敲出台北時間的鐘聲（0 點 24 聲），最後一道光波擴散到整個蜂巢。報時時點一下「送出報時微光」，一起看的人越多光越盛。「整點報時提醒」預設打開，可以在面板裡關掉。'**
+  String get guideS17L6;
+
+  /// No description provided for @guideS17L7.
+  ///
+  /// In zh, this message translates to:
+  /// **'聊過天的人可以邀請「量子糾纏」：兩顆氣泡之間會有一道光線，不管多遠都看得到，任何一方離開就塌縮，每人最多同時糾纏 3 人。「量子穿隧」每次入場可以用一次，跳到隨機一個空席位、換一群鄰居。'**
+  String get guideS17L7;
+
+  /// No description provided for @guideS17L8.
+  ///
+  /// In zh, this message translates to:
+  /// **'每顆氣泡帶著主人當地時間的色調：清晨淡金、白天亮白、黃昏橘紫、深夜深藍；開啟「顯示我的當地時間」後，長按氣泡看得到時間。24 小時內互送微光會產生「量子共振」；長按氣泡可以送 👋 ☕ 🌙 🎵 🌧️ ✨ 量子訊號；在面板選最多 3 個「量子同頻」主題，共同的主題會亮起來。'**
+  String get guideS17L8;
 }
 
 class _AppLocalizationsDelegate

@@ -2054,4 +2054,198 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS17L5 =>
       'Thế giới lượng tử không có dư ảnh, lời thì thầm, thư gửi tương lai, điểm tâm trạng, Hải đăng thành phố hay buổi tụ họp. Trong thời gian ở trong, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bong bóng tan thành ánh sáng và bạn trở lại vị trí đã check-in. Nếu ứng dụng bị đóng hoặc mất kết nối quá 3 phút, chỗ ngồi sẽ được giải phóng.';
+
+  @override
+  String quantumChimeCountdown(int seconds) {
+    return 'Chuông giờ sau $seconds giây';
+  }
+
+  @override
+  String get quantumChimeLookOrigin => 'Mọi người đang nhìn về gốc 101';
+
+  @override
+  String get quantumChimeLook => 'Xem gốc';
+
+  @override
+  String quantumChimeNow(int hour) {
+    return 'Chuông $hour giờ Trung tâm Lượng tử';
+  }
+
+  @override
+  String get quantumChimeSend => 'Gửi đốm sáng chuông giờ';
+
+  @override
+  String get quantumChimeSent => 'Đốm sáng của bạn đang bay về gốc';
+
+  @override
+  String quantumChimeWatched(int n) {
+    return '$n người đã cùng xem lần chuông này';
+  }
+
+  @override
+  String get quantumChimeReminder => 'Nhắc chuông giờ';
+
+  @override
+  String get quantumChimeReminderSubtitle =>
+      'Nhắc bạn trước mỗi giờ để xem chuông ở gốc 101';
+
+  @override
+  String get quantumChimeNotifyBody =>
+      'Chuông giờ sắp bắt đầu — cùng xem ở gốc 101';
+
+  @override
+  String get quantumChimeChannel => 'Chuông giờ';
+
+  @override
+  String get quantumChimeChannelDesc => 'Nhắc chuông giờ của Thế giới lượng tử';
+
+  @override
+  String get quantumEntangleInvite => 'Mời rối lượng tử';
+
+  @override
+  String quantumEntangleInvited(String name) {
+    return 'Đã mời $name rối lượng tử';
+  }
+
+  @override
+  String get quantumEntangleAskTitle => 'Rối lượng tử';
+
+  @override
+  String quantumEntangleAskBody(String name, String code) {
+    return '$name ($code) muốn rối lượng tử với bạn. Một sợi sáng sẽ nối hai bong bóng, dù cách xa bao nhiêu vẫn thấy. Khi một trong hai người rời đi, sợi sáng sụp đổ và không lưu lại gì.';
+  }
+
+  @override
+  String get quantumEntangleAccept => 'Rối';
+
+  @override
+  String quantumEntangled(String name) {
+    return 'Bạn và $name đã rối lượng tử';
+  }
+
+  @override
+  String quantumEntangleCollapsed(String name) {
+    return 'Rối lượng tử với $name đã sụp đổ';
+  }
+
+  @override
+  String get quantumEntangleCut => 'Gỡ rối';
+
+  @override
+  String get quantumEntangleFull => 'Bạn đã rối với 3 người rồi';
+
+  @override
+  String get quantumEntangleTheirFull => 'Người kia đã rối với 3 người rồi';
+
+  @override
+  String get quantumEntangleGone => 'Người kia đã rời Thế giới lượng tử';
+
+  @override
+  String get quantumEntangleExpired => 'Lời mời đã hết hạn';
+
+  @override
+  String get quantumEntangledTitle => 'Đang rối';
+
+  @override
+  String get quantumTunnel => 'Xuyên hầm lượng tử';
+
+  @override
+  String get quantumTunnelSubtitle =>
+      'Nhảy tới một chỗ trống ngẫu nhiên trong tổ ong để gặp hàng xóm mới. Mỗi lần vào dùng được một lần.';
+
+  @override
+  String get quantumTunnelUsed => 'Lần vào này bạn đã xuyên hầm rồi';
+
+  @override
+  String quantumTunnelDone(String code) {
+    return 'Đã xuyên hầm tới $code';
+  }
+
+  @override
+  String get quantumShowTime => 'Hiện giờ địa phương của tôi';
+
+  @override
+  String get quantumShowTimeSubtitle =>
+      'Người khác thấy khi nhấn giữ bong bóng của bạn. Khi tắt, chỉ hiện sắc ngày đêm.';
+
+  @override
+  String quantumLocalTime(String time, String part) {
+    return 'Giờ địa phương $time · $part';
+  }
+
+  @override
+  String get quantumDawn => 'sáng sớm';
+
+  @override
+  String get quantumDay => 'ban ngày';
+
+  @override
+  String get quantumDusk => 'hoàng hôn';
+
+  @override
+  String get quantumNight => 'đêm khuya';
+
+  @override
+  String get quantumTopicsTitle => 'Đồng tần lượng tử';
+
+  @override
+  String get quantumTopicsSubtitle =>
+      'Chọn tối đa 3 chủ đề để hiện dưới bong bóng của bạn';
+
+  @override
+  String get quantumTopicMusic => 'Âm nhạc';
+
+  @override
+  String get quantumTopicMovies => 'Phim';
+
+  @override
+  String get quantumTopicTech => 'Công nghệ';
+
+  @override
+  String get quantumTopicWalks => 'Đi dạo';
+
+  @override
+  String get quantumTopicFood => 'Ẩm thực';
+
+  @override
+  String get quantumTopicTravel => 'Du lịch';
+
+  @override
+  String get quantumTopicReading => 'Đọc sách';
+
+  @override
+  String get quantumTopicSports => 'Thể thao';
+
+  @override
+  String quantumTopicsCommon(String topics) {
+    return 'Cả hai cùng thích: $topics';
+  }
+
+  @override
+  String get quantumSignalsTitle => 'Tín hiệu lượng tử';
+
+  @override
+  String quantumSignalReceived(String name) {
+    return '$name gửi cho bạn một tín hiệu';
+  }
+
+  @override
+  String get quantumSignalWait => 'Bạn vừa gửi — chờ chút rồi gửi lại';
+
+  @override
+  String quantumResonance(String name) {
+    return 'Bạn và $name đã cộng hưởng';
+  }
+
+  @override
+  String get guideS17L6 =>
+      'Chuông giờ: một phút trước mỗi giờ, cột sáng 101 sáng dần. Đúng giờ, sứ giả ánh sáng đi một vòng quanh gốc, chuông gõ theo giờ Đài Bắc (0 giờ gõ 24 tiếng), và làn sóng sáng cuối cùng lan khắp tổ ong. Trong lúc chuông, chạm “Gửi đốm sáng chuông giờ” — càng nhiều người cùng xem, ánh sáng càng rực. Nhắc chuông giờ được bật sẵn; bạn có thể tắt trong bảng điều khiển.';
+
+  @override
+  String get guideS17L7 =>
+      'Sau khi trò chuyện, bạn có thể mời rối lượng tử: một sợi sáng nối hai bong bóng dù cách xa bao nhiêu, sụp đổ khi một người rời đi (tối đa 3 người cùng lúc). Xuyên hầm lượng tử, mỗi lần vào một lần, đưa bạn tới một chỗ trống ngẫu nhiên với hàng xóm mới.';
+
+  @override
+  String get guideS17L8 =>
+      'Mỗi bong bóng mang sắc giờ địa phương của chủ nhân: vàng nhạt lúc sáng sớm, trắng sáng ban ngày, cam tím lúc hoàng hôn, xanh thẫm đêm khuya. Bật “Hiện giờ địa phương của tôi” để người khác thấy giờ khi nhấn giữ bong bóng của bạn. Gửi đốm sáng cho nhau trong 24 giờ sẽ tạo cộng hưởng lượng tử; nhấn giữ bong bóng để gửi tín hiệu 👋 ☕ 🌙 🎵 🌧️ ✨; chọn tối đa 3 chủ đề đồng tần trong bảng điều khiển, chủ đề chung sẽ sáng lên.';
 }

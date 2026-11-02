@@ -24,8 +24,8 @@ OUT_PAGE = os.path.join(ROOT, "hosting", "p")
 SITE = "https://mood-whisper-f7de9.web.app"
 # App 正式上架後填這三個，落地頁的按鈕就改成直接連商店（沒填之前連到公測報名）。
 # 人數改在 App Store Connect（App 分析 → 獲取 → 行銷活動）與 Play Console（使用者獲取 → UTM 行銷活動）看。
-IOS_APP_ID = ""          # App Store 網址裡 id 後面的數字，例如 "6740000000"
-IOS_PROVIDER_TOKEN = ""  # App Store Connect → App 分析 → 行銷活動連結產生器裡的 pt 值
+IOS_APP_ID = "6820145668"  # App Store 網址裡 id 後面的數字（1.0.2 起已上架）
+IOS_PROVIDER_TOKEN = ""  # App Store Connect → App 分析 → 行銷活動連結產生器裡的 pt 值；空的就不帶行銷參數
 ANDROID_PUBLIC = False   # Google Play 正式版（不是封閉測試）上架後改成 True
 ANDROID_ID = "com.softchip.moodwhisper"
 
@@ -128,17 +128,21 @@ def number(pid):
 
 
 def download_buttons(ref):
-    """上架前：加入公測；上架後：App Store、Google Play 各一顆，帶 ref 當行銷活動名稱，只計人數"""
-    if not (IOS_APP_ID and IOS_PROVIDER_TOKEN and ANDROID_PUBLIC):
+    """上架前：加入公測；iPhone 上架後：App Store（Android 正式版上架前仍是加入公測）。ref 當行銷活動名稱，只計人數"""
+    if not IOS_APP_ID:
         return (f'  <a class="cta" href="/beta.html?ref={ref}">加入公測，下載城市低語</a>\n'
                 '  <p class="fine">限 18 歲以上 · 免費 · iPhone 與 Android</p>')
-    ios = f"https://apps.apple.com/tw/app/id{IOS_APP_ID}?pt={IOS_PROVIDER_TOKEN}&amp;ct={ref}&amp;mt=8"
-    android = (f"https://play.google.com/store/apps/details?id={ANDROID_ID}"
-               f"&amp;referrer=utm_source%3Dmood-place%26utm_medium%3Dqr%26utm_campaign%3D{ref}")
+    ios = f"https://apps.apple.com/tw/app/id{IOS_APP_ID}" + (f"?pt={IOS_PROVIDER_TOKEN}&amp;ct={ref}&amp;mt=8" if IOS_PROVIDER_TOKEN else "")
+    if ANDROID_PUBLIC:
+        android = (f"https://play.google.com/store/apps/details?id={ANDROID_ID}"
+                   f"&amp;referrer=utm_source%3Dmood-place%26utm_medium%3Dqr%26utm_campaign%3D{ref}")
+        android_label = "Google Play"
+    else:
+        android, android_label = f"/beta.html?ref={ref}", "Android 加入公測"
     # 依手機把對應的商店放在左邊、用亮色
     return (f'  <div class="stores" id="stores">\n'
             f'    <a class="cta" id="ios" href="{ios}">App Store</a>\n'
-            f'    <a class="cta alt" id="android" href="{android}">Google Play</a>\n'
+            f'    <a class="cta alt" id="android" href="{android}">{android_label}</a>\n'
             f'  </div>\n'
             '  <p class="fine">下載城市低語 · 限 18 歲以上 · 免費</p>\n'
             '  <script>if (/android/i.test(navigator.userAgent)) { var s = document.getElementById("stores"), a = document.getElementById("android");'

@@ -2228,4 +2228,55 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS17L10 =>
       '양자 만남 카드: 대화한 상대라면 버블을 길게 눌러 함께 만들자고 할 수 있어요. 두 사람이 모두 동의하면 각자 공유 카드를 받아요. 두 사람의 닉네임, 자리 코드, 현지 시간과 낮밤 색, 무드가 들어가고 위치는 들어가지 않아요. 4번째 고리의 자리 코드는 금색이에요.';
+
+  @override
+  String get quantumOrbEntry => '양자 아바타';
+
+  @override
+  String get quantumOrbEntrySubtitle => '양자 세계에서는 내 사진이 수정 구슬이 돼요';
+
+  @override
+  String get orbTitle => '양자 아바타';
+
+  @override
+  String get orbSubtitle => '유리 테두리와 빛은 언제나 내 기분의 색이에요';
+
+  @override
+  String get orbStyleGlow => '글로우';
+
+  @override
+  String get orbStyleRing => '링';
+
+  @override
+  String get orbStyleRainbow => '레인보우';
+
+  @override
+  String get orbFree => '무료';
+
+  @override
+  String get orbOwned => '보유 중';
+
+  @override
+  String get orbInUse => '사용 중';
+
+  @override
+  String get orbCosmeticNote =>
+      '특별 디자인은 외형일 뿐, 어떤 기능이나 권한에도 영향을 주지 않아요. 구매한 디자인은 계정에 저장돼요.';
+
+  @override
+  String get orbRestore => '구매 복원';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name이(가) 내 것이 되었어요 ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed => '구매가 완료되지 않았어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get orbOwnedElsewhere => '이 구매는 이미 다른 계정에서 사용 중이에요';
+
+  @override
+  String get orbStoreUnavailable => '지금은 스토어에 연결할 수 없어요. 잠시 후 다시 시도해 주세요';
 }

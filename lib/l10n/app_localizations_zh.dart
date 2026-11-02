@@ -2164,6 +2164,56 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS17L10 =>
       '量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。';
+
+  @override
+  String get quantumOrbEntry => '量子化身';
+
+  @override
+  String get quantumOrbEntrySubtitle => '你的頭像在量子世界裡會變成一顆水晶球';
+
+  @override
+  String get orbTitle => '量子化身';
+
+  @override
+  String get orbSubtitle => '球緣和光暈永遠跟著你的心情';
+
+  @override
+  String get orbStyleGlow => '光球';
+
+  @override
+  String get orbStyleRing => '星環';
+
+  @override
+  String get orbStyleRainbow => '彩虹';
+
+  @override
+  String get orbFree => '免費';
+
+  @override
+  String get orbOwned => '已擁有';
+
+  @override
+  String get orbInUse => '使用中';
+
+  @override
+  String get orbCosmeticNote => '特殊款只是外觀，不影響任何功能或權益。買過的款式跟著帳號保存。';
+
+  @override
+  String get orbRestore => '恢復購買';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name已經是你的了 ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed => '購買沒有完成，請稍後再試';
+
+  @override
+  String get orbOwnedElsewhere => '這筆購買已經用在另一個帳號上';
+
+  @override
+  String get orbStoreUnavailable => '商店暫時連不上，請稍後再試';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4325,4 +4375,54 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS17L10 =>
       '量子相遇卡：聊过天的人，长按气泡可以邀请对方一起制作。双方都同意后，各自拿到一张分享卡，上面有两人的昵称、席位代号、当地时间与昼夜色和心情，不含任何位置；第 4 圈的席位代号是金色的。';
+
+  @override
+  String get quantumOrbEntry => '量子化身';
+
+  @override
+  String get quantumOrbEntrySubtitle => '你的头像在量子世界里会变成一颗水晶球';
+
+  @override
+  String get orbTitle => '量子化身';
+
+  @override
+  String get orbSubtitle => '球缘和光晕永远跟着你的心情';
+
+  @override
+  String get orbStyleGlow => '光球';
+
+  @override
+  String get orbStyleRing => '星环';
+
+  @override
+  String get orbStyleRainbow => '彩虹';
+
+  @override
+  String get orbFree => '免费';
+
+  @override
+  String get orbOwned => '已拥有';
+
+  @override
+  String get orbInUse => '使用中';
+
+  @override
+  String get orbCosmeticNote => '特殊款只是外观，不影响任何功能或权益。买过的款式跟着账号保存。';
+
+  @override
+  String get orbRestore => '恢复购买';
+
+  @override
+  String orbPurchased(String name) {
+    return '$name已经是你的了 ✨';
+  }
+
+  @override
+  String get orbPurchaseFailed => '购买没有完成，请稍后再试';
+
+  @override
+  String get orbOwnedElsewhere => '这笔购买已经用在另一个账号上';
+
+  @override
+  String get orbStoreUnavailable => '商店暂时连不上，请稍后再试';
 }

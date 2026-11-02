@@ -22,6 +22,7 @@ const beacon = require("./beacon");
 const { langOf, localize } = require("./i18n");
 const parallel = require("./parallel");
 const quantum = require("./quantum");
+const orbs = require("./orbs");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -413,6 +414,16 @@ function quantumProfileFields(body) {
     return fields;
 }
 
+/**
+ * 量子化身：App 想用的款式和目前的不一樣時才查擁有權（特殊款要買過），沒買過就用基本款。
+ * @returns {Promise<string[]>} 要寫進席位的欄位
+ */
+async function quantumOrbFields(uid, requested, current) {
+    if (typeof requested !== "string" || requested === current) return [];
+    const owned = orbs.isFree(requested) ? null : (await admin.database().ref(`orbOwned/${uid}`).once("value")).val();
+    return ["orb", orbs.resolveStyle(requested, owned)];
+}
+
 /** 量子跨年用：世界視角的光點只帶座標，時區另外放在一個 hash */
 const quantumTzCommands = (uid, body) => (quantum.validTz(body.tz) ? [["HSET", quantum.KEY.tz, uid, String(body.tz)]] : []);
 
@@ -529,14 +540,14 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
 
     const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
-    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics"]));
+    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb"]));
     const users = [];
     members.forEach((m, i) => {
-        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics] = profiles[i] || [];
+        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb] = profiles[i] || [];
         if (ord == null || hidden === "1" || !nickname) return;
         const tz = tzRaw == null ? NaN : parseInt(tzRaw, 10);
         users.push({ uid: m[0], ...coordOf(m), mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: parseInt(beat || "0", 10),
-            quantum: quantum.seat(parseInt(ord, 10)).code, ...(quiet === "1" ? { quiet: true } : {}),
+            quantum: quantum.seat(parseInt(ord, 10)).code, orb: orbs.isStyle(orb) ? orb : orbs.DEFAULT_STYLE, ...(quiet === "1" ? { quiet: true } : {}),
             // 晝夜色調一律有；當地時間只在對方同意時才給
             ...(quantum.validTz(tz) ? { day: quantum.dayPart(tz, now), ...(showTime === "1" ? { tz } : {}) } : {}),
             ...(topics ? { topics: parseTopics(topics) } : {}),
@@ -614,6 +625,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 "homeEast", resumed ? String(st.east) : "0", "homeNorth", resumed ? String(st.north) : "0",
                 "homeAccEast", resumed ? String(st.east) : "0", "homeAccNorth", resumed ? String(st.north) : "0",
                 ...quantumProfileFields(req.body),
+                ...(await quantumOrbFields(uid, req.body.orb, resumed ? prev.orb : undefined)),
                 "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ...quantumTzCommands(uid, req.body),
@@ -644,7 +656,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0"];
         if (raw) fields.push("rawEast", String(raw.east), "rawNorth", String(raw.north), "rawAt", String(now));
         if (typeof req.body.quiet === "boolean") fields.push("quiet", req.body.quiet ? "1" : "0");
-        fields.push(...quantumProfileFields(req.body));
+        fields.push(...quantumProfileFields(req.body), ...(await quantumOrbFields(uid, req.body.orb, h.orb)));
         const profile = [];
         if (typeof req.body.mood === "string" || typeof req.body.nickname === "string") {
             const mood = maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
@@ -979,6 +991,59 @@ exports.syncModeration = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).datab
 // 刪除：雷達位置、心情與暱稱、大頭貼、推播權杖、在線狀態、封鎖名單、敲門請求、聊天室、同意紀錄、登入身分。
 // 保留：檢舉紀錄與審核狀態（隱私權政策載明保存 1 年，用於防止濫用）。
 // ============================================================================
+// 量子化身：驗證 Apple / Google 的內購，把款式記到帳號上（規則見 orbs.js）
+const PLAY_PACKAGE = "com.softchip.moodwhisper";
+
+/** Google Play Developer API：查一筆一次性商品的購買。Cloud Functions 的服務帳號要先在 Play Console 加入使用者並給「查看財務資料」權限 */
+async function playPurchase(productId, token) {
+    const { GoogleAuth } = require("google-auth-library");
+    const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(token)}`;
+    return (await client.request({ url })).data;
+}
+
+/** 把款式記到帳號上；同一筆購買已經屬於別的帳號就拒絕 */
+async function grantOrb(uid, src, { style, receipt }) {
+    const db = admin.database();
+    const result = await db.ref(`orbReceipts/${receipt}`).transaction((cur) => (cur == null || cur === uid ? uid : undefined));
+    if (!result.committed) return false;
+    await db.ref(`orbOwned/${uid}/${style}`).set({ at: admin.database.ServerValue.TIMESTAMP, src, receipt });
+    return true;
+}
+
+exports.orbs = onRequest({ region: "asia-southeast1" }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
+    try {
+      if (req.body.action === "verify") {
+        // 一次可以送好幾筆（恢復購買時）；每筆各自驗證，回傳這次確認的款式
+        const items = (Array.isArray(req.body.purchases) ? req.body.purchases : []).slice(0, 20);
+        const granted = [], failed = [];
+        for (const p of items) {
+          try {
+            let grant;
+            if (p.platform === "apple") grant = orbs.appleGrant(orbs.verifyAppleJws(p.data));
+            else if (p.platform === "google" && typeof p.token === "string" && typeof p.productId === "string") grant = orbs.googleGrant(p.productId, p.token, await playPurchase(p.productId, p.token));
+            else throw new Error("bad_request");
+            if (await grantOrb(uid, p.platform, grant)) granted.push(grant.style); else failed.push({ productId: p.productId, code: "owned_elsewhere" });
+          } catch (e) {
+            console.warn("orb verify failed:", e.message);
+            failed.push({ productId: p.productId, code: e.message });
+          }
+        }
+        const owned = Object.keys((await admin.database().ref(`orbOwned/${uid}`).once("value")).val() || {});
+        return res.status(200).json({ success: true, granted, failed, owned });
+      }
+      return res.status(400).json({ success: false, error: "unknown action" });
+    } catch (error) {
+      console.error("orbs failed:", error);
+      return res.status(500).json({ success: false });
+    }
+  });
+});
+
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
@@ -1017,6 +1082,10 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs", "timeWhispers", "beaconReportsByUser"]) {
           updates[`${path}/${uid}`] = null;
       }
+      // 量子化身：刪掉擁有紀錄，並釋放購買憑證，之後用新帳號可以恢復購買
+      const myOrbs = (await db.ref(`orbOwned/${uid}`).once("value")).val() || {};
+      updates[`orbOwned/${uid}`] = null;
+      for (const owned of Object.values(myOrbs)) if (owned && typeof owned.receipt === "string") updates[`orbReceipts/${owned.receipt}`] = null;
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
       const myBlocks = (await db.ref(`blocks/${uid}`).once("value")).val() || {};
       for (const target of Object.keys(myBlocks)) updates[`blockedBy/${target}/${uid}`] = null;

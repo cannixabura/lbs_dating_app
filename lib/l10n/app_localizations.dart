@@ -3960,6 +3960,102 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。'**
   String get guideS17L10;
+
+  /// No description provided for @quantumOrbEntry.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子化身'**
+  String get quantumOrbEntry;
+
+  /// No description provided for @quantumOrbEntrySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的頭像在量子世界裡會變成一顆水晶球'**
+  String get quantumOrbEntrySubtitle;
+
+  /// No description provided for @orbTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子化身'**
+  String get orbTitle;
+
+  /// No description provided for @orbSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'球緣和光暈永遠跟著你的心情'**
+  String get orbSubtitle;
+
+  /// No description provided for @orbStyleGlow.
+  ///
+  /// In zh, this message translates to:
+  /// **'光球'**
+  String get orbStyleGlow;
+
+  /// No description provided for @orbStyleRing.
+  ///
+  /// In zh, this message translates to:
+  /// **'星環'**
+  String get orbStyleRing;
+
+  /// No description provided for @orbStyleRainbow.
+  ///
+  /// In zh, this message translates to:
+  /// **'彩虹'**
+  String get orbStyleRainbow;
+
+  /// No description provided for @orbFree.
+  ///
+  /// In zh, this message translates to:
+  /// **'免費'**
+  String get orbFree;
+
+  /// No description provided for @orbOwned.
+  ///
+  /// In zh, this message translates to:
+  /// **'已擁有'**
+  String get orbOwned;
+
+  /// No description provided for @orbInUse.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用中'**
+  String get orbInUse;
+
+  /// No description provided for @orbCosmeticNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'特殊款只是外觀，不影響任何功能或權益。買過的款式跟著帳號保存。'**
+  String get orbCosmeticNote;
+
+  /// No description provided for @orbRestore.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢復購買'**
+  String get orbRestore;
+
+  /// No description provided for @orbPurchased.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}已經是你的了 ✨'**
+  String orbPurchased(String name);
+
+  /// No description provided for @orbPurchaseFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'購買沒有完成，請稍後再試'**
+  String get orbPurchaseFailed;
+
+  /// No description provided for @orbOwnedElsewhere.
+  ///
+  /// In zh, this message translates to:
+  /// **'這筆購買已經用在另一個帳號上'**
+  String get orbOwnedElsewhere;
+
+  /// No description provided for @orbStoreUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'商店暫時連不上，請稍後再試'**
+  String get orbStoreUnavailable;
 }
 
 class _AppLocalizationsDelegate

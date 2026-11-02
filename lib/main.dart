@@ -45,6 +45,7 @@ import 'parallel_universe.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
+import 'quantum_orb.dart';
 import 'quantum_world.dart';
 import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -417,6 +418,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     quantumSession.value = null; // 每次打開 App 都從一般雷達開始
     quantumSession.addListener(_onQuantumChanged);
     QuantumPrefs.load().then((_) => QuantumChimeReminder.reschedule());
+    // 量子化身：聽商店的購買結果（包含上次沒完成的交易），讀自己買過的款式
+    OrbStore.init();
+    OrbPrefs.load().then((_) => OrbStore.loadOwned());
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));
@@ -1528,6 +1532,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             onTunnel: () { Navigator.pop(sheetContext); _quantumTunnel(); },
             onCut: (p) { Navigator.pop(sheetContext); _cutEntangle(p.uid); },
             onPrefsChanged: _quantumBeat,
+            moodColor: _getMoodColor(_myMood),
+            avatarUrl: _myAvatarUrl,
           ));
 
   void _setQuantumQuiet(bool quiet) {
@@ -1663,6 +1669,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'parallelCity': user['parallelName'] ?? user['parallel'], // 伺服器給的城市名稱（使用者的語言）
         // 量子世界：席位代號，以及對方是否開啟量子寧靜（不能敲門）
         'quantumSeat': user['quantum'],
+        // 量子化身：光球款式（主色仍然是心情色）
+        'quantumOrb': user['quantum'] != null ? orbStyleOf(user['orb']) : null,
         'quiet': user['quiet'] == true,
         // 第二期：晝夜色調、當地時間（對方同意才有）、量子同頻主題
         'day': user['day'],
@@ -2655,6 +2663,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               hostEmoji: user['hostEmoji'] as String?,
               parallelCity: user['parallelCity'] as String?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
+              orb: user['quantumOrb'] as String?,
             ),
           ),
         ),
@@ -3316,16 +3325,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
-                      // 量子世界沒有大頭貼時：自己是一顆小光點（不畫系統藍點，那是真實位置）
-                      if (quantumOn && _myAvatarUrl.isEmpty && !_quantumSelfCollapse && !_quantumReform)
+                      // 量子世界裡自己也是球型頭像（款式和心情色同別人看到的一樣；不畫系統藍點，那是真實位置）
+                      if (quantumOn && !_quantumSelfCollapse && !_quantumReform)
                         Positioned(
-                          left: centerX - 7, top: centerY - 7,
-                          child: IgnorePointer(child: Container(width: 14, height: 14, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white,
-                              border: Border.all(color: Night.auroraBlue, width: 2), boxShadow: const [BoxShadow(color: Night.auroraBlue, blurRadius: 10)]))),
+                          left: centerX - 28, top: centerY - 28,
+                          child: IgnorePointer(child: ValueListenableBuilder<String>(
+                            valueListenable: OrbPrefs.style,
+                            builder: (context, style, _) => QuantumOrb(style: style, color: _getMoodColor(_myMood), size: 56, image: orbImage(_myAvatarUrl)),
+                          )),
                         ),
 
                       // 🌟 完美維持你自己的定位點縮小設定
-                      if (_myAvatarUrl.isNotEmpty && !_quantumSelfCollapse && !_quantumReform) 
+                      if (!quantumOn && _myAvatarUrl.isNotEmpty && !_quantumSelfCollapse && !_quantumReform) 
                         Positioned(
                           left: centerX - 13.5, 
                           top: centerY - 13.5,
@@ -3593,6 +3604,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
   final Color? dayTint; // 量子世界的晝夜色調：依主人的當地時間
   final bool newYear; // 量子跨年：主人的時區已經跨年，頭像外一圈金色光環
+  final String? orb; // 量子化身：量子世界裡用光球取代大頭貼
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -3611,6 +3623,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.parallelCity,
     this.dayTint,
     this.newYear = false,
+    this.orb,
     this.shadowOpacity = 1.0
   });
 
@@ -3772,6 +3785,11 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                             boxShadow: [BoxShadow(color: Color(0x734FC3F7), blurRadius: 14)],
                           ),
                         ),
+                      if (widget.orb case final orb?)
+                        // 量子化身：大頭貼合成的球型頭像，球緣和光暈是心情色；敲門中、殘影的顏色規則和大頭貼一樣
+                        QuantumOrb(style: orb, color: accent, size: 56, glow: glowValue, image: orbImage(peerAvatarUrl),
+                            dim: widget.isShadow || (widget.isInactive && !isPending))
+                      else
                       Container(
                         width: avatarSize, height: avatarSize,
                         decoration: BoxDecoration(

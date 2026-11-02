@@ -14,8 +14,9 @@ global.fetch = async (url, { body }) => {
 const admin = require('firebase-admin');
 Object.defineProperty(Object.getPrototypeOf(admin), 'auth', { configurable: true, value: () => ({ verifyIdToken: async (token) => ({ uid: token }) }) });
 const blocks = new Set(); // 'a/b' = a 封鎖了 b
+const rtdb = {}; // 其他 Realtime Database 路徑的值（例如 orbOwned/{uid}）
 Object.defineProperty(Object.getPrototypeOf(admin), 'database', { configurable: true, value: () => ({
-    ref: (path) => ({ once: async () => ({ exists: () => blocks.has(path.replace(/^blocks\//, '')), val: () => null }) }),
+    ref: (path) => ({ once: async () => ({ exists: () => blocks.has(path.replace(/^blocks\//, '')), val: () => rtdb[path] ?? null }) }),
 }) });
 
 const { quantum: handler } = require('./index');
@@ -278,4 +279,20 @@ test('new year: time zones light up in waves, people at Taipei midnight counted 
     assert.strictEqual(run(['HGET', 'quantum_tz', 'ny14']), null);
     clock = Date.parse('2027-01-02T00:00:00Z');
     assert.strictEqual((await beat('ny8')).newYear, undefined);
+});
+
+test('quantum avatar: free orbs show as chosen, special orbs only when owned', async () => {
+    const orbOf = async (viewer, uid) => (await beat(viewer)).data.find((u) => u.uid === uid)?.orb;
+    await enter('orb_a', { orb: 'ring' });
+    await enter('orb_b');
+    assert.strictEqual(await orbOf('orb_b', 'orb_a'), 'ring');
+    assert.strictEqual(await orbOf('orb_a', 'orb_b'), 'glow'); // 沒選過就是基本款
+    await beat('orb_a', { orb: 'rainbow' }); // 沒買過
+    assert.strictEqual(await orbOf('orb_b', 'orb_a'), 'glow');
+    rtdb['orbOwned/orb_a'] = { rainbow: { at: 1, src: 'apple', receipt: 'a_1' } };
+    await beat('orb_a', { orb: 'ring' });
+    await beat('orb_a', { orb: 'rainbow' });
+    assert.strictEqual(await orbOf('orb_b', 'orb_a'), 'rainbow');
+    await beat('orb_a', { orb: 'nonsense' });
+    assert.strictEqual(await orbOf('orb_b', 'orb_a'), 'glow');
 });

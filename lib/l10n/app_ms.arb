@@ -641,5 +641,21 @@
   "quantumMeetFooter": "Kami bertemu dalam Dunia Kuantum",
   "quantumMeetShare": "Kongsi kad",
   "quantumMeetShareText": "{a} × {b} — kami bertemu dalam Dunia Kuantum ✨",
-  "guideS17L10": "Kad Pertemuan Kuantum: selepas berbual, tekan lama gelembung mereka untuk mengajak membuatnya bersama. Apabila kedua-dua bersetuju, setiap orang menerima kad untuk dikongsi dengan nama panggilan, kod tempat duduk, waktu tempatan berserta warna siang-malam, dan mood — tiada lokasi. Kod tempat duduk gelang 4 berwarna emas."
+  "guideS17L10": "Kad Pertemuan Kuantum: selepas berbual, tekan lama gelembung mereka untuk mengajak membuatnya bersama. Apabila kedua-dua bersetuju, setiap orang menerima kad untuk dikongsi dengan nama panggilan, kod tempat duduk, waktu tempatan berserta warna siang-malam, dan mood — tiada lokasi. Kod tempat duduk gelang 4 berwarna emas.",
+  "quantumOrbEntry": "Avatar kuantum",
+  "quantumOrbEntrySubtitle": "Foto anda menjadi bebola kristal dalam Dunia Kuantum",
+  "orbTitle": "Avatar kuantum",
+  "orbSubtitle": "Kaca dan cahayanya sentiasa mengikut mood anda",
+  "orbStyleGlow": "Cahaya",
+  "orbStyleRing": "Gelang",
+  "orbStyleRainbow": "Pelangi",
+  "orbFree": "Percuma",
+  "orbOwned": "Dimiliki",
+  "orbInUse": "Sedang digunakan",
+  "orbCosmeticNote": "Bebola istimewa hanyalah rupa — ia tidak mengubah sebarang ciri atau keistimewaan. Bebola yang dibeli kekal dalam akaun anda.",
+  "orbRestore": "Pulihkan pembelian",
+  "orbPurchased": "{name} kini milik anda ✨",
+  "orbPurchaseFailed": "Pembelian tidak berjaya. Sila cuba lagi nanti.",
+  "orbOwnedElsewhere": "Pembelian ini sudah digunakan pada akaun lain",
+  "orbStoreUnavailable": "Kedai tidak dapat dihubungi sekarang. Sila cuba lagi nanti."
 }

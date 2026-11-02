@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Legal {
   Legal._();
 
-  static const termsVersion = '2026-11.1'; // 11.1：量子世界第二期（糾纏、整點報時、量子訊號、晝夜色調與當地時間）；.9：量子世界（席位＋走過的位移，不顯示真實位置）；.8：每次手動打卡才顯示位置（App Store 5.1.2）；.7：平行宇宙（只要一方開啟就看得到）與聊天翻譯；.6：內容過濾擴及聊天、檢舉後立即移除、英文摘要（App Store 1.2）；.1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒；.5：低語穿越、今晚的台灣心情
+  static const termsVersion = '2026-11.2'; // 11.2：量子化身與付費外觀（只是外觀、商店付款、恢復購買、解除權例外）；11.1：量子世界第二期（糾纏、整點報時、量子訊號、晝夜色調與當地時間）；.9：量子世界（席位＋走過的位移，不顯示真實位置）；.8：每次手動打卡才顯示位置（App Store 5.1.2）；.7：平行宇宙（只要一方開啟就看得到）與聊天翻譯；.6：內容過濾擴及聊天、檢舉後立即移除、英文摘要（App Store 1.2）；.1：同意文字加入「年滿 18 歲」；.2：暫停位置模糊化，雷達顯示真實位置；.3：新增集會；.4：主持人交棒；.5：低語穿越、今晚的台灣心情
   static const contactEmail = 'service.softchip@gmail.com';
   // 繁體、簡體中文的使用者看中文版，其他語言看英文版（terms-en.html、privacy-en.html）
   static String get _suffix => tr.localeName.startsWith('zh') ? '' : '-en';

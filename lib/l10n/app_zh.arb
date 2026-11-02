@@ -1353,5 +1353,28 @@
       }
     }
   },
-  "guideS17L10": "量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。"
+  "guideS17L10": "量子相遇卡：聊過天的人，長按氣泡可以邀請對方一起製作。雙方都同意後，各自拿到一張分享卡，上面有兩人的暱稱、席位代號、當地時間與晝夜色和心情，不含任何位置；第 4 圈的席位代號是金色的。",
+  "quantumOrbEntry": "量子化身",
+  "quantumOrbEntrySubtitle": "你的頭像在量子世界裡會變成一顆水晶球",
+  "orbTitle": "量子化身",
+  "orbSubtitle": "球緣和光暈永遠跟著你的心情",
+  "orbStyleGlow": "光球",
+  "orbStyleRing": "星環",
+  "orbStyleRainbow": "彩虹",
+  "orbFree": "免費",
+  "orbOwned": "已擁有",
+  "orbInUse": "使用中",
+  "orbCosmeticNote": "特殊款只是外觀，不影響任何功能或權益。買過的款式跟著帳號保存。",
+  "orbRestore": "恢復購買",
+  "orbPurchased": "{name}已經是你的了 ✨",
+  "orbPurchaseFailed": "購買沒有完成，請稍後再試",
+  "orbOwnedElsewhere": "這筆購買已經用在另一個帳號上",
+  "orbStoreUnavailable": "商店暫時連不上，請稍後再試",
+  "@orbPurchased": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

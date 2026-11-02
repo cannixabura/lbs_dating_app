@@ -641,5 +641,21 @@
   "quantumMeetFooter": "Chúng mình gặp nhau trong Thế giới lượng tử",
   "quantumMeetShare": "Chia sẻ thẻ",
   "quantumMeetShareText": "{a} × {b} — chúng mình gặp nhau trong Thế giới lượng tử ✨",
-  "guideS17L10": "Thẻ Gặp gỡ lượng tử: sau khi đã trò chuyện, nhấn giữ bong bóng của họ để mời cùng tạo. Khi cả hai đồng ý, mỗi người nhận một tấm thẻ để chia sẻ với biệt danh, mã chỗ ngồi, giờ địa phương kèm màu ngày đêm và tâm trạng — không có vị trí. Mã chỗ ngồi vòng 4 có màu vàng."
+  "guideS17L10": "Thẻ Gặp gỡ lượng tử: sau khi đã trò chuyện, nhấn giữ bong bóng của họ để mời cùng tạo. Khi cả hai đồng ý, mỗi người nhận một tấm thẻ để chia sẻ với biệt danh, mã chỗ ngồi, giờ địa phương kèm màu ngày đêm và tâm trạng — không có vị trí. Mã chỗ ngồi vòng 4 có màu vàng.",
+  "quantumOrbEntry": "Hình đại diện lượng tử",
+  "quantumOrbEntrySubtitle": "Ảnh của bạn trở thành quả cầu pha lê trong Thế giới Lượng tử",
+  "orbTitle": "Hình đại diện lượng tử",
+  "orbSubtitle": "Viền kính và ánh sáng luôn theo màu tâm trạng của bạn",
+  "orbStyleGlow": "Ánh sáng",
+  "orbStyleRing": "Vành sao",
+  "orbStyleRainbow": "Cầu vồng",
+  "orbFree": "Miễn phí",
+  "orbOwned": "Đã sở hữu",
+  "orbInUse": "Đang dùng",
+  "orbCosmeticNote": "Mẫu đặc biệt chỉ là vẻ ngoài, không thay đổi bất kỳ tính năng hay quyền lợi nào. Mẫu đã mua được lưu theo tài khoản.",
+  "orbRestore": "Khôi phục giao dịch mua",
+  "orbPurchased": "{name} đã là của bạn ✨",
+  "orbPurchaseFailed": "Giao dịch chưa hoàn tất. Vui lòng thử lại sau.",
+  "orbOwnedElsewhere": "Giao dịch này đã được dùng cho một tài khoản khác",
+  "orbStoreUnavailable": "Hiện không kết nối được cửa hàng. Vui lòng thử lại sau."
 }

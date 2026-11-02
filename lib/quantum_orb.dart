@@ -52,14 +52,15 @@ class QuantumOrb extends StatelessWidget {
   final ImageProvider? image; // 大頭貼
   const QuantumOrb({super.key, required this.style, required this.color, this.size = 30, this.glow = 0.5, this.dim = false, this.image});
 
-  /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）
-  static const sphereRatio = 0.56;
+  /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）。
+  /// 付費的彩虹款球比較大（地圖上約 31，免費款約 26），畫布一樣大，換款式不會讓版面跳動。
+  static double sphereRatio(String style) => style == 'rainbow' ? 0.56 : 0.465;
 
   @override
   Widget build(BuildContext context) {
     // 彩虹光環會轉：用時間算角度，跟著氣泡的呼吸動畫一起重畫
     final spin = style == 'rainbow' ? (DateTime.now().millisecondsSinceEpoch % 6000) / 6000 * 2 * pi : 0.0;
-    final d = size * sphereRatio;
+    final d = size * sphereRatio(style);
     final photo = image;
     painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, front: front, photo: photo != null);
     return SizedBox(
@@ -98,7 +99,7 @@ class QuantumOrbPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
-    final r = size.shortestSide * QuantumOrb.sphereRatio / 2;
+    final r = size.shortestSide * QuantumOrb.sphereRatio(style) / 2;
     final base = dim ? Color.lerp(color, Night.shadowInk, 0.6)! : color;
     final sphere = Rect.fromCircle(center: c, radius: r);
 

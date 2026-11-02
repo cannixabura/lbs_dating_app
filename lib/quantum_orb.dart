@@ -243,11 +243,19 @@ class OrbStore {
   static final notice = ValueNotifier<String?>(null);
 
   static StreamSubscription<List<PurchaseDetails>>? _sub;
+  /// 啟動時的背景補送：只補驗證沒完成的交易，不顯示提示
+  static bool _silent = false;
 
   /// App 啟動時呼叫一次：開始聽購買結果（包含上次沒完成的交易）
   static void init() {
     if (_sub != null) return;
     _sub = InAppPurchase.instance.purchaseStream.listen(_onPurchases, onError: (_) => busy.value = false);
+    // iOS 會自己重送沒完成的交易；Android 不會，3 天內沒確認就自動退款，所以啟動時主動查一次
+    if (Platform.isAndroid) {
+      _silent = true;
+      InAppPurchase.instance.restorePurchases().catchError((_) {});
+      Future.delayed(const Duration(seconds: 15), () => _silent = false);
+    }
   }
 
   /// 讀自己買過的款式；選了沒買過的特殊款（例如換了帳號）就回到基本款
@@ -272,6 +280,7 @@ class OrbStore {
   }
 
   static Future<void> buy(String style) async {
+    _silent = false;
     final product = products.value[orbProducts[style]];
     if (product == null) { notice.value = tr.orbStoreUnavailable; return; }
     busy.value = true;
@@ -285,6 +294,7 @@ class OrbStore {
   }
 
   static Future<void> restore() async {
+    _silent = false;
     busy.value = true;
     try {
       await InAppPurchase.instance.restorePurchases();
@@ -299,6 +309,7 @@ class OrbStore {
   }
 
   static Future<void> _onPurchases(List<PurchaseDetails> list) async {
+    if (_silent) return _verifyPending(list);
     final toVerify = <PurchaseDetails>[];
     for (final p in list) {
       switch (p.status) {
@@ -331,6 +342,17 @@ class OrbStore {
       notice.value = tr.orbOwnedElsewhere;
     } else {
       notice.value = tr.orbPurchaseFailed;
+    }
+  }
+
+  /// 背景補送：伺服器確認過才結束交易，已經確認過的不再送
+  static Future<void> _verifyPending(List<PurchaseDetails> list) async {
+    final pending = [for (final p in list) if (p.pendingCompletePurchase && orbProducts.containsValue(p.productID) && (p.status == PurchaseStatus.purchased || p.status == PurchaseStatus.restored)) p];
+    if (pending.isEmpty) return;
+    final (granted, owner) = await _verify(pending);
+    for (final p in pending) {
+      final style = orbProducts.entries.firstWhere((e) => e.value == p.productID).key;
+      if (granted.contains(style) || owner.contains(p.productID)) await InAppPurchase.instance.completePurchase(p);
     }
   }
 

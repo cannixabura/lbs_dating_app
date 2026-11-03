@@ -172,9 +172,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   // 打卡（App Store 5.1.2）：每次打開 App 都要自己按「在這裡打卡」才會出現在地圖上，不會自動打卡。
   // 別人看到的是打卡當下的位置；走遠了要再打卡一次才會更新。在背景超過 30 分鐘回來也要重新打卡。
   Position? _checkInPosition;
-  DateTime? _pausedAt;
   static const _checkInMoveMeters = 1000.0;
-  static const _checkInExpiry = Duration(minutes: 30);
   late bool _checkInRequested = widget.checkIn;
   // 按下「在這裡打卡」後的載入畫面至少停留幾秒，讓人讀完「城市太安靜時去平行宇宙／量子世界」的提示
   static const _sensingMinDuration = Duration(seconds: 4);
@@ -476,7 +474,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _checkPlaces();
   }
 
-  /// 打卡失效（在背景太久）：停止回報與掃描，雷達清空，等使用者重新打卡
+  /// 結束打卡：使用者按下「結束打卡」或切到背景。伺服器標記為已離開，立刻從別人的地圖上消失
+  void _checkOut() {
+    _presenceRef.onDisconnect().cancel().catchError((_) {});
+    _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp}).catchError((_) {});
+    _endCheckIn();
+  }
+
+  /// 打卡結束：停止回報與掃描，雷達清空，等使用者重新打卡
   void _endCheckIn() {
     if (quantumOn) _resetQuantum();
     _heartbeatTimer?.cancel(); _radarTimer?.cancel(); _cityMoodTimer?.cancel();
@@ -1991,6 +1996,27 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
+  /// 打卡中：隨時可以自己結束打卡，立刻從地圖上消失
+  Widget _buildCheckOutPill() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: () { _checkOut(); showGlassToast(context, tr.checkedOutToast, icon: Icons.location_off_outlined); },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: Night.space3, vertical: Night.space2),
+          decoration: BoxDecoration(color: Night.glassFill, borderRadius: BorderRadius.circular(999), border: Border.all(color: Night.glassLine)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.where_to_vote, color: Night.auroraViolet, size: 16),
+            const SizedBox(width: Night.space1),
+            Text(tr.checkOutButton, style: const TextStyle(color: Night.inkMuted, fontSize: 13)),
+          ]),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyRadarCardBody() {
     return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: Night.space6, vertical: Night.space4),
@@ -2605,12 +2631,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     return _showingMoodTranslation.contains(key) ? _moodTranslations[key] : mood;
   }
 
-  Future<void> _toggleMoodTranslation(String uid, String mood) async {
+  /// 點氣泡：心情不是你的語言就翻譯；同一種語言（不用翻譯）就改開互動選單（送微光、敲門、封鎖、檢舉）
+  Future<void> _toggleMoodTranslation(String uid, String mood, {VoidCallback? otherwise}) async {
     final key = '$uid|$mood';
     if (_showingMoodTranslation.contains(key)) { setState(() => _showingMoodTranslation.remove(key)); return; }
     if (_moodTranslations.containsKey(key)) { setState(() => _showingMoodTranslation.add(key)); return; }
     final locale = Localizations.localeOf(context);
-    if (!await ChatTranslator.needsTranslation(mood, locale) || !mounted) return;
+    final needs = await ChatTranslator.needsTranslation(mood, locale);
+    if (!mounted) return;
+    if (!needs) { otherwise?.call(); return; }
     String? out;
     try { out = await ChatTranslator.translate(context, mood, locale); } catch (_) {}
     if (out == null || !mounted) return;
@@ -2623,19 +2652,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final shortId = uid.substring(uid.length - 4).toUpperCase();
     final displayName = user['nickname'].toString().isNotEmpty ? user['nickname'] : '#$shortId';
     final isShadow = user['isShadow'] ?? false;
+    void openMenu() {
+      _focusBubble(uid);
+      _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?,
+          quantumSeat: user['quantumSeat'] as String?, quiet: user['quiet'] == true, moodColor: _getMoodColor(user['mood']), user: user);
+    }
     _bubbleAnchors[uid] = at + const Offset(0, 10);
     return Positioned(
       key: ValueKey('bubble:$uid'), // 疊層每幀重排，固定 key 才不會在手指按下時換掉元件
       left: at.dx - 66, top: at.dy - 60,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onLongPress: () {
-          _focusBubble(uid);
-          _showInteractionMenu(uid, isShadow ? tr.fadingEcho : displayName, isShadow: isShadow, isDemo: user['isDemo'] == true, parallelCity: user['parallelCity'] as String?,
-              quantumSeat: user['quantumSeat'] as String?, quiet: user['quiet'] == true, moodColor: _getMoodColor(user['mood']), user: user);
-        },
-        // 點一下：心情不是你的語言就直接翻譯，再點一下回到原文
-        onTap: isShadow ? null : () => _toggleMoodTranslation(uid, '${user['mood'] ?? ''}'),
+        onLongPress: openMenu,
+        // 點一下：心情不是你的語言就直接翻譯，再點一下回到原文；不用翻譯時打開互動選單
+        onTap: isShadow ? openMenu : () => _toggleMoodTranslation(uid, '${user['mood'] ?? ''}', otherwise: openMenu),
         // 雙擊氣泡：直接送出一道微光
         onDoubleTap: () {
           _focusBubble(uid);
@@ -2894,7 +2924,6 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 // 量子相遇卡：聊過天（或糾纏中）的人，雙方同意後各拿一張分享卡
                 if (quantumSeat != null && !isDemo && (entangled || _quantumChatted.contains(targetUid)))
                   item(Icons.style_outlined, Night.cityAmber, tr.quantumMeetAction, () { Navigator.pop(dialogContext); _askMeetCard(targetUid); }),
-                item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
                 // 我正在主持：可以把活動交給這位參加者
                 // 集會是在地的：平行宇宙的人不能接主持
                 if (!isDemo && parallelCity == null && quantumSeat == null && _hostedGathering != null)
@@ -2903,6 +2932,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     showHandoffDialog(context, gathering: _hostedGathering!, toUid: targetUid, toName: displayName);
                   }),
               ],
+              item(Icons.block, Night.danger, tr.blockAction, () { Navigator.pop(dialogContext); _showBlockConfirmationDialog(targetUid, displayName); }),
               item(Icons.flag_outlined, Night.danger, tr.report, () {
                 Navigator.pop(dialogContext);
                 showReportSheet(context, myUid: widget.uid, targetUid: targetUid, targetName: displayName, reportContext: ReportContext.bubble);
@@ -3144,22 +3174,19 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       if (_isInForeground) return;
       _isInForeground = true;
       if (!_locationServicesStarted) return;
-      // 在背景太久：打卡失效，要重新打卡才會再出現在地圖上
-      if (_pausedAt != null && DateTime.now().difference(_pausedAt!) > _checkInExpiry) return _endCheckIn();
       _setPresence('active');
       if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
       _startForegroundHeartbeat();
       _startRadarSweep();
     } else if (state == AppLifecycleState.hidden || state == AppLifecycleState.paused) {
-      // 鎖屏 / 切到背景：標記為休息中（仍可被敲門），停止前景心跳與雷達掃描
+      // 鎖屏 / 切到背景：打卡立刻結束、從地圖上消失，回來要自己重新打卡（Apple 5.1.2(i)）
       // 註：iOS 開啟 App 切換器只會進入 inactive，此時從切換器滑掉 App 會觸發 onDisconnect → exited
       if (!_isInForeground) return;
       _isInForeground = false;
-      _pausedAt = DateTime.now();
       _heartbeatTimer?.cancel();
       _radarTimer?.cancel();
       _cityMoodTimer?.cancel();
-      if (_locationServicesStarted) _setPresence('background');
+      if (_locationServicesStarted) _checkOut();
     } else if (state == AppLifecycleState.detached) {
       _presenceRef.set({'state': 'exited', 'at': ServerValue.timestamp});
     }
@@ -3564,6 +3591,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         left: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
                         child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
                       ),
+                      // 結束打卡（底部選單右上方）
+                      if (_locationServicesStarted && !quantumOn)
+                        Positioned(right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92, child: _buildCheckOutPill()),
                       Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 16, child: _buildDock()),
                       // 整點前 10 秒的大倒數
                       if (quantumOn && QuantumChime.offset(DateTime.now()) >= -11 && QuantumChime.offset(DateTime.now()) < 0)

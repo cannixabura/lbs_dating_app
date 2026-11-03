@@ -21,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      'Once you check in, people nearby can see your mood and roughly where you are, and you\'ll see them too. They see the place where you checked in; it doesn\'t follow you around. You check in yourself every time you open the app; it never happens automatically.';
+      'Once you check in, people nearby can see your mood and roughly where you are, and you\'ll see them too. They see the place where you checked in; it doesn\'t follow you around. You check in yourself every time you open the app; it never happens automatically. Leaving or switching to another app ends your check-in.';
 
   @override
   String get checkInButton => 'Check in here';
@@ -29,6 +29,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get checkInAgain =>
       'You\'ve left where you checked in · Check in here';
+
+  @override
+  String get checkOutButton => 'Checked in · Check out';
+
+  @override
+  String get checkedOutToast => 'Checked out. You\'re no longer on the map.';
 
   @override
   String get appName => 'Mood Whisper';
@@ -869,7 +875,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS3L2 =>
-      'A breathing bubble means the person is using the app. A dimmed bubble marked Resting means their screen is locked, and you can still knock. A grey bubble with no name is a fading echo left by someone who just left, and it slowly fades away.';
+      'Only people who are checked in with the app open appear on the radar. When someone leaves or switches to another app, their bubble disappears right away and leaves no trace.';
 
   @override
   String get guideS3L3 =>
@@ -1078,7 +1084,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Fading echoes, whispers, letters to the future and gatherings stay local.';
+      'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Whispers, letters to the future and gatherings stay local.';
 
   @override
   String get guideS15Title => '14. Translation';
@@ -1825,7 +1831,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'When it\'s on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their central stations: however far and in whichever direction you are from your station, that\'s where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Fading echoes, whispers and gatherings stay local.';
+      'When it\'s on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their central stations: however far and in whichever direction you are from your station, that\'s where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Whispers and gatherings stay local.';
 
   @override
   String get parallelUniverseEnter => 'Enter';
@@ -2130,7 +2136,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      'There are no fading echoes, whispers, letters to the future, Mood Places, City Beacon or gatherings in the Quantum World. While inside you temporarily leave the normal radar and Parallel Universe; when you leave, your bubble dissolves into light and you return to your check-in spot. If the app is closed or offline for more than 3 minutes, your seat is released.';
+      'There are no whispers, letters to the future, Mood Places, City Beacon or gatherings in the Quantum World. While inside you temporarily leave the normal radar and Parallel Universe; when you leave, your bubble dissolves into light and you return to your check-in spot. If the app is closed or offline for more than 3 minutes, your seat is released.';
 
   @override
   String quantumChimeCountdown(int seconds) {

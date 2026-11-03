@@ -20,13 +20,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      '打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。';
+      '打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。離開或切到其他 App，打卡就會結束。';
 
   @override
   String get checkInButton => '在這裡打卡';
 
   @override
   String get checkInAgain => '你離開打卡的地方了 · 在這裡重新打卡';
+
+  @override
+  String get checkOutButton => '打卡中 · 結束打卡';
+
+  @override
+  String get checkedOutToast => '已結束打卡，你已經從地圖上消失。';
 
   @override
   String get appName => '城市低語';
@@ -769,8 +775,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS3L1 => '雷達上會浮現 5 公里內其他人的心情氣泡，只顯示分級的距離（例如「100m 內」），不顯示地址。';
 
   @override
-  String get guideS3L2 =>
-      '會呼吸的氣泡代表對方正在使用；變暗並標示「休息中」代表對方鎖了螢幕，仍可以敲門；灰色、沒有名字的是「歷史殘影」，是剛離開的人留下的，會慢慢淡去。';
+  String get guideS3L2 => '雷達上只會出現此刻打卡、開著 App 的人；對方離開或切到其他 App，氣泡就會立刻消失，不留殘影。';
 
   @override
   String get guideS3L3 => '雙指可以放大縮小地圖。轉動手機，雷達會跟著你面向的方向轉。';
@@ -950,7 +955,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。';
+      '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。低語、低語穿越與集會都只留在當地。';
 
   @override
   String get guideS15Title => '14. 翻譯';
@@ -1616,7 +1621,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。殘影、低語和集會只留在當地。';
+      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。';
 
   @override
   String get parallelUniverseEnter => '進入';
@@ -1909,7 +1914,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      '量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。';
+      '量子世界裡沒有低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。';
 
   @override
   String quantumChimeCountdown(int seconds) {
@@ -2234,13 +2239,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get checkInBody =>
-      '打卡后，附近的人才看得到你此刻的心情与大概的位置，你也会看到他们。别人看到的是你打卡的地方，不会跟着你移动。每次打开 App 都要自己打卡，不会自动打卡。';
+      '打卡后，附近的人才看得到你此刻的心情与大概的位置，你也会看到他们。别人看到的是你打卡的地方，不会跟着你移动。每次打开 App 都要自己打卡，不会自动打卡。离开或切到其他 App，打卡就会结束。';
 
   @override
   String get checkInButton => '在这里打卡';
 
   @override
   String get checkInAgain => '你离开打卡的地方了 · 在这里重新打卡';
+
+  @override
+  String get checkOutButton => '打卡中 · 结束打卡';
+
+  @override
+  String get checkedOutToast => '已结束打卡，你已经从地图上消失。';
 
   @override
   String get appName => '城市低语';
@@ -2983,8 +2994,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS3L1 => '雷达上会浮现 5 公里内其他人的心情气泡，只显示分级的距离（例如「100m 内」），不显示地址。';
 
   @override
-  String get guideS3L2 =>
-      '会呼吸的气泡代表对方正在使用；变暗并标示「休息中」代表对方锁了屏幕，仍可以敲门；灰色、没有名字的是「历史残影」，是刚离开的人留下的，会慢慢淡去。';
+  String get guideS3L2 => '雷达上只会出现此刻打卡、开着 App 的人；对方离开或切到其他 App，气泡就会立刻消失，不留残影。';
 
   @override
   String get guideS3L3 => '双指可以放大缩小地图。转动手机，雷达会跟着你面向的方向转。';
@@ -3164,7 +3174,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get guideS14L5 =>
-      '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。残影、低语、低语穿越与集会都只留在当地。';
+      '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。低语、低语穿越与集会都只留在当地。';
 
   @override
   String get guideS15Title => '14. 翻译';
@@ -3830,7 +3840,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get parallelUniverseIntroBody =>
-      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。残影、低语和集会只留在当地。';
+      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。低语和集会只留在当地。';
 
   @override
   String get parallelUniverseEnter => '进入';
@@ -4123,7 +4133,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get guideS17L5 =>
-      '量子世界里没有残影、低语、低语穿越、心情据点、城市灯塔与集会。进入期间会暂时离开一般雷达和平行宇宙；离开时你的气泡化成光点散掉，回到原本打卡的位置。App 关掉或断线超过 3 分钟，席位就会释放。';
+      '量子世界里没有低语、低语穿越、心情据点、城市灯塔与集会。进入期间会暂时离开一般雷达和平行宇宙；离开时你的气泡化成光点散掉，回到原本打卡的位置。App 关掉或断线超过 3 分钟，席位就会释放。';
 
   @override
   String quantumChimeCountdown(int seconds) {

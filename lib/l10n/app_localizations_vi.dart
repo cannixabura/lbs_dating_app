@@ -21,13 +21,20 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      'Sau khi check-in, người ở gần sẽ thấy tâm trạng và vị trí gần đúng của bạn, và bạn cũng thấy họ. Họ thấy nơi bạn check-in; vị trí này không đi theo bạn khi bạn di chuyển. Mỗi lần mở ứng dụng bạn tự check-in; không bao giờ tự động.';
+      'Sau khi check-in, người ở gần sẽ thấy tâm trạng và vị trí gần đúng của bạn, và bạn cũng thấy họ. Họ thấy nơi bạn check-in; vị trí này không đi theo bạn khi bạn di chuyển. Mỗi lần mở ứng dụng bạn tự check-in; không bao giờ tự động. Rời đi hoặc chuyển sang ứng dụng khác sẽ kết thúc check-in.';
 
   @override
   String get checkInButton => 'Check-in tại đây';
 
   @override
   String get checkInAgain => 'Bạn đã rời nơi check-in · Check-in tại đây';
+
+  @override
+  String get checkOutButton => 'Đang check-in · Kết thúc';
+
+  @override
+  String get checkedOutToast =>
+      'Đã kết thúc check-in. Bạn không còn hiện trên bản đồ.';
 
   @override
   String get appName => 'Mood Whisper';
@@ -819,7 +826,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS3L2 =>
-      'Bong bóng đang thở nghĩa là người đó đang dùng ứng dụng. Bong bóng mờ có chữ Đang nghỉ nghĩa là họ đã khóa màn hình, nhưng bạn vẫn gõ cửa được. Bong bóng xám không tên là dư ảnh của người vừa rời đi, và sẽ mờ dần.';
+      'Radar chỉ hiện những người đang check-in và mở ứng dụng. Khi ai đó rời đi hoặc chuyển sang ứng dụng khác, bong bóng của họ biến mất ngay, không để lại dấu vết.';
 
   @override
   String get guideS3L3 =>
@@ -1028,7 +1035,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Dư ảnh, lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
+      'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
   String get guideS15Title => '14. Dịch';
@@ -1753,7 +1760,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo nhà ga trung tâm của mỗi bên: bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Dư ảnh, lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.';
+      'Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo nhà ga trung tâm của mỗi bên: bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
   String get parallelUniverseEnter => 'Bước vào';
@@ -2057,7 +2064,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      'Thế giới lượng tử không có dư ảnh, lời thì thầm, thư gửi tương lai, điểm tâm trạng, Hải đăng thành phố hay buổi tụ họp. Trong thời gian ở trong, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bong bóng tan thành ánh sáng và bạn trở lại vị trí đã check-in. Nếu ứng dụng bị đóng hoặc mất kết nối quá 3 phút, chỗ ngồi sẽ được giải phóng.';
+      'Thế giới lượng tử không có lời thì thầm, thư gửi tương lai, điểm tâm trạng, Hải đăng thành phố hay buổi tụ họp. Trong thời gian ở trong, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bong bóng tan thành ánh sáng và bạn trở lại vị trí đã check-in. Nếu ứng dụng bị đóng hoặc mất kết nối quá 3 phút, chỗ ngồi sẽ được giải phóng.';
 
   @override
   String quantumChimeCountdown(int seconds) {

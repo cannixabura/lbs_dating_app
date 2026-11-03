@@ -21,13 +21,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      '체크인하면 근처 사람들이 지금 내 기분과 대략적인 위치를 볼 수 있고, 나도 그들을 볼 수 있어요. 보이는 곳은 체크인한 장소이고, 내가 움직여도 따라오지 않아요. 앱을 열 때마다 직접 체크인해야 하며, 자동으로 체크인되지 않아요.';
+      '체크인하면 근처 사람들이 지금 내 기분과 대략적인 위치를 볼 수 있고, 나도 그들을 볼 수 있어요. 보이는 곳은 체크인한 장소이고, 내가 움직여도 따라오지 않아요. 앱을 열 때마다 직접 체크인해야 하며, 자동으로 체크인되지 않아요. 앱을 나가거나 다른 앱으로 전환하면 체크인이 끝나요.';
 
   @override
   String get checkInButton => '여기서 체크인';
 
   @override
   String get checkInAgain => '체크인한 곳을 떠났어요 · 여기서 다시 체크인';
+
+  @override
+  String get checkOutButton => '체크인 중 · 체크아웃';
+
+  @override
+  String get checkedOutToast => '체크아웃했어요. 이제 지도에 보이지 않아요.';
 
   @override
   String get appName => 'Mood Whisper';
@@ -781,7 +787,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS3L2 =>
-      '숨 쉬듯 움직이는 버블은 상대가 앱을 쓰고 있다는 뜻이에요. 어두워지고 \'휴식 중\'이라고 표시되면 화면을 잠갔지만 노크는 할 수 있어요. 이름 없는 회색 버블은 막 떠난 사람이 남긴 \'잔상\'으로, 천천히 사라져요.';
+      '레이더에는 지금 체크인하고 앱을 열어 둔 사람만 보여요. 앱을 나가거나 다른 앱으로 전환하면 버블이 바로 사라지고 흔적도 남지 않아요.';
 
   @override
   String get guideS3L3 =>
@@ -985,7 +991,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 잔상, 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
+      '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
 
   @override
   String get guideS15Title => '14. 번역';
@@ -1677,7 +1683,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '켜면 짝지어진 도시에서 지금 앱을 켜 둔 사람들이 모두 내 레이더에 겹쳐 보이고, 그들 모두 나를 볼 수 있습니다. 대만의 도시는 해외 도시(도쿄, 서울, 쿠알라룸푸르 등)와, 해외 도시는 대만과 짝지어집니다.\n\n두 도시는 각자의 중앙역을 기준으로 겹칩니다. 내가 역에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시에서의 위치가 정해지고, 약 500m로 흐려져서 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다. 잔상, 속삭임, 모임은 그 도시에만 남습니다.';
+      '켜면 짝지어진 도시에서 지금 앱을 켜 둔 사람들이 모두 내 레이더에 겹쳐 보이고, 그들 모두 나를 볼 수 있습니다. 대만의 도시는 해외 도시(도쿄, 서울, 쿠알라룸푸르 등)와, 해외 도시는 대만과 짝지어집니다.\n\n두 도시는 각자의 중앙역을 기준으로 겹칩니다. 내가 역에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시에서의 위치가 정해지고, 약 500m로 흐려져서 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다. 속삭임과 모임은 그 도시에만 남습니다.';
 
   @override
   String get parallelUniverseEnter => '들어가기';
@@ -1972,7 +1978,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      '양자 세계에는 잔상, 속삭임, 미래로 보내는 편지, 무드 플레이스, 시티 비컨, 모임이 없어요. 들어가 있는 동안 일반 레이더와 평행우주에서 잠시 벗어나고, 나가면 말풍선이 빛이 되어 흩어지며 원래 체크인한 위치로 돌아가요. 앱을 닫거나 3분 넘게 연결이 끊기면 자리가 해제돼요.';
+      '양자 세계에는 속삭임, 미래로 보내는 편지, 무드 플레이스, 시티 비컨, 모임이 없어요. 들어가 있는 동안 일반 레이더와 평행우주에서 잠시 벗어나고, 나가면 말풍선이 빛이 되어 흩어지며 원래 체크인한 위치로 돌아가요. 앱을 닫거나 3분 넘게 연결이 끊기면 자리가 해제돼요.';
 
   @override
   String quantumChimeCountdown(int seconds) {

@@ -21,7 +21,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      'Selepas anda daftar masuk, orang berdekatan dapat melihat mood anda dan lebih kurang di mana anda berada, dan anda juga akan melihat mereka. Mereka melihat tempat anda daftar masuk; ia tidak mengikut anda bergerak. Anda daftar masuk sendiri setiap kali membuka aplikasi; ia tidak berlaku secara automatik.';
+      'Selepas anda daftar masuk, orang berdekatan dapat melihat mood anda dan lebih kurang di mana anda berada, dan anda juga akan melihat mereka. Mereka melihat tempat anda daftar masuk; ia tidak mengikut anda bergerak. Anda daftar masuk sendiri setiap kali membuka aplikasi; ia tidak berlaku secara automatik. Keluar atau beralih ke app lain akan menamatkan daftar masuk anda.';
 
   @override
   String get checkInButton => 'Daftar masuk di sini';
@@ -29,6 +29,13 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get checkInAgain =>
       'Anda telah meninggalkan tempat daftar masuk · Daftar masuk di sini';
+
+  @override
+  String get checkOutButton => 'Didaftar masuk · Keluar';
+
+  @override
+  String get checkedOutToast =>
+      'Anda telah daftar keluar dan tidak lagi kelihatan di peta.';
 
   @override
   String get appName => 'Mood Whisper';
@@ -822,7 +829,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS3L2 =>
-      'Gelembung yang bernafas bermakna orang itu sedang menggunakan app. Gelembung malap bertanda Berehat bermakna skrin mereka dikunci, tetapi anda masih boleh mengetuk. Gelembung kelabu tanpa nama ialah gema pudar daripada seseorang yang baru pergi, dan ia pudar perlahan-lahan.';
+      'Hanya orang yang telah daftar masuk dan sedang membuka app muncul di radar. Apabila seseorang keluar atau beralih ke app lain, gelembungnya terus hilang tanpa meninggalkan jejak.';
 
   @override
   String get guideS3L3 =>
@@ -1031,7 +1038,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Gema pudar, bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
+      'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
 
   @override
   String get guideS15Title => '14. Terjemahan';
@@ -1762,7 +1769,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Apabila dihidupkan, semua orang yang sedang membuka aplikasi di bandar padanan anda muncul di radar anda, dan mereka semua dapat melihat anda. Bandar di Taiwan dipadankan dengan bandar di luar negara (seperti Tokyo, Seoul dan Kuala Lumpur), dan bandar di luar negara dipadankan dengan Taiwan.\n\nKedua-dua bandar diselaraskan pada stesen pusat masing-masing: sejauh mana dan ke arah mana anda dari stesen anda, di situlah anda muncul di bandar mereka, dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa. Gema pudar, bisikan dan perhimpunan kekal di tempat asal.';
+      'Apabila dihidupkan, semua orang yang sedang membuka aplikasi di bandar padanan anda muncul di radar anda, dan mereka semua dapat melihat anda. Bandar di Taiwan dipadankan dengan bandar di luar negara (seperti Tokyo, Seoul dan Kuala Lumpur), dan bandar di luar negara dipadankan dengan Taiwan.\n\nKedua-dua bandar diselaraskan pada stesen pusat masing-masing: sejauh mana dan ke arah mana anda dari stesen anda, di situlah anda muncul di bandar mereka, dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa. Bisikan dan perhimpunan kekal di tempat asal.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';
@@ -2068,7 +2075,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      'Tiada gema pudar, bisikan, surat ke masa depan, Tempat Mood, Suar Bandar atau perhimpunan dalam Dunia Kuantum. Semasa di dalam, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, gelembung anda larut menjadi cahaya dan anda kembali ke tempat daftar masuk. Jika aplikasi ditutup atau di luar talian lebih 3 minit, tempat duduk anda dilepaskan.';
+      'Tiada bisikan, surat ke masa depan, Tempat Mood, Suar Bandar atau perhimpunan dalam Dunia Kuantum. Semasa di dalam, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, gelembung anda larut menjadi cahaya dan anda kembali ke tempat daftar masuk. Jika aplikasi ditutup atau di luar talian lebih 3 minit, tempat duduk anda dilepaskan.';
 
   @override
   String quantumChimeCountdown(int seconds) {

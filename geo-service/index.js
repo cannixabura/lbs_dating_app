@@ -314,21 +314,18 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
 
       const results = [];
       for (const c of candidates) {
-          const { status, shadowSince } = c.presence;
-          let shadowAge = 0;
-          if (status === 'shadow') {
-              shadowAge = (now - shadowSince) / retentionMs;
-              if (shadowAge > 1) continue; // 超過此密度允許的留存時間
-          }
+          const { status } = c.presence;
+          // Apple 5.1.2(i)：只顯示此刻打卡中、開著 App 的人；離開或切到背景就從地圖消失（休息中、殘影都不顯示）
+          if (status !== 'active') continue;
           results.push({
               uid: c.memberUid, lng: c.pub.lng, lat: c.pub.lat,
               mood: c.mood || "",
-              nickname: status === 'shadow' ? "" : (c.nickname || ""), // 殘影不公開暱稱
+              nickname: c.nickname || "",
               status,
-              shadowAge, // 0 = 剛成為殘影，1 = 即將消失；供 App 計算淡出程度
+              shadowAge: 0, // 舊版 App 仍會讀這個欄位
               timestamp: c.lastSeen,
-              // 正在主持集會：雷達上顯示「主持」光環與活動圖標（殘影不顯示）
-              ...(c.hostEmoji && status !== 'shadow' ? { hostEmoji: c.hostEmoji } : {}),
+              // 正在主持集會：雷達上顯示「主持」光環與活動圖標
+              ...(c.hostEmoji ? { hostEmoji: c.hostEmoji } : {}),
           });
       }
 

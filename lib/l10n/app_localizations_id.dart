@@ -21,7 +21,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get checkInBody =>
-      'Setelah kamu check-in, orang di sekitar bisa melihat suasana hatimu dan kira-kira di mana kamu berada, dan kamu juga akan melihat mereka. Yang mereka lihat adalah tempat kamu check-in; tidak ikut berpindah saat kamu bergerak. Kamu check-in sendiri setiap kali membuka aplikasi; tidak pernah otomatis.';
+      'Setelah kamu check-in, orang di sekitar bisa melihat suasana hatimu dan kira-kira di mana kamu berada, dan kamu juga akan melihat mereka. Yang mereka lihat adalah tempat kamu check-in; tidak ikut berpindah saat kamu bergerak. Kamu check-in sendiri setiap kali membuka aplikasi; tidak pernah otomatis. Keluar atau beralih ke aplikasi lain akan mengakhiri check-in kamu.';
 
   @override
   String get checkInButton => 'Check-in di sini';
@@ -29,6 +29,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get checkInAgain =>
       'Kamu sudah meninggalkan tempat check-in · Check-in di sini';
+
+  @override
+  String get checkOutButton => 'Sedang check-in · Check-out';
+
+  @override
+  String get checkedOutToast =>
+      'Check-out selesai. Kamu tidak lagi terlihat di peta.';
 
   @override
   String get appName => 'Mood Whisper';
@@ -819,7 +826,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS3L2 =>
-      'Gelembung yang bernapas berarti orangnya sedang memakai aplikasi. Gelembung redup bertanda Istirahat berarti layarnya terkunci, tapi kamu tetap bisa mengetuk. Gelembung abu-abu tanpa nama adalah gema memudar dari orang yang baru pergi, dan perlahan menghilang.';
+      'Hanya orang yang sudah check-in dan sedang membuka aplikasi yang muncul di radar. Saat seseorang keluar atau beralih ke aplikasi lain, gelembungnya langsung hilang tanpa jejak.';
 
   @override
   String get guideS3L3 =>
@@ -1028,7 +1035,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS14L5 =>
-      'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Gema yang memudar, bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
+      'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
 
   @override
   String get guideS15Title => '14. Terjemahan';
@@ -1753,7 +1760,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Gema yang memudar, bisikan, dan acara tetap di tempat asalnya.';
+      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Bisikan dan acara tetap di tempat asalnya.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';
@@ -2058,7 +2065,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS17L5 =>
-      'Di Dunia Kuantum tidak ada gema memudar, bisikan, surat untuk masa depan, Tempat Mood, Mercusuar Kota, atau acara. Selama di dalam, kamu keluar sementara dari radar biasa dan Semesta Paralel; saat keluar, gelembungmu larut menjadi cahaya dan kamu kembali ke tempat check-in. Jika aplikasi ditutup atau offline lebih dari 3 menit, kursimu dilepas.';
+      'Di Dunia Kuantum tidak ada bisikan, surat untuk masa depan, Tempat Mood, Mercusuar Kota, atau acara. Selama di dalam, kamu keluar sementara dari radar biasa dan Semesta Paralel; saat keluar, gelembungmu larut menjadi cahaya dan kamu kembali ke tempat check-in. Jika aplikasi ditutup atau offline lebih dari 3 menit, kursimu dilepas.';
 
   @override
   String quantumChimeCountdown(int seconds) {

@@ -132,7 +132,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkInBody.
   ///
   /// In zh, this message translates to:
-  /// **'打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。'**
+  /// **'打卡後，附近的人才看得到你此刻的心情與大概的位置，你也會看到他們。別人看到的是你打卡的地方，不會跟著你移動。每次打開 App 都要自己打卡，不會自動打卡。離開或切到其他 App，打卡就會結束。'**
   String get checkInBody;
 
   /// No description provided for @checkInButton.
@@ -146,6 +146,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'你離開打卡的地方了 · 在這裡重新打卡'**
   String get checkInAgain;
+
+  /// No description provided for @checkOutButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'打卡中 · 結束打卡'**
+  String get checkOutButton;
+
+  /// No description provided for @checkedOutToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已結束打卡，你已經從地圖上消失。'**
+  String get checkedOutToast;
 
   /// No description provided for @appName.
   ///
@@ -1470,7 +1482,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS3L2.
   ///
   /// In zh, this message translates to:
-  /// **'會呼吸的氣泡代表對方正在使用；變暗並標示「休息中」代表對方鎖了螢幕，仍可以敲門；灰色、沒有名字的是「歷史殘影」，是剛離開的人留下的，會慢慢淡去。'**
+  /// **'雷達上只會出現此刻打卡、開著 App 的人；對方離開或切到其他 App，氣泡就會立刻消失，不留殘影。'**
   String get guideS3L2;
 
   /// No description provided for @guideS3L3.
@@ -1800,7 +1812,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS14L5.
   ///
   /// In zh, this message translates to:
-  /// **'平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。殘影、低語、低語穿越與集會都只留在當地。'**
+  /// **'平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。低語、低語穿越與集會都只留在當地。'**
   String get guideS14L5;
 
   /// No description provided for @guideS15Title.
@@ -3024,7 +3036,7 @@ abstract class AppLocalizations {
   /// No description provided for @parallelUniverseIntroBody.
   ///
   /// In zh, this message translates to:
-  /// **'開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。殘影、低語和集會只留在當地。'**
+  /// **'開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。'**
   String get parallelUniverseIntroBody;
 
   /// No description provided for @parallelUniverseEnter.
@@ -3534,7 +3546,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS17L5.
   ///
   /// In zh, this message translates to:
-  /// **'量子世界裡沒有殘影、低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。'**
+  /// **'量子世界裡沒有低語、低語穿越、心情據點、城市燈塔與集會。進入期間會暫時離開一般雷達和平行宇宙；離開時你的氣泡化成光點散掉，回到原本打卡的位置。App 關掉或斷線超過 3 分鐘，席位就會釋放。'**
   String get guideS17L5;
 
   /// No description provided for @quantumChimeCountdown.

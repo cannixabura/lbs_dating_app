@@ -126,3 +126,60 @@ Every Friday from 9 to 11 pm (Taiwan time), we come online together and light up
 Privacy Policy: https://mood-whisper-f7de9.web.app/privacy-en.html
 Terms of Use: https://mood-whisper-f7de9.web.app/terms-en.html
 Contact: service.softchip@gmail.com
+
+---
+
+## App Store：名稱與副標題（App 資訊 → 可本地化的資訊）
+
+每欄上限 30 字元。修改會跟著下一個版本（1.0.4）送審才生效。
+非中文語系的 App 主畫面名稱是「Mood Whisper」，商店名稱也以它開頭。
+
+| 語言 | 名稱 | 副標題 |
+|---|---|---|
+| 繁體中文（主要） | 城市低語 - Mood Whisper | 匿名寫下心情，看見附近的人 |
+| 簡體中文 | 城市低语 - Mood Whisper | 匿名写下心情，看见附近的人 |
+| 英文（美國／英國／加拿大／澳洲） | Mood Whisper - Nearby Moods | Share how you feel, see nearby |
+| 日文 | Mood Whisper - 街のささやき | 今の気持ちを匿名で、近くの誰かと |
+| 韓文 | Mood Whisper - 도시의 속삭임 | 익명으로 기분을 쓰고 근처 사람과 |
+| 泰文 | Mood Whisper - กระซิบเมือง | เขียนความรู้สึก เจอคนใกล้ๆ |
+| 馬來文 | Mood Whisper - Bisikan Kota | Tulis mood, kenal orang dekat |
+| 印尼文 | Mood Whisper - Bisikan Kota | Tulis mood, kenali orang dekat |
+| 越南文 | Mood Whisper - Thì thầm phố | Viết tâm trạng, gặp người gần |
+
+---
+
+## Google Play：商店資訊（主要商店資訊）
+
+應用程式名稱上限 30 字元，簡短說明上限 80 字元。完整說明（上限 4000 字元）沿用上方 App Store 的「描述」。
+
+### 繁體中文（zh-TW）
+- 應用程式名稱：城市低語 - Mood Whisper
+- 簡短說明：匿名寫下一句心情，看見附近 5 公里的人；還能和東京、首爾、曼谷的夜晚重疊。
+
+### English（en-US）
+- App name: Mood Whisper - Nearby Moods
+- Short description: Write one line about how you feel and see moods within 5 km. Knock to chat.
+
+### 日本語（ja-JP）
+- アプリ名：Mood Whisper - 街のささやき
+- 簡単な説明：今の気持ちをひとこと匿名で。半径5km の誰かの気持ちが見える、夜の街のアプリ。
+
+### 한국어（ko-KR）
+- 앱 이름：Mood Whisper - 도시의 속삭임
+- 간단한 설명：지금 기분을 익명으로 한 줄. 반경 5km 안 사람들의 마음이 보이는 밤의 도시.
+
+### ไทย（th）
+- ชื่อแอป：Mood Whisper - กระซิบเมือง
+- คำอธิบายสั้น：เขียนความรู้สึกสั้นๆ แบบไม่ระบุตัวตน แล้วดูอารมณ์ของคนรอบตัวในระยะ 5 กม.
+
+### Bahasa Melayu（ms）
+- Nama apl：Mood Whisper - Bisikan Kota
+- Penerangan ringkas：Tulis perasaan anda tanpa nama dan lihat mood orang dalam lingkungan 5 km.
+
+### Bahasa Indonesia（id）
+- Nama aplikasi：Mood Whisper - Bisikan Kota
+- Deskripsi singkat：Tulis perasaanmu secara anonim dan lihat suasana hati orang dalam radius 5 km.
+
+### Tiếng Việt（vi）
+- Tên ứng dụng：Mood Whisper - Thì thầm phố
+- Mô tả ngắn：Viết một dòng tâm trạng ẩn danh, xem cảm xúc mọi người trong bán kính 5 km.

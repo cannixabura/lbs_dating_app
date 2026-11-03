@@ -18,3 +18,20 @@ test('demo moods are translated for every language', () => {
         for (const lang of ['en', 'ja', 'th']) assert.notStrictEqual(localize(lang, bot.mood), bot.mood, `${bot.mood} → ${lang}`);
     }
 });
+
+test('parallel demo visitors ring the viewer within about a kilometre', () => {
+    const viewer = { lat: 24.15, lng: 120.65 };
+    for (const b of demo.reviewBotProfiles().filter((x) => demo.parallelDemoCity(x.uid, true))) {
+        const d = demo.distanceKm(viewer, demo.parallelDemoPosition(b.uid, viewer));
+        assert.ok(d > 0.25 && d < 1.1, `${b.uid} ${d}`);
+    }
+});
+
+test('every parallel demo city has a short name', () => {
+    for (const viewerInTaiwan of [true, false]) {
+        for (const b of demo.reviewBotProfiles()) {
+            const city = demo.parallelDemoCity(b.uid, viewerInTaiwan);
+            if (city) assert.ok(demo.PARALLEL_DEMO_NAMES[city], city);
+        }
+    }
+});

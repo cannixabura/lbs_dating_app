@@ -268,11 +268,18 @@ class ShareCard extends StatelessWidget {
           Positioned(
             left: 24, right: 24, bottom: 22,
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              ShaderMask(
-                shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                child: Text(tr.appName, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
+              // 英文等較長的 App 名稱：名稱縮小以放下網址，不會溢出
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: ShaderMask(
+                    shaderCallback: (rect) => Night.brightGradient.createShader(rect),
+                    child: Text(tr.appName, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
+                  ),
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               const Text('mood-whisper-f7de9.web.app', style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5,
                   shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
             ]),

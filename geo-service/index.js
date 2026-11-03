@@ -342,7 +342,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           // 審核示範對象（只有輸入過通關碼的帳號看得到）有一部分扮演對應城市來的訪客
           for (const bot of demoBots) {
               const from = demo.parallelDemoCity(bot.uid, viewerCity.country === parallel.TAIWAN);
-              if (from) Object.assign(bot, { parallel: from, parallelName: parallel.nameOf(from, langOf(req)) });
+              if (from) Object.assign(bot, demo.parallelDemoPosition(bot.uid, { lat, lng }), { nickname: demo.PARALLEL_DEMO_NAMES[from], parallel: from, parallelName: parallel.nameOf(from, langOf(req)) });
           }
       }
       if (viewerCity) {

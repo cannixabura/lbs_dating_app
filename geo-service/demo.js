@@ -106,6 +106,12 @@ function reviewBotProfiles() {
 const PARALLEL_FROM_ABROAD = ['tokyo', 'seoul', 'bangkok', 'singapore', 'hongkong', 'sydney']; // 觀看者在台灣
 const PARALLEL_FROM_TAIWAN = ['taipei', 'kaohsiung', 'taichung', 'tainan', 'hsinchu', 'taoyuan']; // 觀看者在國外
 
+// 扮演訪客時用短名字，雷達上「示範 · 名字 · 🪐 城市」才放得下（仍然標示「示範」）
+const PARALLEL_DEMO_NAMES = {
+    tokyo: 'Haru', seoul: 'Minji', bangkok: 'Ploy', singapore: 'Wei', hongkong: 'Kayan', sydney: 'Mia',
+    taipei: 'Yu', kaohsiung: 'Ann', taichung: 'Chen', tainan: 'Lin', hsinchu: 'Kai', taoyuan: 'Joy',
+};
+
 /** 這位審核示範對象在平行宇宙裡來自哪座城市；不扮演訪客時回傳 null */
 function parallelDemoCity(botUid, viewerInTaiwan) {
     const m = /^demo-rev-(\d+)$/.exec(String(botUid));
@@ -113,6 +119,12 @@ function parallelDemoCity(botUid, viewerInTaiwan) {
     if (n === 0 || n % 3 !== 0) return null;
     const list = viewerInTaiwan ? PARALLEL_FROM_ABROAD : PARALLEL_FROM_TAIWAN;
     return list[(n / 3 - 1) % list.length];
+}
+
+/** 扮演平行宇宙訪客時的位置：繞著觀看者排一圈（300～1050 公尺），不擠在本地示範對象中間 */
+function parallelDemoPosition(botUid, viewer) {
+    const n = parseInt(String(botUid).slice(-2), 10) / 3; // 1～6
+    return offsetLatLng(viewer.lat, viewer.lng, 150 + 150 * n, n * 1.1 + 0.4);
 }
 
 /** 第 n 則回覆（n 從 0 起算） */
@@ -130,5 +142,5 @@ function distanceKm(a, b) {
 
 module.exports = {
     DEMO_PREFIX, PUBLIC_GEO_KEY, PUBLIC_MAX_RESULTS, CROWDED_REAL_USERS, CROWDED_MAX_RESULTS, REVIEWERS_KEY, REVIEW_CODE, REVIEW_MOOD, REVIEW_REANCHOR_KM,
-    isDemoUid, isReviewCode, taipeiBots, reviewBots, reviewBotProfiles, parallelDemoCity, chatReply, distanceKm,
+    isDemoUid, isReviewCode, taipeiBots, reviewBots, reviewBotProfiles, parallelDemoCity, parallelDemoPosition, PARALLEL_DEMO_NAMES, chatReply, distanceKm,
 };

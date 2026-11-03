@@ -1567,7 +1567,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginTitle1 => 'Ready';
 
   @override
-  String get loginTitle2 => 'to meet?';
+  String get loginTitle2 => ' to meet?';
 
   @override
   String get loginLead =>

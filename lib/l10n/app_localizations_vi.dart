@@ -1500,7 +1500,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get loginTitle1 => 'Sẵn sàng';
 
   @override
-  String get loginTitle2 => 'gặp gỡ chưa?';
+  String get loginTitle2 => ' gặp gỡ chưa?';
 
   @override
   String get loginLead =>

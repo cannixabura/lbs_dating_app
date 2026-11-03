@@ -1504,7 +1504,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get loginTitle1 => 'Sedia';
 
   @override
-  String get loginTitle2 => 'untuk bertemu?';
+  String get loginTitle2 => ' untuk bertemu?';
 
   @override
   String get loginLead =>

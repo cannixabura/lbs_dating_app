@@ -414,7 +414,7 @@
   "ageUnder": "Tôi chưa đủ 18",
   "ageOver": "Tôi đủ 18 tuổi",
   "loginTitle1": "Sẵn sàng",
-  "loginTitle2": "gặp gỡ chưa?",
+  "loginTitle2": " gặp gỡ chưa?",
   "loginLead": "Nhắm mắt lại, cảm nhận rung động của điện thoại và nhịp tim.\nGiờ hãy viết cảm xúc lúc này và bước vào Mood Whisper.",
   "loginPrompt": "Lúc này, bạn muốn nói gì với thành phố?",
   "loginHint": "Ví dụ: Vừa uống một ly cà phê ngon😊",

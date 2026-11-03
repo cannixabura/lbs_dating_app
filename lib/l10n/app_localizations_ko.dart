@@ -1436,7 +1436,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginTitle1 => '만날';
 
   @override
-  String get loginTitle2 => '준비 됐나요?';
+  String get loginTitle2 => ' 준비 됐나요?';
 
   @override
   String get loginLead =>

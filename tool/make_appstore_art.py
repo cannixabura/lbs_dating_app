@@ -55,7 +55,12 @@ def banner(w, h, out_name, shots_from=(2, 1, 5), phone_h=900, align_right=False,
     left = int(w * 0.5 - 860 * s)
     top = int(h / 2 - 330 * s)
     canvas.paste(icon, (left, top), icon)
-    title_font = load_font(int(150 * s))
+    # 大標不能壓到右邊的手機：太寬時縮小字級
+    size = int(150 * s)
+    title_font = load_font(size)
+    while title_font.getlength(title) > 820 * s and size > 60:
+        size -= 4
+        title_font = load_font(size)
     name_w = title_font.getlength(title)
     y = gradient_text(canvas, title, title_font, left + name_w / 2 + 10 * s, top + int(230 * s))
     draw = ImageDraw.Draw(canvas)

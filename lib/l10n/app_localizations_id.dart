@@ -1499,7 +1499,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get loginTitle1 => 'Siap';
 
   @override
-  String get loginTitle2 => 'bertemu?';
+  String get loginTitle2 => ' bertemu?';
 
   @override
   String get loginLead =>

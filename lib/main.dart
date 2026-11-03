@@ -3843,10 +3843,12 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                   if (widget.hostEmoji != null) '${tr.labelHost} ${widget.hostEmoji}',
                   if (widget.isDemo) tr.labelDemo,
                   widget.displayName,
-                  // 平行宇宙的位置是投影的，不顯示距離，只顯示對方的城市
-                  widget.parallelCity != null ? '🪐 ${parallelCityName(widget.parallelCity!)}' : widget.distanceLabel,
+                  if (widget.parallelCity == null) widget.distanceLabel,
                   if (widget.isInactive) tr.labelResting,
                 ].join(' · '), style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                // 平行宇宙的位置是投影的，不顯示距離；對方的城市獨立一行，名字長也不會被截掉
+                if (widget.parallelCity != null)
+                  Text('🪐 ${parallelCityName(widget.parallelCity!)}', style: Night.caption.copyWith(color: Night.auroraViolet, shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

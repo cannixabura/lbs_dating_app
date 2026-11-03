@@ -102,6 +102,19 @@ function reviewBotProfiles() {
     }));
 }
 
+// 審核人員開啟平行宇宙時，每 3 位審核示範對象就有 1 位改成來自對應城市的訪客，讓審核人員一個人也能試平行宇宙
+const PARALLEL_FROM_ABROAD = ['tokyo', 'seoul', 'bangkok', 'singapore', 'hongkong', 'sydney']; // 觀看者在台灣
+const PARALLEL_FROM_TAIWAN = ['taipei', 'kaohsiung', 'taichung', 'tainan', 'hsinchu', 'taoyuan']; // 觀看者在國外
+
+/** 這位審核示範對象在平行宇宙裡來自哪座城市；不扮演訪客時回傳 null */
+function parallelDemoCity(botUid, viewerInTaiwan) {
+    const m = /^demo-rev-(\d+)$/.exec(String(botUid));
+    const n = m ? parseInt(m[1], 10) : 0;
+    if (n === 0 || n % 3 !== 0) return null;
+    const list = viewerInTaiwan ? PARALLEL_FROM_ABROAD : PARALLEL_FROM_TAIWAN;
+    return list[(n / 3 - 1) % list.length];
+}
+
 /** 第 n 則回覆（n 從 0 起算） */
 function chatReply(n) {
     return n < CHAT_LINES.length ? CHAT_LINES[n] : CHAT_IDLE_LINES[(n - CHAT_LINES.length) % CHAT_IDLE_LINES.length];
@@ -117,5 +130,5 @@ function distanceKm(a, b) {
 
 module.exports = {
     DEMO_PREFIX, PUBLIC_GEO_KEY, PUBLIC_MAX_RESULTS, CROWDED_REAL_USERS, CROWDED_MAX_RESULTS, REVIEWERS_KEY, REVIEW_CODE, REVIEW_MOOD, REVIEW_REANCHOR_KM,
-    isDemoUid, isReviewCode, taipeiBots, reviewBots, reviewBotProfiles, chatReply, distanceKm,
+    isDemoUid, isReviewCode, taipeiBots, reviewBots, reviewBotProfiles, parallelDemoCity, chatReply, distanceKm,
 };

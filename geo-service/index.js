@@ -202,7 +202,7 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang
     found.forEach(([botUid, , pos], i) => {
         const [mood, nickname, hidden, hostEmoji] = profiles[i] || [];
         if (hidden === "1" || !nickname) return; // 被檢舉隱藏，或尚未建立資料
-        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: mood || "", nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
+        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: localize(lang, mood || ""), nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
     });
     return bots;
 }
@@ -333,10 +333,18 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
       }
 
       const realCount = results.filter((r) => r.status !== 'shadow').length;
-      results.push(...await nearbyDemoBots(uid, lat, lng, radiusKM, realCount, langOf(req)));
+      const demoBots = await nearbyDemoBots(uid, lat, lng, radiusKM, realCount, langOf(req));
+      results.push(...demoBots);
 
       // 平行宇宙：其他城市的人投影到這裡（只要一方開啟）
       const viewerCity = parallel.cityOf(lat, lng);
+      if (viewerCity && req.body.parallel === true) {
+          // 審核示範對象（只有輸入過通關碼的帳號看得到）有一部分扮演對應城市來的訪客
+          for (const bot of demoBots) {
+              const from = demo.parallelDemoCity(bot.uid, viewerCity.country === parallel.TAIWAN);
+              if (from) Object.assign(bot, { parallel: from, parallelName: parallel.nameOf(from, langOf(req)) });
+          }
+      }
       if (viewerCity) {
           try {
               const seen = new Set(results.map((r) => r.uid));
@@ -564,7 +572,7 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
             const local = quantum.toLocal(b.lat, b.lng);
             const code = quantum.nearestCode(local.east, local.north);
             if (hidden === "1" || !nickname || !code) return;
-            users.push({ uid: b.uid, lat: b.lat, lng: b.lng, mood: mood || "", nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, quantum: code });
+            users.push({ uid: b.uid, lat: b.lat, lng: b.lng, mood: localize(lang, mood || ""), nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, quantum: code });
         });
     }
 

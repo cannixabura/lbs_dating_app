@@ -1,8 +1,8 @@
 """App Store Connect 的產品頁素材。
 
-用法：python3 tool/make_appstore_art.py
-輸出到 store_screenshots/：
-  ios-medium/1.png … 5.png   「配備動態島的 iPhone（中型顯示器）」截圖 1206×2622（必填的尺寸）
+用法：python3 tool/make_appstore_art.py [zh|en]
+輸出到 store_screenshots/（英文版在 store_screenshots/en/）：
+  ios-medium/1.png … 8.png   「配備動態島的 iPhone（中型顯示器）」截圖 1206×2622（必填的尺寸）
   appstore_title.png          產品頁「標題」素材 3840×1646
   appstore_search.png         「搜尋結果」素材 1920×1280
 「標題」與「搜尋結果」會依裝置裁切邊緣，文字與手機畫面都放在中間的安全範圍內。
@@ -15,17 +15,28 @@ from PIL import Image, ImageDraw
 sys.path.insert(0, os.path.dirname(__file__))
 from compose_store_screenshots import background, gradient_text, load_font, rounded, GLASS_LINE  # noqa: E402
 
-ROOT = os.path.join(os.path.dirname(__file__), "..", "store_screenshots")
+STORE = os.path.join(os.path.dirname(__file__), "..", "store_screenshots")
+ROOT = STORE
 INK_MUTED = (185, 182, 214)
+# 標題素材的文字：大標、小字、標語
+TEXT = {
+    "zh": ("城市低語", "Mood Whisper", "匿名寫下此刻的心情，看見附近的人"),
+    "en": ("Mood Whisper", "城市低語", "Write how you feel, see who's nearby"),
+}
 
 
 def medium_screenshots():
     out = os.path.join(ROOT, "ios-medium")
     os.makedirs(out, exist_ok=True)
-    for n in range(1, 6):
-        img = Image.open(os.path.join(ROOT, "ios", f"{n}.png")).convert("RGB")  # 不能有透明通道
+    done = []
+    for n in range(1, 9):
+        src = os.path.join(ROOT, "ios", f"{n}.png")
+        if not os.path.exists(src):
+            continue
+        img = Image.open(src).convert("RGB")  # 不能有透明通道
         img.resize((1206, 2622), Image.LANCZOS).save(os.path.join(out, f"{n}.png"), optimize=True)
-    print("ios-medium/1-5.png  1206×2622")
+        done.append(n)
+    print(f"ios-medium/{done}  1206×2622")
 
 
 def phone(path, height):
@@ -34,21 +45,22 @@ def phone(path, height):
     return rounded(shot.resize((w, height), Image.LANCZOS), int(height * 0.055))
 
 
-def banner(w, h, out_name, shots_from=(2, 1, 5), phone_h=900, align_right=False):
+def banner(w, h, out_name, shots_from=(2, 1, 5), phone_h=900, align_right=False, lang="zh"):
+    title, small, tagline = TEXT[lang]
     canvas = background(w, h).convert("RGB")
     s = h / 1280  # 以 1920×1280 為基準縮放
     # 左半：圖示、名稱、標語（放在垂直置中的安全範圍）
-    icon = Image.open(os.path.join(ROOT, "android", "icon_512.png")).convert("RGB").resize((int(200 * s), int(200 * s)), Image.LANCZOS)
+    icon = Image.open(os.path.join(STORE, "android", "icon_512.png")).convert("RGB").resize((int(200 * s), int(200 * s)), Image.LANCZOS)
     icon = rounded(icon, int(46 * s))
     left = int(w * 0.5 - 860 * s)
     top = int(h / 2 - 330 * s)
     canvas.paste(icon, (left, top), icon)
     title_font = load_font(int(150 * s))
-    name_w = title_font.getlength("城市低語")
-    y = gradient_text(canvas, "城市低語", title_font, left + name_w / 2 + 10 * s, top + int(230 * s))
+    name_w = title_font.getlength(title)
+    y = gradient_text(canvas, title, title_font, left + name_w / 2 + 10 * s, top + int(230 * s))
     draw = ImageDraw.Draw(canvas)
-    draw.text((left, y + 10 * s), "Mood Whisper", font=load_font(int(56 * s)), fill=INK_MUTED)
-    draw.text((left, y + 100 * s), "匿名寫下此刻的心情，看見附近的人", font=load_font(int(52 * s)), fill=(243, 240, 255))
+    draw.text((left, y + 10 * s), small, font=load_font(int(56 * s)), fill=INK_MUTED)
+    draw.text((left, y + 100 * s), tagline, font=load_font(int(52 * s)), fill=(243, 240, 255))
     # 右半：三支手機畫面
     ph = int(phone_h * s)
     shots = [phone(os.path.join(ROOT, "raw", f"{n}.png"), ph) for n in shots_from]
@@ -71,6 +83,9 @@ def banner(w, h, out_name, shots_from=(2, 1, 5), phone_h=900, align_right=False)
 
 
 if __name__ == "__main__":
+    lang = sys.argv[1] if len(sys.argv) > 1 else "zh"
+    if lang != "zh":
+        ROOT = os.path.join(STORE, lang)
     medium_screenshots()
-    banner(3840, 1646, "appstore_title.png")
-    banner(1920, 1280, "appstore_search.png", shots_from=(2, 5), phone_h=760, align_right=True)
+    banner(3840, 1646, "appstore_title.png", lang=lang)
+    banner(1920, 1280, "appstore_search.png", shots_from=(2, 5), phone_h=760, align_right=True, lang=lang)

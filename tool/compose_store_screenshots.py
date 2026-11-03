@@ -1,9 +1,9 @@
 """把模擬器截圖合成成商店用的行銷圖：夜空漸層背景＋上方標語＋圓角的 App 畫面。
 
 用法：
-  python3 tool/compose_store_screenshots.py <截圖資料夾> <輸出資料夾>
+  python3 tool/compose_store_screenshots.py <截圖資料夾> <輸出資料夾> [zh|en]
 
-截圖資料夾裡放 1.png … 5.png（iPhone 6.9 吋模擬器的原始截圖，1320×2868），
+截圖資料夾裡放 1.png … 8.png（iPhone 6.9 吋模擬器的原始截圖，1320×2868），
 輸出 ios/（1320×2868，App Store 6.9 吋）與 android/（1080×1920，Google Play 手機）兩組。
 需要 Pillow：pip install pillow
 """
@@ -13,11 +13,26 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 TAGLINES = {
-    1: "寫下心情，城市就亮起一道光",
-    2: "敲門，等一個片刻交集",
-    3: "十分鐘的對話，說完就消散",
-    4: "留一句話，給下一個經過這裡的人",
-    5: "今晚的城市，是什麼心情？",
+    "zh": {
+        1: "寫下心情，城市就亮起一道光",
+        2: "敲門，等一個片刻交集",
+        3: "十分鐘的對話，說完就消散",
+        4: "留一句話，給下一個經過這裡的人",
+        5: "今晚的城市，是什麼心情？",
+        6: "一個表情符號，點亮整個街區",
+        7: "和東京、首爾、曼谷的夜晚重疊",
+        8: "全世界，坐進同一間房間",
+    },
+    "en": {
+        1: "Write your mood, light up the city",
+        2: "Knock, and let paths cross",
+        3: "Ten-minute talks that fade away",
+        4: "Leave a line for the next passer-by",
+        5: "What is the city feeling tonight?",
+        6: "One emoji lights up the block",
+        7: "Overlap with Tokyo, Seoul, Bangkok",
+        8: "The whole world in one room",
+    },
 }
 
 # 設計系統的顏色
@@ -124,9 +139,10 @@ def compose(shot_path, tagline, w, h):
 
 def main():
     src, dst = sys.argv[1], sys.argv[2]
+    lang = sys.argv[3] if len(sys.argv) > 3 else "zh"
     for folder, (w, h) in {"ios": (1320, 2868), "android": (1080, 1920)}.items():
         os.makedirs(os.path.join(dst, folder), exist_ok=True)
-        for n, tagline in TAGLINES.items():
+        for n, tagline in TAGLINES[lang].items():
             shot = os.path.join(src, f"{n}.png")
             if not os.path.exists(shot):
                 print(f"略過 {n}：找不到 {shot}")

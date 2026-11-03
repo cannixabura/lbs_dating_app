@@ -74,7 +74,7 @@ const MAX_TOPICS = 3;
 
 // 大區：只用來顯示匿名人數
 const REGIONS = ['tw', 'jp', 'kr', 'hkmo', 'sea', 'other'];
-const COUNTRY_REGION = { tw: 'tw', jp: 'jp', kr: 'kr', hk: 'hkmo', mo: 'hkmo', sg: 'sea', my: 'sea', id: 'sea', vn: 'sea' };
+const COUNTRY_REGION = { tw: 'tw', jp: 'jp', kr: 'kr', hk: 'hkmo', mo: 'hkmo', sg: 'sea', my: 'sea', id: 'sea', vn: 'sea', th: 'sea', ph: 'sea' };
 
 // ---------- 席位 ----------
 

@@ -176,6 +176,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   static const _checkInMoveMeters = 1000.0;
   static const _checkInExpiry = Duration(minutes: 30);
   late bool _checkInRequested = widget.checkIn;
+  // 按下「在這裡打卡」後的載入畫面至少停留幾秒，讓人讀完「城市太安靜時去平行宇宙／量子世界」的提示
+  static const _sensingMinDuration = Duration(seconds: 4);
+  late bool _sensingHold = widget.checkIn;
   // 進場鏡頭：從城市高空俯衝到街道，期間暫停羅盤與仰角對鏡頭的更新
   bool _introFlying = true;
   late final AnimationController _introFade = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
@@ -407,6 +410,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   @override
   void initState() {
     super.initState();
+    if (_sensingHold) Future.delayed(_sensingMinDuration, () { if (mounted) setState(() => _sensingHold = false); });
     WidgetsBinding.instance.addObserver(this); 
     _myMood = widget.initialMood; 
     _loadProfileData(); 
@@ -3179,10 +3183,29 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     WidgetsBinding.instance.removeObserver(this); super.dispose();
   }
 
+  Widget _buildSensingScreen() => Scaffold(
+        backgroundColor: Night.night900,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Night.space6),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(tr.sensingCity, style: const TextStyle(color: Night.inkMuted, letterSpacing: 2)),
+              if (widget.checkIn) ...[
+                const SizedBox(height: Night.space4),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: Text(tr.sensingCityHint, style: Night.caption.copyWith(height: 1.6), textAlign: TextAlign.center),
+                ),
+              ],
+            ]),
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     if (_locationIssue != _LocationIssue.none && _currentPosition == null) return _buildLocationBlocker();
-    if (_currentPosition == null || _mapStyle == null) return Scaffold(backgroundColor: Night.night900, body: Center(child: Text(tr.sensingCity, style: TextStyle(color: Night.inkMuted, letterSpacing: 2))));
+    if (_currentPosition == null || _mapStyle == null || _sensingHold) return _buildSensingScreen();
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;

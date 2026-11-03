@@ -38,70 +38,76 @@ const TAIWAN = 'tw';
 const TAIWAN_MAIN_ISLAND = { box: [21.85, 25.35, 119.95, 122.1] };
 
 // 城市：中心點（中央車站）、國家、成員範圍、各語言名稱
-// 名稱順序 [繁中, 簡中, 英, 日, 韓, 馬來, 印尼, 越南]，與 i18n.js 的 LANGS 相同。
+// 名稱順序 [繁中, 簡中, 英, 日, 韓, 馬來, 印尼, 越南, 泰]，與 i18n.js 的 LANGS 相同。
 // 成員範圍：預設是離車站 DEFAULT_KM 內；box = [南, 北, 西, 東]；circles = [[lat, lng, km], ...]
 const CITIES = [
     // ---- 台灣：各縣市的中央車站 ----
-    { id: 'keelung', country: TAIWAN, lat: 25.1319, lng: 121.7397, ...TAIWAN_MAIN_ISLAND, names: ['基隆', '基隆', 'Keelung', '基隆', '지룽', 'Keelung', 'Keelung', 'Cơ Long'] }, // 基隆車站
-    { id: 'taipei', country: TAIWAN, lat: 25.0478, lng: 121.5170, ...TAIWAN_MAIN_ISLAND, names: ['台北', '台北', 'Taipei', '台北', '타이베이', 'Taipei', 'Taipei', 'Đài Bắc'] }, // 台北車站（大台北）
-    { id: 'taoyuan', country: TAIWAN, lat: 24.9891, lng: 121.3134, ...TAIWAN_MAIN_ISLAND, names: ['桃園', '桃园', 'Taoyuan', '桃園', '타오위안', 'Taoyuan', 'Taoyuan', 'Đào Viên'] }, // 桃園車站
-    { id: 'hsinchu', country: TAIWAN, lat: 24.8016, lng: 120.9716, ...TAIWAN_MAIN_ISLAND, names: ['新竹', '新竹', 'Hsinchu', '新竹', '신주', 'Hsinchu', 'Hsinchu', 'Tân Trúc'] }, // 新竹車站
-    { id: 'miaoli', country: TAIWAN, lat: 24.5703, lng: 120.8222, ...TAIWAN_MAIN_ISLAND, names: ['苗栗', '苗栗', 'Miaoli', '苗栗', '먀오리', 'Miaoli', 'Miaoli', 'Miêu Lật'] }, // 苗栗車站
-    { id: 'taichung', country: TAIWAN, lat: 24.1372, lng: 120.6866, ...TAIWAN_MAIN_ISLAND, names: ['台中', '台中', 'Taichung', '台中', '타이중', 'Taichung', 'Taichung', 'Đài Trung'] }, // 台中車站
-    { id: 'changhua', country: TAIWAN, lat: 24.0817, lng: 120.5386, ...TAIWAN_MAIN_ISLAND, names: ['彰化', '彰化', 'Changhua', '彰化', '장화', 'Changhua', 'Changhua', 'Chương Hóa'] }, // 彰化車站
-    { id: 'nantou', country: TAIWAN, lat: 23.9106, lng: 120.6855, ...TAIWAN_MAIN_ISLAND, names: ['南投', '南投', 'Nantou', '南投', '난터우', 'Nantou', 'Nantou', 'Nam Đầu'] }, // 南投轉運站（南投市沒有火車站）
-    { id: 'yunlin', country: TAIWAN, lat: 23.7116, lng: 120.5411, ...TAIWAN_MAIN_ISLAND, names: ['雲林', '云林', 'Yunlin', '雲林', '윈린', 'Yunlin', 'Yunlin', 'Vân Lâm'] }, // 斗六車站
-    { id: 'chiayi', country: TAIWAN, lat: 23.4791, lng: 120.4412, ...TAIWAN_MAIN_ISLAND, names: ['嘉義', '嘉义', 'Chiayi', '嘉義', '자이', 'Chiayi', 'Chiayi', 'Gia Nghĩa'] }, // 嘉義車站
-    { id: 'tainan', country: TAIWAN, lat: 22.9971, lng: 120.2124, ...TAIWAN_MAIN_ISLAND, names: ['台南', '台南', 'Tainan', '台南', '타이난', 'Tainan', 'Tainan', 'Đài Nam'] }, // 台南車站
-    { id: 'kaohsiung', country: TAIWAN, lat: 22.6393, lng: 120.3024, ...TAIWAN_MAIN_ISLAND, names: ['高雄', '高雄', 'Kaohsiung', '高雄', '가오슝', 'Kaohsiung', 'Kaohsiung', 'Cao Hùng'] }, // 高雄車站
-    { id: 'pingtung', country: TAIWAN, lat: 22.6693, lng: 120.4864, ...TAIWAN_MAIN_ISLAND, names: ['屏東', '屏东', 'Pingtung', '屏東', '핑둥', 'Pingtung', 'Pingtung', 'Bình Đông'] }, // 屏東車站
-    { id: 'yilan', country: TAIWAN, lat: 24.7546, lng: 121.7582, ...TAIWAN_MAIN_ISLAND, names: ['宜蘭', '宜兰', 'Yilan', '宜蘭', '이란', 'Yilan', 'Yilan', 'Nghi Lan'] }, // 宜蘭車站
-    { id: 'hualien', country: TAIWAN, lat: 23.9929, lng: 121.6013, ...TAIWAN_MAIN_ISLAND, names: ['花蓮', '花莲', 'Hualien', '花蓮', '화롄', 'Hualien', 'Hualien', 'Hoa Liên'] }, // 花蓮車站
-    { id: 'taitung', country: TAIWAN, lat: 22.7935, lng: 121.1233, ...TAIWAN_MAIN_ISLAND, names: ['台東', '台东', 'Taitung', '台東', '타이둥', 'Taitung', 'Taitung', 'Đài Đông'] }, // 台東車站
-    { id: 'penghu', country: TAIWAN, lat: 23.5667, lng: 119.5660, km: 35, names: ['澎湖', '澎湖', 'Penghu', '澎湖', '펑후', 'Penghu', 'Penghu', 'Bành Hồ'] }, // 馬公
+    { id: 'keelung', country: TAIWAN, lat: 25.1319, lng: 121.7397, ...TAIWAN_MAIN_ISLAND, names: ['基隆', '基隆', 'Keelung', '基隆', '지룽', 'Keelung', 'Keelung', 'Cơ Long', 'จีหลง'] }, // 基隆車站
+    { id: 'taipei', country: TAIWAN, lat: 25.0478, lng: 121.5170, ...TAIWAN_MAIN_ISLAND, names: ['台北', '台北', 'Taipei', '台北', '타이베이', 'Taipei', 'Taipei', 'Đài Bắc', 'ไทเป'] }, // 台北車站（大台北）
+    { id: 'taoyuan', country: TAIWAN, lat: 24.9891, lng: 121.3134, ...TAIWAN_MAIN_ISLAND, names: ['桃園', '桃园', 'Taoyuan', '桃園', '타오위안', 'Taoyuan', 'Taoyuan', 'Đào Viên', 'เถาหยวน'] }, // 桃園車站
+    { id: 'hsinchu', country: TAIWAN, lat: 24.8016, lng: 120.9716, ...TAIWAN_MAIN_ISLAND, names: ['新竹', '新竹', 'Hsinchu', '新竹', '신주', 'Hsinchu', 'Hsinchu', 'Tân Trúc', 'ซินจู๋'] }, // 新竹車站
+    { id: 'miaoli', country: TAIWAN, lat: 24.5703, lng: 120.8222, ...TAIWAN_MAIN_ISLAND, names: ['苗栗', '苗栗', 'Miaoli', '苗栗', '먀오리', 'Miaoli', 'Miaoli', 'Miêu Lật', 'เหมียวลี่'] }, // 苗栗車站
+    { id: 'taichung', country: TAIWAN, lat: 24.1372, lng: 120.6866, ...TAIWAN_MAIN_ISLAND, names: ['台中', '台中', 'Taichung', '台中', '타이중', 'Taichung', 'Taichung', 'Đài Trung', 'ไถจง'] }, // 台中車站
+    { id: 'changhua', country: TAIWAN, lat: 24.0817, lng: 120.5386, ...TAIWAN_MAIN_ISLAND, names: ['彰化', '彰化', 'Changhua', '彰化', '장화', 'Changhua', 'Changhua', 'Chương Hóa', 'จางฮว่า'] }, // 彰化車站
+    { id: 'nantou', country: TAIWAN, lat: 23.9106, lng: 120.6855, ...TAIWAN_MAIN_ISLAND, names: ['南投', '南投', 'Nantou', '南投', '난터우', 'Nantou', 'Nantou', 'Nam Đầu', 'หนานโถว'] }, // 南投轉運站（南投市沒有火車站）
+    { id: 'yunlin', country: TAIWAN, lat: 23.7116, lng: 120.5411, ...TAIWAN_MAIN_ISLAND, names: ['雲林', '云林', 'Yunlin', '雲林', '윈린', 'Yunlin', 'Yunlin', 'Vân Lâm', 'หยุนหลิน'] }, // 斗六車站
+    { id: 'chiayi', country: TAIWAN, lat: 23.4791, lng: 120.4412, ...TAIWAN_MAIN_ISLAND, names: ['嘉義', '嘉义', 'Chiayi', '嘉義', '자이', 'Chiayi', 'Chiayi', 'Gia Nghĩa', 'เจียอี้'] }, // 嘉義車站
+    { id: 'tainan', country: TAIWAN, lat: 22.9971, lng: 120.2124, ...TAIWAN_MAIN_ISLAND, names: ['台南', '台南', 'Tainan', '台南', '타이난', 'Tainan', 'Tainan', 'Đài Nam', 'ไถหนาน'] }, // 台南車站
+    { id: 'kaohsiung', country: TAIWAN, lat: 22.6393, lng: 120.3024, ...TAIWAN_MAIN_ISLAND, names: ['高雄', '高雄', 'Kaohsiung', '高雄', '가오슝', 'Kaohsiung', 'Kaohsiung', 'Cao Hùng', 'เกาสง'] }, // 高雄車站
+    { id: 'pingtung', country: TAIWAN, lat: 22.6693, lng: 120.4864, ...TAIWAN_MAIN_ISLAND, names: ['屏東', '屏东', 'Pingtung', '屏東', '핑둥', 'Pingtung', 'Pingtung', 'Bình Đông', 'ผิงตง'] }, // 屏東車站
+    { id: 'yilan', country: TAIWAN, lat: 24.7546, lng: 121.7582, ...TAIWAN_MAIN_ISLAND, names: ['宜蘭', '宜兰', 'Yilan', '宜蘭', '이란', 'Yilan', 'Yilan', 'Nghi Lan', 'อี๋หลาน'] }, // 宜蘭車站
+    { id: 'hualien', country: TAIWAN, lat: 23.9929, lng: 121.6013, ...TAIWAN_MAIN_ISLAND, names: ['花蓮', '花莲', 'Hualien', '花蓮', '화롄', 'Hualien', 'Hualien', 'Hoa Liên', 'ฮัวเหลียน'] }, // 花蓮車站
+    { id: 'taitung', country: TAIWAN, lat: 22.7935, lng: 121.1233, ...TAIWAN_MAIN_ISLAND, names: ['台東', '台东', 'Taitung', '台東', '타이둥', 'Taitung', 'Taitung', 'Đài Đông', 'ไถตง'] }, // 台東車站
+    { id: 'penghu', country: TAIWAN, lat: 23.5667, lng: 119.5660, km: 35, names: ['澎湖', '澎湖', 'Penghu', '澎湖', '펑후', 'Penghu', 'Penghu', 'Bành Hồ', 'เผิงหู'] }, // 馬公
     // 金門、馬祖緊鄰中國大陸：只收島上的範圍
-    { id: 'kinmen', country: TAIWAN, lat: 24.4337, lng: 118.3170, box: [24.38, 24.535, 118.21, 118.48], names: ['金門', '金门', 'Kinmen', '金門', '진먼', 'Kinmen', 'Kinmen', 'Kim Môn'] }, // 金城車站
-    { id: 'matsu', country: TAIWAN, lat: 26.1606, lng: 119.9497, circles: [[26.155, 119.935, 4], [26.225, 119.995, 3], [25.965, 119.95, 3], [26.365, 120.49, 3]], names: ['馬祖', '马祖', 'Matsu', '馬祖', '마쭈', 'Matsu', 'Matsu', 'Mã Tổ'] }, // 南竿福澳港
+    { id: 'kinmen', country: TAIWAN, lat: 24.4337, lng: 118.3170, box: [24.38, 24.535, 118.21, 118.48], names: ['金門', '金门', 'Kinmen', '金門', '진먼', 'Kinmen', 'Kinmen', 'Kim Môn', 'จินเหมิน'] }, // 金城車站
+    { id: 'matsu', country: TAIWAN, lat: 26.1606, lng: 119.9497, circles: [[26.155, 119.935, 4], [26.225, 119.995, 3], [25.965, 119.95, 3], [26.365, 120.49, 3]], names: ['馬祖', '马祖', 'Matsu', '馬祖', '마쭈', 'Matsu', 'Matsu', 'Mã Tổ', 'หมาจู่'] }, // 南竿福澳港
 
     // ---- 日本 ----
-    { id: 'tokyo', country: 'jp', lat: 35.6812, lng: 139.7671, names: ['東京', '东京', 'Tokyo', '東京', '도쿄', 'Tokyo', 'Tokyo', 'Tokyo'] }, // 東京駅
-    { id: 'yokohama', country: 'jp', lat: 35.4660, lng: 139.6223, names: ['橫濱', '横滨', 'Yokohama', '横浜', '요코하마', 'Yokohama', 'Yokohama', 'Yokohama'] }, // 横浜駅
-    { id: 'osaka', country: 'jp', lat: 34.7024, lng: 135.4959, names: ['大阪', '大阪', 'Osaka', '大阪', '오사카', 'Osaka', 'Osaka', 'Osaka'] }, // 大阪駅
-    { id: 'kyoto', country: 'jp', lat: 34.9858, lng: 135.7588, names: ['京都', '京都', 'Kyoto', '京都', '교토', 'Kyoto', 'Kyoto', 'Kyoto'] }, // 京都駅
-    { id: 'kobe', country: 'jp', lat: 34.6947, lng: 135.1953, names: ['神戶', '神户', 'Kobe', '神戸', '고베', 'Kobe', 'Kobe', 'Kobe'] }, // 三ノ宮駅
-    { id: 'nagoya', country: 'jp', lat: 35.1709, lng: 136.8815, names: ['名古屋', '名古屋', 'Nagoya', '名古屋', '나고야', 'Nagoya', 'Nagoya', 'Nagoya'] }, // 名古屋駅
-    { id: 'fukuoka', country: 'jp', lat: 33.5902, lng: 130.4207, names: ['福岡', '福冈', 'Fukuoka', '福岡', '후쿠오카', 'Fukuoka', 'Fukuoka', 'Fukuoka'] }, // 博多駅
-    { id: 'sapporo', country: 'jp', lat: 43.0686, lng: 141.3508, names: ['札幌', '札幌', 'Sapporo', '札幌', '삿포로', 'Sapporo', 'Sapporo', 'Sapporo'] }, // 札幌駅
-    { id: 'sendai', country: 'jp', lat: 38.2601, lng: 140.8823, names: ['仙台', '仙台', 'Sendai', '仙台', '센다이', 'Sendai', 'Sendai', 'Sendai'] }, // 仙台駅
-    { id: 'hiroshima', country: 'jp', lat: 34.3973, lng: 132.4753, names: ['廣島', '广岛', 'Hiroshima', '広島', '히로시마', 'Hiroshima', 'Hiroshima', 'Hiroshima'] }, // 広島駅
-    { id: 'naha', country: 'jp', lat: 26.2149, lng: 127.6793, names: ['那霸', '那霸', 'Naha', '那覇', '나하', 'Naha', 'Naha', 'Naha'] }, // 県庁前駅
+    { id: 'tokyo', country: 'jp', lat: 35.6812, lng: 139.7671, names: ['東京', '东京', 'Tokyo', '東京', '도쿄', 'Tokyo', 'Tokyo', 'Tokyo', 'โตเกียว'] }, // 東京駅
+    { id: 'yokohama', country: 'jp', lat: 35.4660, lng: 139.6223, names: ['橫濱', '横滨', 'Yokohama', '横浜', '요코하마', 'Yokohama', 'Yokohama', 'Yokohama', 'โยโกฮามา'] }, // 横浜駅
+    { id: 'osaka', country: 'jp', lat: 34.7024, lng: 135.4959, names: ['大阪', '大阪', 'Osaka', '大阪', '오사카', 'Osaka', 'Osaka', 'Osaka', 'โอซาก้า'] }, // 大阪駅
+    { id: 'kyoto', country: 'jp', lat: 34.9858, lng: 135.7588, names: ['京都', '京都', 'Kyoto', '京都', '교토', 'Kyoto', 'Kyoto', 'Kyoto', 'เกียวโต'] }, // 京都駅
+    { id: 'kobe', country: 'jp', lat: 34.6947, lng: 135.1953, names: ['神戶', '神户', 'Kobe', '神戸', '고베', 'Kobe', 'Kobe', 'Kobe', 'โกเบ'] }, // 三ノ宮駅
+    { id: 'nagoya', country: 'jp', lat: 35.1709, lng: 136.8815, names: ['名古屋', '名古屋', 'Nagoya', '名古屋', '나고야', 'Nagoya', 'Nagoya', 'Nagoya', 'นาโงยา'] }, // 名古屋駅
+    { id: 'fukuoka', country: 'jp', lat: 33.5902, lng: 130.4207, names: ['福岡', '福冈', 'Fukuoka', '福岡', '후쿠오카', 'Fukuoka', 'Fukuoka', 'Fukuoka', 'ฟุกุโอกะ'] }, // 博多駅
+    { id: 'sapporo', country: 'jp', lat: 43.0686, lng: 141.3508, names: ['札幌', '札幌', 'Sapporo', '札幌', '삿포로', 'Sapporo', 'Sapporo', 'Sapporo', 'ซัปโปโร'] }, // 札幌駅
+    { id: 'sendai', country: 'jp', lat: 38.2601, lng: 140.8823, names: ['仙台', '仙台', 'Sendai', '仙台', '센다이', 'Sendai', 'Sendai', 'Sendai', 'เซ็นได'] }, // 仙台駅
+    { id: 'hiroshima', country: 'jp', lat: 34.3973, lng: 132.4753, names: ['廣島', '广岛', 'Hiroshima', '広島', '히로시마', 'Hiroshima', 'Hiroshima', 'Hiroshima', 'ฮิโรชิมะ'] }, // 広島駅
+    { id: 'naha', country: 'jp', lat: 26.2149, lng: 127.6793, names: ['那霸', '那霸', 'Naha', '那覇', '나하', 'Naha', 'Naha', 'Naha', 'นาฮะ'] }, // 県庁前駅
 
     // ---- 韓國 ----
-    { id: 'seoul', country: 'kr', lat: 37.5547, lng: 126.9707, names: ['首爾', '首尔', 'Seoul', 'ソウル', '서울', 'Seoul', 'Seoul', 'Seoul'] }, // 서울역
-    { id: 'busan', country: 'kr', lat: 35.1152, lng: 129.0414, names: ['釜山', '釜山', 'Busan', '釜山', '부산', 'Busan', 'Busan', 'Busan'] }, // 부산역
-    { id: 'daegu', country: 'kr', lat: 35.8793, lng: 128.6285, names: ['大邱', '大邱', 'Daegu', '大邱', '대구', 'Daegu', 'Daegu', 'Daegu'] }, // 동대구역
-    { id: 'daejeon', country: 'kr', lat: 36.3323, lng: 127.4346, names: ['大田', '大田', 'Daejeon', '大田', '대전', 'Daejeon', 'Daejeon', 'Daejeon'] }, // 대전역
-    { id: 'gwangju', country: 'kr', lat: 35.1655, lng: 126.9092, names: ['光州', '光州', 'Gwangju', '光州', '광주', 'Gwangju', 'Gwangju', 'Gwangju'] }, // 광주역
+    { id: 'seoul', country: 'kr', lat: 37.5547, lng: 126.9707, names: ['首爾', '首尔', 'Seoul', 'ソウル', '서울', 'Seoul', 'Seoul', 'Seoul', 'โซล'] }, // 서울역
+    { id: 'busan', country: 'kr', lat: 35.1152, lng: 129.0414, names: ['釜山', '釜山', 'Busan', '釜山', '부산', 'Busan', 'Busan', 'Busan', 'ปูซาน'] }, // 부산역
+    { id: 'daegu', country: 'kr', lat: 35.8793, lng: 128.6285, names: ['大邱', '大邱', 'Daegu', '大邱', '대구', 'Daegu', 'Daegu', 'Daegu', 'แทกู'] }, // 동대구역
+    { id: 'daejeon', country: 'kr', lat: 36.3323, lng: 127.4346, names: ['大田', '大田', 'Daejeon', '大田', '대전', 'Daejeon', 'Daejeon', 'Daejeon', 'แทจอน'] }, // 대전역
+    { id: 'gwangju', country: 'kr', lat: 35.1655, lng: 126.9092, names: ['光州', '光州', 'Gwangju', '光州', '광주', 'Gwangju', 'Gwangju', 'Gwangju', 'ควังจู'] }, // 광주역
 
     // ---- 香港、澳門：北邊就是中國大陸，只收原本的範圍並排除邊界 ----
-    { id: 'hongkong', country: 'hk', lat: 22.2850, lng: 114.1580, circles: [[22.3193, 114.1694, 26]], names: ['香港', '香港', 'Hong Kong', '香港', '홍콩', 'Hong Kong', 'Hong Kong', 'Hồng Kông'] }, // 香港站
-    { id: 'macau', country: 'mo', lat: 22.1935, lng: 113.5395, circles: [[22.1757, 113.5560, 7]], names: ['澳門', '澳门', 'Macau', 'マカオ', '마카오', 'Macau', 'Makau', 'Ma Cao'] }, // 議事亭前地
+    { id: 'hongkong', country: 'hk', lat: 22.2850, lng: 114.1580, circles: [[22.3193, 114.1694, 26]], names: ['香港', '香港', 'Hong Kong', '香港', '홍콩', 'Hong Kong', 'Hong Kong', 'Hồng Kông', 'ฮ่องกง'] }, // 香港站
+    { id: 'macau', country: 'mo', lat: 22.1935, lng: 113.5395, circles: [[22.1757, 113.5560, 7]], names: ['澳門', '澳门', 'Macau', 'マカオ', '마카오', 'Macau', 'Makau', 'Ma Cao', 'มาเก๊า'] }, // 議事亭前地
 
     // ---- 東南亞 ----
     // 新加坡：只收新加坡島（北邊柔佛海峽、南邊巴淡島不算）
-    { id: 'singapore', country: 'sg', lat: 1.2930, lng: 103.8520, box: [1.19, 1.452, 103.59, 104.1], names: ['新加坡', '新加坡', 'Singapore', 'シンガポール', '싱가포르', 'Singapura', 'Singapura', 'Singapore'] }, // City Hall
-    { id: 'kualalumpur', country: 'my', lat: 3.1343, lng: 101.6863, names: ['吉隆坡', '吉隆坡', 'Kuala Lumpur', 'クアラルンプール', '쿠알라룸푸르', 'Kuala Lumpur', 'Kuala Lumpur', 'Kuala Lumpur'] }, // KL Sentral
-    { id: 'penang', country: 'my', lat: 5.4145, lng: 100.3295, km: 25, names: ['檳城', '槟城', 'Penang', 'ペナン', '페낭', 'Pulau Pinang', 'Penang', 'Penang'] }, // Komtar
-    { id: 'jakarta', country: 'id', lat: -6.1766, lng: 106.8307, names: ['雅加達', '雅加达', 'Jakarta', 'ジャカルタ', '자카르타', 'Jakarta', 'Jakarta', 'Jakarta'] }, // Stasiun Gambir
-    { id: 'bandung', country: 'id', lat: -6.9142, lng: 107.6025, km: 30, names: ['萬隆', '万隆', 'Bandung', 'バンドン', '반둥', 'Bandung', 'Bandung', 'Bandung'] }, // Stasiun Bandung
-    { id: 'surabaya', country: 'id', lat: -7.2654, lng: 112.7517, names: ['泗水', '泗水', 'Surabaya', 'スラバヤ', '수라바야', 'Surabaya', 'Surabaya', 'Surabaya'] }, // Stasiun Gubeng
-    { id: 'bali', country: 'id', lat: -8.6566, lng: 115.2166, km: 35, names: ['峇里島', '巴厘岛', 'Bali', 'バリ島', '발리', 'Bali', 'Bali', 'Bali'] }, // Denpasar
-    { id: 'hochiminh', country: 'vn', lat: 10.7823, lng: 106.6770, names: ['胡志明市', '胡志明市', 'Ho Chi Minh City', 'ホーチミン', '호찌민', 'Ho Chi Minh', 'Ho Chi Minh', 'TP. Hồ Chí Minh'] }, // Ga Sài Gòn
-    { id: 'hanoi', country: 'vn', lat: 21.0246, lng: 105.8411, names: ['河內', '河内', 'Hanoi', 'ハノイ', '하노이', 'Hanoi', 'Hanoi', 'Hà Nội'] }, // Ga Hà Nội
-    { id: 'danang', country: 'vn', lat: 16.0716, lng: 108.2093, km: 30, names: ['峴港', '岘港', 'Da Nang', 'ダナン', '다낭', 'Da Nang', 'Da Nang', 'Đà Nẵng'] }, // Ga Đà Nẵng
+    { id: 'singapore', country: 'sg', lat: 1.2930, lng: 103.8520, box: [1.19, 1.452, 103.59, 104.1], names: ['新加坡', '新加坡', 'Singapore', 'シンガポール', '싱가포르', 'Singapura', 'Singapura', 'Singapore', 'สิงคโปร์'] }, // City Hall
+    { id: 'kualalumpur', country: 'my', lat: 3.1343, lng: 101.6863, names: ['吉隆坡', '吉隆坡', 'Kuala Lumpur', 'クアラルンプール', '쿠알라룸푸르', 'Kuala Lumpur', 'Kuala Lumpur', 'Kuala Lumpur', 'กัวลาลัมเปอร์'] }, // KL Sentral
+    { id: 'penang', country: 'my', lat: 5.4145, lng: 100.3295, km: 25, names: ['檳城', '槟城', 'Penang', 'ペナン', '페낭', 'Pulau Pinang', 'Penang', 'Penang', 'ปีนัง'] }, // Komtar
+    { id: 'jakarta', country: 'id', lat: -6.1766, lng: 106.8307, names: ['雅加達', '雅加达', 'Jakarta', 'ジャカルタ', '자카르타', 'Jakarta', 'Jakarta', 'Jakarta', 'จาการ์ตา'] }, // Stasiun Gambir
+    { id: 'bandung', country: 'id', lat: -6.9142, lng: 107.6025, km: 30, names: ['萬隆', '万隆', 'Bandung', 'バンドン', '반둥', 'Bandung', 'Bandung', 'Bandung', 'บันดุง'] }, // Stasiun Bandung
+    { id: 'surabaya', country: 'id', lat: -7.2654, lng: 112.7517, names: ['泗水', '泗水', 'Surabaya', 'スラバヤ', '수라바야', 'Surabaya', 'Surabaya', 'Surabaya', 'สุราบายา'] }, // Stasiun Gubeng
+    { id: 'bali', country: 'id', lat: -8.6566, lng: 115.2166, km: 35, names: ['峇里島', '巴厘岛', 'Bali', 'バリ島', '발리', 'Bali', 'Bali', 'Bali', 'บาหลี'] }, // Denpasar
+    { id: 'hochiminh', country: 'vn', lat: 10.7823, lng: 106.6770, names: ['胡志明市', '胡志明市', 'Ho Chi Minh City', 'ホーチミン', '호찌민', 'Ho Chi Minh', 'Ho Chi Minh', 'TP. Hồ Chí Minh', 'โฮจิมินห์'] }, // Ga Sài Gòn
+    { id: 'hanoi', country: 'vn', lat: 21.0246, lng: 105.8411, names: ['河內', '河内', 'Hanoi', 'ハノイ', '하노이', 'Hanoi', 'Hanoi', 'Hà Nội', 'ฮานอย'] }, // Ga Hà Nội
+    { id: 'danang', country: 'vn', lat: 16.0716, lng: 108.2093, km: 30, names: ['峴港', '岘港', 'Da Nang', 'ダナン', '다낭', 'Da Nang', 'Da Nang', 'Đà Nẵng', 'ดานัง'] }, // Ga Đà Nẵng
+    // 泰國、菲律賓：曼谷以華藍蓬（舊中央車站）為中心；馬尼拉以 LRT 中央車站（Central Terminal）為中心
+    { id: 'bangkok', country: 'th', lat: 13.7392, lng: 100.5172, names: ['曼谷', '曼谷', 'Bangkok', 'バンコク', '방콕', 'Bangkok', 'Bangkok', 'Bangkok', 'กรุงเทพฯ'] }, // หัวลำโพง
+    { id: 'manila', country: 'ph', lat: 14.5929, lng: 120.9817, names: ['馬尼拉', '马尼拉', 'Manila', 'マニラ', '마닐라', 'Manila', 'Manila', 'Manila', 'มะนิลา'] }, // Central Terminal
+
+    // ---- 澳洲 ----
+    { id: 'sydney', country: 'au', lat: -33.8832, lng: 151.2063, names: ['雪梨', '悉尼', 'Sydney', 'シドニー', '시드니', 'Sydney', 'Sydney', 'Sydney', 'ซิดนีย์'] }, // Central Station
 ];
 const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
-const LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi'];
+const LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th'];
 
 /** 城市名稱（使用者的語言；不認得的語言用繁中） */
 function nameOf(id, lang) {
@@ -234,5 +240,5 @@ function searchCommands(viewerCity, lat, lng, radiusKm, key) {
 
 module.exports = {
     GEO_KEY, ALL_KEY, CELL_METERS, MAX_RESULTS, CITIES, CITY_BY_ID, TAIWAN,
-    cityOf, nameOf, paired, isMainlandBorderArea, project, searchArea, distanceKm, searchCommands, snapshotCommand, toLocalKm, COVER,
+    LANGS, cityOf, nameOf, paired, isMainlandBorderArea, project, searchArea, distanceKm, searchCommands, snapshotCommand, toLocalKm, COVER,
 };

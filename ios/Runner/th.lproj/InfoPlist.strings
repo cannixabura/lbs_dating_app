@@ -1,0 +1,7 @@
+/* 系統權限說明與 App 名稱（Info.plist 的翻譯） */
+"CFBundleDisplayName" = "Mood Whisper";
+"NSPhotoLibraryUsageDescription" = "Mood Whisper อ่านรูปที่คุณเลือกเพื่อตั้งเป็นรูปโปรไฟล์";
+"NSPhotoLibraryAddUsageDescription" = "Mood Whisper บันทึกการ์ดอารมณ์ของคุณลงในคลังรูปภาพ เพื่อให้คุณแชร์ต่อที่อื่นได้";
+"NSCameraUsageDescription" = "Mood Whisper ใช้กล้องเพื่อให้คุณถ่ายรูปสำหรับรูปโปรไฟล์";
+"NSLocationWhenInUseUsageDescription" = "Mood Whisper ใช้ตำแหน่งของคุณขณะใช้แอป เพื่อแสดงคนที่อยู่ในระยะ 5 กม. บนเรดาร์ และให้คนใกล้ ๆ เห็นฟองอารมณ์ของคุณ";
+"Radar" = "เรดาร์ต้องใช้ตำแหน่งที่แม่นยำของคุณเพื่อรู้ว่าใครอยู่ใกล้ คนอื่นจะเห็นแค่ระยะห่างโดยประมาณ ไม่เห็นที่อยู่ของคุณ";

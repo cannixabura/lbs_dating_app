@@ -484,6 +484,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sensingCity => '正在感知這座城市...';
 
   @override
+  String get sensingCityHint => '如果你的城市此刻太安靜，可以走進「平行宇宙」或「量子世界」，和其他城市的人相遇。';
+
+  @override
   String get gatheringUnavailable => '活動功能暫時無法使用，請稍後再試。';
 
   @override
@@ -935,7 +938,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      '台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼與越南；國外的城市則對應到台灣。';
+      '台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼、越南、泰國、菲律賓與澳洲；國外的城市則對應到台灣。';
 
   @override
   String get guideS14L3 =>
@@ -2695,6 +2698,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get sensingCity => '正在感知这座城市...';
 
   @override
+  String get sensingCityHint => '如果你的城市此刻太安静，可以走进“平行宇宙”或“量子世界”，和其他城市的人相遇。';
+
+  @override
   String get gatheringUnavailable => '活动功能暂时无法使用，请稍后再试。';
 
   @override
@@ -3146,7 +3152,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get guideS14L2 =>
-      '台湾各县市以各自的中央车站为中心（例如大台北是台北车站、桃园是桃园车站），对应到国外的城市：日本、韩国、香港、澳门、新加坡、马来西亚、印尼与越南；国外的城市则对应到台湾。';
+      '台湾各县市以各自的中央车站为中心（例如大台北是台北车站、桃园是桃园车站），对应到国外的城市：日本、韩国、香港、澳门、新加坡、马来西亚、印尼、越南、泰国、菲律宾与澳大利亚；国外的城市则对应到台湾。';
 
   @override
   String get guideS14L3 =>

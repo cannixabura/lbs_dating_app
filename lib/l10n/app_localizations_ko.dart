@@ -490,6 +490,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sensingCity => '도시를 느끼는 중…';
 
   @override
+  String get sensingCityHint =>
+      '지금 도시가 너무 조용하다면 ‘평행우주’나 ‘양자 세계’에 들어가 다른 도시 사람들을 만나 보세요.';
+
+  @override
   String get gatheringUnavailable => '지금은 모임을 이용할 수 없어요. 잠시 후 다시 시도해 주세요.';
 
   @override
@@ -969,7 +973,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      '대만의 각 시·현은 각자의 중앙역을 중심으로(타이베이 권역은 타이베이역, 타오위안은 타오위안역 등) 해외 도시인 일본, 한국, 홍콩, 마카오, 싱가포르, 말레이시아, 인도네시아, 베트남과 짝지어져요. 해외 도시는 대만과 짝지어져요.';
+      '대만의 각 시·현은 각자의 중앙역을 중심으로(타이베이 권역은 타이베이역, 타오위안은 타오위안역 등) 해외 도시인 일본, 한국, 홍콩, 마카오, 싱가포르, 말레이시아, 인도네시아, 베트남, 태국, 필리핀, 호주와 짝지어져요. 해외 도시는 대만과 짝지어져요.';
 
   @override
   String get guideS14L3 =>

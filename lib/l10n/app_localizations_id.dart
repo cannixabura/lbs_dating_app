@@ -512,6 +512,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get sensingCity => 'Merasakan kota…';
 
   @override
+  String get sensingCityHint =>
+      'Kalau kotamu terasa terlalu sepi sekarang, masuklah ke Semesta Paralel atau Dunia Kuantum untuk bertemu orang dari kota lain.';
+
+  @override
   String get gatheringUnavailable =>
       'Acara sedang tidak tersedia. Coba lagi nanti.';
 
@@ -1012,7 +1016,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Setiap kota atau kabupaten di Taiwan berpusat di stasiun pusatnya sendiri (Taipei Raya di Stasiun Taipei, Taoyuan di Stasiun Taoyuan, dan seterusnya) dan dipasangkan dengan kota di luar negeri: Jepang, Korea, Hong Kong, Makau, Singapura, Malaysia, Indonesia, dan Vietnam. Kota di luar negeri dipasangkan dengan Taiwan.';
+      'Setiap kota atau kabupaten di Taiwan berpusat di stasiun pusatnya sendiri (Taipei Raya di Stasiun Taipei, Taoyuan di Stasiun Taoyuan, dan seterusnya) dan dipasangkan dengan kota di luar negeri: Jepang, Korea, Hong Kong, Makau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina, dan Australia. Kota di luar negeri dipasangkan dengan Taiwan.';
 
   @override
   String get guideS14L3 =>

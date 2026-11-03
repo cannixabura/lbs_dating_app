@@ -33,6 +33,7 @@ const languageOptions = <(Locale?, String)>[
   (Locale('ms'), 'Bahasa Melayu'),
   (Locale('id'), 'Bahasa Indonesia'),
   (Locale('vi'), 'Tiếng Việt'),
+  (Locale('th'), 'ไทย'),
 ];
 
 String _encode(Locale l) => [l.languageCode, if (l.scriptCode != null) l.scriptCode].join('_');

@@ -511,6 +511,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get sensingCity => 'Đang cảm nhận thành phố…';
 
   @override
+  String get sensingCityHint =>
+      'Nếu thành phố của bạn lúc này quá yên tĩnh, hãy bước vào Vũ trụ song song hoặc Thế giới lượng tử để gặp gỡ người ở thành phố khác.';
+
+  @override
   String get gatheringUnavailable =>
       'Hiện chưa dùng được tụ họp. Vui lòng thử lại sau.';
 
@@ -1012,7 +1016,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Mỗi thành phố hoặc huyện ở Đài Loan lấy nhà ga trung tâm của mình làm tâm (Đại Đài Bắc là ga Đài Bắc, Đào Viên là ga Đào Viên…) và được ghép với các thành phố nước ngoài: Nhật Bản, Hàn Quốc, Hồng Kông, Ma Cao, Singapore, Malaysia, Indonesia và Việt Nam. Các thành phố nước ngoài được ghép với Đài Loan.';
+      'Mỗi thành phố hoặc huyện ở Đài Loan lấy nhà ga trung tâm của mình làm tâm (Đại Đài Bắc là ga Đài Bắc, Đào Viên là ga Đào Viên…) và được ghép với các thành phố nước ngoài: Nhật Bản, Hàn Quốc, Hồng Kông, Ma Cao, Singapore, Malaysia, Indonesia, Việt Nam, Thái Lan, Philippines và Úc. Các thành phố nước ngoài được ghép với Đài Loan.';
 
   @override
   String get guideS14L3 =>

@@ -10,6 +10,7 @@ import 'app_localizations_id.dart';
 import 'app_localizations_ja.dart';
 import 'app_localizations_ko.dart';
 import 'app_localizations_ms.dart';
+import 'app_localizations_th.dart';
 import 'app_localizations_vi.dart';
 import 'app_localizations_zh.dart';
 
@@ -104,6 +105,7 @@ abstract class AppLocalizations {
     Locale('ja'),
     Locale('ko'),
     Locale('ms'),
+    Locale('th'),
     Locale('vi'),
     Locale('zh'),
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
@@ -967,6 +969,12 @@ abstract class AppLocalizations {
   /// **'正在感知這座城市...'**
   String get sensingCity;
 
+  /// 打卡後載入畫面的第二行：城市太安靜時建議進入平行宇宙或量子世界
+  ///
+  /// In zh, this message translates to:
+  /// **'如果你的城市此刻太安靜，可以走進「平行宇宙」或「量子世界」，和其他城市的人相遇。'**
+  String get sensingCityHint;
+
   /// No description provided for @gatheringUnavailable.
   ///
   /// In zh, this message translates to:
@@ -1774,7 +1782,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS14L2.
   ///
   /// In zh, this message translates to:
-  /// **'台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼與越南；國外的城市則對應到台灣。'**
+  /// **'台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼、越南、泰國、菲律賓與澳洲；國外的城市則對應到台灣。'**
   String get guideS14L2;
 
   /// No description provided for @guideS14L3.
@@ -4074,6 +4082,7 @@ class _AppLocalizationsDelegate
     'ja',
     'ko',
     'ms',
+    'th',
     'vi',
     'zh',
   ].contains(locale.languageCode);
@@ -4107,6 +4116,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsKo();
     case 'ms':
       return AppLocalizationsMs();
+    case 'th':
+      return AppLocalizationsTh();
     case 'vi':
       return AppLocalizationsVi();
     case 'zh':

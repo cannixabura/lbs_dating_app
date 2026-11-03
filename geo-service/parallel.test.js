@@ -119,11 +119,21 @@ test('city names follow the language', () => {
     assert.strictEqual(p.nameOf('yokohama', 'ja'), '横浜');
     assert.strictEqual(p.nameOf('taoyuan', 'en'), 'Taoyuan');
     assert.strictEqual(p.nameOf('taipei', 'xx'), '台北');
-    for (const c of p.CITIES) assert.strictEqual(c.names.length, 8, c.id);
+    for (const c of p.CITIES) assert.strictEqual(c.names.length, p.LANGS.length, c.id);
 });
 
 test('one snapshot search reaches every city', () => {
     const cmd = p.snapshotCommand();
     assert.strictEqual(cmd[1], p.GEO_KEY);
     assert.ok(p.COVER.km < 20000);
+});
+
+test('Bangkok, Manila and Sydney pair with Taiwan', () => {
+    for (const [id, lat, lng] of [['bangkok', 13.7563, 100.5018], ['manila', 14.5995, 120.9842], ['sydney', -33.8688, 151.2093]]) {
+        const city = p.cityOf(lat, lng);
+        assert.strictEqual(city && city.id, id);
+        assert.ok(p.paired(city, p.CITY_BY_ID.taipei));
+    }
+    assert.strictEqual(p.nameOf('bangkok', 'th'), 'กรุงเทพฯ');
+    assert.strictEqual(p.nameOf('sydney', 'zh-Hant'), '雪梨');
 });

@@ -488,6 +488,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sensingCity => '街の気配を感じています…';
 
   @override
+  String get sensingCityHint =>
+      '街が静かすぎるときは、「パラレルユニバース」や「量子世界」に入って、ほかの街の人と出会ってみてください。';
+
+  @override
   String get gatheringUnavailable => '集いは現在使えません。しばらくしてからお試しください。';
 
   @override
@@ -962,7 +966,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      '台湾の各県市はそれぞれの中央駅を中心に（大台北は台北駅、桃園は桃園駅など）、海外の街（日本、韓国、香港、マカオ、シンガポール、マレーシア、インドネシア、ベトナム）と対応します。海外の街は台湾と対応します。';
+      '台湾の各県市はそれぞれの中央駅を中心に（大台北は台北駅、桃園は桃園駅など）、海外の街（日本、韓国、香港、マカオ、シンガポール、マレーシア、インドネシア、ベトナム、タイ、フィリピン、オーストラリア）と対応します。海外の街は台湾と対応します。';
 
   @override
   String get guideS14L3 =>

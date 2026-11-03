@@ -516,6 +516,10 @@ class AppLocalizationsMs extends AppLocalizations {
   String get sensingCity => 'Merasai bandar…';
 
   @override
+  String get sensingCityHint =>
+      'Jika bandar anda terasa terlalu sunyi sekarang, masuki Alam Selari atau Dunia Kuantum untuk bertemu orang dari bandar lain.';
+
+  @override
   String get gatheringUnavailable =>
       'Perhimpunan tidak tersedia sekarang. Sila cuba lagi nanti.';
 
@@ -1015,7 +1019,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Setiap bandar atau daerah di Taiwan berpusat di stesen pusatnya sendiri (Taipei Raya di Stesen Taipei, Taoyuan di Stesen Taoyuan, dan seterusnya) dan dipadankan dengan bandar di luar negara: Jepun, Korea, Hong Kong, Macau, Singapura, Malaysia, Indonesia dan Vietnam. Bandar di luar negara dipadankan dengan Taiwan.';
+      'Setiap bandar atau daerah di Taiwan berpusat di stesen pusatnya sendiri (Taipei Raya di Stesen Taipei, Taoyuan di Stesen Taoyuan, dan seterusnya) dan dipadankan dengan bandar di luar negara: Jepun, Korea, Hong Kong, Macau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina dan Australia. Bandar di luar negara dipadankan dengan Taiwan.';
 
   @override
   String get guideS14L3 =>

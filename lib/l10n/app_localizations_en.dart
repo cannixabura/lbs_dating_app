@@ -546,6 +546,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sensingCity => 'Sensing the city…';
 
   @override
+  String get sensingCityHint =>
+      'If your city feels too quiet right now, step into Parallel Universe or Quantum World to meet people from other cities.';
+
+  @override
   String get gatheringUnavailable =>
       'Gatherings aren\'t available right now. Please try again later.';
 
@@ -1062,7 +1066,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Each city or county in Taiwan is centred on its own central station (Greater Taipei on Taipei Station, Taoyuan on Taoyuan Station, and so on) and matched with cities abroad: Japan, Korea, Hong Kong, Macau, Singapore, Malaysia, Indonesia and Vietnam. Cities abroad are matched with Taiwan.';
+      'Each city or county in Taiwan is centred on its own central station (Greater Taipei on Taipei Station, Taoyuan on Taoyuan Station, and so on) and matched with cities abroad: Japan, Korea, Hong Kong, Macau, Singapore, Malaysia, Indonesia, Vietnam, Thailand, the Philippines and Australia. Cities abroad are matched with Taiwan.';
 
   @override
   String get guideS14L3 =>

@@ -19,7 +19,7 @@ class ChatTranslator {
 
   /// App 的語言 → 翻譯用的語言代碼。iPhone 的中文分繁簡；ML Kit 的中文只有簡體，繁體之後再轉換。
   static String targetOf(Locale locale) {
-    final lang = const {'en', 'ja', 'ko', 'ms', 'id', 'vi'}.contains(locale.languageCode) ? locale.languageCode : 'zh';
+    final lang = const {'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th'}.contains(locale.languageCode) ? locale.languageCode : 'zh';
     if (lang == 'zh' && Platform.isIOS) return wantsTraditional(locale) ? 'zh-Hant' : 'zh-Hans';
     return lang;
   }

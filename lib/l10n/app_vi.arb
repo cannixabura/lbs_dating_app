@@ -691,5 +691,7 @@
   "aiyaReport": "Báo cáo câu trả lời này",
   "aiyaReported": "Đã nhận báo cáo. Chúng tôi sẽ xử lý trong 24 giờ.",
   "aiyaSetting": "AIYA (AI trong Thế giới Lượng tử)",
-  "aiyaSettingSubtitle": "Khi tắt, AIYA sẽ không xuất hiện ở cột sáng Thế giới Lượng tử"
+  "aiyaSettingSubtitle": "Khi tắt, AIYA sẽ không xuất hiện ở cột sáng Thế giới Lượng tử",
+  "aiyaCameoHello": "Chào bạn, chào mừng đến Thế giới Lượng tử. Muốn trò chuyện thì chạm vào mình nhé.",
+  "aiyaCameoChime": "{hour} giờ rồi. Mình ở đây trong ánh sáng cùng bạn."
 }

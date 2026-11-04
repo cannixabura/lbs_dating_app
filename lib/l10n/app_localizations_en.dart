@@ -2572,4 +2572,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiyaSettingSubtitle =>
       'When off, AIYA no longer appears at the Quantum World pillar';
+
+  @override
+  String get aiyaCameoHello =>
+      'Hi, welcome to Quantum World. Tap me if you\'d like to talk.';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return 'It\'s $hour o\'clock. I\'m here in the light with you.';
+  }
 }

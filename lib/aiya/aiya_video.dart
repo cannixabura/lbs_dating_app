@@ -224,10 +224,13 @@ class AiyaHoloPainter extends CustomPainter {
   final ui.Image dot;
   final AiyaMood mood;
   final Rect stage;
+  /// 光柱上的小尺寸版：不畫自己的光柱粒子（地圖上已經有光柱），人像粒子每 stride 顆取一顆
+  final bool drawPillar;
+  final int stride;
   final Float32List _xf, _rect, _pxf, _prect;
   final Int32List _col, _pcol;
 
-  AiyaHoloPainter(this.h, this.a, this.video, this.dot, {required this.stage, this.mood = AiyaMood.night, required Listenable repaint, required AiyaHoloBuffers buf})
+  AiyaHoloPainter(this.h, this.a, this.video, this.dot, {required this.stage, this.mood = AiyaMood.night, this.drawPillar = true, this.stride = 1, required Listenable repaint, required AiyaHoloBuffers buf})
       : _xf = buf.xf, _rect = buf.rect, _col = buf.col, _pxf = buf.pxf, _prect = buf.prect, _pcol = buf.pcol, super(repaint: repaint);
 
   @override
@@ -241,10 +244,11 @@ class AiyaHoloPainter extends CustomPainter {
     final pitch = -a.pointer.dy * 0.08, cp = cos(pitch), sp = sin(pitch);
     final pillarDot = max(1.4, size.height * 0.0032);
     final (img, prevImg, mix) = video.frame(t);
-    final dotWorld = AiyaHolo.panelW / AiyaHolo.cols * 0.55; // 細亮點（光暈另外疊）
+    final dotWorld = AiyaHolo.panelW / AiyaHolo.cols * 0.55 * sqrt(stride); // 細亮點（光暈另外疊）；抽樣時點放大一點
     var n = 0, np = 0;
 
-    for (var i = 0; i < h.count; i++) {
+    for (var i = 0; i < h.count; i += i < h.faceCount ? stride : 1) {
+      if (!drawPillar && i >= h.faceCount) break;
       final face = i < h.faceCount, seed = h.seed[i], i3 = i * 3;
       final f0 = face ? ((a.form * 1.7 - seed * 0.7).clamp(0.0, 1.0)) : 0.0;
       final f = f0 * f0 * (3 - 2 * f0);

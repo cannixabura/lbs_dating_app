@@ -4262,6 +4262,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'關掉後，量子世界的光柱不再顯示艾婭'**
   String get aiyaSettingSubtitle;
+
+  /// AIYA greets the user in the Quantum World light pillar, once a day
+  ///
+  /// In zh, this message translates to:
+  /// **'嗨，歡迎來到量子世界。想聊天就點我。'**
+  String get aiyaCameoHello;
+
+  /// AIYA hosts the hourly chime in the light pillar
+  ///
+  /// In zh, this message translates to:
+  /// **'{hour} 點了。我在光裡陪你。'**
+  String aiyaCameoChime(int hour);
 }
 
 class _AppLocalizationsDelegate

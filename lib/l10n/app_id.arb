@@ -691,5 +691,7 @@
   "aiyaReport": "Laporkan balasan ini",
   "aiyaReported": "Laporan diterima. Kami akan meninjaunya dalam 24 jam.",
   "aiyaSetting": "AIYA (AI di Dunia Kuantum)",
-  "aiyaSettingSubtitle": "Jika dimatikan, AIYA tidak muncul lagi di pilar Dunia Kuantum"
+  "aiyaSettingSubtitle": "Jika dimatikan, AIYA tidak muncul lagi di pilar Dunia Kuantum",
+  "aiyaCameoHello": "Hai, selamat datang di Dunia Kuantum. Ketuk aku kalau mau ngobrol.",
+  "aiyaCameoChime": "Sudah pukul {hour}. Aku di sini dalam cahaya bersamamu."
 }

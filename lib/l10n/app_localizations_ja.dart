@@ -2376,4 +2376,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiyaSettingSubtitle => 'オフにすると、量子世界の光の柱にアイヤが表示されません';
+
+  @override
+  String get aiyaCameoHello => 'こんばんは、量子世界へようこそ。話したくなったらタップしてね。';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour時になりました。光の中でそばにいるよ。';
+  }
 }

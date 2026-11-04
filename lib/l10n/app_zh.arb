@@ -1448,5 +1448,18 @@
   "aiyaReport": "檢舉這句話",
   "aiyaReported": "已收到檢舉，我們會在 24 小時內處理。",
   "aiyaSetting": "艾婭（量子世界的 AI）",
-  "aiyaSettingSubtitle": "關掉後，量子世界的光柱不再顯示艾婭"
+  "aiyaSettingSubtitle": "關掉後，量子世界的光柱不再顯示艾婭",
+  "aiyaCameoHello": "嗨，歡迎來到量子世界。想聊天就點我。",
+  "aiyaCameoChime": "{hour} 點了。我在光裡陪你。",
+  "@aiyaCameoHello": {
+    "description": "AIYA greets the user in the Quantum World light pillar, once a day"
+  },
+  "@aiyaCameoChime": {
+    "description": "AIYA hosts the hourly chime in the light pillar",
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  }
 }

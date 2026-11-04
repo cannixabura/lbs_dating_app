@@ -2498,4 +2498,13 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get aiyaSettingSubtitle =>
       'Jika dimatikan, AIYA tidak muncul lagi di pilar Dunia Kuantum';
+
+  @override
+  String get aiyaCameoHello =>
+      'Hai, selamat datang di Dunia Kuantum. Ketuk aku kalau mau ngobrol.';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return 'Sudah pukul $hour. Aku di sini dalam cahaya bersamamu.';
+  }
 }

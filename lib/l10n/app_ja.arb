@@ -691,5 +691,7 @@
   "aiyaReport": "この返事を報告",
   "aiyaReported": "報告を受け付けました。24時間以内に対応します。",
   "aiyaSetting": "アイヤ（量子世界の AI）",
-  "aiyaSettingSubtitle": "オフにすると、量子世界の光の柱にアイヤが表示されません"
+  "aiyaSettingSubtitle": "オフにすると、量子世界の光の柱にアイヤが表示されません",
+  "aiyaCameoHello": "こんばんは、量子世界へようこそ。話したくなったらタップしてね。",
+  "aiyaCameoChime": "{hour}時になりました。光の中でそばにいるよ。"
 }

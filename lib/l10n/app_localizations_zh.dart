@@ -2327,6 +2327,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiyaSettingSubtitle => '關掉後，量子世界的光柱不再顯示艾婭';
+
+  @override
+  String get aiyaCameoHello => '嗨，歡迎來到量子世界。想聊天就點我。';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour 點了。我在光裡陪你。';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4651,4 +4659,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get aiyaSettingSubtitle => '关掉后，量子世界的光柱不再显示艾娅';
+
+  @override
+  String get aiyaCameoHello => '嗨，欢迎来到量子世界。想聊天就点我。';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour 点了。我在光里陪你。';
+  }
 }

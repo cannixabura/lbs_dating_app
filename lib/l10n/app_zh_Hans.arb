@@ -691,5 +691,7 @@
   "aiyaReport": "举报这句话",
   "aiyaReported": "已收到举报，我们会在 24 小时内处理。",
   "aiyaSetting": "艾娅（量子世界的 AI）",
-  "aiyaSettingSubtitle": "关掉后，量子世界的光柱不再显示艾娅"
+  "aiyaSettingSubtitle": "关掉后，量子世界的光柱不再显示艾娅",
+  "aiyaCameoHello": "嗨，欢迎来到量子世界。想聊天就点我。",
+  "aiyaCameoChime": "{hour} 点了。我在光里陪你。"
 }

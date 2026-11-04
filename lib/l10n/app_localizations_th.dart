@@ -2522,4 +2522,13 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get aiyaSettingSubtitle =>
       'เมื่อปิด ไอยาจะไม่ปรากฏที่เสาแสงในโลกควอนตัม';
+
+  @override
+  String get aiyaCameoHello =>
+      'สวัสดี ยินดีต้อนรับสู่โลกควอนตัม อยากคุยก็แตะฉันได้เลย';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour นาฬิกาแล้ว ฉันอยู่ในแสงนี้กับคุณนะ';
+  }
 }

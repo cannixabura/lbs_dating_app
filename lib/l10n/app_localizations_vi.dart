@@ -2497,4 +2497,13 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get aiyaSettingSubtitle =>
       'Khi tắt, AIYA sẽ không xuất hiện ở cột sáng Thế giới Lượng tử';
+
+  @override
+  String get aiyaCameoHello =>
+      'Chào bạn, chào mừng đến Thế giới Lượng tử. Muốn trò chuyện thì chạm vào mình nhé.';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour giờ rồi. Mình ở đây trong ánh sáng cùng bạn.';
+  }
 }

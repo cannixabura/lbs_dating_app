@@ -691,5 +691,7 @@
   "aiyaReport": "Report this reply",
   "aiyaReported": "Thanks. We'll review it within 24 hours.",
   "aiyaSetting": "AIYA (AI in Quantum World)",
-  "aiyaSettingSubtitle": "When off, AIYA no longer appears at the Quantum World pillar"
+  "aiyaSettingSubtitle": "When off, AIYA no longer appears at the Quantum World pillar",
+  "aiyaCameoHello": "Hi, welcome to Quantum World. Tap me if you'd like to talk.",
+  "aiyaCameoChime": "It's {hour} o'clock. I'm here in the light with you."
 }

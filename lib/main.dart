@@ -47,6 +47,7 @@ import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
 import 'quantum_orb.dart';
 import 'quantum_world.dart';
+import 'aiya/aiya_cameo.dart';
 import 'aiya/aiya_screen.dart';
 import 'aiya/aiya_store.dart';
 import 'translate.dart';
@@ -138,7 +139,7 @@ class MoodWhisperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // AIYA_MOCK 只在本機測試艾婭畫面時開啟（假資料、不連伺服器），上架版本不會帶
-      home: aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      home: aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
       ),
     );
   }
@@ -1466,6 +1467,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     Future.delayed(const Duration(milliseconds: 180), HapticFeedback.heavyImpact);
     final name = '${user['nickname'] ?? ''}'.trim();
     showGlassToast(context, tr.quantumResonance(name.isEmpty ? '#${uid.substring(max(0, uid.length - 4)).toUpperCase()}' : name), icon: Icons.auto_awesome);
+  }
+
+  /// 艾婭在光柱現身時的位置：光柱底部的畫面座標與光柱高度（和 QuantumHivePainter 畫光柱的算法一致）
+  (Offset, double)? _aiyaPillarAnchor(double screenWidth, double screenHeight) {
+    final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+    final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: _headingNotifier.value, pitch: _pitchNotifier.value,
+        scale: _scaleNotifier.value, screenHeight: screenHeight, center: Offset(screenWidth / 2, screenHeight / 2));
+    final hit = proj.project(0, 0);
+    if (hit == null) return null;
+    final base = hit.$1;
+    if (base.dx < -40 || base.dx > screenWidth + 40 || base.dy < 0 || base.dy > screenHeight + 200) return null;
+    final boost = _chimeBoost(QuantumChime.offset(DateTime.now()));
+    final height = (180 + 120 * _scaleNotifier.value).clamp(120.0, 420.0) * (0.6 + 0.4 * sin(_pitchNotifier.value).abs()) * (1 + 0.5 * boost);
+    return (base, height);
   }
 
   /// 整點報時的光柱亮度：整點前 1 分鐘慢慢變亮，報時後慢慢退回
@@ -3344,6 +3359,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 );
                               },
                             ),
+                          ),
+                        ),
+                      // 艾婭偶爾在光柱裡現身（整點、每天第一次進來、偶遇）；設定關掉就不出現
+                      if (quantumSession.value != null)
+                        Positioned.fill(
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: AiyaPrefs.enabled,
+                            builder: (context, aiyaOn, _) => !aiyaOn ? const SizedBox.shrink()
+                                : AiyaCameo(anchor: () => _aiyaPillarAnchor(screenWidth, screenHeight), onTap: () => openAiya(context)),
                           ),
                         ),
                       // 艾婭：101 光柱底下的「艾婭 · AI」標籤，點了就敲門（設定裡可以關掉）

@@ -2395,4 +2395,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiyaSettingSubtitle => '끄면 양자 세계의 빛기둥에 아이야가 나타나지 않아요';
+
+  @override
+  String get aiyaCameoHello => '안녕, 양자 세계에 온 걸 환영해. 이야기하고 싶으면 나를 눌러 줘.';
+
+  @override
+  String aiyaCameoChime(int hour) {
+    return '$hour시야. 빛 속에서 곁에 있을게.';
+  }
 }

@@ -298,12 +298,14 @@ class AiyaHoloPainter extends CustomPainter {
         final diam = max(1.0, dotWorld * s), o = n * 4, i2 = i * 2;
         _xf[o] = diam; _xf[o + 1] = 0; _xf[o + 2] = sx - diam / 2; _xf[o + 3] = sy - diam / 2;
         _rect[o] = h.src[i2]; _rect[o + 1] = h.src[i2 + 1]; _rect[o + 2] = h.src[i2] + 1; _rect[o + 3] = h.src[i2 + 1] + 1;
-        final scan = 0.94 + 0.06 * sin(h.base[i3 + 1] * 160 - t * 3);
+        // 疊在地圖上（不是全黑背景），整體壓暗一點，避免過曝
+        final scan = (0.94 + 0.06 * sin(h.base[i3 + 1] * 160 - t * 3)) * _bright;
         _col[n] = _argb(alpha, scan, scan, scan);
         n++;
       }
     }
     final add = Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low;
+    final holo = Paint()..filterQuality = FilterQuality.low..colorFilter = _lumaToAlpha;
     if (np > 0) {
       canvas.drawRawAtlas(dot, Float32List.sublistView(_pxf, 0, np * 4), Float32List.sublistView(_prect, 0, np * 4), Int32List.sublistView(_pcol, 0, np), BlendMode.modulate, null, add);
     }
@@ -317,9 +319,10 @@ class AiyaHoloPainter extends CustomPainter {
       if (w <= 0.01) return;
       if (form > 0.01) {
         canvas.drawImageRect(im, Rect.fromLTWH(0, 0, _imgW.toDouble(), _imgH.toDouble()), glowRect,
-            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low..colorFilter = _lumaToAlpha..imageFilter = ui.ImageFilter.blur(sigmaX: s0 * 0.02, sigmaY: s0 * 0.02)..color = Color.fromRGBO(255, 255, 255, 0.35 * w * form));
+            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low..colorFilter = _lumaToAlpha..imageFilter = ui.ImageFilter.blur(sigmaX: s0 * 0.02, sigmaY: s0 * 0.02)..color = Color.fromRGBO(255, 255, 255, _glow * w * form));
       }
-      canvas.drawRawAtlas(im, xf, rect, w >= 0.99 ? col : Int32List.fromList([for (final c in col) _scaleAlpha(c, w)]), BlendMode.modulate, null, add);
+      // 人像粒子：亮度決定透明度（黑色完全透明），不用疊加發光，疊在地圖上才不會越加越白
+      canvas.drawRawAtlas(im, xf, rect, w >= 0.99 ? col : Int32List.fromList([for (final c in col) _scaleAlpha(c, w)]), BlendMode.modulate, null, holo);
     }
     if (prevImg != null && mix < 1) layer(prevImg, 1 - mix);
     layer(img, mix);
@@ -332,6 +335,9 @@ class AiyaHoloPainter extends CustomPainter {
     0, 0, 1, 0, 0,
     0.3, 0.59, 0.11, 0, 0,
   ]);
+
+  /// 粒子亮度與光暈強度（使用者 11/5：在量子世界地圖上太亮、太曝 → 調降）
+  static const _bright = 1.0, _glow = 0.1;
 
   static int _scaleAlpha(int c, double w) => ((((c >> 24) & 0xFF) * w).round() << 24) | (c & 0xFFFFFF);
   static int _argb(double a, double r, double g, double b) =>

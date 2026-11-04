@@ -185,7 +185,16 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   bool _introFlying = true;
   late final AnimationController _introFade = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
   bool _hasScanned = false; // 至少完成過一次雷達掃描（決定是否顯示「你是今晚第一道光」）
-  bool _emptyCardDismissed = false; // 使用者關掉了「你是今晚第一道光」卡片（本次開啟期間不再出現）
+  bool _emptyCardDismissed = false; // 「你是今晚第一道光」卡片這次打卡不再顯示
+  // 這張卡片一天最多出現一次：打卡在離開 App 時就結束，回來重新打卡時不要一直跳出來
+  static const _emptyCardDayKey = 'emptyRadarCardDay';
+  String? _emptyCardSeenDay;
+  static String _today() { final n = DateTime.now(); return '${n.year}-${n.month}-${n.day}'; }
+  Future<void> _loadEmptyCardDay() async {
+    final day = (await SharedPreferences.getInstance()).getString(_emptyCardDayKey);
+    if (!mounted) return;
+    setState(() { _emptyCardSeenDay = day; if (day == _today()) _emptyCardDismissed = true; });
+  }
   _LocationIssue _locationIssue = _LocationIssue.none; // 定位無法使用時顯示說明頁，不能進入雷達
   bool _checkingLocation = false;
 
@@ -416,6 +425,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     WidgetsBinding.instance.addObserver(this); 
     _myMood = widget.initialMood; 
     _loadProfileData(); 
+    _loadEmptyCardDay();
     _coolingSystem.loadRejections();
     _loadBeaconPrefs();
     _loadMoodPlaces();
@@ -470,7 +480,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     final pos = _currentPosition;
     if (pos == null) return;
     _checkInRequested = false;
-    setState(() { _checkInPosition = pos; _emptyCardDismissed = false; });
+    setState(() { _checkInPosition = pos; _emptyCardDismissed = _emptyCardSeenDay == _today(); });
     if (!_locationServicesStarted) {
       _locationServicesStarted = true;
       _initPresence();
@@ -1965,6 +1975,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   /// 空雷達卡片：附近 5 公里內沒有人時顯示，取代一片空白
   Widget _buildEmptyRadarCard() {
+    // 第一次顯示就記下今天：這次打卡期間照常顯示（直到關掉），之後重新打卡就不再出現
+    final today = _today();
+    if (_emptyCardSeenDay != today) {
+      _emptyCardSeenDay = today;
+      SharedPreferences.getInstance().then((p) => p.setString(_emptyCardDayKey, today));
+    }
     return Stack(children: [
       _buildEmptyRadarCardBody(),
       // 不想邀請或分享也能關掉；本次開啟期間不再出現

@@ -235,6 +235,11 @@ class _TestPillar extends CustomPainter {
   _TestPillar(this.base, this.h);
   @override
   void paint(Canvas canvas, Size size) {
+    // 偏亮的格線背景：看得出艾婭身後有沒有暗色方框（真實地圖也有建築和街道）
+    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFF2A3570));
+    final grid = Paint()..color = const Color(0xFF5566AA)..strokeWidth = 2;
+    for (var x = 0.0; x < size.width; x += 40) { canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid); }
+    for (var y = 0.0; y < size.height; y += 40) { canvas.drawLine(Offset(0, y), Offset(size.width, y), grid); }
     final beam = Rect.fromLTWH(base.dx - 9, base.dy - h, 18, h);
     canvas.drawRect(beam, Paint()
       ..shader = LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [Colors.white.withValues(alpha: 0.85), Night.auroraViolet.withValues(alpha: 0.5), Night.auroraViolet.withValues(alpha: 0)]).createShader(beam)

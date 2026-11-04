@@ -317,13 +317,21 @@ class AiyaHoloPainter extends CustomPainter {
       if (w <= 0.01) return;
       if (form > 0.01) {
         canvas.drawImageRect(im, Rect.fromLTWH(0, 0, _imgW.toDouble(), _imgH.toDouble()), glowRect,
-            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low..imageFilter = ui.ImageFilter.blur(sigmaX: s0 * 0.02, sigmaY: s0 * 0.02)..color = Color.fromRGBO(255, 255, 255, 0.35 * w * form));
+            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low..colorFilter = _lumaToAlpha..imageFilter = ui.ImageFilter.blur(sigmaX: s0 * 0.02, sigmaY: s0 * 0.02)..color = Color.fromRGBO(255, 255, 255, 0.35 * w * form));
       }
       canvas.drawRawAtlas(im, xf, rect, w >= 0.99 ? col : Int32List.fromList([for (final c in col) _scaleAlpha(c, w)]), BlendMode.modulate, null, add);
     }
     if (prevImg != null && mix < 1) layer(prevImg, 1 - mix);
     layer(img, mix);
   }
+
+  /// 影格是不透明的 JPEG（背景是黑色）：把亮度變成透明度，黑色背景完全透明，疊在地圖上才不會有一塊暗色方框
+  static const _lumaToAlpha = ColorFilter.matrix(<double>[
+    1, 0, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 0, 1, 0, 0,
+    0.3, 0.59, 0.11, 0, 0,
+  ]);
 
   static int _scaleAlpha(int c, double w) => ((((c >> 24) & 0xFF) * w).round() << 24) | (c & 0xFFFFFF);
   static int _argb(double a, double r, double g, double b) =>

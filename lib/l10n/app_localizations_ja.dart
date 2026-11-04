@@ -2271,4 +2271,109 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get orbStoreUnavailable => 'ストアに接続できません。しばらくしてからもう一度お試しください';
+
+  @override
+  String get aiyaName => 'アイヤ';
+
+  @override
+  String get aiyaChip => 'アイヤ · AI';
+
+  @override
+  String get aiyaConsentTitle => 'アイヤと話す前に';
+
+  @override
+  String get aiyaConsentBody =>
+      'アイヤは AI で、Anthropic の Claude を使っています。アイヤに送った文章は Anthropic（米国）で処理されますが、あなたの身元・ニックネーム・位置情報は送られず、会話が終わると削除されます。アイヤの返事は間違うことがあり、専門的な助言ではありません。';
+
+  @override
+  String get aiyaConsentAgree => '同意して始める';
+
+  @override
+  String get aiyaConsentLater => '今はやめる';
+
+  @override
+  String get aiyaGreeting => 'こんばんは、アイヤです。量子の中心の光に住んでいます。今夜は何を話そうか？';
+
+  @override
+  String get aiyaFarewell => '時間になったので、光の中に戻るね。会いたくなったらまたノックして。';
+
+  @override
+  String get aiyaInputHint => 'アイヤに話しかける…';
+
+  @override
+  String get aiyaSend => '送信';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '今日の無料はあと $n 回';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'タイムパック $n 回';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return '残り $time';
+  }
+
+  @override
+  String get aiyaEnd => '話を終える';
+
+  @override
+  String get aiyaFiltered => '不適切な言葉や連絡先が含まれています。言い方を変えてみてね。';
+
+  @override
+  String get aiyaBusy => 'アイヤが少しぼんやりしてた。もう一度言ってくれる？';
+
+  @override
+  String get aiyaRefused => 'それはあまり話せないの。別の話にしない？';
+
+  @override
+  String get aiyaEnded => 'この会話は終わりました。';
+
+  @override
+  String get aiyaNoQuotaTitle => '今日の無料回数を使い切りました';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      '無料は1日3回で、台湾時間の0時にリセットされます。今すぐ続けたいときはタイムパックをどうぞ。1回最大10分です。';
+
+  @override
+  String get aiyaResting => 'アイヤは今夜はもう疲れちゃった。また明日ね。';
+
+  @override
+  String get aiyaDailyMax => '今日はたくさん話したね。また明日アイヤに会いに来て。';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n 回';
+  }
+
+  @override
+  String get aiyaPackNote => 'タイムパックはこの端末のアカウントに紐づき、アプリやアカウントを削除すると復元できません。';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '$n 回分を追加しました ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => '購入が完了しませんでした。もう一度お試しください。';
+
+  @override
+  String get aiyaStoreUnavailable => 'ストアに接続できません。しばらくしてからお試しください。';
+
+  @override
+  String get aiyaReport => 'この返事を報告';
+
+  @override
+  String get aiyaReported => '報告を受け付けました。24時間以内に対応します。';
+
+  @override
+  String get aiyaSetting => 'アイヤ（量子世界の AI）';
+
+  @override
+  String get aiyaSettingSubtitle => 'オフにすると、量子世界の光の柱にアイヤが表示されません';
 }

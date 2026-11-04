@@ -23,6 +23,7 @@ const { langOf, localize } = require("./i18n");
 const parallel = require("./parallel");
 const quantum = require("./quantum");
 const orbs = require("./orbs");
+const aiya = require("./aiya");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -1049,6 +1050,206 @@ exports.orbs = onRequest({ region: "asia-southeast1" }, (req, res) => {
   });
 });
 
+// ============================================================================
+// API：艾婭 A.I.Y.A（量子世界中心光柱裡的 AI）—— action: status / consent / open / say / close / report / verify
+//   規格 docs/aiya-spec.md；純函式在 aiya.js
+//   送給 Claude 的只有：使用者打的字、App 語言、匿名的聚合統計。不送 uid、暱稱、座位、位置。
+//   API 金鑰：firebase functions:secrets:set ANTHROPIC_API_KEY
+// ============================================================================
+const ANTHROPIC_KEY = defineSecret("ANTHROPIC_API_KEY");
+let anthropicClient = null;
+function claude() {
+    if (!anthropicClient) {
+        const { default: Anthropic } = require("@anthropic-ai/sdk");
+        anthropicClient = new Anthropic({ apiKey: cleanSecret(ANTHROPIC_KEY), maxRetries: 1, timeout: 25000 });
+    }
+    return anthropicClient;
+}
+
+/** 這個人今天的額度狀態 */
+async function aiyaStatus(uid, now) {
+    const day = aiya.dayKey(now);
+    const [usedRaw, budgetRaw, reviewer, sessionRaw] = await sendUpstashPipeline([
+        ["GET", aiya.KEY.quota(uid, day)], ["GET", aiya.KEY.budget(day)], ["SISMEMBER", demo.REVIEWERS_KEY, uid], ["GET", aiya.KEY.session(uid)],
+    ]);
+    const db = admin.database();
+    const [creditsSnap, consentSnap] = await Promise.all([db.ref(`aiyaCredits/${uid}`).once("value"), db.ref(`aiyaConsent/${uid}`).once("value")]);
+    const consent = consentSnap.val();
+    let session = null;
+    try { session = sessionRaw ? JSON.parse(sessionRaw) : null; } catch (e) { session = null; }
+    return {
+        day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), reviewer: reviewer === 1,
+        credits: Math.max(0, Number(creditsSnap.val()) || 0), consented: !!consent && consent.v >= aiya.CONSENT_VERSION,
+        session: aiya.sessionAlive(session, now) ? session : null,
+    };
+}
+
+function aiyaStatusView(st, now) {
+    return {
+        freeLeft: st.reviewer ? aiya.FREE_PER_DAY : Math.max(0, aiya.FREE_PER_DAY - st.usedToday),
+        credits: st.credits, consented: st.consented,
+        resting: !st.reviewer && st.budgetMicro >= aiya.DAILY_FREE_BUDGET_MICRO,
+        session: st.session ? aiya.sessionView(st.session, now) : null,
+    };
+}
+
+async function saveAiyaSession(uid, session) {
+    await sendUpstashCommand(["SET", aiya.KEY.session(uid), JSON.stringify(session), "EX", String(aiya.SESSION_TTL_S)]);
+}
+
+/** 艾婭的情境：量子世界在線人數、台北今晚的心情（有快取才用）、離整點報時幾分鐘 */
+async function aiyaContext(lang, now) {
+    let online, cityMood;
+    try { online = (await quantumOnlineCounts(now)).total; } catch (e) { /* 拿不到就不提 */ }
+    try {
+        const cached = await sendUpstashCommand(["GET", citymood.cacheKey(25.033964, 121.564468)]);
+        if (cached) cityMood = JSON.parse(cached);
+    } catch (e) { /* 同上 */ }
+    const minute = new Date(now).getUTCMinutes();
+    return aiya.contextText({ lang, now, online, cityMood, minutesToChime: minute === 0 ? 0 : 60 - minute });
+}
+
+/** 時光包加到帳號上；同一筆收據只加一次 */
+async function grantAiyaPack(uid, { credits, receipt }) {
+    const db = admin.database();
+    const claim = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur == null ? uid : undefined));
+    if (!claim.committed) return (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val() === uid ? "already" : "owned_elsewhere";
+    await db.ref(`aiyaCredits/${uid}`).transaction((cur) => (Number(cur) || 0) + credits);
+    return "granted";
+}
+
+exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY], timeoutSeconds: 60 }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const lang = langOf(req);
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: localize(lang, "未授權") });
+    const action = req.body.action, now = Date.now();
+    try {
+      if (action === "status") {
+        return res.status(200).json({ success: true, ...aiyaStatusView(await aiyaStatus(uid, now), now) });
+      }
+
+      if (action === "consent") {
+        await admin.database().ref(`aiyaConsent/${uid}`).set({ v: aiya.CONSENT_VERSION, at: admin.database.ServerValue.TIMESTAMP });
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "open") {
+        const st = await aiyaStatus(uid, now);
+        if (!st.consented) return res.status(200).json({ success: false, code: "consent" });
+        // 10 分鐘內回來算同一次，不重複扣
+        if (st.session) return res.status(200).json({ success: true, resumed: true, ...aiyaStatusView(st, now) });
+        const decision = aiya.decideOpen(st);
+        if (!decision.ok) return res.status(200).json({ success: false, code: decision.code, ...aiyaStatusView(st, now) });
+        if (decision.pay === "credit") {
+          const paid = await admin.database().ref(`aiyaCredits/${uid}`).transaction((cur) => ((Number(cur) || 0) > 0 ? Number(cur) - 1 : undefined));
+          if (!paid.committed) return res.status(200).json({ success: false, code: "no_quota", ...aiyaStatusView(st, now) });
+          st.credits = Math.max(0, st.credits - 1);
+        }
+        await sendUpstashPipeline([["INCR", aiya.KEY.quota(uid, st.day)], ["EXPIRE", aiya.KEY.quota(uid, st.day), "172800"]]);
+        st.usedToday += 1;
+        st.session = { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, startedAt: now, turns: 0, pay: decision.pay, lang, msgs: [] };
+        await saveAiyaSession(uid, st.session);
+        return res.status(200).json({ success: true, resumed: false, ...aiyaStatusView(st, now) });
+      }
+
+      if (action === "say") {
+        const raw = await sendUpstashCommand(["GET", aiya.KEY.session(uid)]);
+        let session = null;
+        try { session = raw ? JSON.parse(raw) : null; } catch (e) { session = null; }
+        if (!session || session.id !== req.body.sessionId || !aiya.sessionAlive(session, now)) return res.status(200).json({ success: false, code: "ended" });
+        const text = aiya.cleanInput(req.body.text);
+        if (!text) return res.status(200).json({ success: false, code: "empty" });
+        if (isDisallowed(text)) return res.status(200).json({ success: false, code: "filtered" });
+
+        session.msgs.push({ role: "user", content: text });
+        session.turns += 1;
+        let parsed = null, code = null;
+        try {
+          const response = await claude().messages.create({
+            model: aiya.MODEL,
+            max_tokens: 1024,
+            output_config: { effort: "low", format: { type: "json_schema", schema: aiya.REPLY_SCHEMA } },
+            system: [
+              { type: "text", text: aiya.PERSONA, cache_control: { type: "ephemeral" } },
+              { type: "text", text: await aiyaContext(session.lang || lang, now) },
+            ],
+            messages: session.msgs,
+          });
+          const spent = aiya.costMicro(response.usage);
+          const day = aiya.dayKey(now);
+          const budgetKey = session.pay === "free" ? aiya.KEY.budget(day) : `aiya_paid:${day}`;
+          sendUpstashPipeline([["INCRBY", budgetKey, String(spent)], ["EXPIRE", budgetKey, "172800"]]).catch((e) => console.warn("aiya budget:", e.message));
+          if (response.stop_reason === "refusal") code = "refused";
+          else {
+            const textBlock = response.content.find((b) => b.type === "text");
+            parsed = aiya.parseReply(textBlock && textBlock.text);
+            if (!parsed) code = "busy";
+          }
+        } catch (e) {
+          console.error("aiya claude failed:", e && e.status, e && e.message);
+          code = "busy";
+        }
+        if (!parsed) {
+          // 沒拿到回覆：把這則從紀錄拿掉、不算次數，讓使用者可以再試
+          session.msgs.pop();
+          session.turns -= 1;
+          await saveAiyaSession(uid, session);
+          return res.status(200).json({ success: false, code, session: aiya.sessionView(session, now) });
+        }
+        let reply = maskBlockedTerms(parsed.reply);
+        if (aiya.mentionsCrisis(text)) reply = `${reply} ${aiya.hotline(session.lang || lang)}`;
+        session.msgs.push({ role: "assistant", content: JSON.stringify({ reply: parsed.reply, expression: parsed.expression }) });
+        await saveAiyaSession(uid, session);
+        return res.status(200).json({ success: true, reply, expression: parsed.expression, session: aiya.sessionView(session, now) });
+      }
+
+      if (action === "close") {
+        await sendUpstashCommand(["DEL", aiya.KEY.session(uid)]);
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "report") {
+        // 檢舉艾婭的某一句回覆：連同使用者前一句一起存，供人工檢視（Apple 1.2、Google Play AI 內容政策）
+        const reply = String(req.body.reply || "").slice(0, 400);
+        let lastUser = "";
+        try {
+          const s = JSON.parse((await sendUpstashCommand(["GET", aiya.KEY.session(uid)])) || "null");
+          const users = s ? s.msgs.filter((m) => m.role === "user") : [];
+          lastUser = users.length ? users[users.length - 1].content : "";
+        } catch (e) { /* 對話已結束也照樣收檢舉 */ }
+        await admin.database().ref("aiyaReports").push({ uid, reply, lastUser, reason: String(req.body.reason || "").slice(0, 40), lang, at: admin.database.ServerValue.TIMESTAMP });
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "verify") {
+        const items = (Array.isArray(req.body.purchases) ? req.body.purchases : []).slice(0, 20);
+        const results = [];
+        for (const p of items) {
+          try {
+            let grant;
+            if (p.platform === "apple") grant = aiya.applePack(orbs.verifyAppleJws(p.data), orbs.BUNDLE_ID);
+            else if (p.platform === "google" && typeof p.token === "string" && typeof p.productId === "string") grant = aiya.googlePack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
+            else throw new Error("bad_request");
+            results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant) });
+          } catch (e) {
+            console.warn("aiya verify failed:", e.message);
+            results.push({ productId: p.productId, result: e.message });
+          }
+        }
+        const credits = Math.max(0, Number((await admin.database().ref(`aiyaCredits/${uid}`).once("value")).val()) || 0);
+        return res.status(200).json({ success: true, results, credits });
+      }
+
+      return res.status(400).json({ success: false, error: localize(lang, "未知的操作") });
+    } catch (error) {
+      console.error("aiya failed:", error);
+      return res.status(500).json({ success: false, code: "busy" });
+    }
+  });
+});
+
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
@@ -1061,7 +1262,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const hostingGid = (await db.ref(`hosting/${uid}`).once("value")).val();
       if (hostingGid) await endGathering(hostingGid, 'host_left');
       const [quantumOrd, quantumRegion] = (await sendUpstashCommand(["HMGET", quantum.KEY.seat(uid), "ord", "region"])) || [];
-      await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`],
+      await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`], ["DEL", aiya.KEY.session(uid)],
           ...(await quantumReleaseCommands([{ uid, ord: quantumOrd ?? null, region: quantumRegion }]))]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {
@@ -1091,6 +1292,9 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const myOrbs = (await db.ref(`orbOwned/${uid}`).once("value")).val() || {};
       updates[`orbOwned/${uid}`] = null;
       for (const owned of Object.values(myOrbs)) if (owned && typeof owned.receipt === "string") updates[`orbReceipts/${owned.receipt}`] = null;
+      // 艾婭：剩下的時光包次數與同意紀錄一起刪除（消耗型無法恢復，條款已說明）；收據紀錄保留，避免同一筆購買重複加次數
+      updates[`aiyaCredits/${uid}`] = null;
+      updates[`aiyaConsent/${uid}`] = null;
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
       const myBlocks = (await db.ref(`blocks/${uid}`).once("value")).val() || {};
       for (const target of Object.keys(myBlocks)) updates[`blockedBy/${target}/${uid}`] = null;

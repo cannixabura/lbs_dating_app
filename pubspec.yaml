@@ -113,6 +113,8 @@ flutter:
     - assets/audio/chime.m4a
     - assets/map/night_style.json
     - assets/opencc/s2t.txt
+    - assets/aiya/
+    - assets/aiya/clips/
   # 🌟 新增這裡：宣告我們要使用的 Fragment Shader 檔案
   shaders:
     - shaders/breathing_glow.frag

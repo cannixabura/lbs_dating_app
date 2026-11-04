@@ -4076,6 +4076,192 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'商店暫時連不上，請稍後再試'**
   String get orbStoreUnavailable;
+
+  /// No description provided for @aiyaName.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭'**
+  String get aiyaName;
+
+  /// No description provided for @aiyaChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭 · AI'**
+  String get aiyaChip;
+
+  /// No description provided for @aiyaConsentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'和艾婭聊天之前'**
+  String get aiyaConsentTitle;
+
+  /// No description provided for @aiyaConsentBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭是 AI，由 Anthropic 的 Claude 提供。你傳給艾婭的文字會送到 Anthropic（美國）處理，不會附上你的身分、暱稱或位置；對話結束就刪除。艾婭的回覆可能出錯，不構成專業建議。'**
+  String get aiyaConsentBody;
+
+  /// No description provided for @aiyaConsentAgree.
+  ///
+  /// In zh, this message translates to:
+  /// **'同意並開始'**
+  String get aiyaConsentAgree;
+
+  /// No description provided for @aiyaConsentLater.
+  ///
+  /// In zh, this message translates to:
+  /// **'先不要'**
+  String get aiyaConsentLater;
+
+  /// No description provided for @aiyaGreeting.
+  ///
+  /// In zh, this message translates to:
+  /// **'嗨，我是艾婭，住在量子中心的那道光。今晚想聊什麼？'**
+  String get aiyaGreeting;
+
+  /// No description provided for @aiyaFarewell.
+  ///
+  /// In zh, this message translates to:
+  /// **'時間到了，我要回到光裡了。想我的時候再來敲門。'**
+  String get aiyaFarewell;
+
+  /// No description provided for @aiyaInputHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟艾婭說點什麼…'**
+  String get aiyaInputHint;
+
+  /// No description provided for @aiyaSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出'**
+  String get aiyaSend;
+
+  /// No description provided for @aiyaFreeLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天免費還有 {n} 次'**
+  String aiyaFreeLeft(int n);
+
+  /// No description provided for @aiyaCreditsLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'時光包 {n} 次'**
+  String aiyaCreditsLeft(int n);
+
+  /// No description provided for @aiyaTimeLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'剩 {time}'**
+  String aiyaTimeLeft(String time);
+
+  /// No description provided for @aiyaEnd.
+  ///
+  /// In zh, this message translates to:
+  /// **'結束聊天'**
+  String get aiyaEnd;
+
+  /// No description provided for @aiyaFiltered.
+  ///
+  /// In zh, this message translates to:
+  /// **'這句話裡有不適合的字詞或聯絡方式，換個說法吧。'**
+  String get aiyaFiltered;
+
+  /// No description provided for @aiyaBusy.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭剛剛恍神了，再說一次好嗎？'**
+  String get aiyaBusy;
+
+  /// No description provided for @aiyaRefused.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個我不太能聊，換個話題好嗎？'**
+  String get aiyaRefused;
+
+  /// No description provided for @aiyaEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'這次的聊天已經結束了。'**
+  String get aiyaEnded;
+
+  /// No description provided for @aiyaNoQuotaTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天的免費次數用完了'**
+  String get aiyaNoQuotaTitle;
+
+  /// No description provided for @aiyaNoQuotaBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天有 3 次免費聊天，明天 00:00（台灣時間）重新計算。想現在繼續，可以買時光包，每次最多 10 分鐘。'**
+  String get aiyaNoQuotaBody;
+
+  /// No description provided for @aiyaResting.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭今晚累了，明天見。'**
+  String get aiyaResting;
+
+  /// No description provided for @aiyaDailyMax.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天已經聊很多了，明天再來找艾婭吧。'**
+  String get aiyaDailyMax;
+
+  /// No description provided for @aiyaPackTimes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 次聊天'**
+  String aiyaPackTimes(int n);
+
+  /// No description provided for @aiyaPackNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'時光包綁定這支手機的帳號，刪除 App 或帳號後無法恢復。'**
+  String get aiyaPackNote;
+
+  /// No description provided for @aiyaPurchased.
+  ///
+  /// In zh, this message translates to:
+  /// **'已加入 {n} 次聊天 ✨'**
+  String aiyaPurchased(int n);
+
+  /// No description provided for @aiyaPurchaseFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'購買沒有完成，請再試一次。'**
+  String get aiyaPurchaseFailed;
+
+  /// No description provided for @aiyaStoreUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'商店暫時連不上，請稍後再試'**
+  String get aiyaStoreUnavailable;
+
+  /// No description provided for @aiyaReport.
+  ///
+  /// In zh, this message translates to:
+  /// **'檢舉這句話'**
+  String get aiyaReport;
+
+  /// No description provided for @aiyaReported.
+  ///
+  /// In zh, this message translates to:
+  /// **'已收到檢舉，我們會在 24 小時內處理。'**
+  String get aiyaReported;
+
+  /// No description provided for @aiyaSetting.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭（量子世界的 AI）'**
+  String get aiyaSetting;
+
+  /// No description provided for @aiyaSettingSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'關掉後，量子世界的光柱不再顯示艾婭'**
+  String get aiyaSettingSubtitle;
 }
 
 class _AppLocalizationsDelegate

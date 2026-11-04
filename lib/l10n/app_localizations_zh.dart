@@ -2222,6 +2222,111 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get orbStoreUnavailable => '商店暫時連不上，請稍後再試';
+
+  @override
+  String get aiyaName => '艾婭';
+
+  @override
+  String get aiyaChip => '艾婭 · AI';
+
+  @override
+  String get aiyaConsentTitle => '和艾婭聊天之前';
+
+  @override
+  String get aiyaConsentBody =>
+      '艾婭是 AI，由 Anthropic 的 Claude 提供。你傳給艾婭的文字會送到 Anthropic（美國）處理，不會附上你的身分、暱稱或位置；對話結束就刪除。艾婭的回覆可能出錯，不構成專業建議。';
+
+  @override
+  String get aiyaConsentAgree => '同意並開始';
+
+  @override
+  String get aiyaConsentLater => '先不要';
+
+  @override
+  String get aiyaGreeting => '嗨，我是艾婭，住在量子中心的那道光。今晚想聊什麼？';
+
+  @override
+  String get aiyaFarewell => '時間到了，我要回到光裡了。想我的時候再來敲門。';
+
+  @override
+  String get aiyaInputHint => '跟艾婭說點什麼…';
+
+  @override
+  String get aiyaSend => '送出';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '今天免費還有 $n 次';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return '時光包 $n 次';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return '剩 $time';
+  }
+
+  @override
+  String get aiyaEnd => '結束聊天';
+
+  @override
+  String get aiyaFiltered => '這句話裡有不適合的字詞或聯絡方式，換個說法吧。';
+
+  @override
+  String get aiyaBusy => '艾婭剛剛恍神了，再說一次好嗎？';
+
+  @override
+  String get aiyaRefused => '這個我不太能聊，換個話題好嗎？';
+
+  @override
+  String get aiyaEnded => '這次的聊天已經結束了。';
+
+  @override
+  String get aiyaNoQuotaTitle => '今天的免費次數用完了';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      '每天有 3 次免費聊天，明天 00:00（台灣時間）重新計算。想現在繼續，可以買時光包，每次最多 10 分鐘。';
+
+  @override
+  String get aiyaResting => '艾婭今晚累了，明天見。';
+
+  @override
+  String get aiyaDailyMax => '今天已經聊很多了，明天再來找艾婭吧。';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n 次聊天';
+  }
+
+  @override
+  String get aiyaPackNote => '時光包綁定這支手機的帳號，刪除 App 或帳號後無法恢復。';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '已加入 $n 次聊天 ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => '購買沒有完成，請再試一次。';
+
+  @override
+  String get aiyaStoreUnavailable => '商店暫時連不上，請稍後再試';
+
+  @override
+  String get aiyaReport => '檢舉這句話';
+
+  @override
+  String get aiyaReported => '已收到檢舉，我們會在 24 小時內處理。';
+
+  @override
+  String get aiyaSetting => '艾婭（量子世界的 AI）';
+
+  @override
+  String get aiyaSettingSubtitle => '關掉後，量子世界的光柱不再顯示艾婭';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4441,4 +4546,109 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get orbStoreUnavailable => '商店暂时连不上，请稍后再试';
+
+  @override
+  String get aiyaName => '艾娅';
+
+  @override
+  String get aiyaChip => '艾娅 · AI';
+
+  @override
+  String get aiyaConsentTitle => '和艾娅聊天之前';
+
+  @override
+  String get aiyaConsentBody =>
+      '艾娅是 AI，由 Anthropic 的 Claude 提供。你发给艾娅的文字会送到 Anthropic（美国）处理，不会附上你的身份、昵称或位置；对话结束就删除。艾娅的回复可能出错，不构成专业建议。';
+
+  @override
+  String get aiyaConsentAgree => '同意并开始';
+
+  @override
+  String get aiyaConsentLater => '先不要';
+
+  @override
+  String get aiyaGreeting => '嗨，我是艾娅，住在量子中心的那道光。今晚想聊什么？';
+
+  @override
+  String get aiyaFarewell => '时间到了，我要回到光里了。想我的时候再来敲门。';
+
+  @override
+  String get aiyaInputHint => '跟艾娅说点什么…';
+
+  @override
+  String get aiyaSend => '发送';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '今天免费还有 $n 次';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return '时光包 $n 次';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return '剩 $time';
+  }
+
+  @override
+  String get aiyaEnd => '结束聊天';
+
+  @override
+  String get aiyaFiltered => '这句话里有不适合的字词或联系方式，换个说法吧。';
+
+  @override
+  String get aiyaBusy => '艾娅刚刚走神了，再说一次好吗？';
+
+  @override
+  String get aiyaRefused => '这个我不太能聊，换个话题好吗？';
+
+  @override
+  String get aiyaEnded => '这次的聊天已经结束了。';
+
+  @override
+  String get aiyaNoQuotaTitle => '今天的免费次数用完了';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      '每天有 3 次免费聊天，明天 00:00（台湾时间）重新计算。想现在继续，可以买时光包，每次最多 10 分钟。';
+
+  @override
+  String get aiyaResting => '艾娅今晚累了，明天见。';
+
+  @override
+  String get aiyaDailyMax => '今天已经聊很多了，明天再来找艾娅吧。';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n 次聊天';
+  }
+
+  @override
+  String get aiyaPackNote => '时光包绑定这台手机的账号，删除 App 或账号后无法恢复。';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '已加入 $n 次聊天 ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => '购买没有完成，请再试一次。';
+
+  @override
+  String get aiyaStoreUnavailable => '商店暂时连不上，请稍后再试';
+
+  @override
+  String get aiyaReport => '举报这句话';
+
+  @override
+  String get aiyaReported => '已收到举报，我们会在 24 小时内处理。';
+
+  @override
+  String get aiyaSetting => '艾娅（量子世界的 AI）';
+
+  @override
+  String get aiyaSettingSubtitle => '关掉后，量子世界的光柱不再显示艾娅';
 }

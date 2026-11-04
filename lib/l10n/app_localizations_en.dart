@@ -2457,4 +2457,119 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get orbStoreUnavailable =>
       'Can\'t reach the store right now. Please try again later.';
+
+  @override
+  String get aiyaName => 'AIYA';
+
+  @override
+  String get aiyaChip => 'AIYA · AI';
+
+  @override
+  String get aiyaConsentTitle => 'Before you talk with AIYA';
+
+  @override
+  String get aiyaConsentBody =>
+      'AIYA is an AI powered by Anthropic\'s Claude. What you send to AIYA is processed by Anthropic (USA) without your identity, nickname or location, and deleted when the chat ends. AIYA can make mistakes and doesn\'t give professional advice.';
+
+  @override
+  String get aiyaConsentAgree => 'Agree and start';
+
+  @override
+  String get aiyaConsentLater => 'Not now';
+
+  @override
+  String get aiyaGreeting =>
+      'Hi, I\'m AIYA, the light at the center of Quantum World. What\'s on your mind tonight?';
+
+  @override
+  String get aiyaFarewell =>
+      'Time\'s up. I\'m going back into the light. Knock again whenever you miss me.';
+
+  @override
+  String get aiyaInputHint => 'Say something to AIYA…';
+
+  @override
+  String get aiyaSend => 'Send';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '$n free chats left today';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'Time pack: $n';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get aiyaEnd => 'End chat';
+
+  @override
+  String get aiyaFiltered =>
+      'That has words or contact details that aren\'t allowed. Try saying it another way.';
+
+  @override
+  String get aiyaBusy =>
+      'AIYA drifted off for a second. Could you say that again?';
+
+  @override
+  String get aiyaRefused =>
+      'I can\'t really talk about that. How about something else?';
+
+  @override
+  String get aiyaEnded => 'This chat has ended.';
+
+  @override
+  String get aiyaNoQuotaTitle => 'You\'ve used today\'s free chats';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      'You get 3 free chats a day, reset at 00:00 Taiwan time. To keep talking now, get a time pack. Each chat lasts up to 10 minutes.';
+
+  @override
+  String get aiyaResting => 'AIYA is tired tonight. See you tomorrow.';
+
+  @override
+  String get aiyaDailyMax =>
+      'You\'ve talked a lot today. Come see AIYA again tomorrow.';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n chats';
+  }
+
+  @override
+  String get aiyaPackNote =>
+      'Time packs belong to this phone\'s account and can\'t be restored if you delete the app or your account.';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '$n chats added ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed =>
+      'The purchase didn\'t go through. Please try again.';
+
+  @override
+  String get aiyaStoreUnavailable =>
+      'Can\'t reach the store right now. Please try again later.';
+
+  @override
+  String get aiyaReport => 'Report this reply';
+
+  @override
+  String get aiyaReported => 'Thanks. We\'ll review it within 24 hours.';
+
+  @override
+  String get aiyaSetting => 'AIYA (AI in Quantum World)';
+
+  @override
+  String get aiyaSettingSubtitle =>
+      'When off, AIYA no longer appears at the Quantum World pillar';
 }

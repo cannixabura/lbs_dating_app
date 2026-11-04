@@ -176,6 +176,14 @@
       "$uid": { ".read": "auth != null && auth.uid === $uid" }
     },
 
+    // 艾婭：時光包次數、AI 同意紀錄（只由 Cloud Functions 寫入；App 只讀得到自己的）。收據與檢舉完全不開放
+    "aiyaCredits": {
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
+    "aiyaConsent": {
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
+
     // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
     "resonancePush": {
       "$uid": { ".read": false }

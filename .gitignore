@@ -70,3 +70,6 @@ tool/.review_last
 # 心情據點：測試店的落地頁只在本機預覽，不部署
 /hosting/p/t*.html
 /marketing/places/t*/
+
+# 艾婭概念頁的影片（約 40MB，可由原始影片重新產生，已發佈在概念頁）
+docs/concepts/aiya-clips/

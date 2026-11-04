@@ -2411,4 +2411,115 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get orbStoreUnavailable =>
       'ตอนนี้เชื่อมต่อร้านค้าไม่ได้ ลองใหม่ภายหลัง';
+
+  @override
+  String get aiyaName => 'ไอยา';
+
+  @override
+  String get aiyaChip => 'ไอยา · AI';
+
+  @override
+  String get aiyaConsentTitle => 'ก่อนคุยกับไอยา';
+
+  @override
+  String get aiyaConsentBody =>
+      'ไอยาเป็น AI ที่ใช้ Claude ของ Anthropic ข้อความที่คุณส่งให้ไอยาจะถูกประมวลผลโดย Anthropic (สหรัฐฯ) โดยไม่มีตัวตน ชื่อเล่น หรือตำแหน่งของคุณ และจะถูกลบเมื่อจบการสนทนา คำตอบของไอยาอาจผิดพลาดและไม่ใช่คำแนะนำจากผู้เชี่ยวชาญ';
+
+  @override
+  String get aiyaConsentAgree => 'ยอมรับและเริ่ม';
+
+  @override
+  String get aiyaConsentLater => 'ไว้ก่อน';
+
+  @override
+  String get aiyaGreeting =>
+      'สวัสดี ฉันคือไอยา แสงที่อยู่กลางโลกควอนตัม คืนนี้อยากคุยเรื่องอะไร';
+
+  @override
+  String get aiyaFarewell =>
+      'หมดเวลาแล้ว ฉันจะกลับเข้าไปในแสง คิดถึงเมื่อไหร่ก็มาเคาะประตูนะ';
+
+  @override
+  String get aiyaInputHint => 'พูดอะไรกับไอยาสักหน่อย…';
+
+  @override
+  String get aiyaSend => 'ส่ง';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return 'วันนี้เหลือฟรีอีก $n ครั้ง';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'แพ็กเวลา $n ครั้ง';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return 'เหลือ $time';
+  }
+
+  @override
+  String get aiyaEnd => 'จบการคุย';
+
+  @override
+  String get aiyaFiltered =>
+      'มีคำหรือข้อมูลติดต่อที่ไม่อนุญาต ลองพูดแบบอื่นดูนะ';
+
+  @override
+  String get aiyaBusy => 'ไอยาเหม่อไปแป๊บหนึ่ง พูดอีกครั้งได้ไหม';
+
+  @override
+  String get aiyaRefused => 'เรื่องนี้ฉันคุยไม่ค่อยได้ เปลี่ยนเรื่องกันไหม';
+
+  @override
+  String get aiyaEnded => 'การคุยครั้งนี้จบแล้ว';
+
+  @override
+  String get aiyaNoQuotaTitle => 'ใช้ครั้งฟรีของวันนี้หมดแล้ว';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      'แต่ละวันคุยฟรีได้ 3 ครั้ง เริ่มนับใหม่ตอน 00:00 เวลาไต้หวัน ถ้าอยากคุยต่อตอนนี้ ซื้อแพ็กเวลาได้ ครั้งละไม่เกิน 10 นาที';
+
+  @override
+  String get aiyaResting => 'คืนนี้ไอยาเหนื่อยแล้ว เจอกันพรุ่งนี้';
+
+  @override
+  String get aiyaDailyMax => 'วันนี้คุยกันเยอะแล้ว พรุ่งนี้มาหาไอยาใหม่นะ';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n ครั้ง';
+  }
+
+  @override
+  String get aiyaPackNote =>
+      'แพ็กเวลาผูกกับบัญชีในโทรศัพท์เครื่องนี้ และกู้คืนไม่ได้ถ้าลบแอปหรือบัญชี';
+
+  @override
+  String aiyaPurchased(int n) {
+    return 'เพิ่ม $n ครั้งแล้ว ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => 'การซื้อไม่สำเร็จ ลองอีกครั้ง';
+
+  @override
+  String get aiyaStoreUnavailable =>
+      'ตอนนี้เชื่อมต่อร้านค้าไม่ได้ ลองใหม่ภายหลัง';
+
+  @override
+  String get aiyaReport => 'รายงานคำตอบนี้';
+
+  @override
+  String get aiyaReported => 'ได้รับรายงานแล้ว เราจะตรวจสอบภายใน 24 ชั่วโมง';
+
+  @override
+  String get aiyaSetting => 'ไอยา (AI ในโลกควอนตัม)';
+
+  @override
+  String get aiyaSettingSubtitle =>
+      'เมื่อปิด ไอยาจะไม่ปรากฏที่เสาแสงในโลกควอนตัม';
 }

@@ -312,6 +312,8 @@ class OrbStore {
     if (_silent) return _verifyPending(list);
     final toVerify = <PurchaseDetails>[];
     for (final p in list) {
+      // 同一個購買串流也會收到艾婭時光包，那些交給 AiyaStore 處理
+      if (!orbProducts.containsValue(p.productID)) continue;
       switch (p.status) {
         case PurchaseStatus.pending:
           busy.value = true;

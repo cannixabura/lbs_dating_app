@@ -1,0 +1,541 @@
+<meta charset="utf-8">
+<title>艾婭 A.I.Y.A</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* 版面：全螢幕 3D 舞台，艾婭的粒子全息像浮在光柱前；底部一片夜光玻璃面板。沿用城市低語「夜光設計系統」，刻意只做深色，光暈改成艾婭的金色。 */
+:root {
+  --night900: #070B1F; --glass: rgba(26, 31, 74, .72); --line: rgba(196, 170, 255, .38);
+  --ink: #F3F0FF; --muted: #B9B6D6; --faint: #8C89B0;
+  --violet: #B44CFF; --blue: #4FC3F7; --deepv: #8E2DE2; --deepb: #2A63D4;
+  --pink: #FF5FD2; --gold: #FFC861;
+  --sans: "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background:
+    radial-gradient(42% 36% at 50% 34%, rgba(255, 200, 97, .16), transparent 70%),
+    radial-gradient(60% 45% at 50% 40%, rgba(142, 45, 226, .18), transparent 72%),
+    var(--night900);
+  color: var(--ink); font-family: var(--sans); overflow: hidden;
+}
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.top {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 3;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; pointer-events: none;
+}
+.top > * { pointer-events: auto; }
+.badge { display: flex; align-items: baseline; gap: 8px; font-size: 13px; color: var(--muted); letter-spacing: .06em; flex-wrap: wrap; }
+.badge .name { font-size: 20px; color: var(--ink); font-weight: 500; letter-spacing: .12em; }
+.badge .code { font-family: var(--mono); font-size: 16px; color: var(--gold); letter-spacing: .1em; }
+.tag { font-size: 11px; letter-spacing: .12em; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--blue); }
+.ghost {
+  font: 500 13px var(--sans); color: var(--muted); letter-spacing: .06em;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer;
+}
+.ghost:hover { color: var(--ink); }
+.ghost[aria-pressed="true"] { color: var(--ink); border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 200, 97, .35); }
+.top .spacer { margin-left: auto; }
+.subtitle {
+  position: fixed; z-index: 3; left: 50%; transform: translateX(-50%);
+  width: min(560px, calc(100% - 32px)); text-align: center;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 16px;
+  padding: 10px 16px 12px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 0 24px rgba(255, 200, 97, .2);
+}
+.subtitle .who { font: 500 11px var(--mono); letter-spacing: .14em; color: var(--gold); }
+.subtitle p { margin: 4px 0 0; font-size: 16px; line-height: 1.6; min-height: 1.6em; text-wrap: balance; }
+.panel {
+  position: fixed; z-index: 3; left: 0; right: 0; bottom: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.panel-inner {
+  max-width: 760px; margin: 0 auto; display: grid; gap: 12px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 24px;
+  padding: 14px 16px 16px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+}
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { font: 600 15px var(--sans); letter-spacing: .08em; color: #fff; cursor: pointer; border-radius: 14px; padding: 11px 18px; flex: 1 1 140px; min-width: 0; }
+.btn-deep { background: linear-gradient(90deg, var(--deepv), var(--deepb)); border: 0; box-shadow: 0 0 24px rgba(180, 76, 255, .45); }
+.btn-glass { background: rgba(26, 31, 74, .9); border: 1px solid var(--line); }
+.btn:hover { filter: brightness(1.12); }
+.group { display: grid; gap: 7px; min-width: 0; }
+.label { font-size: 12px; color: var(--faint); letter-spacing: .12em; display: flex; gap: 8px; align-items: center; }
+.label .demo { font-size: 10px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; color: var(--muted); letter-spacing: .08em; }
+.chips { display: flex; gap: 7px; flex-wrap: wrap; }
+.chip { font: 500 13px var(--sans); color: var(--muted); letter-spacing: .04em; cursor: pointer; background: rgba(14, 20, 51, .7); border: 1px solid rgba(196, 170, 255, .2); border-radius: 999px; padding: 6px 12px; }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 200, 97, .4); }
+.chip .snd { color: var(--gold); font-size: 11px; margin-left: 4px; }
+.bar { display: flex; height: 22px; border-radius: 8px; overflow: hidden; font: 500 11px var(--mono); }
+.bar span { display: flex; align-items: center; justify-content: center; color: #0E1433; white-space: nowrap; overflow: hidden; transition: flex-basis .8s ease; min-width: 0; }
+button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.loading { position: fixed; z-index: 2; left: 50%; top: 42%; transform: translate(-50%, -50%); font: 500 12px var(--mono); letter-spacing: .14em; color: var(--muted); }
+.notes {
+  position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 58px); right: max(16px, env(safe-area-inset-right, 0px));
+  width: min(380px, calc(100% - 32px)); max-height: calc(100% - 90px); overflow-y: auto;
+  background: rgba(14, 20, 51, .94); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px;
+  font-size: 14px; line-height: 1.65; color: var(--muted);
+}
+.notes h2 { font-size: 16px; color: var(--ink); margin: 0 0 8px; font-weight: 500; letter-spacing: .06em; }
+.notes ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.notes b { color: var(--ink); font-weight: 500; }
+.readout { margin-top: 12px; font: 500 11.5px/1.7 var(--mono); color: var(--blue); background: rgba(7, 11, 31, .7); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; }
+@media (max-width: 520px) {
+  .btn { padding: 10px 12px; font-size: 14px; }
+  .panel-inner { gap: 10px; padding: 12px; border-radius: 20px; }
+  .subtitle p { font-size: 15px; }
+  .chip { padding: 5px 10px; font-size: 12.5px; }
+}
+</style>
+
+<canvas id="stage" aria-label="AI 智能體艾婭：由粒子組成的光柱，會聚成她的全息像；粒子跟著真人影片眨眼、說話、做表情"></canvas>
+<div class="loading" id="loading">光柱暖身中…</div>
+
+<div class="top">
+  <div class="badge"><span class="name">艾婭</span><span class="code">A.I.Y.A</span><span>Q0-00 · 量子中心的光</span></div>
+  <span class="tag">AI · 視覺概念</span>
+  <span class="spacer"></span>
+  <button class="ghost" id="soundBtn" aria-pressed="false">聲音 關</button>
+  <button class="ghost" id="notesBtn" aria-expanded="false">設計說明</button>
+</div>
+
+<div class="subtitle" id="subtitle" hidden>
+  <div class="who">艾婭 · AI</div>
+  <p id="subText"></p>
+</div>
+
+<section class="panel" id="panel">
+  <div class="panel-inner">
+    <div class="row">
+      <button class="btn btn-deep" id="knockBtn">散回光柱</button>
+      <button class="btn btn-glass" id="talkBtn">說一句話</button>
+    </div>
+    <div class="group">
+      <div class="label">表情</div>
+      <div class="chips" id="exprChips"></div>
+    </div>
+    <div class="group">
+      <div class="label">說話</div>
+      <div class="chips" id="talkChips"></div>
+    </div>
+    <div class="group">
+      <div class="label">今晚城市心情 <span class="demo">示範數據</span></div>
+      <div class="chips" id="cityChips"></div>
+      <div class="bar" id="moodBar"></div>
+    </div>
+  </div>
+</section>
+
+<aside class="notes" id="notes" hidden>
+  <h2>設計說明</h2>
+  <ul>
+    <li><b>這一版改用影片驅動</b>：12 支艾婭影片逐格去背（Apple Vision 人像分割＋深藍底色差補髮絲），每格拆成「顏色｜遮罩｜深度」三格，粒子每一格都從影片取色。眨眼、嘴型、視線、轉頭、髮絲飄動全部是影片裡真實的微動作，不再用五官座標去變形。</li>
+    <li><b>粒子</b>：維持細粒子、密度 B，約 2.4 萬顆，固定在網格上，影片的明暗和遮罩決定每一顆亮不亮、什麼顏色。</li>
+    <li><b>立體感</b>：深度由人像遮罩的圓弧＋每一格偵測到的臉框橢球算出，頭轉的時候臉的凸起也跟著移動；拖動畫面看側面。</li>
+    <li><b>無縫銜接</b>：所有影片的第一格是同一個姿勢，每支片段做成「播完倒回」，結束時剛好回到起始姿勢，切換時只淡入 0.3 秒。</li>
+    <li><b>聲音</b>：打招呼、開心大笑、驚訝三支有原聲，按右上「聲音」打開後會一起播。App 第一期仍先不做語音。</li>
+    <li><b>平時是光柱</b>：有人敲門（叩叩叩）才從光柱聚成全息像；聊完散回光柱。光柱的顏色跟著今晚的城市心情。</li>
+    <li><b>標示</b>：畫面固定顯示「AI」，符合 Apple 對 AI 內容的揭露要求。</li>
+  </ul>
+  <div class="readout" id="readout"></div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const QS = new URLSearchParams(location.search);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('stage');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(dpr);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+  const rnd = Math.random;
+  const HALO = Number(QS.get('halo')) || 0.16;
+  const ease = (k, dt) => 1 - Math.exp(-dt * k);
+
+  // ---------- 影片片段（三格：顏色｜遮罩｜深度，576×544 一格） ----------
+  const DIR = 'aiya-clips/';
+  const CLIPS = {
+    idle:      { label: '安靜微笑', file: 'idle', loop: true },
+    laugh:     { label: '開心大笑', file: 'laugh', audio: 'laugh' },
+    surprise:  { label: '驚訝', file: 'surprise', audio: 'surprise' },
+    think:     { label: '思考', file: 'think' },
+    shy:       { label: '害羞', file: 'shy' },
+    worry:     { label: '擔心', file: 'worry' },
+    wink:      { label: '眨眼', file: 'wink' },
+    hello:     { label: '打招呼', file: 'hello', voice: 'hello_voice', line: '嗨！我是艾婭，住在量子中心的那一道光。' },
+    talk1:     { label: '看著你說話', file: 'talk1', talk: true },
+    talk_soft: { label: '輕輕說', file: 'talk_soft', talk: true },
+    talk_slow: { label: '輕輕慢慢說', file: 'talk_slow', talk: true },
+  };
+  const EXPR_KEYS = ['idle', 'laugh', 'surprise', 'think', 'shy', 'worry', 'wink'];
+  const TALK_KEYS = ['hello', 'talk1', 'talk_soft', 'talk_slow'];
+  const vids = {};
+  function vid(file) {
+    if (vids[file]) return vids[file];
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = DIR + file + '.mp4';
+    const tex = new THREE.VideoTexture(v);
+    tex.minFilter = tex.magFilter = THREE.LinearFilter; tex.generateMipmaps = false;
+    return (vids[file] = { v, tex });
+  }
+  const audios = {};
+  function aud(file) { return audios[file] || (audios[file] = Object.assign(new Audio(DIR + file + '-audio.mp4'), { preload: 'auto' })); }
+
+  // ---------- 粒子網格：每顆固定一個取樣點 ----------
+  const VW = 576, VH = 544;
+  const PANEL_W = Number(QS.get('w')) || 2.4, PANEL_H = PANEL_W * VH / VW, Y_OFF = 0.05;   // 臉高約 0.95，臉中心在 y≈0.42（和之前的照片版一致）
+  const STEP = Number(QS.get('step')) || 3.6;                 // 影片上每 3.6 像素一顆（臉的大小換算後＝之前的密度 B）
+  const cols = Math.floor(VW / STEP), rows = Math.floor(VH / STEP);
+  const N = cols * rows;
+  const aUV = new Float32Array(N * 2), aPil = new Float32Array(N * 3), aSeed = new Float32Array(N), pos = new Float32Array(N * 3);
+  for (let j = 0, k = 0; j < rows; j++) for (let i = 0; i < cols; i++, k++) {
+    const u = (i + 0.5 + (rnd() - 0.5) * 0.9) / cols, v = (j + 0.5 + (rnd() - 0.5) * 0.9) / rows;   // 網格抖動：分布均勻、不結塊
+    aUV.set([u, v], k * 2);
+    pos.set([(u - 0.5) * PANEL_W, (0.5 - v) * PANEL_H + Y_OFF, 0], k * 3);
+    aSeed[k] = rnd();
+    const pr = 0.03 + 0.3 * rnd() ** 2, pa = rnd() * Math.PI * 2;
+    aPil.set([Math.cos(pa) * pr, rnd() * 8 - 4, Math.sin(pa) * pr], k * 3);
+  }
+  const blank = new THREE.DataTexture(new Uint8Array(4), 1, 1);
+  const U = {
+    uTime: { value: 0 }, uForm: { value: 0 }, uPulse: { value: 0 }, uMotion: { value: reduce ? 0.15 : 1 },
+    uTexA: { value: blank }, uTexB: { value: blank }, uMix: { value: 0 },
+    uPx: { value: 10 }, uPxPillar: { value: 10 }, uSpacing: { value: (PANEL_W / cols) * 1.1 },
+    uGain: { value: Number(QS.get('gain')) || 1.45 }, uCon: { value: new THREE.Vector2(Number(QS.get('lo')) || 0.16, Number(QS.get('hi')) || 0.85) }, uDepth: { value: Number(QS.get('depth')) || 0.8 }, uBotY: { value: -PANEL_H / 2 + Y_OFF },
+    uC0: { value: new THREE.Color() }, uC1: { value: new THREE.Color() }, uC2: { value: new THREE.Color() }, uC3: { value: new THREE.Color() },
+    uW: { value: new THREE.Vector3(0.25, 0.5, 0.75) }, uSparkle: { value: 0 },
+  };
+  const moodGLSL = `
+    uniform vec3 uC0, uC1, uC2, uC3, uW;
+    vec3 moodCol(float m) { return m < uW.x ? uC0 : (m < uW.y ? uC1 : (m < uW.z ? uC2 : uC3)); }
+    vec3 pillarPos(vec3 pil, float seed, float t, float motion, float pulse) {
+      pil.y = mod(pil.y + t * (0.25 + seed * 0.55) * motion + 4.0, 8.0) - 4.0;
+      float ang = t * (0.2 + seed * 0.3) * motion;
+      pil.xz = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * pil.xz;
+      pil.xz *= 1.0 + pulse * (1.2 + seed);
+      return pil;
+    }`;
+  const faceVert = (QS.get('dbg') ? '#define DBG\n' : '') + `
+    attribute vec2 aUV; attribute vec3 aPillar; attribute float aSeed;
+    uniform sampler2D uTexA, uTexB; uniform float uMix;
+    uniform float uTime, uForm, uPulse, uMotion, uPx, uGain, uDepth, uBotY, uSparkle; uniform vec2 uCon;
+    varying vec3 vColor; varying float vAlpha;
+    ${moodGLSL}
+    // 一格影片裡的三個區塊：顏色、遮罩、深度
+    vec3 sampleClip(sampler2D t, vec2 uv, out float mask, out float depth) {
+      float x = clamp(uv.x, 0.003, 0.997) / 3.0, y = 1.0 - uv.y;
+      mask = texture2D(t, vec2(x + 1.0 / 3.0, y)).r;
+      depth = texture2D(t, vec2(x + 2.0 / 3.0, y)).r;
+      return texture2D(t, vec2(x, y)).rgb;
+    }
+    void main() {
+      float t = uTime;
+      float mA, dA, mB, dB;
+      vec3 cA = sampleClip(uTexA, aUV, mA, dA), cB = sampleClip(uTexB, aUV, mB, dB);
+      float m = mix(mA, mB, uMix), d = mix(dA, dB, uMix);
+      vec3 c = mix(cA, cB, uMix) / max(0.15, min(1.0, m * 1.4));       // 編碼時顏色乘過遮罩，這裡還原
+      float lum = dot(c, vec3(0.3, 0.59, 0.11));
+      vec3 fp = position;
+      fp.z = d * uDepth - uDepth * 0.5 + (lum - 0.5) * 0.03;
+      fp += vec3(sin(aSeed * 40.0 + t * 1.3), cos(aSeed * 23.0 + t * 1.1), 0.0) * 0.0025 * uMotion;   // 粒子輕微浮動
+      vec3 pil = pillarPos(aPillar, aSeed, t, uMotion, uPulse);
+      float f = clamp(uForm * 1.7 - aSeed * 0.7, 0.0, 1.0); f = f * f * (3.0 - 2.0 * f);
+      vec3 swirl = vec3(cos(aSeed * 30.0 + t), sin(aSeed * 12.0) * 0.5, sin(aSeed * 30.0 + t)) * sin(f * 3.14159) * 0.7 * uMotion;
+      vec3 p = mix(pil, fp, f) + swirl;
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      vec3 mood = moodCol(fract(aSeed * 7.13));
+      float scan = 0.94 + 0.06 * sin(position.y * 160.0 - t * 3.0);
+      // 影片光線很平均：用亮度曲線拉開明暗（眼睛、眉毛、唇線的暗部會留白），再用柔光把視線帶到臉上
+      float L2 = smoothstep(uCon.x, uCon.y, lum);
+      vec2 fq = (aUV - vec2(0.5, 0.47)) / vec2(0.36, 0.42);
+      float spot = mix(0.5, 1.0, exp(-dot(fq, fq)));
+      vec3 graded = c * (L2 / max(lum, 0.05)) * spot;
+      vec3 photo = mix(min(graded * uGain, vec3(1.6)), mood, 0.08) * scan;
+      photo += uSparkle * step(0.97, fract(aSeed * 53.0 + t * 0.7)) * vec3(1.0, 0.9, 0.6);
+      // 背景不顯示；底部和左右兩側用隨機門檻慢慢消散，不留直邊
+      float edge = smoothstep(uBotY + 0.02, uBotY + 0.55, position.y) * smoothstep(0.0, 0.1, aUV.x) * smoothstep(1.0, 0.9, aUV.x);
+      float a = smoothstep(0.22, 0.6, m) * step(aSeed * 0.98, edge);
+      a *= smoothstep(0.02, 0.1, L2);                                 // 暗部留白，五官和輪廓才看得出來
+      vColor = mix(mix(vec3(0.75, 0.6, 1.0), mood, 0.5), photo, f);
+      vAlpha = a * mix(0.55, 0.96, f);
+      #ifdef DBG
+      vColor = c; vAlpha = smoothstep(0.22, 0.6, m);
+      #endif
+      gl_PointSize = vAlpha < 0.01 ? 0.0 : mix(uPx * 0.7, uPx, f) / -mv.z;
+    }`;
+  const faceFrag = `
+    #define HALO ${HALO.toFixed(3)}
+    varying vec3 vColor; varying float vAlpha;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5; float r = length(c) / 0.5;
+      if (r > 1.0) discard;
+      float core = 1.0 - smoothstep(0.16, 0.3, r);        // 細亮點
+      float halo = exp(-r * r * 5.0) * HALO;               // 淡淡的光暈，疊起來帶出顏色和五官
+      gl_FragColor = vec4(vColor * (core + halo) * vAlpha, 1.0);
+    }`;
+  {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aUV', new THREE.BufferAttribute(aUV, 2));
+    geo.setAttribute('aPillar', new THREE.BufferAttribute(aPil, 3));
+    geo.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 10);
+    scene.add(new THREE.Points(geo, new THREE.ShaderMaterial({ uniforms: U, vertexShader: faceVert, fragmentShader: faceFrag, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })));
+  }
+
+  // ---------- 光柱（疊加發光，永遠是光柱） ----------
+  {
+    const M = 2600, p = new Float32Array(M * 3), seed = new Float32Array(M), size = new Float32Array(M);
+    for (let i = 0; i < M; i++) { const r = 0.02 + 0.25 * rnd() ** 3, a = rnd() * Math.PI * 2; p.set([Math.cos(a) * r, rnd() * 8 - 4, Math.sin(a) * r], i * 3); seed[i] = rnd(); size[i] = 1.1 + rnd() * 0.9; }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(p, 3));
+    geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 10);
+    scene.add(new THREE.Points(geo, new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: `attribute float aSeed, aSize; uniform float uTime, uMotion, uPulse, uForm, uPxPillar; varying vec3 vColor; varying float vAlpha;
+        ${moodGLSL}
+        void main() { vec3 p = pillarPos(position, aSeed, uTime, uMotion, uPulse);
+          vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
+          vColor = mix(mix(vec3(0.72, 0.55, 1.0), vec3(0.45, 0.82, 1.0), aSeed), moodCol(aSeed), 0.35);
+          vAlpha = 0.5 * mix(1.0, 0.4, uForm) * (1.0 + uPulse * 1.5) * (1.0 - smoothstep(2.6, 4.0, abs(p.y))) * (0.78 + 0.22 * sin(uTime * 3.0 + aSeed * 60.0));
+          gl_PointSize = aSize * uPxPillar / -mv.z; }`,
+      fragmentShader: `varying vec3 vColor; varying float vAlpha;
+        void main() { vec2 c = gl_PointCoord - 0.5; float d = dot(c, c); if (d > 0.25) discard;
+          gl_FragColor = vec4(vColor * (exp(-d * 18.0) * 0.75 + exp(-d * 80.0) * 0.7), vAlpha); }`,
+    })));
+  }
+
+  // ---------- 地上的蜂巢座位 ----------
+  {
+    const FP = [], FC = [], FS = [], FA = [], hexR = 0.27, floorY = -2.05, moodHex = ['#FFD54A', '#5AB8FF', '#4DE3A0', '#FF6BD6', '#FF9F45', '#A99CFF'], c = new THREE.Color();
+    for (let q = -8; q <= 8; q++) for (let r = -8; r <= 8; r++) {
+      const ring = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+      if (ring === 0 || ring > 8) continue;
+      const cx = hexR * Math.sqrt(3) * (q + r / 2), cz = hexR * 1.5 * r, fade = 1 - ring / 9, host = ring <= 3;
+      for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; FP.push(cx + Math.cos(a) * hexR * 0.92, floorY, cz + Math.sin(a) * hexR * 0.92); c.set(host ? '#FFB547' : '#8C89B0'); FC.push(c.r, c.g, c.b); FS.push(0.9); FA.push((host ? 0.5 : 0.28) * fade); }
+      if (!host && rnd() < 0.36) { FP.push(cx, floorY + 0.02, cz); c.set(moodHex[Math.floor(rnd() * moodHex.length)]); FC.push(c.r, c.g, c.b); FS.push(3.2); FA.push(0.9 * fade); }
+    }
+    for (let i = 0; i < 90; i++) { const a = i / 90 * Math.PI * 2; FP.push(Math.cos(a) * 0.36, floorY, Math.sin(a) * 0.36); FC.push(1, 0.8, 0.45); FS.push(1.6); FA.push(0.9); }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(FP, 3));
+    g.setAttribute('aColor', new THREE.Float32BufferAttribute(FC, 3));
+    g.setAttribute('aSize', new THREE.Float32BufferAttribute(FS, 1));
+    g.setAttribute('aAlpha', new THREE.Float32BufferAttribute(FA, 1));
+    scene.add(new THREE.Points(g, new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: `attribute vec3 aColor; attribute float aSize, aAlpha; uniform float uTime, uPxPillar; varying vec3 vColor; varying float vAlpha;
+        void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); gl_Position = projectionMatrix * mv;
+        vColor = aColor; vAlpha = aAlpha * (aSize > 2.0 ? 0.7 + 0.3 * sin(uTime * 1.6 + position.x * 7.0 + position.z * 5.0) : 1.0);
+        gl_PointSize = aSize * uPxPillar / -mv.z; }`,
+      fragmentShader: `varying vec3 vColor; varying float vAlpha;
+        void main() { vec2 c = gl_PointCoord - 0.5; float d = dot(c, c); if (d > 0.25) discard;
+          gl_FragColor = vec4(vColor * (exp(-d * 18.0) * 0.75 + exp(-d * 80.0) * 0.7), vAlpha); }`,
+    })));
+  }
+
+  // ---------- 播放控制：切換時從目前畫面淡到新片段 ----------
+  let sound = false, current = null, curFile = null, fade = null, playToken = 0, activeAudio = null;
+  const subtitle = document.getElementById('subtitle'), subText = document.getElementById('subText');
+  let speech = null, hideAt = 0, clock = 0;
+  const LINES = [
+    '今晚的台北有點安靜，好多人都寫了「累」。你也是嗎？',
+    '東京剛下雨了，有人寫「傘忘在便利商店」。',
+    '我不會記得你是誰，只記得今晚城市的顏色。',
+    '整點的鐘聲快到了，要一起等嗎？',
+    '偷偷告訴你，第 4 圈今晚有好多人睡不著。',
+  ];
+  let lineIdx = -1;
+
+  function markChips() {
+    document.querySelectorAll('.chip[data-clip]').forEach(c => c.setAttribute('aria-pressed', c.dataset.clip === current));
+  }
+  async function play(key) {
+    const c = CLIPS[key], token = ++playToken;
+    const file = sound && c.voice ? c.voice : c.file;
+    const { v, tex } = vid(file);
+    if (activeAudio) { activeAudio.pause(); activeAudio = null; }
+    v.loop = !!c.loop;
+    try { v.currentTime = 0; } catch (e) {}
+    try { await v.play(); } catch (e) { return; }
+    if (token !== playToken) return;
+    // 有原聲的片段：聲音打開時一起播
+    const af = sound ? (c.voice ? c.voice : c.audio) : null;
+    if (af) { activeAudio = aud(af); activeAudio.currentTime = 0; activeAudio.play().catch(() => {}); }
+    const prevFile = curFile;
+    current = key; curFile = file; markChips();
+    if (prevFile && prevFile !== file) {
+      U.uTexB.value = tex; U.uMix.value = 0;
+      fade = { t: 0, done: () => { U.uTexA.value = tex; U.uMix.value = 0; vids[prevFile].v.pause(); } };
+    } else { U.uTexA.value = tex; U.uMix.value = 0; fade = null; }
+    v.onended = () => { if (token === playToken) play('idle'); };
+    // 字幕
+    const text = c.line || (c.talk ? LINES[lineIdx = (lineIdx + 1) % LINES.length] : null);
+    if (text) {
+      const dur = (v.duration || 7) * (c.loop || file === c.voice ? 1 : 0.5) * 0.85;   // 倒回的那半段不說話
+      speech = { text, i: 0, next: clock + 0.25, per: Math.max(0.06, dur / text.length) }; subText.textContent = ''; subtitle.hidden = false; hideAt = 0;
+    } else if (key !== 'idle') { subtitle.hidden = true; speech = null; }
+  }
+
+  // ---------- 敲門、散回光柱 ----------
+  const knockBtn = document.getElementById('knockBtn');
+  let formTarget = 0, knocks = [];
+  function knock() {
+    knocks = [clock, clock + 0.38, clock + 0.76];
+    setTimeout(() => { formTarget = 1; updateKnockBtn(); }, 1100);
+    setTimeout(() => { if (formTarget === 1) play('hello'); }, 2900);
+  }
+  function disperse() { formTarget = 0; speech = null; subtitle.hidden = true; play('idle'); updateKnockBtn(); }
+  function updateKnockBtn() { knockBtn.textContent = formTarget ? '散回光柱' : '敲門　叩叩叩'; }
+
+  const chipHTML = k => `<button class="chip" data-clip="${k}" aria-pressed="false">${CLIPS[k].label}${CLIPS[k].audio || CLIPS[k].voice ? '<span class="snd" title="有原聲">♪</span>' : ''}</button>`;
+  document.getElementById('exprChips').innerHTML = EXPR_KEYS.map(chipHTML).join('');
+  document.getElementById('talkChips').innerHTML = TALK_KEYS.map(chipHTML).join('');
+  document.querySelectorAll('#exprChips, #talkChips').forEach(w => w.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    if (!formTarget) { formTarget = 1; updateKnockBtn(); }
+    play(b.dataset.clip);
+  }));
+  knockBtn.addEventListener('click', () => formTarget ? disperse() : knock());
+  document.getElementById('talkBtn').addEventListener('click', () => { if (!formTarget) { knock(); return; } play(['talk1', 'talk_soft', 'talk_slow'][Math.floor(rnd() * 3)]); });
+  const soundBtn = document.getElementById('soundBtn');
+  soundBtn.addEventListener('click', () => {
+    sound = !sound; soundBtn.setAttribute('aria-pressed', sound); soundBtn.textContent = sound ? '聲音 開' : '聲音 關';
+    if (!sound && activeAudio) { activeAudio.pause(); activeAudio = null; }
+    if (sound) Object.values(CLIPS).forEach(c => { if (c.audio || c.voice) aud(c.audio || c.voice); });
+  });
+  const notes = document.getElementById('notes'), notesBtn = document.getElementById('notesBtn');
+  notesBtn.addEventListener('click', () => { notes.hidden = !notes.hidden; notesBtn.setAttribute('aria-expanded', !notes.hidden); });
+
+  // ---------- 城市心情 ----------
+  const MOODS = { joy: ['開心', '#FFD54A'], sad: ['疲倦', '#5AB8FF'], angry: ['煩躁', '#FF8A5C'], calm: ['平靜', '#4DE3A0'], passion: ['熱血', '#FF9F45'], love: ['心動', '#FF6BD6'], other: ['其他', '#A99CFF'], hope: ['期待', '#4FC3F7'] };
+  const CITY = {
+    normal:  { label: '平常夜', mix: [['other', 38], ['sad', 27], ['calm', 22], ['love', 13]] },
+    tired:   { label: '疲倦週一', mix: [['sad', 46], ['other', 24], ['calm', 18], ['angry', 12]] },
+    friday:  { label: '週五小確幸', mix: [['joy', 40], ['passion', 25], ['love', 20], ['calm', 15]] },
+    newyear: { label: '量子跨年', mix: [['joy', 28], ['love', 26], ['hope', 24], ['calm', 22]], sparkle: 1 },
+  };
+  const colTarget = [new THREE.Color(), new THREE.Color(), new THREE.Color(), new THREE.Color()], wTarget = new THREE.Vector3();
+  let sparkleTarget = 0;
+  function setCity(key, instant) {
+    const c = CITY[key]; let acc = 0; const cum = [];
+    c.mix.forEach(([m, pct], i) => { colTarget[i].set(MOODS[m][1]); acc += pct / 100; cum.push(acc); });
+    wTarget.set(cum[0], cum[1], cum[2]); sparkleTarget = c.sparkle || 0;
+    if (instant) { [U.uC0, U.uC1, U.uC2, U.uC3].forEach((u, i) => u.value.copy(colTarget[i])); U.uW.value.copy(wTarget); U.uSparkle.value = sparkleTarget; }
+    document.getElementById('moodBar').innerHTML = c.mix.map(([m, pct]) => `<span style="flex:0 0 ${pct}%;background:${MOODS[m][1]}" title="${MOODS[m][0]} ${pct}%">${MOODS[m][0]} ${pct}%</span>`).join('');
+    document.querySelectorAll('#cityChips .chip').forEach(ch => ch.setAttribute('aria-pressed', ch.dataset.k === key));
+  }
+  const cityWrap = document.getElementById('cityChips');
+  cityWrap.innerHTML = Object.entries(CITY).map(([k, c]) => `<button class="chip" data-k="${k}" aria-pressed="false">${c.label}</button>`).join('');
+  cityWrap.addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) setCity(b.dataset.k); });
+
+  // ---------- 拖動看側面 ----------
+  const pointer = new THREE.Vector2(), pointerS = new THREE.Vector2(), zero2 = new THREE.Vector2();
+  let lastPointer = -10, drag = null, orbit = 0, orbitV = 0;
+  addEventListener('pointermove', e => {
+    pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight * 2 - 1)); lastPointer = clock;
+    if (drag) { orbit = Math.max(-0.9, Math.min(0.9, drag.o + (e.clientX - drag.x) / innerWidth * 2.4)); }
+  });
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, o: orbit }; });
+  addEventListener('pointerup', () => { drag = null; });
+  canvas.addEventListener('click', () => { if (!formTarget) knock(); });
+
+  // ---------- 版面 ----------
+  const panel = document.getElementById('panel');
+  let panelH = 0, camZ = 5.6;
+  function placeSubtitle() { subtitle.style.bottom = (panelH + 12) + 'px'; }
+  function resize() {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false);
+    panelH = panel.offsetHeight;
+    const aspect = w / h, topH = 56, subH = 76;
+    const avail = Math.max(h * 0.32, h - panelH - subH - topH);
+    const dFit = 2.6 * h / (0.63 * avail);
+    camZ = Math.max(5.6, dFit, 5.6 * 0.95 / aspect);
+    camera.aspect = aspect;
+    camera.setViewOffset(w, h, 0, Math.max(0, (panelH + subH - topH) / 2), w, h);
+    camera.updateProjectionMatrix();
+    const focal = h * dpr / (2 * Math.tan(THREE.MathUtils.degToRad(17.5)));
+    U.uPx.value = focal * U.uSpacing.value * 1.9;
+    U.uPxPillar.value = dpr * Math.min(h, w * 1.6) * 0.0135 * (camZ / 5.6) * 0.85;
+    placeSubtitle();
+  }
+  addEventListener('resize', resize);
+
+  // ---------- 動畫 ----------
+  let last = performance.now();
+  const readout = document.getElementById('readout');
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+    U.uTime.value = clock;
+    const fs = dt / 1.9;
+    U.uForm.value += Math.max(-fs, Math.min(fs, formTarget - U.uForm.value));
+    let pulse = 0;
+    for (const k of knocks) { const d = clock - k; if (d > 0 && d < 0.6) pulse = Math.max(pulse, Math.sin(d / 0.6 * Math.PI) * (1 - d / 0.6)); }
+    U.uPulse.value = pulse * 0.6;
+    if (fade) { fade.t += dt / 0.3; U.uMix.value = Math.min(1, fade.t); if (fade.t >= 1) { const f = fade; fade = null; f.done(); } }
+
+    if (speech) {
+      if (clock >= speech.next && speech.i < speech.text.length) {
+        const ch = speech.text[speech.i++];
+        subText.textContent = speech.text.slice(0, speech.i);
+        speech.next = clock + ('，。？！、「」…：'.includes(ch) ? speech.per * 2.5 : speech.per);
+        if (speech.i >= speech.text.length) { hideAt = clock + 3; speech = null; }
+      }
+    }
+    if (hideAt && clock > hideAt) { subtitle.hidden = true; hideAt = 0; }
+
+    [U.uC0, U.uC1, U.uC2, U.uC3].forEach((u, i) => u.value.lerp(colTarget[i], ease(2, dt)));
+    U.uW.value.lerp(wTarget, ease(2, dt));
+    U.uSparkle.value += (sparkleTarget - U.uSparkle.value) * ease(2, dt);
+    // 鏡頭：滑鼠輕微視差，拖動可以繞到側面；放開後慢慢回正
+    pointerS.lerp(clock - lastPointer < 4 ? pointer : zero2, ease(4, dt));
+    if (!drag) orbit += (0 - orbit) * ease(0.8, dt);
+    const sway = Math.sin(clock * 0.21) * 0.06 * U.uMotion.value;
+    const ang = orbit + sway + pointerS.x * 0.12;
+    camera.position.set(Math.sin(ang) * camZ, 0.35 + pointerS.y * 0.15, Math.cos(ang) * camZ);
+    camera.lookAt(0, -0.05, 0);
+    renderer.render(scene, camera);
+
+    if (!notes.hidden) {
+      const v = curFile && vids[curFile].v;
+      readout.textContent = `clip ${current || '-'}  ${v ? v.currentTime.toFixed(2) + ' / ' + (v.duration || 0).toFixed(2) + 's' : ''}\nform ${U.uForm.value.toFixed(2)}  mix ${U.uMix.value.toFixed(2)}  orbit ${ang.toFixed(2)}\nparticles ${N}  (${cols}×${rows})  sound ${sound ? 'on' : 'off'}`;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  if (QS.get('clean')) { panel.hidden = true; document.querySelector('.top').hidden = true; }
+  setCity('normal', true);
+  resize();
+  updateKnockBtn();
+  markChips();
+  requestAnimationFrame(frame);
+  // 先載好平常的微笑，再在背景預載其他片段
+  const first = vid('idle').v, loading = document.getElementById('loading');
+  first.addEventListener('canplay', () => {
+    loading.hidden = true;
+    Object.values(CLIPS).forEach(c => vid(c.file));
+  }, { once: true });
+  play('idle').then(() => {
+    const start = QS.get('clip');
+    if (location.hash === '#face' || start) { formTarget = 1; U.uForm.value = 1; updateKnockBtn(); if (start && CLIPS[start]) play(start); }
+    else setTimeout(knock, 500);
+  });
+})();
+</script>

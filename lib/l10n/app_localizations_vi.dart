@@ -2384,4 +2384,117 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get orbStoreUnavailable =>
       'Hiện không kết nối được cửa hàng. Vui lòng thử lại sau.';
+
+  @override
+  String get aiyaName => 'AIYA';
+
+  @override
+  String get aiyaChip => 'AIYA · AI';
+
+  @override
+  String get aiyaConsentTitle => 'Trước khi trò chuyện với AIYA';
+
+  @override
+  String get aiyaConsentBody =>
+      'AIYA là AI chạy bằng Claude của Anthropic. Nội dung bạn gửi cho AIYA được Anthropic (Mỹ) xử lý mà không kèm danh tính, biệt danh hay vị trí của bạn, và sẽ bị xóa khi cuộc trò chuyện kết thúc. AIYA có thể sai và không đưa ra lời khuyên chuyên môn.';
+
+  @override
+  String get aiyaConsentAgree => 'Đồng ý và bắt đầu';
+
+  @override
+  String get aiyaConsentLater => 'Để sau';
+
+  @override
+  String get aiyaGreeting =>
+      'Chào, mình là AIYA, ánh sáng ở trung tâm Thế giới Lượng tử. Tối nay bạn muốn nói gì?';
+
+  @override
+  String get aiyaFarewell =>
+      'Hết giờ rồi, mình về lại trong ánh sáng đây. Nhớ mình thì gõ cửa nhé.';
+
+  @override
+  String get aiyaInputHint => 'Nói gì đó với AIYA…';
+
+  @override
+  String get aiyaSend => 'Gửi';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return 'Hôm nay còn $n lượt miễn phí';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'Gói thời gian: $n';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return 'Còn $time';
+  }
+
+  @override
+  String get aiyaEnd => 'Kết thúc';
+
+  @override
+  String get aiyaFiltered =>
+      'Câu này có từ ngữ hoặc thông tin liên lạc không phù hợp. Thử nói cách khác nhé.';
+
+  @override
+  String get aiyaBusy => 'AIYA vừa lơ đãng một chút. Bạn nói lại được không?';
+
+  @override
+  String get aiyaRefused => 'Chuyện này mình không nói được. Đổi chủ đề nhé?';
+
+  @override
+  String get aiyaEnded => 'Cuộc trò chuyện này đã kết thúc.';
+
+  @override
+  String get aiyaNoQuotaTitle => 'Bạn đã dùng hết lượt miễn phí hôm nay';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      'Mỗi ngày có 3 lượt miễn phí, làm mới lúc 00:00 giờ Đài Loan. Muốn trò chuyện tiếp ngay, hãy mua gói thời gian. Mỗi lượt tối đa 10 phút.';
+
+  @override
+  String get aiyaResting => 'Tối nay AIYA mệt rồi. Hẹn mai nhé.';
+
+  @override
+  String get aiyaDailyMax =>
+      'Hôm nay bạn đã trò chuyện nhiều rồi. Mai lại tìm AIYA nhé.';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n lượt';
+  }
+
+  @override
+  String get aiyaPackNote =>
+      'Gói thời gian gắn với tài khoản trên điện thoại này và không khôi phục được nếu bạn xóa ứng dụng hoặc tài khoản.';
+
+  @override
+  String aiyaPurchased(int n) {
+    return 'Đã thêm $n lượt ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => 'Giao dịch chưa hoàn tất. Vui lòng thử lại.';
+
+  @override
+  String get aiyaStoreUnavailable =>
+      'Hiện không kết nối được cửa hàng. Vui lòng thử lại sau.';
+
+  @override
+  String get aiyaReport => 'Báo cáo câu trả lời này';
+
+  @override
+  String get aiyaReported =>
+      'Đã nhận báo cáo. Chúng tôi sẽ xử lý trong 24 giờ.';
+
+  @override
+  String get aiyaSetting => 'AIYA (AI trong Thế giới Lượng tử)';
+
+  @override
+  String get aiyaSettingSubtitle =>
+      'Khi tắt, AIYA sẽ không xuất hiện ở cột sáng Thế giới Lượng tử';
 }

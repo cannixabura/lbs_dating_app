@@ -2385,4 +2385,117 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get orbStoreUnavailable =>
       'Toko tidak dapat dihubungi saat ini. Coba lagi nanti.';
+
+  @override
+  String get aiyaName => 'AIYA';
+
+  @override
+  String get aiyaChip => 'AIYA · AI';
+
+  @override
+  String get aiyaConsentTitle => 'Sebelum ngobrol dengan AIYA';
+
+  @override
+  String get aiyaConsentBody =>
+      'AIYA adalah AI yang ditenagai Claude dari Anthropic. Pesan yang kamu kirim ke AIYA diproses oleh Anthropic (AS) tanpa identitas, nama panggilan, atau lokasimu, dan dihapus saat obrolan selesai. AIYA bisa keliru dan bukan nasihat profesional.';
+
+  @override
+  String get aiyaConsentAgree => 'Setuju dan mulai';
+
+  @override
+  String get aiyaConsentLater => 'Nanti saja';
+
+  @override
+  String get aiyaGreeting =>
+      'Hai, aku AIYA, cahaya di pusat Dunia Kuantum. Malam ini mau ngobrol apa?';
+
+  @override
+  String get aiyaFarewell =>
+      'Waktunya habis. Aku kembali ke dalam cahaya. Ketuk lagi kalau kangen.';
+
+  @override
+  String get aiyaInputHint => 'Bilang sesuatu ke AIYA…';
+
+  @override
+  String get aiyaSend => 'Kirim';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '$n obrolan gratis lagi hari ini';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'Paket waktu: $n';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return 'Sisa $time';
+  }
+
+  @override
+  String get aiyaEnd => 'Akhiri obrolan';
+
+  @override
+  String get aiyaFiltered =>
+      'Ada kata atau info kontak yang tidak diizinkan. Coba dengan cara lain.';
+
+  @override
+  String get aiyaBusy => 'AIYA melamun sebentar. Bisa ulangi lagi?';
+
+  @override
+  String get aiyaRefused => 'Aku nggak bisa bahas itu. Ganti topik, yuk?';
+
+  @override
+  String get aiyaEnded => 'Obrolan ini sudah selesai.';
+
+  @override
+  String get aiyaNoQuotaTitle => 'Obrolan gratis hari ini sudah habis';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      'Kamu dapat 3 obrolan gratis per hari, diatur ulang pukul 00:00 waktu Taiwan. Untuk lanjut sekarang, beli paket waktu. Tiap obrolan maksimal 10 menit.';
+
+  @override
+  String get aiyaResting => 'AIYA capek malam ini. Sampai besok.';
+
+  @override
+  String get aiyaDailyMax =>
+      'Hari ini sudah banyak ngobrol. Temui AIYA lagi besok.';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n obrolan';
+  }
+
+  @override
+  String get aiyaPackNote =>
+      'Paket waktu terikat ke akun di ponsel ini dan tidak bisa dipulihkan jika aplikasi atau akun dihapus.';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '$n obrolan ditambahkan ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => 'Pembelian tidak berhasil. Coba lagi.';
+
+  @override
+  String get aiyaStoreUnavailable =>
+      'Toko tidak bisa dihubungi. Coba lagi nanti.';
+
+  @override
+  String get aiyaReport => 'Laporkan balasan ini';
+
+  @override
+  String get aiyaReported =>
+      'Laporan diterima. Kami akan meninjaunya dalam 24 jam.';
+
+  @override
+  String get aiyaSetting => 'AIYA (AI di Dunia Kuantum)';
+
+  @override
+  String get aiyaSettingSubtitle =>
+      'Jika dimatikan, AIYA tidak muncul lagi di pilar Dunia Kuantum';
 }

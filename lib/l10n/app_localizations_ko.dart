@@ -2289,4 +2289,110 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get orbStoreUnavailable => '지금은 스토어에 연결할 수 없어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get aiyaName => '아이야';
+
+  @override
+  String get aiyaChip => '아이야 · AI';
+
+  @override
+  String get aiyaConsentTitle => '아이야와 이야기하기 전에';
+
+  @override
+  String get aiyaConsentBody =>
+      '아이야는 Anthropic의 Claude로 움직이는 AI예요. 아이야에게 보낸 글은 Anthropic(미국)에서 처리되지만 신원, 닉네임, 위치는 함께 보내지 않으며 대화가 끝나면 삭제돼요. 아이야의 답은 틀릴 수 있고 전문적인 조언이 아니에요.';
+
+  @override
+  String get aiyaConsentAgree => '동의하고 시작';
+
+  @override
+  String get aiyaConsentLater => '나중에';
+
+  @override
+  String get aiyaGreeting =>
+      '안녕, 나는 아이야. 양자 세계 한가운데 빛 속에 살아. 오늘 밤은 무슨 이야기를 할까?';
+
+  @override
+  String get aiyaFarewell => '시간이 다 됐어. 빛 속으로 돌아갈게. 보고 싶으면 다시 노크해 줘.';
+
+  @override
+  String get aiyaInputHint => '아이야에게 말 걸기…';
+
+  @override
+  String get aiyaSend => '보내기';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '오늘 무료 $n회 남음';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return '타임팩 $n회';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return '$time 남음';
+  }
+
+  @override
+  String get aiyaEnd => '대화 끝내기';
+
+  @override
+  String get aiyaFiltered => '부적절한 말이나 연락처가 들어 있어요. 다르게 말해 볼래요?';
+
+  @override
+  String get aiyaBusy => '아이야가 잠깐 멍했어. 다시 말해 줄래?';
+
+  @override
+  String get aiyaRefused => '그건 이야기하기 어려워. 다른 이야기 할까?';
+
+  @override
+  String get aiyaEnded => '이번 대화는 끝났어요.';
+
+  @override
+  String get aiyaNoQuotaTitle => '오늘 무료 횟수를 다 썼어요';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      '무료 대화는 하루 3회이고 대만 시간 0시에 초기화돼요. 지금 더 이야기하고 싶다면 타임팩을 구매하세요. 1회 최대 10분이에요.';
+
+  @override
+  String get aiyaResting => '아이야는 오늘 밤 지쳤어. 내일 봐.';
+
+  @override
+  String get aiyaDailyMax => '오늘은 많이 이야기했어. 내일 또 아이야를 찾아와.';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n회';
+  }
+
+  @override
+  String get aiyaPackNote => '타임팩은 이 휴대폰의 계정에 연결되며, 앱이나 계정을 삭제하면 복구할 수 없어요.';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '$n회가 추가됐어요 ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => '구매가 완료되지 않았어요. 다시 시도해 주세요.';
+
+  @override
+  String get aiyaStoreUnavailable => '지금은 스토어에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get aiyaReport => '이 답변 신고';
+
+  @override
+  String get aiyaReported => '신고가 접수됐어요. 24시간 안에 처리할게요.';
+
+  @override
+  String get aiyaSetting => '아이야(양자 세계의 AI)';
+
+  @override
+  String get aiyaSettingSubtitle => '끄면 양자 세계의 빛기둥에 아이야가 나타나지 않아요';
 }

@@ -47,6 +47,8 @@ import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
 import 'quantum_orb.dart';
 import 'quantum_world.dart';
+import 'aiya/aiya_screen.dart';
+import 'aiya/aiya_store.dart';
 import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
@@ -135,7 +137,8 @@ class MoodWhisperApp extends StatelessWidget {
         scaffoldBackgroundColor: Night.night900,
         useMaterial3: true,
       ),
-      home: ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      // AIYA_MOCK 只在本機測試艾婭畫面時開啟（假資料、不連伺服器），上架版本不會帶
+      home: aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
       ),
     );
   }
@@ -422,6 +425,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     QuantumPrefs.load().then((_) => QuantumChimeReminder.reschedule());
     // 量子化身：聽商店的購買結果（包含上次沒完成的交易），讀自己買過的款式
     OrbStore.init();
+    AiyaStore.init();
+    AiyaPrefs.load();
     OrbPrefs.load().then((_) => OrbStore.loadOwned());
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
@@ -2202,6 +2207,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         ));
         final reminderRow = switchRow(Icons.nightlight_outlined, tr.nightlyReminder, tr.nightlyReminderSubtitle, () => reminderOn, (v) { reminderOn = v; NightlyReminder.setEnabled(v); });
         final placeHintRow = switchRow(Icons.local_cafe_outlined, tr.placeHintsSetting, tr.placeHintsSettingSubtitle, () => PlaceHints.enabled, PlaceHints.setEnabled);
+        final aiyaRow = switchRow(Icons.auto_awesome_outlined, tr.aiyaSetting, tr.aiyaSettingSubtitle, () => AiyaPrefs.enabled.value, AiyaPrefs.setEnabled);
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -2229,6 +2235,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.timeline, tr.myMoodTrail, subtitle: tr.myMoodTrailSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MoodTrailScreen())))),
                   reminderRow,
                   placeHintRow,
+                  aiyaRow,
                   item(Icons.translate, tr.language, subtitle: _languageName(appLocale.value), onTap: () => go(_showLanguagePicker)),
                   section(tr.settingsSectionGatherings),
                   item(Icons.campaign_outlined, tr.gatheringHost,
@@ -3335,6 +3342,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                     boost: _chimeBoost(QuantumChime.offset(DateTime.now())),
                                   ),
                                 );
+                              },
+                            ),
+                          ),
+                        ),
+                      // 艾婭：101 光柱底下的「艾婭 · AI」標籤，點了就敲門（設定裡可以關掉）
+                      if (quantumSession.value != null)
+                        Positioned.fill(
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: AiyaPrefs.enabled,
+                            builder: (context, aiyaOn, _) => !aiyaOn ? const SizedBox.shrink() : AnimatedBuilder(
+                              animation: _quantumGlow,
+                              builder: (context, _) {
+                                final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+                                final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
+                                    scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
+                                final hit = proj.project(0, 0);
+                                if (hit == null) return const SizedBox.shrink();
+                                final at = hit.$1;
+                                if (at.dx < 0 || at.dx > screenWidth || at.dy < 0 || at.dy > screenHeight) return const SizedBox.shrink();
+                                return Stack(children: [
+                                  Positioned(left: at.dx - 70, top: at.dy + 8, width: 140, child: AiyaPillarChip(onTap: () => openAiya(context))),
+                                ]);
                               },
                             ),
                           ),

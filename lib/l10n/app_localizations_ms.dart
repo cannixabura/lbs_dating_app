@@ -2396,4 +2396,118 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get orbStoreUnavailable =>
       'Kedai tidak dapat dihubungi sekarang. Sila cuba lagi nanti.';
+
+  @override
+  String get aiyaName => 'AIYA';
+
+  @override
+  String get aiyaChip => 'AIYA · AI';
+
+  @override
+  String get aiyaConsentTitle => 'Sebelum berbual dengan AIYA';
+
+  @override
+  String get aiyaConsentBody =>
+      'AIYA ialah AI yang dikuasakan oleh Claude daripada Anthropic. Apa yang anda hantar kepada AIYA diproses oleh Anthropic (AS) tanpa identiti, nama samaran atau lokasi anda, dan dipadam apabila perbualan tamat. AIYA boleh tersilap dan bukan nasihat profesional.';
+
+  @override
+  String get aiyaConsentAgree => 'Setuju dan mula';
+
+  @override
+  String get aiyaConsentLater => 'Bukan sekarang';
+
+  @override
+  String get aiyaGreeting =>
+      'Hai, saya AIYA, cahaya di tengah Dunia Kuantum. Apa yang anda fikirkan malam ini?';
+
+  @override
+  String get aiyaFarewell =>
+      'Masa sudah tamat. Saya kembali ke dalam cahaya. Ketuk lagi bila rindu.';
+
+  @override
+  String get aiyaInputHint => 'Katakan sesuatu kepada AIYA…';
+
+  @override
+  String get aiyaSend => 'Hantar';
+
+  @override
+  String aiyaFreeLeft(int n) {
+    return '$n sembang percuma lagi hari ini';
+  }
+
+  @override
+  String aiyaCreditsLeft(int n) {
+    return 'Pek masa: $n';
+  }
+
+  @override
+  String aiyaTimeLeft(String time) {
+    return 'Tinggal $time';
+  }
+
+  @override
+  String get aiyaEnd => 'Tamatkan sembang';
+
+  @override
+  String get aiyaFiltered =>
+      'Ada perkataan atau butiran hubungan yang tidak dibenarkan. Cuba cara lain.';
+
+  @override
+  String get aiyaBusy => 'AIYA termenung sekejap. Boleh ulang sekali lagi?';
+
+  @override
+  String get aiyaRefused =>
+      'Saya tak dapat bercakap tentang itu. Topik lain, boleh?';
+
+  @override
+  String get aiyaEnded => 'Sembang ini sudah tamat.';
+
+  @override
+  String get aiyaNoQuotaTitle => 'Sembang percuma hari ini sudah habis';
+
+  @override
+  String get aiyaNoQuotaBody =>
+      'Anda dapat 3 sembang percuma sehari, ditetapkan semula pada 00:00 waktu Taiwan. Untuk terus berbual sekarang, dapatkan pek masa. Setiap sembang sehingga 10 minit.';
+
+  @override
+  String get aiyaResting => 'AIYA penat malam ini. Jumpa esok.';
+
+  @override
+  String get aiyaDailyMax =>
+      'Anda sudah banyak berbual hari ini. Jumpa AIYA lagi esok.';
+
+  @override
+  String aiyaPackTimes(int n) {
+    return '$n sembang';
+  }
+
+  @override
+  String get aiyaPackNote =>
+      'Pek masa terikat pada akaun telefon ini dan tidak boleh dipulihkan jika anda memadam aplikasi atau akaun.';
+
+  @override
+  String aiyaPurchased(int n) {
+    return '$n sembang ditambah ✨';
+  }
+
+  @override
+  String get aiyaPurchaseFailed => 'Pembelian tidak berjaya. Sila cuba lagi.';
+
+  @override
+  String get aiyaStoreUnavailable =>
+      'Tidak dapat menghubungi kedai sekarang. Sila cuba lagi nanti.';
+
+  @override
+  String get aiyaReport => 'Laporkan balasan ini';
+
+  @override
+  String get aiyaReported =>
+      'Laporan diterima. Kami akan menyemaknya dalam 24 jam.';
+
+  @override
+  String get aiyaSetting => 'AIYA (AI dalam Dunia Kuantum)';
+
+  @override
+  String get aiyaSettingSubtitle =>
+      'Jika dimatikan, AIYA tidak lagi muncul di tiang cahaya Dunia Kuantum';
 }

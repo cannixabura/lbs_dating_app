@@ -1,5 +1,5 @@
 {
-  "_note": "十天社群貼文的配圖。文案在 marketing/campaign-10days.md。改完執行：python3 tool/make_social_posts.py marketing/campaign-10days.json marketing/images/10days",
+  "_note": "十五天社群貼文的配圖。文案在 marketing/campaign-10days.md。改完執行：python3 tool/make_social_posts.py marketing/campaign-10days.json marketing/images/10days",
   "cta": "App Store 搜尋「城市低語」",
   "posts": [
     {
@@ -106,6 +106,41 @@
           "雙擊送微光、敲門聊 10 分鐘，或點地球去東京的夜晚走走"
         ]
       ]
+    },
+    {
+      "id": "t11",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_pillar_iphone.jpg",
+      "headline": "每個整點，一起聽鐘聲",
+      "sub": "整點前 1 分鐘，101 光柱慢慢變亮\n幾點就敲幾聲，全世界一起聽"
+    },
+    {
+      "id": "t12",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_panel_ny.png",
+      "headline": "量子穿隧：換一群鄰居",
+      "sub": "每次進入量子世界可以用一次\n瞬間跳到隨機的空席位，遇見新的人"
+    },
+    {
+      "id": "t13",
+      "template": "question",
+      "question": "聊過一次的人\n不管多遠\n都連著一道光",
+      "sub": "量子糾纏：兩顆氣泡之間一道光線，任何一方離開就塌縮"
+    },
+    {
+      "id": "t14",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_meet_gold.png",
+      "headline": "量子相遇卡",
+      "sub": "兩個人都同意才會出現\n有暱稱、席位、當地時間和心情，沒有地點"
+    },
+    {
+      "id": "t15",
+      "template": "poster",
+      "kicker": "量子跨年",
+      "headline": "全世界\n一起倒數",
+      "when": "12/31 量子中心午夜",
+      "sub": "最後 10 秒全蜂巢一起倒數\n101 原點放出 5 分鐘的煙火"
     }
   ]
 }

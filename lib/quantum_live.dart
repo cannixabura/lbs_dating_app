@@ -460,12 +460,13 @@ class QuantumChimePainter extends CustomPainter {
   bool shouldRepaint(covariant QuantumChimePainter old) => true;
 }
 
-/// 量子糾纏：自己和對方之間一道細細的光線，不管相隔多遠都看得到（對方在畫面外時，線指向他的方向）
+/// 量子糾纏：自己和對方之間兩股光（粉、藍）像麻繩一樣互相纏繞，不管相隔多遠都看得到（對方在畫面外時，繩子指向他的方向）。
+/// 兩端收攏進氣泡、中間繞得最開；轉到前面的一股亮、繞到後面的一股暗，整條繩子慢慢旋轉。
 class QuantumEntanglePainter extends CustomPainter {
   final Offset me;
-  final List<(Offset, String)> ends; // 線的另一端與暱稱（對方在畫面外時才標名字）
+  final List<(Offset, String)> ends; // 繩子的另一端與暱稱（對方在畫面外時才標名字）
   final List<bool> offscreen;
-  final double phase; // 0～1，光線上流動的光點
+  final double phase; // 0～1，繩子轉一圈
 
   QuantumEntanglePainter({required this.me, required this.ends, required this.offscreen, required this.phase});
 
@@ -473,11 +474,58 @@ class QuantumEntanglePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (var i = 0; i < ends.length; i++) {
       final (end, name) = ends[i];
-      final shader = LinearGradient(colors: [Night.knockPink.withOpacity(0.7), Night.auroraBlue.withOpacity(offscreen[i] ? 0.15 : 0.7)]).createShader(Rect.fromPoints(me, end));
-      canvas.drawLine(me, end, Paint()..shader = shader..strokeWidth = 4..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
-      canvas.drawLine(me, end, Paint()..shader = shader..strokeWidth = 1.2);
+      final d = end - me;
+      final len = d.distance;
+      if (len < 8) continue;
+      final nrm = Offset(-d.dy, d.dx) / len;
+      final far = offscreen[i] ? 0.2 : 0.85; // 對方在畫面外：遠端淡出
+      final rect = Rect.fromPoints(me, end);
+
+      // 底下一層柔光（整條只模糊一次）
+      canvas.drawLine(me, end, Paint()
+        ..shader = LinearGradient(colors: [Night.knockPink.withOpacity(0.35), Night.auroraBlue.withOpacity(0.35 * far)]).createShader(rect)
+        ..strokeWidth = 12
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+
+      final turns = max(2.0, len / 30); // 大約每 30 點繞一圈
+      final steps = (len / 3).round().clamp(24, 260);
+      final spin = phase * 2 * pi + i * 1.3;
+      const amp = 5.5;
+      final strands = [Night.knockPink, Night.auroraBlue];
+      final backs = [Path(), Path()], fronts = [Path(), Path()];
+      for (var k = 0; k < 2; k++) {
+        bool? wasFront;
+        for (var j = 0; j <= steps; j++) {
+          final s = j / steps;
+          final taper = min(1.0, min(s, 1 - s) * 5); // 兩端收攏
+          final theta = s * turns * 2 * pi - spin + k * pi;
+          final pt = me + d * s + nrm * (amp * taper * sin(theta));
+          final isFront = cos(theta) >= 0;
+          final path = isFront ? fronts[k] : backs[k];
+          if (wasFront != isFront) {
+            // 換到另一層：從上一點接起，線才不會斷
+            final prevS = max(0, j - 1) / steps;
+            final pt0 = me + d * prevS + nrm * (amp * min(1.0, min(prevS, 1 - prevS) * 5) * sin(prevS * turns * 2 * pi - spin + k * pi));
+            path.moveTo(pt0.dx, pt0.dy);
+            wasFront = isFront;
+          }
+          path.lineTo(pt.dx, pt.dy);
+        }
+      }
+      Shader strandShader(Color c, double a) =>
+          LinearGradient(colors: [c.withOpacity(a), c.withOpacity(a * far)]).createShader(rect);
+      final round = Paint()..style = PaintingStyle.stroke..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round;
+      for (var k = 0; k < 2; k++) {
+        canvas.drawPath(backs[k], Paint.from(round)..shader = strandShader(strands[k], 0.35)..strokeWidth = 1.3);
+      }
+      for (var k = 0; k < 2; k++) {
+        canvas.drawPath(fronts[k], Paint.from(round)..shader = strandShader(strands[k], 0.95)..strokeWidth = 2.2);
+        canvas.drawPath(fronts[k], Paint.from(round)..shader = strandShader(Colors.white, 0.55)..strokeWidth = 0.6);
+      }
+
+      // 沿著繩子流動的光點
       final k = (phase + i / max(1, ends.length)) % 1.0;
-      canvas.drawCircle(Offset.lerp(me, end, k)!, 2.2, Paint()..color = Colors.white.withOpacity(0.85)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+      canvas.drawCircle(Offset.lerp(me, end, k)!, 2.4, Paint()..color = Colors.white.withOpacity(0.9)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
       if (offscreen[i] && name.isNotEmpty) {
         final tp = TextPainter(
           text: TextSpan(text: '∞ $name', style: const TextStyle(color: Night.ink, fontSize: 11, shadows: [Shadow(color: Night.night900, blurRadius: 6)])),

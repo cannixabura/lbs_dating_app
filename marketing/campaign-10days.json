@@ -123,9 +123,10 @@
     },
     {
       "id": "t13",
-      "template": "question",
-      "question": "聊過一次的人\n不管多遠\n都連著一道光",
-      "sub": "量子糾纏：兩顆氣泡之間一道光線，任何一方離開就塌縮"
+      "template": "phone",
+      "shot": "marketing/shots/quantum_entangle_iphone.jpg",
+      "headline": "量子糾纏",
+      "sub": "聊過一次的人，不管多遠\n都有兩股光像麻繩一樣纏著你們"
     },
     {
       "id": "t14",

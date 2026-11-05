@@ -1015,7 +1015,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings → My mood trail lets you look back at the moods and places you\'ve written. It\'s stored only on your phone, and you can turn it off or clear it at any time.';
 
   @override
-  String get guideS11Title => '15. Settings and notifications';
+  String get guideS11Title => '16. Settings and notifications';
 
   @override
   String get guideS11L1 =>
@@ -1030,7 +1030,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every Friday from 21:00 to 23:00 is Light-up Night, when everyone comes online together and the city shines brightest.';
 
   @override
-  String get guideS12Title => '16. Reporting and blocking';
+  String get guideS12Title => '17. Reporting and blocking';
 
   @override
   String get guideS12L1 =>
@@ -1049,7 +1049,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you\'re in immediate danger, call your local emergency number (110 in Taiwan).';
 
   @override
-  String get guideS13Title => '17. Privacy and your account';
+  String get guideS13Title => '18. Privacy and your account';
 
   @override
   String get guideS13L1 =>
@@ -1087,7 +1087,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Whispers, letters to the future and gatherings stay local.';
 
   @override
-  String get guideS15Title => '14. Translation';
+  String get guideS15Title => '15. Translation';
 
   @override
   String get guideS15L1 =>
@@ -2594,4 +2594,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPickConfirm => 'I\'m here';
+
+  @override
+  String get aiyaPackEntry => '+ Time packs';
+
+  @override
+  String get aiyaPacksTitle => 'Time packs';
+
+  @override
+  String get aiyaPacksBody =>
+      'You get 3 free chats a day. Time pack chats are only used after the free ones run out. Each chat lasts up to 10 minutes.';
+
+  @override
+  String get guideS1L6 =>
+      'If your location can\'t be found (for example indoors, or on an iPad without GPS), tap \"Choose on the map\": move the map so the glowing dot in the middle sits where you are, then tap \"I\'m here\". Once a real location comes in, the app switches to it.';
+
+  @override
+  String get guideS17L11 =>
+      'Quantum avatar: tap your seat code at the top left → \"Quantum avatar\" and your avatar becomes a crystal orb in Quantum World. Glow and Ring are free; Rainbow is a one-time purchase you keep forever, and \"Restore purchases\" brings it back on a new phone or after reinstalling.';
+
+  @override
+  String get guideS18Title => '14. AIYA · AI';
+
+  @override
+  String get guideS18L1 =>
+      'AIYA is an AI who lives in the light pillar at the center of Quantum World. She is not a person, and she will tell you so. In Quantum World, tap \"AIYA · AI\" under the pillar to knock and chat; before your first chat you read a short notice and agree.';
+
+  @override
+  String get guideS18L2 =>
+      'Each chat lasts up to 10 minutes and 20 messages. You get 3 free chats a day, reset at 00:00 Taiwan time, with a maximum of 30 chats a day.';
+
+  @override
+  String get guideS18L3 =>
+      'Time packs: tap \"+ Time packs\" above the message box at any time to buy 5 or 20 chats; they are only used after your free chats run out. Time packs belong to the account on this phone and cannot be recovered after you delete the app or your account. They are consumable, so there is no \"Restore purchases\".';
+
+  @override
+  String get guideS18L4 =>
+      'AIYA doesn\'t know and won\'t ask your location or identity; she only sees anonymous city mood totals. She won\'t flirt or discuss sexual content, and she doesn\'t give medical, legal or financial advice. Long-press any reply to report it. Chats are only kept for the current conversation and are deleted shortly after it ends.';
+
+  @override
+  String get guideS18L5 =>
+      'Now and then AIYA appears in the light pillar: at the hourly chime, the first time you enter Quantum World each day, or by chance. Tap her to start chatting. To stop seeing her, turn off \"AIYA (AI in Quantum World)\" in Settings.';
 }

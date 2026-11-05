@@ -966,7 +966,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cài đặt → Dấu vết tâm trạng cho bạn xem lại những tâm trạng và nơi bạn đã viết. Dữ liệu chỉ lưu trên điện thoại, có thể tắt hoặc xóa bất cứ lúc nào.';
 
   @override
-  String get guideS11Title => '15. Cài đặt và thông báo';
+  String get guideS11Title => '16. Cài đặt và thông báo';
 
   @override
   String get guideS11L1 =>
@@ -981,7 +981,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mỗi thứ Sáu từ 21:00 đến 23:00 là Đêm Thắp Sáng, khi mọi người cùng online và thành phố sáng nhất.';
 
   @override
-  String get guideS12Title => '16. Báo cáo và chặn';
+  String get guideS12Title => '17. Báo cáo và chặn';
 
   @override
   String get guideS12L1 =>
@@ -1000,7 +1000,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn đang gặp nguy hiểm khẩn cấp, hãy gọi ngay số khẩn cấp tại địa phương (113 ở Việt Nam, 110 ở Đài Loan).';
 
   @override
-  String get guideS13Title => '17. Quyền riêng tư và tài khoản';
+  String get guideS13Title => '18. Quyền riêng tư và tài khoản';
 
   @override
   String get guideS13L1 =>
@@ -1038,7 +1038,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
-  String get guideS15Title => '14. Dịch';
+  String get guideS15Title => '15. Dịch';
 
   @override
   String get guideS15L1 =>
@@ -2519,4 +2519,45 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get locationPickConfirm => 'Tôi ở đây';
+
+  @override
+  String get aiyaPackEntry => '+ Gói thời gian';
+
+  @override
+  String get aiyaPacksTitle => 'Gói thời gian';
+
+  @override
+  String get aiyaPacksBody =>
+      'Mỗi ngày bạn có 3 lượt trò chuyện miễn phí. Lượt trong gói thời gian chỉ được dùng sau khi hết lượt miễn phí. Mỗi lượt tối đa 10 phút.';
+
+  @override
+  String get guideS1L6 =>
+      'Nếu không xác định được vị trí (ví dụ trong nhà, hoặc trên iPad không có GPS), hãy chạm \"Chọn trên bản đồ\": di chuyển bản đồ để chấm sáng ở giữa nằm đúng nơi bạn đang ở, rồi chạm \"Tôi ở đây\". Khi có vị trí thật, ứng dụng sẽ tự chuyển sang.';
+
+  @override
+  String get guideS17L11 =>
+      'Hình đại diện lượng tử: chạm mã chỗ ngồi ở góc trên bên trái → \"Hình đại diện lượng tử\", hình đại diện của bạn trong Thế giới lượng tử sẽ thành một quả cầu pha lê. Ánh sáng và Vành sao miễn phí; Cầu vồng mua một lần, dùng mãi mãi, và \"Khôi phục giao dịch mua\" giúp lấy lại trên điện thoại mới hoặc sau khi cài lại.';
+
+  @override
+  String get guideS18Title => '14. AIYA · AI';
+
+  @override
+  String get guideS18L1 =>
+      'AIYA là AI sống trong cột sáng ở trung tâm Thế giới lượng tử. Cô ấy không phải người thật và sẽ nói rõ điều đó. Trong Thế giới lượng tử, chạm \"AIYA · AI\" dưới cột sáng để gõ cửa và trò chuyện; trước lần đầu, hãy đọc thông báo ngắn và đồng ý.';
+
+  @override
+  String get guideS18L2 =>
+      'Mỗi lượt trò chuyện tối đa 10 phút và 20 tin nhắn. Mỗi ngày có 3 lượt miễn phí, đặt lại lúc 00:00 giờ Đài Loan, tối đa 30 lượt mỗi ngày.';
+
+  @override
+  String get guideS18L3 =>
+      'Gói thời gian: chạm \"+ Gói thời gian\" phía trên ô nhập bất cứ lúc nào để mua 5 hoặc 20 lượt; chúng chỉ được dùng sau khi hết lượt miễn phí. Gói thời gian gắn với tài khoản trên điện thoại này và không thể khôi phục sau khi xóa ứng dụng hoặc tài khoản. Đây là sản phẩm tiêu hao nên không có \"Khôi phục giao dịch mua\".';
+
+  @override
+  String get guideS18L4 =>
+      'AIYA không biết và sẽ không hỏi vị trí hay danh tính của bạn; cô ấy chỉ thấy số liệu tâm trạng thành phố ẩn danh. Cô ấy không tán tỉnh, không nói chuyện tình dục, không đưa lời khuyên y tế, pháp lý hay tài chính. Nhấn giữ một câu trả lời để báo cáo. Cuộc trò chuyện chỉ được lưu tạm trong lượt đó và tự xóa ngay sau khi kết thúc.';
+
+  @override
+  String get guideS18L5 =>
+      'Thỉnh thoảng AIYA xuất hiện trong cột sáng: lúc chuông báo giờ, lần đầu bạn vào Thế giới lượng tử mỗi ngày, hoặc tình cờ. Chạm vào cô ấy để bắt đầu trò chuyện. Nếu không muốn thấy cô ấy, hãy tắt \"AIYA (AI trong Thế giới Lượng tử)\" trong Cài đặt.';
 }

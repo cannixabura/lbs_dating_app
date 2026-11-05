@@ -323,7 +323,8 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     return ok == true;
   }
 
-  void _showPacks() {
+  /// [browse]：從「＋ 時光包」自己打開（免費次數可能還沒用完），標題與說明換成一般的介紹
+  void _showPacks({bool browse = false}) {
     AiyaStore.loadProducts();
     showModalBottomSheet(
       context: context, backgroundColor: Colors.transparent, routeSettings: const RouteSettings(name: 'aiyaPacks'),
@@ -336,9 +337,9 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
               builder: (context, details, _) => ValueListenableBuilder(
                 valueListenable: AiyaStore.busy,
                 builder: (context, busy, _) => Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(tr.aiyaNoQuotaTitle, style: Night.title, textAlign: TextAlign.center),
+                  Text(browse ? tr.aiyaPacksTitle : tr.aiyaNoQuotaTitle, style: Night.title, textAlign: TextAlign.center),
                   const SizedBox(height: Night.space3),
-                  Text(tr.aiyaNoQuotaBody, style: Night.body),
+                  Text(browse ? tr.aiyaPacksBody : tr.aiyaNoQuotaBody, style: Night.body),
                   const SizedBox(height: Night.space4),
                   for (final e in AiyaStore.products.entries) ...[
                     NightButton(
@@ -470,10 +471,22 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: Night.space2),
-                Text(
-                  [if (_freeLeft > 0) tr.aiyaFreeLeft(_freeLeft), if (_credits > 0) tr.aiyaCreditsLeft(_credits)].join('  ·  '),
-                  style: Night.caption, textAlign: TextAlign.center,
-                ),
+                // 剩餘次數＋隨時可以買時光包的入口（不必等免費次數用完）
+                Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, spacing: Night.space2, children: [
+                  Text(
+                    [if (_freeLeft > 0) tr.aiyaFreeLeft(_freeLeft), if (_credits > 0) tr.aiyaCreditsLeft(_credits)].join('  ·  '),
+                    style: Night.caption, textAlign: TextAlign.center,
+                  ),
+                  GestureDetector(
+                    onTap: () => _showPacks(browse: true),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color(0x66FFC861))),
+                      child: Text(tr.aiyaPackEntry, style: const TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: 0.5)),
+                    ),
+                  ),
+                ]),
                 const SizedBox(height: Night.space2),
                 Row(children: [
                   Expanded(

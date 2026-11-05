@@ -15,6 +15,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS1L3,
       tr.guideS1L4,
       tr.guideS1L5,
+      tr.guideS1L6,
     ]),
     (Icons.space_dashboard_outlined, tr.guideS2Title, [
       tr.guideS2L1,
@@ -93,6 +94,14 @@ class GuideScreen extends StatelessWidget {
       tr.guideS17L8,
       tr.guideS17L9,
       tr.guideS17L10,
+      tr.guideS17L11,
+    ]),
+    (Icons.auto_awesome_outlined, tr.guideS18Title, [
+      tr.guideS18L1,
+      tr.guideS18L2,
+      tr.guideS18L3,
+      tr.guideS18L4,
+      tr.guideS18L5,
     ]),
     (Icons.translate, tr.guideS15Title, [
       tr.guideS15L1,

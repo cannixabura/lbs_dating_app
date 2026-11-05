@@ -895,7 +895,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS10L2 => '設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。';
 
   @override
-  String get guideS11Title => '15. 設定與通知';
+  String get guideS11Title => '16. 設定與通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。';
@@ -907,7 +907,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS11L3 => '每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。';
 
   @override
-  String get guideS12Title => '16. 檢舉與封鎖';
+  String get guideS12Title => '17. 檢舉與封鎖';
 
   @override
   String get guideS12L1 =>
@@ -923,7 +923,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS12L4 => '遇到立即的危險，請直接撥打 110。';
 
   @override
-  String get guideS13Title => '17. 隱私與帳號';
+  String get guideS13Title => '18. 隱私與帳號';
 
   @override
   String get guideS13L1 =>
@@ -958,7 +958,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。低語、低語穿越與集會都只留在當地。';
 
   @override
-  String get guideS15Title => '14. 翻譯';
+  String get guideS15Title => '15. 翻譯';
 
   @override
   String get guideS15L1 => '聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。';
@@ -2347,6 +2347,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get locationPickConfirm => '就是這裡';
+
+  @override
+  String get aiyaPackEntry => '＋ 時光包';
+
+  @override
+  String get aiyaPacksTitle => '時光包';
+
+  @override
+  String get aiyaPacksBody => '每天有 3 次免費聊天；免費次數用完後，才會使用時光包的次數。每次聊天最多 10 分鐘。';
+
+  @override
+  String get guideS1L6 =>
+      '抓不到位置時（例如在室內，或使用沒有 GPS 的 iPad），可以按「在地圖上選擇位置」：移動地圖，讓中間的光點對準你現在的位置，再按「就是這裡」。之後抓到真實位置，就會自動換過去。';
+
+  @override
+  String get guideS17L11 =>
+      '量子化身：點左上角的席位代號 →「量子化身」，你的頭像在量子世界裡會變成一顆水晶球。光球、星環兩款免費；彩虹水晶球為一次購買、永久擁有，換手機或重新安裝後可以按「恢復購買」找回。';
+
+  @override
+  String get guideS18Title => '14. 艾婭 · AI';
+
+  @override
+  String get guideS18L1 =>
+      '艾婭是住在量子世界中央光柱裡的 AI，不是真人，她自己也會這樣說。進入量子世界後，點光柱底下的「艾婭 · AI」就能敲門聊天；第一次聊天前要先看完說明並同意。';
+
+  @override
+  String get guideS18L2 =>
+      '每次聊天最多 10 分鐘、20 則訊息。每天有 3 次免費，台灣時間 00:00 重新計算；每天最多 30 次。';
+
+  @override
+  String get guideS18L3 =>
+      '時光包：輸入框上方的「＋ 時光包」隨時可以購買 5 次或 20 次聊天，免費次數用完後才會使用。時光包綁定這支手機的帳號，刪除 App 或帳號後無法恢復；它是用完就沒有的消耗型商品，所以沒有「恢復購買」。';
+
+  @override
+  String get guideS18L4 =>
+      '艾婭不知道、也不會問你的位置與身分，只知道匿名的城市心情統計。她不談戀愛、不聊色情內容，也不提供醫療、法律或財務建議；長按她的回覆可以檢舉。聊天內容只暫存在這次對話，結束後不久就會自動刪除。';
+
+  @override
+  String get guideS18L5 =>
+      '艾婭偶爾會在光柱裡現身：整點報時、每天第一次進入量子世界，或不經意的偶遇；點她就能開始聊天。不想看到她，可以在設定裡關掉「艾婭（量子世界的 AI）」。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3239,7 +3279,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS10L2 => '设置 →「我的心情轨迹」可以回顾你写过的心情与地点，数据只存在你的手机上，可以随时关闭或清除。';
 
   @override
-  String get guideS11Title => '15. 设置与通知';
+  String get guideS11Title => '16. 设置与通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一则温和的提醒，可以在设置里开关。';
@@ -3251,7 +3291,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS11L3 => '每周五 21:00–23:00 是「点亮之夜」，大家一起上线，城市最亮。';
 
   @override
-  String get guideS12Title => '16. 举报与屏蔽';
+  String get guideS12Title => '17. 举报与屏蔽';
 
   @override
   String get guideS12L1 =>
@@ -3267,7 +3307,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS12L4 => '遇到紧急危险，请直接拨打当地的紧急电话（台湾为 110）。';
 
   @override
-  String get guideS13Title => '17. 隐私与账号';
+  String get guideS13Title => '18. 隐私与账号';
 
   @override
   String get guideS13L1 =>
@@ -3302,7 +3342,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。低语、低语穿越与集会都只留在当地。';
 
   @override
-  String get guideS15Title => '14. 翻译';
+  String get guideS15Title => '15. 翻译';
 
   @override
   String get guideS15L1 => '聊天时，对方的消息跟你的语言不同，下方会出现「点一下翻译」；点一下就翻成你的语言，再点一下看原文。';
@@ -4691,4 +4731,44 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get locationPickConfirm => '就是这里';
+
+  @override
+  String get aiyaPackEntry => '＋ 时光包';
+
+  @override
+  String get aiyaPacksTitle => '时光包';
+
+  @override
+  String get aiyaPacksBody => '每天有 3 次免费聊天；免费次数用完后，才会使用时光包的次数。每次聊天最多 10 分钟。';
+
+  @override
+  String get guideS1L6 =>
+      '抓不到位置时（例如在室内，或使用没有 GPS 的 iPad），可以按「在地图上选择位置」：移动地图，让中间的光点对准你现在的位置，再按「就是这里」。之后抓到真实位置，就会自动换过去。';
+
+  @override
+  String get guideS17L11 =>
+      '量子化身：点左上角的席位代号 →「量子化身」，你的头像在量子世界里会变成一颗水晶球。光球、星环两款免费；彩虹水晶球为一次购买、永久拥有，换手机或重新安装后可以按「恢复购买」找回。';
+
+  @override
+  String get guideS18Title => '14. 艾娅 · AI';
+
+  @override
+  String get guideS18L1 =>
+      '艾娅是住在量子世界中央光柱里的 AI，不是真人，她自己也会这样说。进入量子世界后，点光柱底下的「艾娅 · AI」就能敲门聊天；第一次聊天前要先看完说明并同意。';
+
+  @override
+  String get guideS18L2 =>
+      '每次聊天最多 10 分钟、20 条消息。每天有 3 次免费，台湾时间 00:00 重新计算；每天最多 30 次。';
+
+  @override
+  String get guideS18L3 =>
+      '时光包：输入框上方的「＋ 时光包」随时可以购买 5 次或 20 次聊天，免费次数用完后才会使用。时光包绑定这部手机的账号，删除 App 或账号后无法恢复；它是用完就没有的消耗型商品，所以没有「恢复购买」。';
+
+  @override
+  String get guideS18L4 =>
+      '艾娅不知道、也不会问你的位置与身份，只知道匿名的城市心情统计。她不谈恋爱、不聊色情内容，也不提供医疗、法律或财务建议；长按她的回复可以举报。聊天内容只暂存在这次对话，结束后不久就会自动删除。';
+
+  @override
+  String get guideS18L5 =>
+      '艾娅偶尔会在光柱里现身：整点报时、每天第一次进入量子世界，或不经意的偶遇；点她就能开始聊天。不想看到她，可以在设置里关掉「艾娅（量子世界的 AI）」。';
 }

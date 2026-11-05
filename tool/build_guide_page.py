@@ -18,7 +18,7 @@ OUT = os.path.join(ROOT, "hosting", "guide.html")
 ICONS = {
     "edit_outlined": "✎", "space_dashboard_outlined": "▤", "radar": "◎", "back_hand_outlined": "✋",
     "auto_awesome": "✦", "mail_outline": "✉", "wb_twilight": "◐", "campaign_outlined": "📣",
-    "wc": "🚻", "ios_share": "⇪", "tune": "⚙", "flag_outlined": "⚑", "lock_outline": "🔒", "public": "🪐", "translate": "文", "local_cafe_outlined": "☕",
+    "wc": "🚻", "ios_share": "⇪", "tune": "⚙", "flag_outlined": "⚑", "lock_outline": "🔒", "public": "🪐", "translate": "文", "local_cafe_outlined": "☕", "hive_outlined": "⬡", "auto_awesome_outlined": "✧",
 }
 
 
@@ -90,7 +90,7 @@ TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>城市低語 操作說明</title>
-<meta name="description" content="城市低語的完整操作說明：雷達與氣泡、敲門與聊天、微光、低語與低語穿越、城市心情天氣、集會、城市燈塔、檢舉與隱私。">
+<meta name="description" content="城市低語的完整操作說明：雷達與氣泡、敲門與聊天、微光、低語與低語穿越、城市心情天氣、集會、城市燈塔、量子世界、AI 艾婭、檢舉與隱私。">
 <meta name="theme-color" content="#070b1f">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="城市低語">

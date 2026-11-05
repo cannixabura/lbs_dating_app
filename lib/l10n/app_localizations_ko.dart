@@ -923,7 +923,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '설정 → \'나의 무드 궤적\'에서 지금까지 쓴 무드와 장소를 돌아볼 수 있어요. 데이터는 이 휴대폰에만 저장되며 언제든 끄거나 지울 수 있어요.';
 
   @override
-  String get guideS11Title => '15. 설정과 알림';
+  String get guideS11Title => '16. 설정과 알림';
 
   @override
   String get guideS11L1 =>
@@ -938,7 +938,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '매주 금요일 21:00~23:00는 \'라이트업 나이트\'. 다 함께 접속하면 도시가 가장 밝아져요.';
 
   @override
-  String get guideS12Title => '16. 신고와 차단';
+  String get guideS12Title => '17. 신고와 차단';
 
   @override
   String get guideS12L1 =>
@@ -956,7 +956,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideS12L4 => '급박한 위험이 있다면 바로 현지 긴급 번호(한국 112, 대만 110)로 전화하세요.';
 
   @override
-  String get guideS13Title => '17. 개인정보와 계정';
+  String get guideS13Title => '18. 개인정보와 계정';
 
   @override
   String get guideS13L1 =>
@@ -994,7 +994,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
 
   @override
-  String get guideS15Title => '14. 번역';
+  String get guideS15Title => '15. 번역';
 
   @override
   String get guideS15L1 =>
@@ -2415,4 +2415,45 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get locationPickConfirm => '여기예요';
+
+  @override
+  String get aiyaPackEntry => '+ 타임팩';
+
+  @override
+  String get aiyaPacksTitle => '타임팩';
+
+  @override
+  String get aiyaPacksBody =>
+      '무료 채팅은 하루 3회예요. 무료 횟수를 다 쓴 뒤에 타임팩 횟수가 사용돼요. 한 번의 채팅은 최대 10분이에요.';
+
+  @override
+  String get guideS1L6 =>
+      '위치를 찾을 수 없을 때(실내이거나 GPS가 없는 iPad 등)는 \"지도에서 위치 선택\"을 누르세요. 지도를 움직여 가운데 빛을 지금 있는 곳에 맞추고 \"여기예요\"를 누르면 돼요. 나중에 실제 위치를 찾으면 자동으로 바뀌어요.';
+
+  @override
+  String get guideS17L11 =>
+      '양자 아바타: 왼쪽 위의 좌석 코드 → \"양자 아바타\"를 누르면 양자 세계에서 내 아이콘이 크리스털 구슬이 돼요. 글로우와 링은 무료이고, 레인보우는 한 번 구매로 계속 쓸 수 있어요. 휴대폰을 바꾸거나 다시 설치한 뒤에는 \"구매 복원\"으로 되찾을 수 있어요.';
+
+  @override
+  String get guideS18Title => '14. 아이야 · AI';
+
+  @override
+  String get guideS18L1 =>
+      '아이야는 양자 세계 중앙의 빛기둥에 사는 AI이고 사람이 아니에요. 본인도 그렇게 말해요. 양자 세계에서 기둥 아래 \"아이야 · AI\"를 누르면 노크하고 대화할 수 있어요. 처음에는 안내를 읽고 동의해야 해요.';
+
+  @override
+  String get guideS18L2 =>
+      '한 번의 채팅은 최대 10분, 메시지 20개예요. 무료는 하루 3회이고 대만 시간 00:00에 초기화되며, 하루 최대 30회예요.';
+
+  @override
+  String get guideS18L3 =>
+      '타임팩: 입력창 위의 \"+ 타임팩\"에서 언제든 5회 또는 20회를 살 수 있고, 무료 횟수를 다 쓴 뒤에 사용돼요. 타임팩은 이 휴대폰의 계정에 묶여 있어 앱이나 계정을 삭제하면 되찾을 수 없어요. 쓰면 없어지는 소모성 상품이라 \"구매 복원\"이 없어요.';
+
+  @override
+  String get guideS18L4 =>
+      '아이야는 당신의 위치나 신원을 알지 못하고 묻지도 않아요. 익명의 도시 무드 통계만 알아요. 연애나 성적인 이야기는 하지 않고, 의료·법률·금융 조언도 하지 않아요. 답장을 길게 누르면 신고할 수 있어요. 대화는 이번 채팅 동안만 임시 저장되고, 끝나고 곧 자동으로 삭제돼요.';
+
+  @override
+  String get guideS18L5 =>
+      '아이야는 가끔 빛기둥에 나타나요. 매 정시 시보, 그날 처음 양자 세계에 들어올 때, 그리고 우연히요. 누르면 대화를 시작할 수 있어요. 보고 싶지 않다면 설정에서 \"아이야(양자 세계의 AI)\"를 끄세요.';
 }

@@ -917,7 +917,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定 →「ムードの軌跡」で、これまで書いたムードと場所を振り返れます。データはこの端末にだけ保存され、いつでもオフにしたり消去したりできます。';
 
   @override
-  String get guideS11Title => '15. 設定と通知';
+  String get guideS11Title => '16. 設定と通知';
 
   @override
   String get guideS11L1 => '「夜のリマインダー」：毎晩 21:30 にやさしいお知らせが届きます。設定でオン・オフできます。';
@@ -931,7 +931,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週金曜 21:00〜23:00 は「ライトアップナイト」。みんなで一緒にオンラインになると、街がいちばん明るくなります。';
 
   @override
-  String get guideS12Title => '16. 通報とブロック';
+  String get guideS12Title => '17. 通報とブロック';
 
   @override
   String get guideS12L1 =>
@@ -950,7 +950,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '差し迫った危険があるときは、すぐに現地の緊急通報番号（日本は 110、台湾は 110）に電話してください。';
 
   @override
-  String get guideS13Title => '17. プライバシーとアカウント';
+  String get guideS13Title => '18. プライバシーとアカウント';
 
   @override
   String get guideS13L1 =>
@@ -987,7 +987,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'パラレルユニバースの人には点線の輪があり、いる街が表示されます。光を送る・ノック・チャットもできます。ささやき・未来への手紙・集いはその街だけのものです。';
 
   @override
-  String get guideS15Title => '14. 翻訳';
+  String get guideS15Title => '15. 翻訳';
 
   @override
   String get guideS15L1 =>
@@ -2396,4 +2396,45 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get locationPickConfirm => 'ここにいる';
+
+  @override
+  String get aiyaPackEntry => '＋ タイムパック';
+
+  @override
+  String get aiyaPacksTitle => 'タイムパック';
+
+  @override
+  String get aiyaPacksBody =>
+      '無料チャットは 1 日 3 回。無料分を使い切ってから、タイムパックの回数が使われます。1 回のチャットは最大 10 分です。';
+
+  @override
+  String get guideS1L6 =>
+      '位置が取得できないとき（屋内や GPS のない iPad など）は「地図で場所を選ぶ」をタップ。地図を動かして中央の光を今いる場所に合わせ、「ここにいる」をタップします。あとで実際の位置が取れたら、自動で切り替わります。';
+
+  @override
+  String get guideS17L11 =>
+      '量子アバター：左上の座席コード →「量子アバター」で、量子世界でのアイコンがクリスタルの球になります。グローとリングは無料。レインボーは一度の購入でずっと使え、機種変更や再インストール後は「購入を復元」で戻せます。';
+
+  @override
+  String get guideS18Title => '14. アイヤ · AI';
+
+  @override
+  String get guideS18L1 =>
+      'アイヤは量子世界の中央の光の柱に住む AI で、人間ではありません。本人もそう伝えます。量子世界で柱の下の「アイヤ · AI」をタップするとノックして話せます。初回は説明を読んで同意してください。';
+
+  @override
+  String get guideS18L2 =>
+      '1 回のチャットは最大 10 分・20 メッセージ。無料は 1 日 3 回で、台湾時間 0:00 にリセット。1 日最大 30 回です。';
+
+  @override
+  String get guideS18L3 =>
+      'タイムパック：入力欄の上の「＋ タイムパック」からいつでも 5 回分か 20 回分を購入でき、無料分を使い切ってから使われます。タイムパックはこの端末のアカウントに紐づき、アプリやアカウントを削除すると戻せません。使い切りの消耗型なので「購入を復元」はありません。';
+
+  @override
+  String get guideS18L4 =>
+      'アイヤはあなたの位置や身元を知らず、尋ねることもありません。わかるのは匿名の街のムード集計だけです。恋愛や性的な話はせず、医療・法律・お金の助言もしません。返信を長押しすると通報できます。会話はそのチャットの間だけ一時保存され、終わって間もなく自動で削除されます。';
+
+  @override
+  String get guideS18L5 =>
+      'アイヤは時々、光の柱に姿を見せます。毎正時の時報、その日初めて量子世界に入ったとき、そして偶然に。タップすると話し始められます。表示したくない場合は、設定の「アイヤ（量子世界の AI）」をオフにしてください。';
 }

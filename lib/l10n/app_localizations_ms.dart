@@ -969,7 +969,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Tetapan → Jejak mood saya membolehkan anda melihat semula mood dan tempat yang pernah anda tulis. Ia disimpan hanya dalam telefon anda, dan anda boleh mematikan atau mengosongkannya bila-bila masa.';
 
   @override
-  String get guideS11Title => '15. Tetapan dan pemberitahuan';
+  String get guideS11Title => '16. Tetapan dan pemberitahuan';
 
   @override
   String get guideS11L1 =>
@@ -984,7 +984,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Setiap Jumaat 21:00 hingga 23:00 ialah Malam Bercahaya, apabila semua dalam talian bersama dan bandar paling terang.';
 
   @override
-  String get guideS12Title => '16. Laporan dan sekatan';
+  String get guideS12Title => '17. Laporan dan sekatan';
 
   @override
   String get guideS12L1 =>
@@ -1003,7 +1003,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika anda dalam bahaya segera, hubungi nombor kecemasan tempatan (999 di Malaysia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '17. Privasi dan akaun anda';
+  String get guideS13Title => '18. Privasi dan akaun anda';
 
   @override
   String get guideS13L1 =>
@@ -1041,7 +1041,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
 
   @override
-  String get guideS15Title => '14. Terjemahan';
+  String get guideS15Title => '15. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -2532,4 +2532,45 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get locationPickConfirm => 'Saya di sini';
+
+  @override
+  String get aiyaPackEntry => '+ Pek masa';
+
+  @override
+  String get aiyaPacksTitle => 'Pek masa';
+
+  @override
+  String get aiyaPacksBody =>
+      'Anda dapat 3 sembang percuma sehari. Sembang pek masa hanya digunakan selepas yang percuma habis. Setiap sembang paling lama 10 minit.';
+
+  @override
+  String get guideS1L6 =>
+      'Jika lokasi anda tidak dapat dikesan (contohnya di dalam bangunan, atau pada iPad tanpa GPS), ketik \"Pilih pada peta\": gerakkan peta supaya titik bercahaya di tengah berada di tempat anda, kemudian ketik \"Saya di sini\". Apabila lokasi sebenar diperoleh, aplikasi akan bertukar kepadanya.';
+
+  @override
+  String get guideS17L11 =>
+      'Avatar kuantum: ketik kod tempat duduk anda di kiri atas → \"Avatar kuantum\" dan avatar anda menjadi bola kristal dalam Dunia Kuantum. Cahaya dan Gelang adalah percuma; Pelangi dibeli sekali dan kekal milik anda, dan \"Pulihkan pembelian\" mengembalikannya pada telefon baharu atau selepas dipasang semula.';
+
+  @override
+  String get guideS18Title => '14. AIYA · AI';
+
+  @override
+  String get guideS18L1 =>
+      'AIYA ialah AI yang tinggal dalam tiang cahaya di tengah Dunia Kuantum. Dia bukan manusia, dan dia akan memberitahu anda begitu. Dalam Dunia Kuantum, ketik \"AIYA · AI\" di bawah tiang untuk mengetuk dan bersembang; sebelum sembang pertama, baca notis ringkas dan setuju.';
+
+  @override
+  String get guideS18L2 =>
+      'Setiap sembang paling lama 10 minit dan 20 mesej. Anda dapat 3 sembang percuma sehari, ditetapkan semula pada 00:00 waktu Taiwan, dengan maksimum 30 sembang sehari.';
+
+  @override
+  String get guideS18L3 =>
+      'Pek masa: ketik \"+ Pek masa\" di atas kotak mesej bila-bila masa untuk membeli 5 atau 20 sembang; ia hanya digunakan selepas sembang percuma habis. Pek masa terikat pada akaun di telefon ini dan tidak boleh dipulihkan selepas aplikasi atau akaun dipadam. Ia boleh guna habis, jadi tiada \"Pulihkan pembelian\".';
+
+  @override
+  String get guideS18L4 =>
+      'AIYA tidak tahu dan tidak akan bertanya lokasi atau identiti anda; dia hanya melihat jumlah mood bandar tanpa nama. Dia tidak bercumbu atau membincangkan kandungan seksual, dan tidak memberi nasihat perubatan, undang-undang atau kewangan. Tekan lama mana-mana balasan untuk melaporkannya. Sembang hanya disimpan sementara untuk perbualan itu dan dipadam sejurus selepas tamat.';
+
+  @override
+  String get guideS18L5 =>
+      'Sesekali AIYA muncul dalam tiang cahaya: ketika loceng setiap jam, kali pertama anda masuk ke Dunia Kuantum setiap hari, atau secara kebetulan. Ketik dia untuk mula bersembang. Untuk tidak melihatnya lagi, matikan \"AIYA (AI dalam Dunia Kuantum)\" dalam Tetapan.';
 }

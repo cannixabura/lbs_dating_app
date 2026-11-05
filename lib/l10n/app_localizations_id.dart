@@ -966,7 +966,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Pengaturan → Jejak mood-ku memungkinkanmu melihat kembali mood dan tempat yang pernah kamu tulis. Hanya disimpan di ponselmu, dan bisa dimatikan atau dihapus kapan saja.';
 
   @override
-  String get guideS11Title => '15. Pengaturan dan notifikasi';
+  String get guideS11Title => '16. Pengaturan dan notifikasi';
 
   @override
   String get guideS11L1 =>
@@ -981,7 +981,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Setiap Jumat pukul 21.00–23.00 adalah Malam Bercahaya, saat semua orang online bersama dan kota paling terang.';
 
   @override
-  String get guideS12Title => '16. Laporan dan blokir';
+  String get guideS12Title => '17. Laporan dan blokir';
 
   @override
   String get guideS12L1 =>
@@ -1000,7 +1000,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika kamu dalam bahaya mendesak, hubungi nomor darurat setempat (112 di Indonesia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '17. Privasi dan akunmu';
+  String get guideS13Title => '18. Privasi dan akunmu';
 
   @override
   String get guideS13L1 =>
@@ -1038,7 +1038,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
 
   @override
-  String get guideS15Title => '14. Terjemahan';
+  String get guideS15Title => '15. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -2520,4 +2520,45 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get locationPickConfirm => 'Saya di sini';
+
+  @override
+  String get aiyaPackEntry => '+ Paket waktu';
+
+  @override
+  String get aiyaPacksTitle => 'Paket waktu';
+
+  @override
+  String get aiyaPacksBody =>
+      'Kamu dapat 3 obrolan gratis per hari. Obrolan dari paket waktu baru dipakai setelah yang gratis habis. Setiap obrolan maksimal 10 menit.';
+
+  @override
+  String get guideS1L6 =>
+      'Kalau lokasimu tidak bisa ditemukan (misalnya di dalam ruangan, atau di iPad tanpa GPS), ketuk \"Pilih di peta\": geser peta agar titik bercahaya di tengah tepat di tempatmu, lalu ketuk \"Saya di sini\". Begitu lokasi sebenarnya didapat, aplikasi akan beralih ke sana.';
+
+  @override
+  String get guideS17L11 =>
+      'Avatar kuantum: ketuk kode kursimu di kiri atas → \"Avatar kuantum\" dan avatarmu menjadi bola kristal di Dunia Kuantum. Cahaya dan Cincin gratis; Pelangi dibeli sekali dan jadi milikmu selamanya, dan \"Pulihkan pembelian\" mengembalikannya di ponsel baru atau setelah instal ulang.';
+
+  @override
+  String get guideS18Title => '14. AIYA · AI';
+
+  @override
+  String get guideS18L1 =>
+      'AIYA adalah AI yang tinggal di pilar cahaya di tengah Dunia Kuantum. Dia bukan manusia, dan dia akan bilang begitu. Di Dunia Kuantum, ketuk \"AIYA · AI\" di bawah pilar untuk mengetuk dan mengobrol; sebelum obrolan pertama, baca pemberitahuan singkat dan setujui.';
+
+  @override
+  String get guideS18L2 =>
+      'Setiap obrolan maksimal 10 menit dan 20 pesan. Kamu dapat 3 obrolan gratis per hari, diatur ulang pukul 00:00 waktu Taiwan, dengan maksimal 30 obrolan per hari.';
+
+  @override
+  String get guideS18L3 =>
+      'Paket waktu: ketuk \"+ Paket waktu\" di atas kotak pesan kapan saja untuk membeli 5 atau 20 obrolan; paket baru dipakai setelah obrolan gratis habis. Paket waktu terikat pada akun di ponsel ini dan tidak bisa dipulihkan setelah aplikasi atau akun dihapus. Paket ini habis pakai, jadi tidak ada \"Pulihkan pembelian\".';
+
+  @override
+  String get guideS18L4 =>
+      'AIYA tidak tahu dan tidak akan menanyakan lokasi atau identitasmu; dia hanya melihat total mood kota secara anonim. Dia tidak menggoda atau membahas konten seksual, dan tidak memberi saran medis, hukum, atau keuangan. Tekan lama balasan mana pun untuk melaporkannya. Obrolan hanya disimpan sementara selama percakapan itu dan dihapus tak lama setelah selesai.';
+
+  @override
+  String get guideS18L5 =>
+      'Sesekali AIYA muncul di pilar cahaya: saat lonceng tiap jam, saat pertama kali kamu masuk Dunia Kuantum setiap hari, atau secara kebetulan. Ketuk dia untuk mulai mengobrol. Kalau tidak ingin melihatnya, matikan \"AIYA (AI di Dunia Kuantum)\" di Pengaturan.';
 }

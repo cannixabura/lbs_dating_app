@@ -1704,7 +1704,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS11Title.
   ///
   /// In zh, this message translates to:
-  /// **'15. 設定與通知'**
+  /// **'16. 設定與通知'**
   String get guideS11Title;
 
   /// No description provided for @guideS11L1.
@@ -1728,7 +1728,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS12Title.
   ///
   /// In zh, this message translates to:
-  /// **'16. 檢舉與封鎖'**
+  /// **'17. 檢舉與封鎖'**
   String get guideS12Title;
 
   /// No description provided for @guideS12L1.
@@ -1758,7 +1758,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS13Title.
   ///
   /// In zh, this message translates to:
-  /// **'17. 隱私與帳號'**
+  /// **'18. 隱私與帳號'**
   String get guideS13Title;
 
   /// No description provided for @guideS13L1.
@@ -1818,7 +1818,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS15Title.
   ///
   /// In zh, this message translates to:
-  /// **'14. 翻譯'**
+  /// **'15. 翻譯'**
   String get guideS15Title;
 
   /// No description provided for @guideS15L1.
@@ -4298,6 +4298,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'就是這裡'**
   String get locationPickConfirm;
+
+  /// No description provided for @aiyaPackEntry.
+  ///
+  /// In zh, this message translates to:
+  /// **'＋ 時光包'**
+  String get aiyaPackEntry;
+
+  /// No description provided for @aiyaPacksTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'時光包'**
+  String get aiyaPacksTitle;
+
+  /// No description provided for @aiyaPacksBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天有 3 次免費聊天；免費次數用完後，才會使用時光包的次數。每次聊天最多 10 分鐘。'**
+  String get aiyaPacksBody;
+
+  /// No description provided for @guideS1L6.
+  ///
+  /// In zh, this message translates to:
+  /// **'抓不到位置時（例如在室內，或使用沒有 GPS 的 iPad），可以按「在地圖上選擇位置」：移動地圖，讓中間的光點對準你現在的位置，再按「就是這裡」。之後抓到真實位置，就會自動換過去。'**
+  String get guideS1L6;
+
+  /// No description provided for @guideS17L11.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子化身：點左上角的席位代號 →「量子化身」，你的頭像在量子世界裡會變成一顆水晶球。光球、星環兩款免費；彩虹水晶球為一次購買、永久擁有，換手機或重新安裝後可以按「恢復購買」找回。'**
+  String get guideS17L11;
+
+  /// No description provided for @guideS18Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'14. 艾婭 · AI'**
+  String get guideS18Title;
+
+  /// No description provided for @guideS18L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭是住在量子世界中央光柱裡的 AI，不是真人，她自己也會這樣說。進入量子世界後，點光柱底下的「艾婭 · AI」就能敲門聊天；第一次聊天前要先看完說明並同意。'**
+  String get guideS18L1;
+
+  /// No description provided for @guideS18L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'每次聊天最多 10 分鐘、20 則訊息。每天有 3 次免費，台灣時間 00:00 重新計算；每天最多 30 次。'**
+  String get guideS18L2;
+
+  /// No description provided for @guideS18L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'時光包：輸入框上方的「＋ 時光包」隨時可以購買 5 次或 20 次聊天，免費次數用完後才會使用。時光包綁定這支手機的帳號，刪除 App 或帳號後無法恢復；它是用完就沒有的消耗型商品，所以沒有「恢復購買」。'**
+  String get guideS18L3;
+
+  /// No description provided for @guideS18L4.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭不知道、也不會問你的位置與身分，只知道匿名的城市心情統計。她不談戀愛、不聊色情內容，也不提供醫療、法律或財務建議；長按她的回覆可以檢舉。聊天內容只暫存在這次對話，結束後不久就會自動刪除。'**
+  String get guideS18L4;
+
+  /// No description provided for @guideS18L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭偶爾會在光柱裡現身：整點報時、每天第一次進入量子世界，或不經意的偶遇；點她就能開始聊天。不想看到她，可以在設定裡關掉「艾婭（量子世界的 AI）」。'**
+  String get guideS18L5;
 }
 
 class _AppLocalizationsDelegate

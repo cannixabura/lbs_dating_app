@@ -34,15 +34,19 @@ class AiyaPillarChip extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.opaque,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Night.glassFill,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0x99FFC861)),
-              boxShadow: const [BoxShadow(color: Color(0x55FFC861), blurRadius: 14)],
+          // 外圍多留一點可以點的範圍，標籤本身很小
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: Night.glassFill.withOpacity(Night.glassFill.opacity * 0.67),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0x66FFC861), width: 0.6),
+                boxShadow: const [BoxShadow(color: Color(0x39FFC861), blurRadius: 7)],
+              ),
+              child: Text(tr.aiyaChip, style: TextStyle(color: Night.ink.withOpacity(0.67), fontSize: 6.5, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
             ),
-            child: Text(tr.aiyaChip, style: const TextStyle(color: Night.ink, fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 1)),
           ),
         ),
       );

@@ -295,7 +295,7 @@ class QuantumFlight {
   final double east, north; // 出發點（離 101 幾公尺）
   final int startMs;
   const QuantumFlight(this.east, this.north, this.startMs);
-  static const durationMs = 1600;
+  static const durationMs = 2400;
 }
 
 /// 浮在氣泡旁的量子訊號
@@ -418,14 +418,41 @@ class QuantumChimePainter extends CustomPainter {
     for (final f in flights) {
       final k = (nowMs - f.startMs) / QuantumFlight.durationMs;
       if (k < 0 || k > 1) continue;
-      final e = Curves.easeInOut.transform(k);
-      final head = p.project(f.east * (1 - e), f.north * (1 - e));
-      final tail = p.project(f.east * (1 - max(0, e - 0.12)), f.north * (1 - max(0, e - 0.12)));
-      if (head == null) continue;
-      if (tail != null) {
-        canvas.drawLine(tail.$1, head.$1, Paint()..strokeWidth = 2..strokeCap = StrokeCap.round..color = Night.cityAmber.withOpacity(0.6 * (1 - k)));
+      // 出發：席位迸出一圈金光
+      final start = p.project(f.east, f.north);
+      if (start != null && k < 0.3) {
+        final q = k / 0.3;
+        canvas.drawCircle(start.$1, 6 + 34 * Curves.easeOut.transform(q), Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = Night.cityAmber.withOpacity(0.9 * (1 - q))
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+        canvas.drawCircle(start.$1, 14 * (1 - q), Paint()..color = Colors.white.withOpacity(0.8 * (1 - q))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
       }
-      canvas.drawCircle(head.$1, 3, Paint()..color = Colors.white.withOpacity(1 - k * 0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+      final fly = (k / 0.82).clamp(0.0, 1.0); // 前 82% 飛過去，剩下的時間在原點綻開
+      final e = Curves.easeInOut.transform(fly);
+      Offset? at(double v) => p.project(f.east * (1 - v), f.north * (1 - v))?.$1;
+      final head = at(e);
+      if (head != null && fly < 1) {
+        // 光尾：一串由粗到細、越後面越淡的光點，像流星
+        for (var j = 14; j >= 1; j--) {
+          final pt = at(max(0, e - j * 0.018));
+          if (pt == null) continue;
+          final w = 1 - j / 15;
+          canvas.drawCircle(pt, 1.2 + 4 * w, Paint()..color = Color.lerp(Night.cityAmber, Colors.white, w * 0.6)!.withOpacity(0.75 * w)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+        }
+        canvas.drawCircle(head, 18, Paint()..color = Night.cityAmber.withOpacity(0.55)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+        canvas.drawCircle(head, 6, Paint()..color = Colors.white..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+      }
+      // 抵達：原點閃一下，往外擴散兩圈光
+      if (origin != null && k > 0.78) {
+        final q = ((k - 0.78) / 0.22).clamp(0.0, 1.0);
+        canvas.drawCircle(origin.$1, 30 * (1 - q) + 8, Paint()..color = Colors.white.withOpacity(0.85 * (1 - q))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12));
+        for (final d in const [0.0, 0.25]) {
+          final r = ((q - d) / (1 - d)).clamp(0.0, 1.0);
+          if (r <= 0) continue;
+          canvas.drawCircle(origin.$1, 10 + 70 * Curves.easeOut.transform(r), Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = Night.cityAmber.withOpacity(0.85 * (1 - r))
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+        }
+      }
     }
   }
 

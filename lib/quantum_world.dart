@@ -411,8 +411,9 @@ class QuantumHivePainter extends CustomPainter {
   final List<List<double>> dots; // 世界視角：[lat, lng]，已經跨年的多一個 1
   final double glow; // 0～1，光柱呼吸
   final double boost; // 0～1，整點報時前光柱慢慢變亮
+  final double cameo; // 0～1，艾婭在光柱裡現身：她身後的粒子讓開，不擋到她
 
-  QuantumHivePainter({required this.p, required this.seat, required this.dots, required this.glow, this.boost = 0});
+  QuantumHivePainter({required this.p, required this.seat, required this.dots, required this.glow, this.boost = 0, this.cameo = 0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -472,16 +473,45 @@ class QuantumHivePainter extends CustomPainter {
     if (origin != null) {
       final base = origin.$1;
       final height = (180 + 120 * p.scale).clamp(120.0, 420.0) * (0.6 + 0.4 * sin(p.pitch).abs()) * (1 + 0.5 * boost);
-      final half = 7 + 7 * boost;
+      final half = (7 + 7 * boost) * 1.5; // 比原本的光柱粗一半
       final beam = Rect.fromLTWH(base.dx - half, base.dy - height, half * 2, height);
+      final tint = Color.lerp(Night.auroraViolet, Night.cityAmber, boost * 0.5)!;
+      // 底下一層很淡的光霧，讓粒子看起來是一根柱子
       canvas.drawRect(beam, Paint()
         ..shader = LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
-            colors: [Colors.white.withOpacity(0.85), Color.lerp(Night.auroraViolet, Night.cityAmber, boost * 0.5)!.withOpacity(min(1.0, 0.45 + 0.2 * glow + 0.35 * boost)), Night.auroraViolet.withOpacity(0)]).createShader(beam)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+            colors: [Colors.white.withOpacity(0.22), tint.withOpacity(0.12 + 0.1 * boost), tint.withOpacity(0)]).createShader(beam)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+      // 光粒子：從底部往上飄，越高越淡；靠近中心的比較亮
+      final t = DateTime.now().millisecondsSinceEpoch / 1000.0;
+      // 省電：粒子不用模糊濾鏡（每顆都模糊會讓手機發燙），光暈用一顆淡淡的大圓代替
+      final n = (90 + 50 * boost).round();
+      final core = Paint();
+      final halo = Paint();
+      for (var i = 0; i < n; i++) {
+        final r1 = _hash(i * 3 + 1), r2 = _hash(i * 3 + 2), r3 = _hash(i * 3 + 3);
+        final speed = 0.10 + 0.22 * r2 + 0.12 * boost; // 每秒爬升柱高的比例
+        final y = (r1 + t * speed) % 1.0;
+        final lane = (r3 * 2 - 1);
+        final x = base.dx + lane * lane.abs() * half * 0.6 + lane * half * 0.4 + sin(t * (0.8 + r2) + i) * half * 0.12;
+        final fade = (1 - y) * min(1.0, y * 8); // 底部淡入、往上淡出
+        final center = 1 - lane.abs() * 0.5;
+        // 艾婭的人像在光柱中段（約 25%～75% 高）：那一段的粒子跟著她現身淡掉
+        final behind = cameo > 0 ? cameo * (1 - ((y - 0.5).abs() / 0.3).clamp(0.0, 1.0)) : 0.0;
+        final a = (0.4 + 0.2 * glow + 0.4 * boost).clamp(0.0, 1.0) * fade * center * (1 - 0.9 * behind);
+        if (a < 0.03) continue;
+        final pos = Offset(x, base.dy - y * height);
+        final rad = (1.0 + 1.4 * r3 * r1) * (1 + 0.3 * boost);
+        halo.color = tint.withOpacity(a * 0.22);
+        canvas.drawCircle(pos, rad * 2.6, halo);
+        core.color = Color.lerp(Colors.white, Night.cityAmber, r2 * 0.4 * (0.3 + boost))!.withOpacity(a);
+        canvas.drawCircle(pos, rad, core);
+      }
       canvas.drawCircle(base, 10 + 4 * glow + 14 * boost, Paint()..color = Night.auroraViolet.withOpacity(0.45 + 0.3 * boost)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
       canvas.drawCircle(base, 3, Paint()..color = Colors.white);
     }
   }
+
+  static double _hash(int i) { final v = sin(i * 12.9898) * 43758.5453; return v - v.floorToDouble(); }
 
   @override
   bool shouldRepaint(covariant QuantumHivePainter old) => true;

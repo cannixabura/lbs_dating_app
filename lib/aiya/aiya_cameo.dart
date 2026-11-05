@@ -36,6 +36,9 @@ const aiyaCameoTest = bool.fromEnvironment('AIYA_CAMEO_TEST');
 Duration _testShift = Duration.zero;
 DateTime _now() => DateTime.now().add(_testShift);
 
+/// 艾婭在光柱裡現身的程度（0～1），光柱的粒子靠這個讓開
+double aiyaCameoPresence = 0;
+
 class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMixin {
   static const _dayKey = 'aiyaCameoDay';
   final _anim = AiyaAnimator();
@@ -74,6 +77,7 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
   @override
   void dispose() {
     _ticker.dispose();
+    aiyaCameoPresence = 0;
     _clock?.cancel();
     _hide?.cancel();
     for (final t in _timers) { t.cancel(); }
@@ -87,10 +91,12 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
     if (elapsed < 1 / 30 - 0.002) return; // 最多每秒 30 張
     _last = now;
     _anim.update(elapsed.clamp(0.0, 0.05));
+    aiyaCameoPresence = _anim.form.clamp(0.0, 1.0);
     _frame.value++;
     // 散回光柱之後就停下來，不再耗電
     if (_anim.formTarget == 0 && _anim.form <= 0) {
       _ticker.stop();
+      aiyaCameoPresence = 0;
       _last = Duration.zero;
       if (mounted) setState(() { _visible = false; _caption = null; });
     }
@@ -174,7 +180,7 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
         if (a == null) return const SizedBox.shrink();
         final (base, pillarH) = a;
         // 人像浮在光柱中段，大小跟著光柱
-        final figH = (pillarH * 0.95).clamp(150.0, 280.0);
+        final figH = (pillarH * 0.95).clamp(150.0, 280.0) * 2 / 3;
         final stage = Rect.fromCenter(center: Offset(base.dx, base.dy - pillarH * 0.5), width: figH, height: figH);
         final hit = Rect.fromCenter(center: stage.center, width: figH * 0.6, height: figH * 0.8);
         return Stack(children: [

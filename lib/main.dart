@@ -3371,6 +3371,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                         scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY)),
                                     seat: qs.seatCenter, dots: _quantumDots, glow: _quantumGlow.value,
                                     boost: _chimeBoost(QuantumChime.offset(DateTime.now())),
+                                    cameo: AiyaPrefs.enabled.value ? aiyaCameoPresence : 0,
                                   ),
                                 );
                               },
@@ -3402,7 +3403,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 final at = hit.$1;
                                 if (at.dx < 0 || at.dx > screenWidth || at.dy < 0 || at.dy > screenHeight) return const SizedBox.shrink();
                                 return Stack(children: [
-                                  Positioned(left: at.dx - 70, top: at.dy + 8, width: 140, child: AiyaPillarChip(onTap: () => openAiya(context))),
+                                  Positioned(left: at.dx - 70, top: at.dy - 2, width: 140, child: AiyaPillarChip(onTap: () => openAiya(context))),
                                 ]);
                               },
                             ),

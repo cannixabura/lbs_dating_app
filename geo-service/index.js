@@ -1143,8 +1143,15 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         const decision = aiya.decideOpen(st);
         if (!decision.ok) return res.status(200).json({ success: false, code: decision.code, ...aiyaStatusView(st, now) });
         if (decision.pay === "credit") {
-          const paid = await admin.database().ref(`aiyaCredits/${uid}`).transaction((cur) => ((Number(cur) || 0) > 0 ? Number(cur) - 1 : undefined));
-          if (!paid.committed) return res.status(200).json({ success: false, code: "no_quota", ...aiyaStatusView(st, now) });
+          // Admin SDK 的 transaction 第一次會用本機快取（通常是 null）呼叫；這時回傳 undefined 會直接放棄、不去伺服器拿真正的值，
+          // 所以有次數也扣不到。改成看不到值就原樣回傳，讓它拿到伺服器的值重跑，最後一次執行的結果才算數
+          let charged = false;
+          const paid = await admin.database().ref(`aiyaCredits/${uid}`).transaction((cur) => {
+            const n = Number(cur) || 0;
+            charged = n > 0;
+            return charged ? n - 1 : cur;
+          });
+          if (!paid.committed || !charged) return res.status(200).json({ success: false, code: "no_quota", ...aiyaStatusView(st, now) });
           st.credits = Math.max(0, st.credits - 1);
         }
         await sendUpstashPipeline([["INCR", aiya.KEY.quota(uid, st.day)], ["EXPIRE", aiya.KEY.quota(uid, st.day), "172800"]]);

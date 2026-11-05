@@ -37,6 +37,7 @@ import 'time_whisper.dart';
 import 'beacon.dart';
 import 'gathering_keys.dart';
 import 'guide_screen.dart';
+import 'manual_location_picker.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
 import 'report_sheet.dart';
@@ -773,7 +774,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
   }
 
+  // 測試用（--dart-define=FORCE_NO_FIX=true）：假裝完全抓不到定位，用來測試「在地圖上選擇位置」
+  static const _forceNoFix = bool.fromEnvironment('FORCE_NO_FIX');
+
   void _startPositionUpdates() {
+    if (_forceNoFix) { if (_currentPosition == null) _setLocationIssue(_LocationIssue.noFix); return; }
     _positionStream ??= Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 2)).listen(
       (Position newPosition) {
         if (!mounted) return;
@@ -794,18 +799,55 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       cancelOnError: false,
     );
     if (_currentPosition != null) return;
-    // 第一個定位：10 秒內拿不到就說明原因（室內訊號弱；模擬器沒有設定位置），而不是一直停在載入畫面
-    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10)).then((position) {
-      if (!mounted) return;
+    _acquireFirstFix();
+  }
+
+  /// 第一個定位，一層一層退：精確定位 10 秒 → 系統最近一次的位置 → 說明頁，同時背景再用低精度（Wi-Fi／基地台）試 30 秒。
+  /// 沒有 GPS 的 iPad、室內訊號弱時精確定位常常拿不到，但低精度通常拿得到；真的都拿不到，說明頁可以在地圖上手動選位置。
+  Future<void> _acquireFirstFix() async {
+    void use(Position position) {
+      if (!mounted || _currentPosition != null) return;
       setState(() {
         _currentPosition = position;
         if (_locationIssue == _LocationIssue.noFix) _locationIssue = _LocationIssue.none;
       });
       if (_checkInRequested) _checkIn();
-    }).catchError((Object e) {
-      debugPrint('initial position failed: $e');
-      if (mounted && _currentPosition == null) _setLocationIssue(_LocationIssue.noFix);
+    }
+    try {
+      return use(await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10)));
+    } catch (e) {
+      debugPrint('initial position (high) failed: $e');
+    }
+    if (_currentPosition != null) return;
+    try {
+      final last = await Geolocator.getLastKnownPosition();
+      if (last != null) return use(last);
+    } catch (e) {
+      debugPrint('last known position failed: $e');
+    }
+    if (!mounted || _currentPosition != null) return;
+    _setLocationIssue(_LocationIssue.noFix);
+    try {
+      use(await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low, timeLimit: const Duration(seconds: 30)));
+    } catch (e) {
+      debugPrint('initial position (low) failed: $e');
+    }
+  }
+
+  /// 手動選位置：定位一直拿不到時的備案。之後真的定位到了，位置串流會自動換成真實位置
+  Future<void> _pickLocationManually() async {
+    final style = _mapStyle ?? await rootBundle.loadString(_nightStyleAsset);
+    if (!mounted) return;
+    final picked = await Navigator.push<LatLng>(context, MaterialPageRoute(
+      builder: (_) => ManualLocationPicker(mapStyle: style, initial: const LatLng(25.0478, 121.5170)), // 台北車站
+    ));
+    if (picked == null || !mounted || _currentPosition != null) return;
+    setState(() {
+      _currentPosition = Position(latitude: picked.latitude, longitude: picked.longitude, timestamp: DateTime.now(),
+          accuracy: 50, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0);
+      _locationIssue = _LocationIssue.none;
     });
+    if (_checkInRequested) _checkIn();
   }
 
   void _startMotionSensors() {
@@ -867,6 +909,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   if (issue == _LocationIssue.noFix) _setLocationIssue(_LocationIssue.none);
                   _checkLocation();
                 }),
+                if (issue == _LocationIssue.noFix) ...[
+                  const SizedBox(height: Night.space2),
+                  NightButton(tr.locationPickOnMap, kind: NightButtonKind.ghost, icon: Icons.map_outlined, expand: true, onPressed: _pickLocationManually),
+                ],
                 if (Platform.isAndroid) ...[
                   const SizedBox(height: Night.space2),
                   NightButton(tr.leaveApp, kind: NightButtonKind.text, expand: true, onPressed: () => SystemNavigator.pop()),

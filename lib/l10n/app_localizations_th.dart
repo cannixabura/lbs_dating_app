@@ -2531,4 +2531,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return '$hour นาฬิกาแล้ว ฉันอยู่ในแสงนี้กับคุณนะ';
   }
+
+  @override
+  String get locationPickOnMap => 'เลือกบนแผนที่';
+
+  @override
+  String get locationPickTitle => 'เลือกตำแหน่งของคุณ';
+
+  @override
+  String get locationPickHint =>
+      'เลื่อนแผนที่ให้จุดเรืองแสงตรงกลางอยู่ตรงที่คุณอยู่ตอนนี้';
+
+  @override
+  String get locationPickConfirm => 'ฉันอยู่ที่นี่';
 }

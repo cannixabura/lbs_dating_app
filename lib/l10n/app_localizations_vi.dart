@@ -2506,4 +2506,17 @@ class AppLocalizationsVi extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return '$hour giờ rồi. Mình ở đây trong ánh sáng cùng bạn.';
   }
+
+  @override
+  String get locationPickOnMap => 'Chọn trên bản đồ';
+
+  @override
+  String get locationPickTitle => 'Chọn nơi bạn đang ở';
+
+  @override
+  String get locationPickHint =>
+      'Di chuyển bản đồ để chấm sáng ở giữa nằm đúng nơi bạn đang ở';
+
+  @override
+  String get locationPickConfirm => 'Tôi ở đây';
 }

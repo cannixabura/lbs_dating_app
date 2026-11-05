@@ -693,5 +693,9 @@
   "aiyaSetting": "アイヤ（量子世界の AI）",
   "aiyaSettingSubtitle": "オフにすると、量子世界の光の柱にアイヤが表示されません",
   "aiyaCameoHello": "こんばんは、量子世界へようこそ。話したくなったらタップしてね。",
-  "aiyaCameoChime": "{hour}時になりました。光の中でそばにいるよ。"
+  "aiyaCameoChime": "{hour}時になりました。光の中でそばにいるよ。",
+  "locationPickOnMap": "地図で場所を選ぶ",
+  "locationPickTitle": "今いる場所を選ぶ",
+  "locationPickHint": "地図を動かして、中央の光を今いる場所に合わせてください",
+  "locationPickConfirm": "ここにいる"
 }

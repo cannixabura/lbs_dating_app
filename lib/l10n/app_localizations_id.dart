@@ -2507,4 +2507,17 @@ class AppLocalizationsId extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return 'Sudah pukul $hour. Aku di sini dalam cahaya bersamamu.';
   }
+
+  @override
+  String get locationPickOnMap => 'Pilih di peta';
+
+  @override
+  String get locationPickTitle => 'Pilih lokasimu';
+
+  @override
+  String get locationPickHint =>
+      'Geser peta agar titik bercahaya di tengah tepat di tempatmu sekarang';
+
+  @override
+  String get locationPickConfirm => 'Saya di sini';
 }

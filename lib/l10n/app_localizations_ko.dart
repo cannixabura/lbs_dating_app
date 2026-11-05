@@ -2403,4 +2403,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return '$hour시야. 빛 속에서 곁에 있을게.';
   }
+
+  @override
+  String get locationPickOnMap => '지도에서 위치 선택';
+
+  @override
+  String get locationPickTitle => '지금 있는 곳 선택';
+
+  @override
+  String get locationPickHint => '지도를 움직여 가운데 빛을 지금 있는 곳에 맞춰 주세요';
+
+  @override
+  String get locationPickConfirm => '여기예요';
 }

@@ -693,5 +693,9 @@
   "aiyaSetting": "AIYA (AI di Dunia Kuantum)",
   "aiyaSettingSubtitle": "Jika dimatikan, AIYA tidak muncul lagi di pilar Dunia Kuantum",
   "aiyaCameoHello": "Hai, selamat datang di Dunia Kuantum. Ketuk aku kalau mau ngobrol.",
-  "aiyaCameoChime": "Sudah pukul {hour}. Aku di sini dalam cahaya bersamamu."
+  "aiyaCameoChime": "Sudah pukul {hour}. Aku di sini dalam cahaya bersamamu.",
+  "locationPickOnMap": "Pilih di peta",
+  "locationPickTitle": "Pilih lokasimu",
+  "locationPickHint": "Geser peta agar titik bercahaya di tengah tepat di tempatmu sekarang",
+  "locationPickConfirm": "Saya di sini"
 }

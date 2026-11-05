@@ -2581,4 +2581,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return 'It\'s $hour o\'clock. I\'m here in the light with you.';
   }
+
+  @override
+  String get locationPickOnMap => 'Choose on the map';
+
+  @override
+  String get locationPickTitle => 'Choose where you are';
+
+  @override
+  String get locationPickHint =>
+      'Move the map so the glowing dot in the middle sits where you are now';
+
+  @override
+  String get locationPickConfirm => 'I\'m here';
 }

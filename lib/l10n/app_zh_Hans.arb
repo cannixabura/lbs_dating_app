@@ -693,5 +693,9 @@
   "aiyaSetting": "艾娅（量子世界的 AI）",
   "aiyaSettingSubtitle": "关掉后，量子世界的光柱不再显示艾娅",
   "aiyaCameoHello": "嗨，欢迎来到量子世界。想聊天就点我。",
-  "aiyaCameoChime": "{hour} 点了。我在光里陪你。"
+  "aiyaCameoChime": "{hour} 点了。我在光里陪你。",
+  "locationPickOnMap": "在地图上选择位置",
+  "locationPickTitle": "选择你现在的位置",
+  "locationPickHint": "移动地图，让中间的光点对准你现在所在的地方",
+  "locationPickConfirm": "就是这里"
 }

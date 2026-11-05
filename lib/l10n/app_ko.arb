@@ -693,5 +693,9 @@
   "aiyaSetting": "아이야(양자 세계의 AI)",
   "aiyaSettingSubtitle": "끄면 양자 세계의 빛기둥에 아이야가 나타나지 않아요",
   "aiyaCameoHello": "안녕, 양자 세계에 온 걸 환영해. 이야기하고 싶으면 나를 눌러 줘.",
-  "aiyaCameoChime": "{hour}시야. 빛 속에서 곁에 있을게."
+  "aiyaCameoChime": "{hour}시야. 빛 속에서 곁에 있을게.",
+  "locationPickOnMap": "지도에서 위치 선택",
+  "locationPickTitle": "지금 있는 곳 선택",
+  "locationPickHint": "지도를 움직여 가운데 빛을 지금 있는 곳에 맞춰 주세요",
+  "locationPickConfirm": "여기예요"
 }

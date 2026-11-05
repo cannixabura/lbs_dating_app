@@ -2384,4 +2384,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return '$hour時になりました。光の中でそばにいるよ。';
   }
+
+  @override
+  String get locationPickOnMap => '地図で場所を選ぶ';
+
+  @override
+  String get locationPickTitle => '今いる場所を選ぶ';
+
+  @override
+  String get locationPickHint => '地図を動かして、中央の光を今いる場所に合わせてください';
+
+  @override
+  String get locationPickConfirm => 'ここにいる';
 }

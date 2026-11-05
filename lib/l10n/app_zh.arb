@@ -1461,5 +1461,21 @@
         "type": "int"
       }
     }
+  },
+  "locationPickOnMap": "在地圖上選擇位置",
+  "@locationPickOnMap": {
+    "description": "Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)"
+  },
+  "locationPickTitle": "選擇你現在的位置",
+  "@locationPickTitle": {
+    "description": "Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)"
+  },
+  "locationPickHint": "移動地圖，讓中間的光點對準你現在所在的地方",
+  "@locationPickHint": {
+    "description": "Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)"
+  },
+  "locationPickConfirm": "就是這裡",
+  "@locationPickConfirm": {
+    "description": "Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)"
   }
 }

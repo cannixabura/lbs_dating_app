@@ -693,5 +693,9 @@
   "aiyaSetting": "AIYA (AI in Quantum World)",
   "aiyaSettingSubtitle": "When off, AIYA no longer appears at the Quantum World pillar",
   "aiyaCameoHello": "Hi, welcome to Quantum World. Tap me if you'd like to talk.",
-  "aiyaCameoChime": "It's {hour} o'clock. I'm here in the light with you."
+  "aiyaCameoChime": "It's {hour} o'clock. I'm here in the light with you.",
+  "locationPickOnMap": "Choose on the map",
+  "locationPickTitle": "Choose where you are",
+  "locationPickHint": "Move the map so the glowing dot in the middle sits where you are now",
+  "locationPickConfirm": "I'm here"
 }

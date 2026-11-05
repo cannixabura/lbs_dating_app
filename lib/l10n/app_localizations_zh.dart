@@ -2335,6 +2335,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String aiyaCameoChime(int hour) {
     return '$hour 點了。我在光裡陪你。';
   }
+
+  @override
+  String get locationPickOnMap => '在地圖上選擇位置';
+
+  @override
+  String get locationPickTitle => '選擇你現在的位置';
+
+  @override
+  String get locationPickHint => '移動地圖，讓中間的光點對準你現在所在的地方';
+
+  @override
+  String get locationPickConfirm => '就是這裡';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4667,4 +4679,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String aiyaCameoChime(int hour) {
     return '$hour 点了。我在光里陪你。';
   }
+
+  @override
+  String get locationPickOnMap => '在地图上选择位置';
+
+  @override
+  String get locationPickTitle => '选择你现在的位置';
+
+  @override
+  String get locationPickHint => '移动地图，让中间的光点对准你现在所在的地方';
+
+  @override
+  String get locationPickConfirm => '就是这里';
 }

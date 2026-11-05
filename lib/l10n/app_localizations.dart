@@ -4274,6 +4274,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{hour} 點了。我在光裡陪你。'**
   String aiyaCameoChime(int hour);
+
+  /// Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)
+  ///
+  /// In zh, this message translates to:
+  /// **'在地圖上選擇位置'**
+  String get locationPickOnMap;
+
+  /// Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)
+  ///
+  /// In zh, this message translates to:
+  /// **'選擇你現在的位置'**
+  String get locationPickTitle;
+
+  /// Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)
+  ///
+  /// In zh, this message translates to:
+  /// **'移動地圖，讓中間的光點對準你現在所在的地方'**
+  String get locationPickHint;
+
+  /// Manual location fallback when GPS/Wi-Fi positioning fails (e.g. iPad without GPS)
+  ///
+  /// In zh, this message translates to:
+  /// **'就是這裡'**
+  String get locationPickConfirm;
 }
 
 class _AppLocalizationsDelegate

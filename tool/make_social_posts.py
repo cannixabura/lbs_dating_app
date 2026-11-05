@@ -103,7 +103,8 @@ def text_block(draw, text, f, y, fill, cx=W / 2, max_w=W - 160, spacing=1.55, al
     return y
 
 
-def brand(canvas, cta=CTA):
+def brand(canvas, cta=None):
+    cta = CTA if cta is None else cta
     d = ImageDraw.Draw(canvas)
     icon = Image.open("assets/images/app_icon.png").convert("RGBA").resize((64, 64), Image.LANCZOS)
     m = Image.new("L", (64, 64), 0)
@@ -264,7 +265,7 @@ def t_question(p):
         d.ellipse((cx - 34, cy - 34, cx + 34, cy + 34), fill=MOODS[k])
         lf = font(28, "medium")
         d.text((cx - lf.getlength(labels[i]) / 2, cy + 58), labels[i], font=lf, fill=INK)
-    brand(c, cta="留言告訴我們 👇" if p.get("comment_cta") else CTA)
+    brand(c, cta="留言告訴我們 👇" if p.get("comment_cta") else None)
     return c
 
 
@@ -281,7 +282,8 @@ def t_poster(p):
         c.alpha_composite(glow_layer((W, H), lambda dr, a, x=x, y=y, r=r: dr.ellipse((x - r * 3, y - r * 3, x + r * 3, y + r * 3), fill=a), col, 8, 120))
         d = ImageDraw.Draw(c)
         d.ellipse((x - r, y - r, x + r, y + r), fill=col)
-    d.text((W / 2 - font(36, "medium").getlength("公測招募") / 2, 150), "公測招募", font=font(36, "medium"), fill=MUTED)
+    kicker = p.get("kicker", "公測招募")
+    d.text((W / 2 - font(36, "medium").getlength(kicker) / 2, 150), kicker, font=font(36, "medium"), fill=MUTED)
     y = 220
     for line in p["headline"].split("\n"):
         y = gradient_text(c, line, font(92, "semibold"), cx=W / 2, y=y) + 6
@@ -296,12 +298,44 @@ def t_poster(p):
     return c
 
 
-TEMPLATES = {"bubble": t_bubble, "phone": t_phone, "scene": t_scene, "steps": t_steps, "question": t_question, "poster": t_poster}
+def t_compare(p):
+    """左右對照：舊社交 vs 城市低語  {headline, left, right, rows:[[左, 右] ...]}"""
+    c = night_bg((90, 55, 190))
+    y = gradient_text(c, p["headline"], font(64, "semibold"), cx=W / 2, y=110) + 50
+    d = ImageDraw.Draw(c)
+    colw = (W - 160 - 30) / 2
+    lx, rx = 80, 80 + colw + 30
+    hf = font(34, "semibold")
+    d.text((lx + colw / 2 - hf.getlength(p["left"]) / 2, y), p["left"], font=hf, fill=FAINT)
+    d.text((rx + colw / 2 - hf.getlength(p["right"]) / 2, y), p["right"], font=hf, fill=INK)
+    y += 66
+    rows = p["rows"]
+    rh = min(150, (H - 170 - y) / len(rows) - 14)
+    for left, right in rows:
+        glass(c, (lx, y, lx + colw, y + rh), radius=28)
+        glass(c, (rx, y, rx + colw, y + rh), radius=28, glow=MOODS["calm"])
+        d = ImageDraw.Draw(c)
+        f = font(31, "medium")
+        for x0, text, col in ((lx, left, MUTED), (rx, right, INK)):
+            lines = wrap(text, f, colw - 48)
+            ty = y + rh / 2 - len(lines) * 23
+            for line in lines:
+                d.text((x0 + colw / 2 - f.getlength(line) / 2, ty), line, font=f, fill=col)
+                ty += 46
+        y += rh + 14
+    brand(c)
+    return c
+
+
+TEMPLATES = {"compare": t_compare, "bubble": t_bubble, "phone": t_phone, "scene": t_scene, "steps": t_steps, "question": t_question, "poster": t_poster}
 
 
 def main(spec, out):
     os.makedirs(out, exist_ok=True)
-    posts = json.load(open(spec, encoding="utf-8"))["posts"]
+    global CTA
+    data = json.load(open(spec, encoding="utf-8"))
+    CTA = data.get("cta", CTA)
+    posts = data["posts"]
     only = set(sys.argv[3:])
     for p in posts:
         if only and p["id"] not in only:

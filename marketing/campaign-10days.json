@@ -1,0 +1,111 @@
+{
+  "_note": "十天社群貼文的配圖。文案在 marketing/campaign-10days.md。改完執行：python3 tool/make_social_posts.py marketing/campaign-10days.json marketing/images/10days",
+  "cta": "App Store 搜尋「城市低語」",
+  "posts": [
+    {
+      "id": "t01",
+      "template": "question",
+      "question": "附近 5 公里\n此刻有人\n跟你一樣睡不著",
+      "sub": "LBS 社交：看見「現在、附近」的人"
+    },
+    {
+      "id": "t02",
+      "template": "compare",
+      "headline": "舊社交 vs 城市低語",
+      "left": "舊社交",
+      "right": "城市低語",
+      "rows": [
+        [
+          "跟認識的人聊",
+          "跟此刻附近的人相遇"
+        ],
+        [
+          "經營形象、修圖",
+          "一句心情就好"
+        ],
+        [
+          "比讚數、比追蹤",
+          "沒有讚，沒有追蹤"
+        ],
+        [
+          "貼文永久留著",
+          "離開就消失"
+        ],
+        [
+          "演算法決定你看什麼",
+          "你在哪，就看見哪"
+        ]
+      ]
+    },
+    {
+      "id": "t03",
+      "template": "bubble",
+      "color": "default",
+      "kicker": "不用照片、不用名字、不用真名",
+      "mood": "今天其實有點累",
+      "headline": "一句話，就是你今晚的樣子"
+    },
+    {
+      "id": "t04",
+      "template": "scene",
+      "art": "hosting/img/features/knock.webp",
+      "headline": "敲門，聊 10 分鐘",
+      "sub": "時間到就結束，不留紀錄\n不用交換 LINE，也不會尷尬"
+    },
+    {
+      "id": "t05",
+      "template": "scene",
+      "art": "hosting/img/features/resonance.webp",
+      "headline": "雙擊，送一道微光",
+      "sub": "不用開口，讓對方知道\n今晚有人看見了"
+    },
+    {
+      "id": "t06",
+      "template": "scene",
+      "art": "assets/images/intro_parallel.webp",
+      "headline": "台北的深夜，疊上東京",
+      "sub": "點一下地球，和東京、首爾、曼谷的夜晚重疊\n點一下就翻譯"
+    },
+    {
+      "id": "t07",
+      "template": "phone",
+      "shot": "marketing/shots/quantum_pillar.png",
+      "headline": "全世界，同一間房間",
+      "sub": "量子世界以台北 101 為原點排成蜂巢\n每個整點，光柱為大家敲響鐘聲"
+    },
+    {
+      "id": "t08",
+      "template": "phone",
+      "shot": "marketing/shots/aiya_chat.png",
+      "headline": "凌晨兩點，想找人說話？",
+      "sub": "量子世界的光柱裡，住著 AI 艾婭\n每天 3 次免費，她會告訴你她是 AI"
+    },
+    {
+      "id": "t09",
+      "template": "poster",
+      "kicker": "每週五",
+      "headline": "點亮之夜",
+      "when": "21:00 – 23:00",
+      "sub": "附近的人越多，城市越亮\n今晚，一起點亮你的街區"
+    },
+    {
+      "id": "t10",
+      "template": "steps",
+      "headline": "30 秒，走進城市",
+      "steps": [
+        [
+          "下載城市低語",
+          "App Store 搜尋「城市低語」，免費下載。不用電話、Email 或真名。"
+        ],
+        [
+          "寫一句心情",
+          "最多 20 個字，按下打卡。每次都要自己按，離開就消失。"
+        ],
+        [
+          "看見附近的光",
+          "雙擊送微光、敲門聊 10 分鐘，或點地球去東京的夜晚走走"
+        ]
+      ]
+    }
+  ]
+}

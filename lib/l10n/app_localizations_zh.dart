@@ -2874,6 +2874,56 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wgViewList => '查看低語團';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour 點了。還醒著的人，我在光裡陪你。';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour 點了，早安。今天也慢慢來。';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour 點了。今晚的城市，你好嗎？';
+  }
+
+  @override
+  String get aiyaCameoNyReady => '準備好了嗎？我們一起倒數！';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return '新年快樂！$year，我們在同一個房間。';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ 造型';
+
+  @override
+  String get aiyaSkinTitle => '艾婭的造型';
+
+  @override
+  String get aiyaSkinSubtitle => '只有你看得到自己的艾婭換造型';
+
+  @override
+  String get aiyaSkinNone => '原本的艾婭';
+
+  @override
+  String get aiyaSkinStarlight => '星光';
+
+  @override
+  String get aiyaSkinStarlightSub => '艾婭之友專屬';
+
+  @override
+  String get aiyaSkinXmas => '聖誕';
+
+  @override
+  String get aiyaSkinNewYear => '量子跨年';
+
+  @override
+  String get aiyaSkinNote => '節日造型是一次購買、永久擁有，只改變艾婭的樣子，不影響聊天次數。限定款過了販售期就不再上架。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5745,4 +5795,54 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get wgViewList => '查看低语团';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour 点了。还醒着的人，我在光里陪你。';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour 点了，早安。今天也慢慢来。';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour 点了。今晚的城市，你好吗？';
+  }
+
+  @override
+  String get aiyaCameoNyReady => '准备好了吗？我们一起倒数！';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return '新年快乐！$year，我们在同一个房间。';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ 造型';
+
+  @override
+  String get aiyaSkinTitle => '艾娅的造型';
+
+  @override
+  String get aiyaSkinSubtitle => '只有你看得到自己的艾娅换造型';
+
+  @override
+  String get aiyaSkinNone => '原本的艾娅';
+
+  @override
+  String get aiyaSkinStarlight => '星光';
+
+  @override
+  String get aiyaSkinStarlightSub => '艾娅之友专属';
+
+  @override
+  String get aiyaSkinXmas => '圣诞';
+
+  @override
+  String get aiyaSkinNewYear => '量子跨年';
+
+  @override
+  String get aiyaSkinNote => '节日造型是一次购买、永久拥有，只改变艾娅的样子，不影响聊天次数。限定款过了销售期就不再上架。';
 }

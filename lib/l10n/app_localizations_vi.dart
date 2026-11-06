@@ -3063,4 +3063,55 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wgViewList => 'Mở nhóm';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour giờ rồi. Ai còn thức, mình ở trong ánh sáng cùng bạn.';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour giờ, chào buổi sáng. Hôm nay cứ thong thả nhé.';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour giờ rồi. Thành phố của bạn tối nay thế nào?';
+  }
+
+  @override
+  String get aiyaCameoNyReady => 'Sẵn sàng chưa? Cùng đếm ngược nhé!';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return 'Chúc mừng năm mới! $year, chúng ta cùng chung một căn phòng.';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ Diện mạo';
+
+  @override
+  String get aiyaSkinTitle => 'Diện mạo của AIYA';
+
+  @override
+  String get aiyaSkinSubtitle => 'Chỉ bạn thấy diện mạo AIYA của mình';
+
+  @override
+  String get aiyaSkinNone => 'Nguyên bản';
+
+  @override
+  String get aiyaSkinStarlight => 'Ánh sao';
+
+  @override
+  String get aiyaSkinStarlightSub => 'Dành cho Bạn của AIYA';
+
+  @override
+  String get aiyaSkinXmas => 'Giáng sinh';
+
+  @override
+  String get aiyaSkinNewYear => 'Năm mới Lượng tử';
+
+  @override
+  String get aiyaSkinNote =>
+      'Diện mạo lễ hội mua một lần dùng mãi. Chỉ đổi dáng vẻ AIYA, không ảnh hưởng lượt trò chuyện. Bản giới hạn sẽ không bán lại sau khi hết hạn.';
 }

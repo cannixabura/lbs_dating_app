@@ -3083,4 +3083,55 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get wgViewList => 'เปิดกลุ่ม';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour นาฬิกาแล้ว ใครยังไม่นอน ฉันอยู่ในแสงข้างๆ คุณนะ';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour นาฬิกา อรุณสวัสดิ์ วันนี้ค่อยๆ ไปนะ';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour นาฬิกาแล้ว คืนนี้เมืองของคุณเป็นยังไงบ้าง';
+  }
+
+  @override
+  String get aiyaCameoNyReady => 'พร้อมไหม มานับถอยหลังด้วยกัน!';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return 'สวัสดีปีใหม่! $year พวกเราอยู่ในห้องเดียวกัน';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ ลุค';
+
+  @override
+  String get aiyaSkinTitle => 'ลุคของไอยา';
+
+  @override
+  String get aiyaSkinSubtitle => 'มีแค่คุณที่เห็นลุคของไอยา';
+
+  @override
+  String get aiyaSkinNone => 'แบบเดิม';
+
+  @override
+  String get aiyaSkinStarlight => 'แสงดาว';
+
+  @override
+  String get aiyaSkinStarlightSub => 'สำหรับเพื่อนของไอยา';
+
+  @override
+  String get aiyaSkinXmas => 'คริสต์มาส';
+
+  @override
+  String get aiyaSkinNewYear => 'ปีใหม่ควอนตัม';
+
+  @override
+  String get aiyaSkinNote =>
+      'ลุคเทศกาลซื้อครั้งเดียวใช้ได้ตลอด เปลี่ยนแค่หน้าตาของไอยา ไม่กระทบจำนวนแชต รุ่นลิมิเต็ดจะไม่ขายอีกหลังหมดช่วงขาย';
 }

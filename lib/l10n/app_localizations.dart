@@ -5216,6 +5216,90 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'查看低語團'**
   String get wgViewList;
+
+  /// No description provided for @aiyaCameoChimeNight.
+  ///
+  /// In zh, this message translates to:
+  /// **'{hour} 點了。還醒著的人，我在光裡陪你。'**
+  String aiyaCameoChimeNight(int hour);
+
+  /// No description provided for @aiyaCameoChimeMorning.
+  ///
+  /// In zh, this message translates to:
+  /// **'{hour} 點了，早安。今天也慢慢來。'**
+  String aiyaCameoChimeMorning(int hour);
+
+  /// No description provided for @aiyaCameoChimeEvening.
+  ///
+  /// In zh, this message translates to:
+  /// **'{hour} 點了。今晚的城市，你好嗎？'**
+  String aiyaCameoChimeEvening(int hour);
+
+  /// No description provided for @aiyaCameoNyReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'準備好了嗎？我們一起倒數！'**
+  String get aiyaCameoNyReady;
+
+  /// No description provided for @aiyaCameoNewYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'新年快樂！{year}，我們在同一個房間。'**
+  String aiyaCameoNewYear(int year);
+
+  /// No description provided for @aiyaSkinEntry.
+  ///
+  /// In zh, this message translates to:
+  /// **'✦ 造型'**
+  String get aiyaSkinEntry;
+
+  /// No description provided for @aiyaSkinTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭的造型'**
+  String get aiyaSkinTitle;
+
+  /// No description provided for @aiyaSkinSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'只有你看得到自己的艾婭換造型'**
+  String get aiyaSkinSubtitle;
+
+  /// No description provided for @aiyaSkinNone.
+  ///
+  /// In zh, this message translates to:
+  /// **'原本的艾婭'**
+  String get aiyaSkinNone;
+
+  /// No description provided for @aiyaSkinStarlight.
+  ///
+  /// In zh, this message translates to:
+  /// **'星光'**
+  String get aiyaSkinStarlight;
+
+  /// No description provided for @aiyaSkinStarlightSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭之友專屬'**
+  String get aiyaSkinStarlightSub;
+
+  /// No description provided for @aiyaSkinXmas.
+  ///
+  /// In zh, this message translates to:
+  /// **'聖誕'**
+  String get aiyaSkinXmas;
+
+  /// No description provided for @aiyaSkinNewYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子跨年'**
+  String get aiyaSkinNewYear;
+
+  /// No description provided for @aiyaSkinNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'節日造型是一次購買、永久擁有，只改變艾婭的樣子，不影響聊天次數。限定款過了販售期就不再上架。'**
+  String get aiyaSkinNote;
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../l10n/l10n.dart';
 import '../legal.dart';
+import '../quantum_orb.dart';
 import '../ui/night.dart';
 import 'aiya_face.dart';
 import 'aiya_particles.dart';
@@ -458,6 +459,71 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     );
   }
 
+  /// 艾婭的造型：原本、星光（艾婭之友）、聖誕、跨年（節日造型買斷，只有自己看得到）
+  void _showSkins() {
+    OrbStore.loadProducts();
+    OrbStore.loadOwned();
+    showModalBottomSheet(
+      context: context, backgroundColor: Colors.transparent, isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: Night.night900, borderRadius: BorderRadius.circular(Night.radiusLg)),
+            child: GlassCard(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([AiyaSkinPrefs.selected, OrbStore.owned, OrbStore.products, OrbStore.busy, AiyaStore.friendExp]),
+                builder: (context, _) {
+                  final owned = OrbStore.owned.value;
+                  final current = AiyaSkinPrefs.effective(friend: AiyaStore.isFriend, owned: owned);
+                  Widget row(String key, String name, String sub, {required bool has, String? price, VoidCallback? onBuy}) {
+                    final selected = current == key;
+                    return InkWell(
+                      onTap: OrbStore.busy.value ? null : () => has ? AiyaSkinPrefs.set(key) : onBuy?.call(),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: Night.space2),
+                        padding: const EdgeInsets.all(Night.space3),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: selected ? const Color(0xFFFFC861) : Night.glassLine, width: selected ? 1.6 : 1),
+                        ),
+                        child: Row(children: [
+                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text(name, style: const TextStyle(color: Night.ink, fontSize: 15)),
+                            if (sub.isNotEmpty) Text(sub, style: Night.caption.copyWith(fontSize: 12)),
+                          ])),
+                          Text(selected ? tr.orbInUse : (has ? tr.orbOwned : (price ?? '—')),
+                              style: TextStyle(color: selected ? const Color(0xFFFFC861) : (has ? Night.inkMuted : Night.knockPink), fontSize: 13)),
+                        ]),
+                      ),
+                    );
+                  }
+                  final products = OrbStore.products.value;
+                  return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Text(tr.aiyaSkinTitle, style: Night.title, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space1),
+                    Text(tr.aiyaSkinSubtitle, style: Night.caption, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space4),
+                    row('none', tr.aiyaSkinNone, '', has: true),
+                    row('starlight', tr.aiyaSkinStarlight, tr.aiyaSkinStarlightSub, has: AiyaStore.isFriend, price: tr.aiyaFriendTitle, onBuy: () { Navigator.pop(ctx); _showFriend(); }),
+                    for (final k in aiyaSkins)
+                      if (owned.contains(k) || orbOnSale(k))
+                        row(k, orbStyleName(k), owned.contains(k) ? tr.orbLimited : tr.orbLimitedUntil(orbUntilLabel(k)),
+                            has: owned.contains(k), price: products[orbProducts[k]]?.price, onBuy: () => OrbStore.buy(k)),
+                    if (OrbStore.busy.value) const Padding(padding: EdgeInsets.all(Night.space2), child: Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)))),
+                    const SizedBox(height: Night.space2),
+                    Text(tr.aiyaSkinNote, style: Night.caption.copyWith(fontSize: 11), textAlign: TextAlign.center),
+                    TextButton(onPressed: OrbStore.busy.value ? null : OrbStore.restore, style: TextButton.styleFrom(foregroundColor: Night.inkMuted), child: Text(tr.orbRestore)),
+                  ]);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _report(_Msg m) {
     showModalBottomSheet(
       context: context, backgroundColor: Colors.transparent,
@@ -528,8 +594,17 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
             ),
           ),
         // 艾婭之友：艾婭身邊多了一圈閃爍的星光（只有訂閱的人看得到）
-        if (AiyaStore.isFriend && _holo != null)
-          Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: _StarlightPainter(stage: stage, repaint: _frame, clock: () => _anim.time)))),
+        // 艾婭的造型（只有自己看得到）：艾婭之友的星光、聖誕、跨年
+        if (_holo != null)
+          Positioned.fill(child: IgnorePointer(child: AnimatedBuilder(
+            animation: Listenable.merge([AiyaSkinPrefs.selected, OrbStore.owned, AiyaStore.friendExp]),
+            builder: (context, _) => switch (AiyaSkinPrefs.effective(friend: AiyaStore.isFriend, owned: OrbStore.owned.value)) {
+              'starlight' => CustomPaint(painter: _StarlightPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
+              'aiya_xmas' => CustomPaint(painter: _XmasSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
+              'aiya_newyear' => CustomPaint(painter: _NewYearSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
+              _ => const SizedBox.shrink(),
+            },
+          ))),
         if (_showFps)
           Positioned(
             left: Night.space4, top: mq.padding.top + 48,
@@ -587,6 +662,15 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color(0x66FFC861))),
                       child: Text(tr.aiyaPackEntry, style: const TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: 0.5)),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _showSkins,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color(0x66FFC861))),
+                      child: Text(tr.aiyaSkinEntry, style: const TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: 0.5)),
                     ),
                   ),
                 ]),
@@ -685,4 +769,91 @@ class _StarlightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _StarlightPainter old) => old.stage != stage;
+}
+
+
+/// 聖誕造型：雪花慢慢飄過艾婭，身後一圈冬青花圈與閃爍的小燈
+class _XmasSkinPainter extends CustomPainter {
+  final Rect stage;
+  final double Function() clock;
+  _XmasSkinPainter({required this.stage, required Listenable repaint, required this.clock}) : super(repaint: repaint);
+  static double _h(int i) { final x = sin(i * 71.3 + 4.1) * 43758.5453; return x - x.floorToDouble(); }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = clock();
+    final c = stage.center;
+    final rx = stage.width * 0.46, ry = stage.height * 0.5;
+    // 花圈：沿著橢圓排葉子，下半圈藏在她身後所以淡一點
+    for (var i = 0; i < 40; i++) {
+      final a = i / 40 * 2 * pi;
+      final p = c + Offset(cos(a) * rx, sin(a) * ry);
+      final back = sin(a) > 0.2 ? 0.35 : 0.85;
+      canvas.save();
+      canvas.translate(p.dx, p.dy);
+      canvas.rotate(a + (i.isEven ? 0.7 : -0.7));
+      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 14, height: 6), Paint()..color = (i.isEven ? const Color(0xFF2FA866) : const Color(0xFF1E7A4A)).withValues(alpha: back));
+      canvas.restore();
+      if (i % 4 == 0) {
+        // 小燈：紅、金、白輪流閃
+        final tw = 0.5 + 0.5 * sin(t * 3 + i);
+        final col = const [Color(0xFFFF5A6E), Color(0xFFFFD166), Colors.white][(i ~/ 4) % 3];
+        canvas.drawCircle(p, 5, Paint()..color = col.withValues(alpha: 0.25 * tw * back));
+        canvas.drawCircle(p, 2.2, Paint()..color = col.withValues(alpha: (0.5 + 0.5 * tw) * back));
+      }
+    }
+    // 雪花
+    for (var i = 0; i < 46; i++) {
+      final speed = 0.04 + 0.04 * _h(i + 9);
+      final y = (_h(i) + t * speed) % 1.0;
+      final x = stage.left - stage.width * 0.2 + _h(i + 30) * stage.width * 1.4 + sin(t * 0.7 + i) * 8;
+      final fade = sin(y * pi);
+      final r = 1.2 + 2.2 * _h(i + 3);
+      canvas.drawCircle(Offset(x, stage.top - stage.height * 0.1 + y * stage.height * 1.25), r, Paint()..color = Colors.white.withValues(alpha: 0.75 * fade));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _XmasSkinPainter old) => old.stage != stage;
+}
+
+/// 跨年造型：艾婭身邊輪流綻開金色、粉色、藍色的小煙火，頭頂一圈金色光環
+class _NewYearSkinPainter extends CustomPainter {
+  final Rect stage;
+  final double Function() clock;
+  _NewYearSkinPainter({required this.stage, required Listenable repaint, required this.clock}) : super(repaint: repaint);
+  static double _h(int i) { final x = sin(i * 53.7 + 9.2) * 43758.5453; return x - x.floorToDouble(); }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = clock();
+    final c = stage.center;
+    // 頭頂的金色光環
+    final halo = Rect.fromCenter(center: Offset(c.dx, stage.top + stage.height * 0.08), width: stage.width * 0.42, height: stage.width * 0.1);
+    canvas.drawOval(halo, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.5..color = const Color(0xFFFFD166).withValues(alpha: 0.75 + 0.2 * sin(t * 2)));
+    const colors = [Color(0xFFFFD166), Color(0xFFFF7BD5), Color(0xFF7FD8FF)];
+    const bursts = 4, period = 2.6;
+    for (var b = 0; b < bursts; b++) {
+      final local = t + b * period / bursts;
+      final cycle = (local / period).floor();
+      final p = (local % period) / period;
+      if (p > 0.75) continue;
+      final q = p / 0.75;
+      // 煙火在她兩側和頭頂，避開臉
+      final side = _h(cycle * 7 + b) < 0.5 ? -1.0 : 1.0;
+      final center = Offset(c.dx + side * stage.width * (0.32 + 0.18 * _h(cycle * 3 + b)), stage.top + stage.height * (0.05 + 0.5 * _h(cycle * 5 + b)));
+      final color = colors[(cycle + b) % colors.length];
+      final reach = stage.width * 0.13 * Curves.easeOut.transform(q);
+      final alpha = (1 - q) * 0.95;
+      for (var j = 0; j < 12; j++) {
+        final a = j / 12 * 2 * pi;
+        final d = Offset(cos(a), sin(a));
+        canvas.drawLine(center + d * reach * 0.4, center + d * reach, Paint()..color = color.withValues(alpha: alpha)..strokeWidth = 2..strokeCap = StrokeCap.round);
+      }
+      canvas.drawCircle(center, 3 * (1 - q), Paint()..color = Colors.white.withValues(alpha: alpha));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NewYearSkinPainter old) => old.stage != stage;
 }

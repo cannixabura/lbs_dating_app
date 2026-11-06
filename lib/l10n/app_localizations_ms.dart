@@ -3081,4 +3081,55 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get wgViewList => 'Buka kumpulan';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return 'Sudah pukul $hour. Masih berjaga? Saya ada di dalam cahaya bersama anda.';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return 'Pukul $hour, selamat pagi. Hari ini santai sahaja.';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return 'Pukul $hour. Bagaimana bandar anda malam ini?';
+  }
+
+  @override
+  String get aiyaCameoNyReady => 'Sedia? Mari kira detik bersama!';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return 'Selamat Tahun Baru! $year, kita semua dalam bilik yang sama.';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ Gaya';
+
+  @override
+  String get aiyaSkinTitle => 'Gaya AIYA';
+
+  @override
+  String get aiyaSkinSubtitle => 'Hanya anda yang nampak gaya AIYA anda';
+
+  @override
+  String get aiyaSkinNone => 'Asal';
+
+  @override
+  String get aiyaSkinStarlight => 'Cahaya Bintang';
+
+  @override
+  String get aiyaSkinStarlightSub => 'Untuk Rakan AIYA';
+
+  @override
+  String get aiyaSkinXmas => 'Krismas';
+
+  @override
+  String get aiyaSkinNewYear => 'Tahun Baru Kuantum';
+
+  @override
+  String get aiyaSkinNote =>
+      'Gaya perayaan dibeli sekali dan kekal milik anda. Ia hanya mengubah rupa AIYA. Edisi terhad tidak dijual lagi selepas tempoh jualan.';
 }

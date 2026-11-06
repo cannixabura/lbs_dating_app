@@ -850,5 +850,19 @@
   "guideS19L6": "找人：在人群里找不到彼此时，点“举旗”，整个屏幕会变成团色并闪烁、显示你的团号，举起来让大家看到。真的走散了，团员可以点“我迷路了”，把此刻的位置传一次给团主（只传这一次，30 分钟后删除），团主的手机会响起提醒，地图上出现红色图钉，可以直接导航过去。",
   "wgLostAlert": "{no} 号迷路了",
   "wgHelpAlert": "{no} 号需要帮忙",
-  "wgViewList": "查看低语团"
+  "wgViewList": "查看低语团",
+  "aiyaCameoChimeNight": "{hour} 点了。还醒着的人，我在光里陪你。",
+  "aiyaCameoChimeMorning": "{hour} 点了，早安。今天也慢慢来。",
+  "aiyaCameoChimeEvening": "{hour} 点了。今晚的城市，你好吗？",
+  "aiyaCameoNyReady": "准备好了吗？我们一起倒数！",
+  "aiyaCameoNewYear": "新年快乐！{year}，我们在同一个房间。",
+  "aiyaSkinEntry": "✦ 造型",
+  "aiyaSkinTitle": "艾娅的造型",
+  "aiyaSkinSubtitle": "只有你看得到自己的艾娅换造型",
+  "aiyaSkinNone": "原本的艾娅",
+  "aiyaSkinStarlight": "星光",
+  "aiyaSkinStarlightSub": "艾娅之友专属",
+  "aiyaSkinXmas": "圣诞",
+  "aiyaSkinNewYear": "量子跨年",
+  "aiyaSkinNote": "节日造型是一次购买、永久拥有，只改变艾娅的样子，不影响聊天次数。限定款过了销售期就不再上架。"
 }

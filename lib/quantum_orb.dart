@@ -24,12 +24,17 @@ const orbStyles = ['glow', 'ring', 'rainbow', 'xmas', 'newyear'];
 const orbDefaultStyle = 'glow';
 
 /// 特殊款的商店商品代號（App Store Connect 與 Play Console 都用同一個代號）
-const orbProducts = {'rainbow': 'orb_rainbow', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear'};
+const orbProducts = {'rainbow': 'orb_rainbow', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear', 'aiya_xmas': 'aiya_skin_xmas', 'aiya_newyear': 'aiya_skin_newyear'};
+
+/// 艾婭節日造型：和光球共用購買與擁有紀錄（orbOwned），但不是光球款式，只有買的人看得到自己的艾婭換造型
+const aiyaSkins = ['aiya_xmas', 'aiya_newyear'];
 
 /// 限定款的最後販售時間（台北時間，和 orbs.js 相同）：過了就不再賣，買過的人永久保留
 final orbLimitedUntil = {
   'xmas': DateTime.utc(2026, 12, 25, 15, 59, 59), // 12/25 23:59:59 台北
   'newyear': DateTime.utc(2027, 1, 1, 15, 59, 59), // 1/1 23:59:59 台北
+  'aiya_xmas': DateTime.utc(2026, 12, 25, 15, 59, 59),
+  'aiya_newyear': DateTime.utc(2027, 1, 1, 15, 59, 59),
 };
 
 /// 量子跨年那一刻（量子中心午夜）：跨年款在之後 5 分鐘綻開得特別大
@@ -57,6 +62,8 @@ String orbStyleName(String style) => switch (style) {
       'rainbow' => tr.orbStyleRainbow,
       'xmas' => tr.orbStyleXmas,
       'newyear' => tr.orbStyleNewYear,
+      'aiya_xmas' => tr.aiyaSkinXmas,
+      'aiya_newyear' => tr.aiyaSkinNewYear,
       _ => tr.orbStyleGlow,
     };
 
@@ -347,6 +354,31 @@ class QuantumOrbPainter extends CustomPainter {
       old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.t != t || old.bloom != bloom || old.front != front || old.photo != photo;
 }
 
+// ---------- 艾婭的造型 ----------
+
+/// 艾婭的造型：auto（艾婭之友是星光，否則原本）、none、starlight、aiya_xmas、aiya_newyear
+class AiyaSkinPrefs {
+  AiyaSkinPrefs._();
+  static const _key = 'aiya_skin';
+  static final selected = ValueNotifier<String>('auto');
+  static Future<void> load() async {
+    try { selected.value = (await SharedPreferences.getInstance()).getString(_key) ?? 'auto'; } catch (_) {}
+  }
+  static Future<void> set(String v) async {
+    selected.value = v;
+    try { await (await SharedPreferences.getInstance()).setString(_key, v); } catch (_) {}
+  }
+
+  /// 實際要顯示的造型（買過、或艾婭之友才有星光）
+  static String effective({required bool friend, required Set<String> owned}) {
+    final v = selected.value;
+    if (aiyaSkins.contains(v) && owned.contains(v)) return v;
+    if (v == 'starlight' && friend) return 'starlight';
+    if (v == 'auto' && friend) return 'starlight';
+    return 'none';
+  }
+}
+
 // ---------- 選擇的款式 ----------
 
 class OrbPrefs {
@@ -471,7 +503,10 @@ class OrbStore {
     if (granted.isNotEmpty) {
       notice.value = tr.orbPurchased(orbStyleName(granted.first));
       // 剛買的款式直接換上
-      if (toVerify.any((p) => p.status == PurchaseStatus.purchased)) await OrbPrefs.set(granted.first);
+      if (toVerify.any((p) => p.status == PurchaseStatus.purchased)) {
+        if (orbStyles.contains(granted.first)) await OrbPrefs.set(granted.first);
+        if (aiyaSkins.contains(granted.first)) AiyaSkinPrefs.set(granted.first);
+      }
     } else if (owner.isNotEmpty) {
       notice.value = tr.orbOwnedElsewhere;
     } else {

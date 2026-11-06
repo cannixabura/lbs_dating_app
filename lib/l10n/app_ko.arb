@@ -850,5 +850,19 @@
   "guideS19L6": "서로 찾기: 사람이 많아 못 찾을 때 \"깃발 들기\"를 누르면 화면 전체가 그룹 색으로 깜박이며 내 번호가 보여요. 정말 길을 잃으면 멤버가 \"길을 잃었어요\"를 눌러 지금 위치를 리더에게 한 번 보낼 수 있어요 (30분 뒤 삭제). 리더 휴대폰이 울리고 지도에 빨간 핀이 나타나며 길 안내도 받을 수 있어요.",
   "wgLostAlert": "{no}번이 길을 잃었어요",
   "wgHelpAlert": "{no}번이 도움이 필요해요",
-  "wgViewList": "그룹 열기"
+  "wgViewList": "그룹 열기",
+  "aiyaCameoChimeNight": "{hour}시예요. 아직 깨어 있는 사람, 빛 속에서 함께할게요.",
+  "aiyaCameoChimeMorning": "{hour}시, 좋은 아침이에요. 오늘도 천천히 가요.",
+  "aiyaCameoChimeEvening": "{hour}시예요. 오늘 밤 당신의 도시는 어때요?",
+  "aiyaCameoNyReady": "준비됐어요? 같이 카운트다운해요!",
+  "aiyaCameoNewYear": "새해 복 많이 받아요! {year}, 우리 모두 같은 방에 있어요.",
+  "aiyaSkinEntry": "✦ 스타일",
+  "aiyaSkinTitle": "아이야의 스타일",
+  "aiyaSkinSubtitle": "스타일은 나에게만 보여요",
+  "aiyaSkinNone": "원래 아이야",
+  "aiyaSkinStarlight": "스타라이트",
+  "aiyaSkinStarlightSub": "아이야의 친구 전용",
+  "aiyaSkinXmas": "크리스마스",
+  "aiyaSkinNewYear": "퀀텀 새해",
+  "aiyaSkinNote": "시즌 스타일은 한 번 사면 계속 쓸 수 있어요. 모습만 바뀌고 대화 횟수에는 영향이 없어요. 한정판은 판매 기간 뒤 다시 팔지 않아요."
 }

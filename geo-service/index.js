@@ -24,6 +24,7 @@ const parallel = require("./parallel");
 const quantum = require("./quantum");
 const orbs = require("./orbs");
 const aiya = require("./aiya");
+const refunds = require("./refunds");
 const wgroup = require("./whispergroup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
@@ -1159,7 +1160,32 @@ async function grantAiyaPack(uid, { credits, receipt }) {
     const claim = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur == null ? uid : undefined));
     if (!claim.committed) return (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val() === uid ? "already" : "owned_elsewhere";
     await db.ref(`aiyaCredits/${uid}`).transaction((cur) => (Number(cur) || 0) + credits);
+    await db.ref(`aiyaPackCredits/${receipt}`).set(credits); // 退款時知道要扣幾次（Google 的退款清單沒有商品編號）
     return "granted";
+}
+
+/**
+ * 退款：收據標成 refunded（之後不能再兌換），時光包扣回次數（最少到 0），光球／艾婭造型從帳號拿掉。
+ * 同一筆收據處理第二次不會重複扣。credits 有給（Apple 通知裡算得出來）就用它，否則看兌換時記下的次數。
+ */
+async function applyRefund(receipt, credits) {
+    const db = admin.database();
+    const done = [];
+    const packOwner = (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val();
+    if (typeof packOwner === "string" && packOwner !== refunds.REFUNDED) {
+        const n = Number(credits) || Number((await db.ref(`aiyaPackCredits/${receipt}`).once("value")).val()) || 0;
+        const mark = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur === packOwner ? refunds.REFUNDED : undefined));
+        if (mark.committed && n > 0) await db.ref(`aiyaCredits/${packOwner}`).transaction((cur) => refunds.deduct(cur, n));
+        if (mark.committed) done.push(`pack-${n}`);
+    }
+    const orbOwner = (await db.ref(`orbReceipts/${receipt}`).once("value")).val();
+    if (typeof orbOwner === "string" && orbOwner !== refunds.REFUNDED) {
+        const owned = (await db.ref(`orbOwned/${orbOwner}`).once("value")).val() || {};
+        const updates = { [`orbReceipts/${receipt}`]: refunds.REFUNDED };
+        for (const style of refunds.stylesWithReceipt(owned, receipt)) { updates[`orbOwned/${orbOwner}/${style}`] = null; done.push(style); }
+        await db.ref().update(updates);
+    }
+    return done;
 }
 
 exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY], timeoutSeconds: 60 }, (req, res) => {
@@ -1329,6 +1355,11 @@ exports.appStoreNotify = onRequest({ region: "asia-southeast1" }, async (req, re
     const info = payload.data && payload.data.signedTransactionInfo;
     if (!info) return res.status(200).send("ok");
     const tx = orbs.verifyAppleJws(info);
+    const refund = refunds.appleRefundTarget(payload.notificationType, tx, orbs.BUNDLE_ID);
+    if (refund) {
+      console.log("appStoreNotify refund:", payload.notificationType, tx.productId, (await applyRefund(refund.receipt, refund.credits)).join(",") || "nothing to undo");
+      return res.status(200).send("ok");
+    }
     if (tx.productId !== aiya.FRIEND_PRODUCT) {
       console.log("appStoreNotify:", payload.notificationType, tx.productId);
       return res.status(200).send("ok");
@@ -1666,6 +1697,29 @@ exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_S
 });
 
 // 每分鐘：集合呼叫還沒按「收到」的團員再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來
+// ============================================================================
+// Google Play 退款：每天查最近 3 天被退款／退單／撤銷的一次性購買（時光包、光球、艾婭造型）
+// ============================================================================
+exports.googleRefunds = onSchedule({ schedule: "every day 04:30", timeZone: "Asia/Taipei", region: "asia-southeast1" }, async () => {
+  const { GoogleAuth } = require("google-auth-library");
+  const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
+  const startTime = Date.now() - 3 * 86400000;
+  let pageToken, handled = 0;
+  do {
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/voidedpurchases?startTime=${startTime}&maxResults=1000${pageToken ? `&token=${encodeURIComponent(pageToken)}` : ""}`;
+    const data = (await client.request({ url })).data || {};
+    for (const receipt of refunds.googleVoidedReceipts(data.voidedPurchases)) {
+      try {
+        if ((await applyRefund(receipt)).length) handled++;
+      } catch (e) {
+        console.warn("googleRefunds failed:", e.message);
+      }
+    }
+    pageToken = data.tokenPagination && data.tokenPagination.nextPageToken;
+  } while (pageToken);
+  console.log("googleRefunds: handled", handled);
+});
+
 exports.remindWhisperGroups = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
   const now = Date.now();
   const codes = (await sendUpstashCommand(["SMEMBERS", wgroup.KEY.activeCalls])) || [];

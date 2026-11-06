@@ -451,6 +451,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     WhisperGroup.incomingRoll.addListener(_onWgIncomingRoll);
     _listenGroupLinks();
     OrbPrefs.load().then((_) => OrbStore.loadOwned());
+    AiyaSkinPrefs.load();
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
     _audioPlayer.setSource(AssetSource('audio/knock.mp3'));

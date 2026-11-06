@@ -2946,4 +2946,55 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get wgViewList => '그룹 열기';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour시예요. 아직 깨어 있는 사람, 빛 속에서 함께할게요.';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour시, 좋은 아침이에요. 오늘도 천천히 가요.';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour시예요. 오늘 밤 당신의 도시는 어때요?';
+  }
+
+  @override
+  String get aiyaCameoNyReady => '준비됐어요? 같이 카운트다운해요!';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return '새해 복 많이 받아요! $year, 우리 모두 같은 방에 있어요.';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ 스타일';
+
+  @override
+  String get aiyaSkinTitle => '아이야의 스타일';
+
+  @override
+  String get aiyaSkinSubtitle => '스타일은 나에게만 보여요';
+
+  @override
+  String get aiyaSkinNone => '원래 아이야';
+
+  @override
+  String get aiyaSkinStarlight => '스타라이트';
+
+  @override
+  String get aiyaSkinStarlightSub => '아이야의 친구 전용';
+
+  @override
+  String get aiyaSkinXmas => '크리스마스';
+
+  @override
+  String get aiyaSkinNewYear => '퀀텀 새해';
+
+  @override
+  String get aiyaSkinNote =>
+      '시즌 스타일은 한 번 사면 계속 쓸 수 있어요. 모습만 바뀌고 대화 횟수에는 영향이 없어요. 한정판은 판매 기간 뒤 다시 팔지 않아요.';
 }

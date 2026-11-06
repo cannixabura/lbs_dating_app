@@ -2927,4 +2927,55 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get wgViewList => 'グループを開く';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return '$hour 時です。まだ起きている人、光の中でそばにいるよ。';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return '$hour 時、おはよう。今日もゆっくりいこう。';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return '$hour 時。今夜の街、元気？';
+  }
+
+  @override
+  String get aiyaCameoNyReady => '準備はいい？一緒にカウントダウン！';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return 'あけましておめでとう！$year、みんな同じ部屋にいるよ。';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ スタイル';
+
+  @override
+  String get aiyaSkinTitle => 'アイヤのスタイル';
+
+  @override
+  String get aiyaSkinSubtitle => 'スタイルはあなたにだけ見えます';
+
+  @override
+  String get aiyaSkinNone => 'いつものアイヤ';
+
+  @override
+  String get aiyaSkinStarlight => 'スターライト';
+
+  @override
+  String get aiyaSkinStarlightSub => 'アイヤの友だち限定';
+
+  @override
+  String get aiyaSkinXmas => 'クリスマス';
+
+  @override
+  String get aiyaSkinNewYear => '量子カウントダウン';
+
+  @override
+  String get aiyaSkinNote =>
+      '季節スタイルは買い切りでずっと使えます。見た目だけで、会話回数には影響しません。限定品は販売期間後は再販しません。';
 }

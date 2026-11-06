@@ -3148,4 +3148,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wgViewList => 'Open group';
+
+  @override
+  String aiyaCameoChimeNight(int hour) {
+    return 'It\'s $hour o\'clock. Still awake? I\'m here in the light with you.';
+  }
+
+  @override
+  String aiyaCameoChimeMorning(int hour) {
+    return 'It\'s $hour o\'clock. Good morning, take it easy today.';
+  }
+
+  @override
+  String aiyaCameoChimeEvening(int hour) {
+    return 'It\'s $hour o\'clock. How is your city tonight?';
+  }
+
+  @override
+  String get aiyaCameoNyReady => 'Ready? Let\'s count down together!';
+
+  @override
+  String aiyaCameoNewYear(int year) {
+    return 'Happy New Year! $year — we\'re all in the same room.';
+  }
+
+  @override
+  String get aiyaSkinEntry => '✦ Looks';
+
+  @override
+  String get aiyaSkinTitle => 'AIYA\'s looks';
+
+  @override
+  String get aiyaSkinSubtitle => 'Only you see the look on your AIYA';
+
+  @override
+  String get aiyaSkinNone => 'Original';
+
+  @override
+  String get aiyaSkinStarlight => 'Starlight';
+
+  @override
+  String get aiyaSkinStarlightSub => 'For AIYA Friends';
+
+  @override
+  String get aiyaSkinXmas => 'Christmas';
+
+  @override
+  String get aiyaSkinNewYear => 'Quantum New Year';
+
+  @override
+  String get aiyaSkinNote =>
+      'Holiday looks are one-time purchases you keep forever. They only change how AIYA looks, not your chats. Limited looks are not sold again after their sale ends.';
 }

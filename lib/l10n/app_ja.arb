@@ -850,5 +850,19 @@
   "guideS19L6": "お互いを探す：人混みで見つからないときは「旗を掲げる」をタップ。画面全体がグループ色で点滅し、番号が表示されます。本当にはぐれたら、メンバーは「迷子になった」で現在地を 1 回だけリーダーに送れます（30 分後に削除）。リーダーのスマホに通知が届き、地図に赤いピンが表示され、経路案内もできます。",
   "wgLostAlert": "{no} 番が迷子です",
   "wgHelpAlert": "{no} 番が助けを求めています",
-  "wgViewList": "グループを開く"
+  "wgViewList": "グループを開く",
+  "aiyaCameoChimeNight": "{hour} 時です。まだ起きている人、光の中でそばにいるよ。",
+  "aiyaCameoChimeMorning": "{hour} 時、おはよう。今日もゆっくりいこう。",
+  "aiyaCameoChimeEvening": "{hour} 時。今夜の街、元気？",
+  "aiyaCameoNyReady": "準備はいい？一緒にカウントダウン！",
+  "aiyaCameoNewYear": "あけましておめでとう！{year}、みんな同じ部屋にいるよ。",
+  "aiyaSkinEntry": "✦ スタイル",
+  "aiyaSkinTitle": "アイヤのスタイル",
+  "aiyaSkinSubtitle": "スタイルはあなたにだけ見えます",
+  "aiyaSkinNone": "いつものアイヤ",
+  "aiyaSkinStarlight": "スターライト",
+  "aiyaSkinStarlightSub": "アイヤの友だち限定",
+  "aiyaSkinXmas": "クリスマス",
+  "aiyaSkinNewYear": "量子カウントダウン",
+  "aiyaSkinNote": "季節スタイルは買い切りでずっと使えます。見た目だけで、会話回数には影響しません。限定品は販売期間後は再販しません。"
 }

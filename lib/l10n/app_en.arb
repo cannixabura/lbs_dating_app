@@ -850,5 +850,19 @@
   "guideS19L6": "Finding each other: in a crowd, tap \"Raise flag\" and your whole screen flashes in the group color with your number; hold it up so others can spot you. If a member really gets separated, they can tap \"I'm lost\" to send their current location to the leader once (deleted after 30 minutes). The leader's phone alerts them, a red pin appears on the map, and they can get directions.",
   "wgLostAlert": "No. {no} is lost",
   "wgHelpAlert": "No. {no} needs help",
-  "wgViewList": "Open group"
+  "wgViewList": "Open group",
+  "aiyaCameoChimeNight": "It's {hour} o'clock. Still awake? I'm here in the light with you.",
+  "aiyaCameoChimeMorning": "It's {hour} o'clock. Good morning, take it easy today.",
+  "aiyaCameoChimeEvening": "It's {hour} o'clock. How is your city tonight?",
+  "aiyaCameoNyReady": "Ready? Let's count down together!",
+  "aiyaCameoNewYear": "Happy New Year! {year} — we're all in the same room.",
+  "aiyaSkinEntry": "✦ Looks",
+  "aiyaSkinTitle": "AIYA's looks",
+  "aiyaSkinSubtitle": "Only you see the look on your AIYA",
+  "aiyaSkinNone": "Original",
+  "aiyaSkinStarlight": "Starlight",
+  "aiyaSkinStarlightSub": "For AIYA Friends",
+  "aiyaSkinXmas": "Christmas",
+  "aiyaSkinNewYear": "Quantum New Year",
+  "aiyaSkinNote": "Holiday looks are one-time purchases you keep forever. They only change how AIYA looks, not your chats. Limited looks are not sold again after their sale ends."
 }

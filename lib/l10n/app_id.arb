@@ -850,5 +850,19 @@
   "guideS19L6": "Saling mencari: di keramaian, ketuk \"Angkat bendera\" dan seluruh layar berkedip dengan warna grup serta nomormu. Kalau benar-benar terpisah, anggota bisa mengetuk \"Aku tersesat\" untuk mengirim lokasi saat ini sekali ke pemimpin (dihapus setelah 30 menit). Ponsel pemimpin berbunyi, pin merah muncul di peta, dan bisa langsung minta petunjuk arah.",
   "wgLostAlert": "No. {no} tersesat",
   "wgHelpAlert": "No. {no} butuh bantuan",
-  "wgViewList": "Buka grup"
+  "wgViewList": "Buka grup",
+  "aiyaCameoChimeNight": "Sudah jam {hour}. Masih terjaga? Aku ada di cahaya menemanimu.",
+  "aiyaCameoChimeMorning": "Jam {hour}, selamat pagi. Hari ini pelan-pelan saja.",
+  "aiyaCameoChimeEvening": "Jam {hour}. Bagaimana kotamu malam ini?",
+  "aiyaCameoNyReady": "Siap? Ayo hitung mundur bersama!",
+  "aiyaCameoNewYear": "Selamat Tahun Baru! {year}, kita semua di ruang yang sama.",
+  "aiyaSkinEntry": "✦ Gaya",
+  "aiyaSkinTitle": "Gaya AIYA",
+  "aiyaSkinSubtitle": "Hanya kamu yang melihat gaya AIYA-mu",
+  "aiyaSkinNone": "Asli",
+  "aiyaSkinStarlight": "Cahaya Bintang",
+  "aiyaSkinStarlightSub": "Khusus Teman AIYA",
+  "aiyaSkinXmas": "Natal",
+  "aiyaSkinNewYear": "Tahun Baru Kuantum",
+  "aiyaSkinNote": "Gaya liburan dibeli sekali dan jadi milikmu selamanya. Hanya mengubah tampilan AIYA. Edisi terbatas tidak dijual lagi setelah masa penjualan."
 }

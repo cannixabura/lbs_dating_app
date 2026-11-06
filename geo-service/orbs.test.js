@@ -99,3 +99,14 @@ test('onSale：限定款只在販售期間買得到，免費款不用買', () =>
     assert.strictEqual(o.resolveStyle('newyear', { newyear: {} }), 'newyear');
     assert.strictEqual(o.resolveStyle('newyear', {}), 'glow');
 });
+
+test('艾婭造型：和光球共用購買驗證，但不能當光球款式', () => {
+    const o = require('./orbs');
+    assert.strictEqual(o.styleOfProduct('aiya_skin_xmas'), 'aiya_xmas');
+    assert.strictEqual(o.isSkin('aiya_xmas'), true);
+    assert.strictEqual(o.isStyle('aiya_xmas'), false);
+    assert.strictEqual(o.resolveStyle('aiya_xmas', { aiya_xmas: {} }), 'glow');
+    assert.strictEqual(o.onSale('aiya_newyear', Date.parse('2026-12-30T00:00:00+08:00')), true);
+    assert.strictEqual(o.onSale('aiya_xmas', Date.parse('2026-12-26T00:00:00+08:00')), false);
+    assert.ok(!o.FREE_STYLES.includes('aiya_xmas'));
+});

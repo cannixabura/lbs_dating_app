@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/l10n.dart';
 import '../quantum_live.dart';
+import '../quantum_newyear.dart';
 import '../ui/night.dart';
 import 'aiya_face.dart';
 import 'aiya_particles.dart';
@@ -17,6 +18,7 @@ import 'aiya_video.dart';
 /// ① 整點報時：鐘聲前幾秒聚成她，說「N 點了」，報時結束散回光柱
 /// ② 每天第一次進入量子世界：揮手打招呼
 /// ③ 偶遇：每 10～20 分鐘隨機出現幾秒（眨眼、看旁邊、害羞、微笑）
+/// ④ 量子跨年：量子中心午夜前 14 秒聚成她，最後 10 秒帶全世界倒數，午夜說新年快樂
 /// 點她就等於敲門。設定裡關掉艾婭時整個不顯示（由外層決定要不要放這個 widget）。
 class AiyaCameo extends StatefulWidget {
   /// 光柱底部的畫面位置與光柱高度；光柱不在畫面上時回傳 null
@@ -28,7 +30,7 @@ class AiyaCameo extends StatefulWidget {
   State<AiyaCameo> createState() => _AiyaCameoState();
 }
 
-enum _Kind { chime, hello, random }
+enum _Kind { chime, hello, random, newYear }
 
 /// 本機測試：--dart-define=AIYA_CAMEO_TEST=true，App 直接打開一根測試光柱；
 /// 時鐘快轉到整點前 40 秒，依序看到：打招呼 → 整點 → 偶遇
@@ -109,6 +111,12 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
     if (!_onScreen || _visible) return;
     final now = _now();
     final t = QuantumChime.offset(now), hour = QuantumChime.hourKey(now);
+    // ④ 量子跨年：比平常早一點聚，倒數完、煙火開始後再散回
+    if (hour * 3600000 == QuantumNewYear.at(now) && t >= -14 && t < 20 && hour != _lastChimeHour) {
+      _lastChimeHour = hour;
+      _show(_Kind.newYear, Duration(milliseconds: ((25 - t) * 1000).round()));
+      return;
+    }
     // ① 整點：鐘聲前 9 秒開始聚，報時（15 秒）結束後散回
     if (t >= -9 && t < 8 && hour != _lastChimeHour) {
       _lastChimeHour = hour;
@@ -134,6 +142,32 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
     _show(_Kind.hello, const Duration(seconds: 9));
   }
 
+  /// 整點報時的台詞依時段不同
+  String _chimeLine(int hour) => switch (hour) {
+        >= 0 && < 5 => tr.aiyaCameoChimeNight(hour),
+        >= 5 && < 11 => tr.aiyaCameoChimeMorning(hour),
+        >= 18 => tr.aiyaCameoChimeEvening(hour),
+        _ => tr.aiyaCameoChime(hour),
+      };
+
+  /// 量子跨年：準備 → 10、9…1 → 新年快樂（每 200 毫秒跟著時鐘更新字幕）
+  void _countdown() {
+    final at = QuantumNewYear.at(_now());
+    final year = QuantumNewYear.year(at);
+    late final Timer timer;
+    timer = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      if (!mounted || !_visible) { timer.cancel(); return; }
+      final left = (at - _now().millisecondsSinceEpoch) / 1000;
+      final text = left > 10 ? tr.aiyaCameoNyReady : (left > 0 ? '${left.ceil()}' : tr.aiyaCameoNewYear(year));
+      if (text != _caption) {
+        setState(() => _caption = text);
+        if (left <= 0) _video.play('hello', _anim.time, loop: false);
+      }
+      if (left < -15) timer.cancel();
+    });
+    _timers.add(timer);
+  }
+
   Future<void> _show(_Kind kind, Duration stay) async {
     if (_holo == null) {
       final r = await Future.wait([AiyaHolo.load(), aiyaDotSprite(), _video.preload(['idle', 'hello', 'talk_soft', 'wink', 'think', 'shy'])]);
@@ -146,7 +180,7 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
     _anim.formTarget = 1;
     if (!_ticker.isActive) _ticker.start();
     final clip = switch (kind) {
-      _Kind.chime => 'talk_soft',
+      _Kind.chime || _Kind.newYear => 'talk_soft',
       _Kind.hello => 'hello',
       _Kind.random => const ['wink', 'think', 'shy', 'idle'][_rnd.nextInt(4)],
     };
@@ -156,11 +190,12 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
       if (!mounted || !_visible) return;
       _video.play(clip, _anim.time, loop: false);
       final text = switch (kind) {
-        _Kind.chime => tr.aiyaCameoChime(QuantumChime.strikes(_now().add(const Duration(seconds: 10))) % 24),
+        _Kind.chime => _chimeLine(QuantumChime.strikes(_now().add(const Duration(seconds: 10))) % 24),
         _Kind.hello => tr.aiyaCameoHello,
-        _Kind.random => null,
+        _Kind.random || _Kind.newYear => null,
       };
       setState(() => _caption = text);
+      if (kind == _Kind.newYear) _countdown();
     }));
     _hide?.cancel();
     _hide = Timer(stay, () {

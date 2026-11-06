@@ -24,14 +24,19 @@ const STYLES = {
     rainbow: { product: 'orb_rainbow' }, // 彩虹（長期販售）
     xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
     newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定
+    // 艾婭節日造型：只有買的人看到自己的艾婭換造型；和光球共用購買驗證與擁有紀錄（orbOwned），但不是光球款式
+    aiya_xmas: { product: 'aiya_skin_xmas', until: Date.parse('2026-12-25T23:59:59+08:00'), skin: true },
+    aiya_newyear: { product: 'aiya_skin_newyear', until: Date.parse('2027-01-01T23:59:59+08:00'), skin: true },
 };
 
 /** 這一款現在買不買得到：免費款不用買；限定款過了販售期就買不到 */
-const onSale = (s, now = Date.now()) => isStyle(s) && !!STYLES[s].product && !(STYLES[s].until && now > STYLES[s].until);
+const onSale = (s, now = Date.now()) => (isStyle(s) || isSkin(s)) && !!STYLES[s].product && !(STYLES[s].until && now > STYLES[s].until);
 
 const FREE_STYLES = Object.keys(STYLES).filter((s) => !STYLES[s].product);
 const styleOfProduct = (productId) => Object.keys(STYLES).find((s) => STYLES[s].product === productId) || null;
-const isStyle = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s);
+/** 光球款式（艾婭造型不算：不能拿來當量子世界的頭像） */
+const isStyle = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !STYLES[s].skin;
+const isSkin = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !!STYLES[s].skin;
 const isFree = (s) => isStyle(s) && !STYLES[s].product;
 
 /** 一筆購買的代號：Apple 用 originalTransactionId，Google 用購買憑證的雜湊（憑證很長，也不必存原文） */
@@ -122,5 +127,5 @@ function resolveStyle(requested, owned) {
 
 module.exports = {
     BUNDLE_ID, DEFAULT_STYLE, STYLES, FREE_STYLES, APPLE_ROOT_G3,
-    styleOfProduct, isStyle, isFree, onSale, receiptKey, verifyAppleJws, appleGrant, googleGrant, resolveStyle,
+    styleOfProduct, isStyle, isSkin, isFree, onSale, receiptKey, verifyAppleJws, appleGrant, googleGrant, resolveStyle,
 };

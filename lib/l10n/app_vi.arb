@@ -850,5 +850,19 @@
   "guideS19L6": "Tìm nhau: giữa đám đông, chạm \"Giơ cờ\" để cả màn hình nhấp nháy màu nhóm và hiện số của bạn. Nếu thật sự bị lạc, thành viên có thể chạm \"Tôi bị lạc\" để gửi vị trí hiện tại một lần cho trưởng nhóm (xóa sau 30 phút). Điện thoại trưởng nhóm sẽ báo, ghim đỏ hiện trên bản đồ và có thể chỉ đường.",
   "wgLostAlert": "Số {no} bị lạc",
   "wgHelpAlert": "Số {no} cần giúp đỡ",
-  "wgViewList": "Mở nhóm"
+  "wgViewList": "Mở nhóm",
+  "aiyaCameoChimeNight": "{hour} giờ rồi. Ai còn thức, mình ở trong ánh sáng cùng bạn.",
+  "aiyaCameoChimeMorning": "{hour} giờ, chào buổi sáng. Hôm nay cứ thong thả nhé.",
+  "aiyaCameoChimeEvening": "{hour} giờ rồi. Thành phố của bạn tối nay thế nào?",
+  "aiyaCameoNyReady": "Sẵn sàng chưa? Cùng đếm ngược nhé!",
+  "aiyaCameoNewYear": "Chúc mừng năm mới! {year}, chúng ta cùng chung một căn phòng.",
+  "aiyaSkinEntry": "✦ Diện mạo",
+  "aiyaSkinTitle": "Diện mạo của AIYA",
+  "aiyaSkinSubtitle": "Chỉ bạn thấy diện mạo AIYA của mình",
+  "aiyaSkinNone": "Nguyên bản",
+  "aiyaSkinStarlight": "Ánh sao",
+  "aiyaSkinStarlightSub": "Dành cho Bạn của AIYA",
+  "aiyaSkinXmas": "Giáng sinh",
+  "aiyaSkinNewYear": "Năm mới Lượng tử",
+  "aiyaSkinNote": "Diện mạo lễ hội mua một lần dùng mãi. Chỉ đổi dáng vẻ AIYA, không ảnh hưởng lượt trò chuyện. Bản giới hạn sẽ không bán lại sau khi hết hạn."
 }

@@ -457,7 +457,8 @@ class _HostPanel extends StatelessWidget {
         if (g.call == null && g.rollId == null) for (final m in g.members) _RosterRow(m: m, color: g.tint, onTap: () => _memberMenu(context, g, m)),
         if (g.call != null || g.rollId != null) for (final m in g.members) _RosterRow(m: m, color: g.tint, compact: true, onTap: () => _memberMenu(context, g, m)),
         const SizedBox(height: Night.space4),
-        if (!g.paid && g.count >= g.limit - 2) ...[
+        // 7 天方案：沒開通的團主都看得到（審查人員一個人也找得到購買入口）
+        if (!g.paid) ...[
           _PassCard(g: g),
           const SizedBox(height: Night.space3),
         ],
@@ -888,3 +889,66 @@ class _SolidCard extends StatelessWidget {
 
 @visibleForTesting
 (String, int)? debugParseLink(String s) => WhisperGroup.parseLink(Uri.parse(s));
+
+/// 地圖上的集合點：團色光柱＋底部光環＋集合點說明與距離；集合點在畫面外時，畫面邊緣出現指向它的箭頭。
+/// 座標是團主放的集合點，不是任何人的位置；距離用自己的位置在手機上算。
+class WgPillarPainter extends CustomPainter {
+  final Offset at; // 光柱底部（或畫面邊緣的箭頭位置）
+  final bool offscreen;
+  final Offset center; // 自己在畫面上的位置（箭頭方向用）
+  final Color color;
+  final String label;
+  final double glow; // 0～1 呼吸
+  WgPillarPainter({required this.at, required this.offscreen, required this.center, required this.color, required this.label, required this.glow});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (offscreen) {
+      // 邊緣箭頭：從自己指向集合點
+      final dir = at - center;
+      final a = atan2(dir.dy, dir.dx);
+      canvas.save();
+      canvas.translate(at.dx, at.dy);
+      canvas.rotate(a);
+      canvas.drawCircle(Offset.zero, 22, Paint()..color = color.withValues(alpha: 0.25 + 0.15 * glow));
+      final path = Path()..moveTo(14, 0)..lineTo(-8, -10)..lineTo(-3, 0)..lineTo(-8, 10)..close();
+      canvas.drawPath(path, Paint()..color = color);
+      canvas.restore();
+      _label(canvas, size, at + const Offset(0, 26), center: true);
+      return;
+    }
+    const h = 150.0, w = 14.0;
+    final top = at - const Offset(0, h);
+    // 光柱：底部最亮、往上淡出
+    final beam = Rect.fromLTRB(at.dx - w / 2, top.dy, at.dx + w / 2, at.dy);
+    canvas.drawRect(beam.inflate(10), Paint()
+      ..shader = LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [color.withValues(alpha: 0.35 + 0.15 * glow), color.withValues(alpha: 0)]).createShader(beam.inflate(10))
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+    canvas.drawRect(beam, Paint()
+      ..shader = LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [Colors.white.withValues(alpha: 0.9), color.withValues(alpha: 0.6), color.withValues(alpha: 0)], stops: const [0, 0.35, 1]).createShader(beam));
+    // 底部光環
+    final ring = Rect.fromCenter(center: at, width: 46 + 10 * glow, height: 16 + 4 * glow);
+    canvas.drawOval(ring, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.5..color = color.withValues(alpha: 0.9));
+    canvas.drawOval(ring.inflate(8), Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = color.withValues(alpha: 0.35 * (1 - glow)));
+    _label(canvas, size, top - const Offset(0, 6), center: true, above: true);
+  }
+
+  void _label(Canvas canvas, Size size, Offset anchor, {bool center = false, bool above = false}) {
+    if (label.isEmpty) return;
+    final tp = TextPainter(
+      text: TextSpan(text: label, style: const TextStyle(color: Night.ink, fontSize: 12, fontWeight: FontWeight.w500)),
+      textDirection: TextDirection.ltr, maxLines: 2, textAlign: TextAlign.center,
+    )..layout(maxWidth: 180);
+    var x = anchor.dx - tp.width / 2;
+    var y = above ? anchor.dy - tp.height - 8 : anchor.dy;
+    x = x.clamp(8.0, size.width - tp.width - 8);
+    y = y.clamp(8.0, size.height - tp.height - 8);
+    final bg = RRect.fromRectAndRadius(Rect.fromLTWH(x - 10, y - 5, tp.width + 20, tp.height + 10), const Radius.circular(12));
+    canvas.drawRRect(bg, Paint()..color = Night.night900.withValues(alpha: 0.82));
+    canvas.drawRRect(bg, Paint()..style = PaintingStyle.stroke..strokeWidth = 1..color = color.withValues(alpha: 0.8));
+    tp.paint(canvas, Offset(x, y));
+  }
+
+  @override
+  bool shouldRepaint(covariant WgPillarPainter old) => old.at != at || old.offscreen != offscreen || old.glow != glow || old.label != label || old.color != color;
+}

@@ -1015,7 +1015,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings → My mood trail lets you look back at the moods and places you\'ve written. It\'s stored only on your phone, and you can turn it off or clear it at any time.';
 
   @override
-  String get guideS11Title => '16. Settings and notifications';
+  String get guideS11Title => '17. Settings and notifications';
 
   @override
   String get guideS11L1 =>
@@ -1030,7 +1030,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every Friday from 21:00 to 23:00 is Light-up Night, when everyone comes online together and the city shines brightest.';
 
   @override
-  String get guideS12Title => '17. Reporting and blocking';
+  String get guideS12Title => '18. Reporting and blocking';
 
   @override
   String get guideS12L1 =>
@@ -1049,7 +1049,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you\'re in immediate danger, call your local emergency number (110 in Taiwan).';
 
   @override
-  String get guideS13Title => '18. Privacy and your account';
+  String get guideS13Title => '19. Privacy and your account';
 
   @override
   String get guideS13L1 =>
@@ -1087,7 +1087,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'People from Parallel Universe have a dashed ring and show their city. You can still send glimmers, knock and chat. Whispers, letters to the future and gatherings stay local.';
 
   @override
-  String get guideS15Title => '15. Translation';
+  String get guideS15Title => '16. Translation';
 
   @override
   String get guideS15L1 =>
@@ -3062,4 +3062,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wgChannelDesc => 'When the group leader calls everyone together';
+
+  @override
+  String get guideS19Title => '15. Whisper Groups';
+
+  @override
+  String get guideS19L1 =>
+      'A Whisper Group is a private group for trips, school outings, hikes, outings or event staff. Go to Settings → Gatherings → \"Start a group\", give it a name, pick a color and the number of days (up to 7).';
+
+  @override
+  String get guideS19L2 =>
+      'Joining: the leader taps the group button at the bottom of the map → \"QR code\"; members scan it with the phone camera and the app opens to join. Or go to Settings → Gatherings → \"Join a group\" and enter the 8-character code. Outsiders cannot search for or request to join, and the leader can replace the QR code at any time.';
+
+  @override
+  String get guideS19L3 =>
+      'Calling everyone: the leader taps \"Call everyone\", picks a time and describes the meeting point. Members\' phones play a special sound with a \"short short long\" vibration; in the app they see a countdown, the distance and direction to the meeting point, and a pillar of light on the map. Anyone who has not tapped \"Got it\" is reminded once a minute, up to 3 times; the leader sees who got it, who saw it and who has not responded.';
+
+  @override
+  String get guideS19L4 =>
+      'Roll call: the leader taps \"Roll call\"; members get the same sound and vibration and tap \"I\'m here\", \"5 more min\" or \"Need help\". The leader never sees members\' locations, only their replies.';
+
+  @override
+  String get guideS19L5 =>
+      'Groups of up to 20 people are free. For more, the leader can buy the group 7-day plan: up to 100 people until the group ends. Members never pay. A group lasts at most 7 days; when it expires or the leader ends it, the list and records are deleted.';
 }

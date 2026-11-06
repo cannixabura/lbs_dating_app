@@ -917,7 +917,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定 →「ムードの軌跡」で、これまで書いたムードと場所を振り返れます。データはこの端末にだけ保存され、いつでもオフにしたり消去したりできます。';
 
   @override
-  String get guideS11Title => '16. 設定と通知';
+  String get guideS11Title => '17. 設定と通知';
 
   @override
   String get guideS11L1 => '「夜のリマインダー」：毎晩 21:30 にやさしいお知らせが届きます。設定でオン・オフできます。';
@@ -931,7 +931,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '毎週金曜 21:00〜23:00 は「ライトアップナイト」。みんなで一緒にオンラインになると、街がいちばん明るくなります。';
 
   @override
-  String get guideS12Title => '17. 通報とブロック';
+  String get guideS12Title => '18. 通報とブロック';
 
   @override
   String get guideS12L1 =>
@@ -950,7 +950,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '差し迫った危険があるときは、すぐに現地の緊急通報番号（日本は 110、台湾は 110）に電話してください。';
 
   @override
-  String get guideS13Title => '18. プライバシーとアカウント';
+  String get guideS13Title => '19. プライバシーとアカウント';
 
   @override
   String get guideS13L1 =>
@@ -987,7 +987,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'パラレルユニバースの人には点線の輪があり、いる街が表示されます。光を送る・ノック・チャットもできます。ささやき・未来への手紙・集いはその街だけのものです。';
 
   @override
-  String get guideS15Title => '15. 翻訳';
+  String get guideS15Title => '16. 翻訳';
 
   @override
   String get guideS15L1 =>
@@ -2843,4 +2843,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get wgChannelDesc => 'リーダーが集合を呼びかけたとき';
+
+  @override
+  String get guideS19Title => '15. ささやきグループ';
+
+  @override
+  String get guideS19L1 =>
+      'ささやきグループは旅行、遠足、登山、お出かけ、イベントスタッフ向けの招待制グループです。設定 → 集い →「グループを作る」で名前・色・日数（最長 7 日）を選べば完成です。';
+
+  @override
+  String get guideS19L2 =>
+      '参加：リーダーは地図下のグループボタン →「QR コード」を表示。メンバーはスマホのカメラで読み取るとアプリが開いて参加できます。設定 → 集い →「グループに参加」で 8 文字のコードを入力しても参加できます。外部の人は検索も申請もできず、リーダーはいつでも QR コードを更新できます。';
+
+  @override
+  String get guideS19L3 =>
+      '集合：リーダーが「集合」で時間と集合場所を送ると、メンバーのスマホが専用の音と「短・短・長」の振動で知らせます。アプリにはカウントダウン、集合場所までの距離と方向、地図上のグループ色の光の柱が表示されます。「了解」を押していない人には 1 分ごとに最大 3 回お知らせし、リーダーは了解・既読・反応なしを確認できます。';
+
+  @override
+  String get guideS19L4 =>
+      '点呼：リーダーが「点呼」を押すと、メンバーにも同じ音と振動が届き、「着いた」「あと 5 分」「助けて」で答えます。リーダーにメンバーの位置は見えず、返事だけが見えます。';
+
+  @override
+  String get guideS19L5 =>
+      '20 人までは無料。それ以上はリーダーが「グループ 7 日間プラン」を購入すると、終了まで最大 100 人になります。メンバーは常に無料です。グループは最長 7 日で、期限切れか解散すると名簿と記録はすべて削除されます。';
 }

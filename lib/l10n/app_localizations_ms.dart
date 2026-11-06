@@ -969,7 +969,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Tetapan → Jejak mood saya membolehkan anda melihat semula mood dan tempat yang pernah anda tulis. Ia disimpan hanya dalam telefon anda, dan anda boleh mematikan atau mengosongkannya bila-bila masa.';
 
   @override
-  String get guideS11Title => '16. Tetapan dan pemberitahuan';
+  String get guideS11Title => '17. Tetapan dan pemberitahuan';
 
   @override
   String get guideS11L1 =>
@@ -984,7 +984,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Setiap Jumaat 21:00 hingga 23:00 ialah Malam Bercahaya, apabila semua dalam talian bersama dan bandar paling terang.';
 
   @override
-  String get guideS12Title => '17. Laporan dan sekatan';
+  String get guideS12Title => '18. Laporan dan sekatan';
 
   @override
   String get guideS12L1 =>
@@ -1003,7 +1003,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika anda dalam bahaya segera, hubungi nombor kecemasan tempatan (999 di Malaysia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '18. Privasi dan akaun anda';
+  String get guideS13Title => '19. Privasi dan akaun anda';
 
   @override
   String get guideS13L1 =>
@@ -1041,7 +1041,7 @@ class AppLocalizationsMs extends AppLocalizations {
       'Orang dari Alam Selari mempunyai gelang putus-putus dan menunjukkan bandar mereka. Anda masih boleh menghantar cahaya, mengetuk dan berbual. Bisikan, surat ke masa depan dan perhimpunan kekal di tempat asal.';
 
   @override
-  String get guideS15Title => '15. Terjemahan';
+  String get guideS15Title => '16. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -2995,4 +2995,27 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get wgChannelDesc => 'Bila ketua memanggil semua berkumpul';
+
+  @override
+  String get guideS19Title => '15. Kumpulan Bisikan';
+
+  @override
+  String get guideS19L1 =>
+      'Kumpulan Bisikan ialah kumpulan peribadi untuk lawatan, lawatan sekolah, mendaki, bersiar atau kakitangan acara. Pergi ke Tetapan → Perhimpunan → \"Mulakan kumpulan\", beri nama, pilih warna dan bilangan hari (hingga 7).';
+
+  @override
+  String get guideS19L2 =>
+      'Menyertai: ketua ketik butang kumpulan di bawah peta → \"Kod QR\"; ahli imbas dengan kamera telefon dan aplikasi dibuka untuk menyertai. Atau pergi ke Tetapan → Perhimpunan → \"Sertai kumpulan\" dan masukkan kod 8 aksara. Orang luar tidak boleh mencari atau memohon, dan ketua boleh menukar kod QR bila-bila masa.';
+
+  @override
+  String get guideS19L3 =>
+      'Panggil berkumpul: ketua ketik \"Panggil berkumpul\", pilih masa dan terangkan tempat berkumpul. Telefon ahli memainkan bunyi khas dengan getaran \"pendek pendek panjang\"; dalam aplikasi mereka nampak kiraan detik, jarak dan arah ke tempat berkumpul, serta tiang cahaya di peta. Sesiapa yang belum ketik \"Terima\" diingatkan setiap minit, sehingga 3 kali; ketua nampak siapa terima, siapa melihat dan siapa belum memberi respons.';
+
+  @override
+  String get guideS19L4 =>
+      'Panggilan nama: ketua ketik \"Panggilan nama\"; ahli menerima bunyi dan getaran yang sama dan menjawab \"Saya sudah sampai\", \"5 minit lagi\" atau \"Perlu bantuan\". Ketua tidak pernah nampak lokasi ahli, hanya jawapan mereka.';
+
+  @override
+  String get guideS19L5 =>
+      'Kumpulan sehingga 20 orang adalah percuma. Untuk lebih, ketua boleh membeli pelan 7 hari: sehingga 100 orang sehingga kumpulan tamat. Ahli tidak pernah membayar. Kumpulan paling lama 7 hari; apabila tamat, senarai dan rekod dipadam.';
 }

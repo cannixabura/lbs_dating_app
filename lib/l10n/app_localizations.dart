@@ -1704,7 +1704,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS11Title.
   ///
   /// In zh, this message translates to:
-  /// **'16. 設定與通知'**
+  /// **'17. 設定與通知'**
   String get guideS11Title;
 
   /// No description provided for @guideS11L1.
@@ -1728,7 +1728,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS12Title.
   ///
   /// In zh, this message translates to:
-  /// **'17. 檢舉與封鎖'**
+  /// **'18. 檢舉與封鎖'**
   String get guideS12Title;
 
   /// No description provided for @guideS12L1.
@@ -1758,7 +1758,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS13Title.
   ///
   /// In zh, this message translates to:
-  /// **'18. 隱私與帳號'**
+  /// **'19. 隱私與帳號'**
   String get guideS13Title;
 
   /// No description provided for @guideS13L1.
@@ -1818,7 +1818,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS15Title.
   ///
   /// In zh, this message translates to:
-  /// **'15. 翻譯'**
+  /// **'16. 翻譯'**
   String get guideS15Title;
 
   /// No description provided for @guideS15L1.
@@ -5078,6 +5078,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'團主按下「集合」時的提醒'**
   String get wgChannelDesc;
+
+  /// No description provided for @guideS19Title.
+  ///
+  /// In zh, this message translates to:
+  /// **'15. 低語團'**
+  String get guideS19Title;
+
+  /// No description provided for @guideS19L1.
+  ///
+  /// In zh, this message translates to:
+  /// **'低語團是私人的團體，適合旅行、校外教學、登山、出遊或活動工作人員。設定 → 集會 →「開一個低語團」，取團名、選團色和天數（最長 7 天）就開好了。'**
+  String get guideS19L1;
+
+  /// No description provided for @guideS19L2.
+  ///
+  /// In zh, this message translates to:
+  /// **'入團：團主按地圖下方的低語團按鈕 →「QR code」，團員用手機相機掃描就會打開 App 加入；也可以在設定 → 集會 →「加入低語團」輸入 8 碼團代碼。外人無法搜尋或申請，團主可以隨時換新 QR code。'**
+  String get guideS19L2;
+
+  /// No description provided for @guideS19L3.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合：團主按「集合」，選時間、寫集合點說明，團員的手機會響專屬音效並震動「短短長」，打開 App 會看到倒數、集合點的距離與方向，以及地圖上的團色光柱。沒按「收到」的人每分鐘再提醒一次，最多 3 次；團主看得到誰收到、誰看了沒回、誰沒反應。'**
+  String get guideS19L3;
+
+  /// No description provided for @guideS19L4.
+  ///
+  /// In zh, this message translates to:
+  /// **'點名：團主按「點名」，團員一樣會收到音效與震動，按「我到了」「還要 5 分鐘」或「需要幫忙」。團主看不到團員的位置，只看得到大家的回覆。'**
+  String get guideS19L4;
+
+  /// No description provided for @guideS19L5.
+  ///
+  /// In zh, this message translates to:
+  /// **'20 人以內免費；超過 20 人時，團主可以購買「低語團 7 天方案」，這個團最多 100 人，直到結束。團員永遠免費。低語團最長 7 天，到期或團主解散後，名單與紀錄全部刪除。'**
+  String get guideS19L5;
 }
 
 class _AppLocalizationsDelegate

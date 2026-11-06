@@ -895,7 +895,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS10L2 => '設定 →「我的心情軌跡」可以回顧你寫過的心情與地點，資料只存在你的手機上，可以隨時關閉或清除。';
 
   @override
-  String get guideS11Title => '16. 設定與通知';
+  String get guideS11Title => '17. 設定與通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一則溫和的提醒，可以在設定裡開關。';
@@ -907,7 +907,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS11L3 => '每週五 21:00–23:00 是「點亮之夜」，大家一起上線，城市最亮。';
 
   @override
-  String get guideS12Title => '17. 檢舉與封鎖';
+  String get guideS12Title => '18. 檢舉與封鎖';
 
   @override
   String get guideS12L1 =>
@@ -923,7 +923,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideS12L4 => '遇到立即的危險，請直接撥打 110。';
 
   @override
-  String get guideS13Title => '18. 隱私與帳號';
+  String get guideS13Title => '19. 隱私與帳號';
 
   @override
   String get guideS13L1 =>
@@ -958,7 +958,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '平行宇宙的人有虛線光環，並標示所在的城市；一樣可以送微光、敲門和聊天。低語、低語穿越與集會都只留在當地。';
 
   @override
-  String get guideS15Title => '15. 翻譯';
+  String get guideS15Title => '16. 翻譯';
 
   @override
   String get guideS15L1 => '聊天時，對方的訊息跟你的語言不同，下方會出現「點一下翻譯」；點一下就翻成你的語言，再點一下看原文。';
@@ -2790,6 +2790,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wgChannelDesc => '團主按下「集合」時的提醒';
+
+  @override
+  String get guideS19Title => '15. 低語團';
+
+  @override
+  String get guideS19L1 =>
+      '低語團是私人的團體，適合旅行、校外教學、登山、出遊或活動工作人員。設定 → 集會 →「開一個低語團」，取團名、選團色和天數（最長 7 天）就開好了。';
+
+  @override
+  String get guideS19L2 =>
+      '入團：團主按地圖下方的低語團按鈕 →「QR code」，團員用手機相機掃描就會打開 App 加入；也可以在設定 → 集會 →「加入低語團」輸入 8 碼團代碼。外人無法搜尋或申請，團主可以隨時換新 QR code。';
+
+  @override
+  String get guideS19L3 =>
+      '集合：團主按「集合」，選時間、寫集合點說明，團員的手機會響專屬音效並震動「短短長」，打開 App 會看到倒數、集合點的距離與方向，以及地圖上的團色光柱。沒按「收到」的人每分鐘再提醒一次，最多 3 次；團主看得到誰收到、誰看了沒回、誰沒反應。';
+
+  @override
+  String get guideS19L4 =>
+      '點名：團主按「點名」，團員一樣會收到音效與震動，按「我到了」「還要 5 分鐘」或「需要幫忙」。團主看不到團員的位置，只看得到大家的回覆。';
+
+  @override
+  String get guideS19L5 =>
+      '20 人以內免費；超過 20 人時，團主可以購買「低語團 7 天方案」，這個團最多 100 人，直到結束。團員永遠免費。低語團最長 7 天，到期或團主解散後，名單與紀錄全部刪除。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3682,7 +3705,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS10L2 => '设置 →「我的心情轨迹」可以回顾你写过的心情与地点，数据只存在你的手机上，可以随时关闭或清除。';
 
   @override
-  String get guideS11Title => '16. 设置与通知';
+  String get guideS11Title => '17. 设置与通知';
 
   @override
   String get guideS11L1 => '「每晚提醒」：每天 21:30 一则温和的提醒，可以在设置里开关。';
@@ -3694,7 +3717,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS11L3 => '每周五 21:00–23:00 是「点亮之夜」，大家一起上线，城市最亮。';
 
   @override
-  String get guideS12Title => '17. 举报与屏蔽';
+  String get guideS12Title => '18. 举报与屏蔽';
 
   @override
   String get guideS12L1 =>
@@ -3710,7 +3733,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get guideS12L4 => '遇到紧急危险，请直接拨打当地的紧急电话（台湾为 110）。';
 
   @override
-  String get guideS13Title => '18. 隐私与账号';
+  String get guideS13Title => '19. 隐私与账号';
 
   @override
   String get guideS13L1 =>
@@ -3745,7 +3768,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '平行宇宙的人有虚线光环，并标示所在的城市；一样可以送微光、敲门和聊天。低语、低语穿越与集会都只留在当地。';
 
   @override
-  String get guideS15Title => '15. 翻译';
+  String get guideS15Title => '16. 翻译';
 
   @override
   String get guideS15L1 => '聊天时，对方的消息跟你的语言不同，下方会出现「点一下翻译」；点一下就翻成你的语言，再点一下看原文。';
@@ -5577,4 +5600,27 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get wgChannelDesc => '团主点“集合”时的提醒';
+
+  @override
+  String get guideS19Title => '15. 低语团';
+
+  @override
+  String get guideS19L1 =>
+      '低语团是私人的团体，适合旅行、校外教学、登山、出游或活动工作人员。设置 → 集会 →“开一个低语团”，取团名、选团色和天数（最长 7 天）就开好了。';
+
+  @override
+  String get guideS19L2 =>
+      '入团：团主点地图下方的低语团按钮 →“QR code”，团员用手机相机扫描就会打开 App 加入；也可以在设置 → 集会 →“加入低语团”输入 8 码团代码。外人无法搜索或申请，团主可以随时换新 QR code。';
+
+  @override
+  String get guideS19L3 =>
+      '集合：团主点“集合”，选时间、写集合点说明，团员的手机会响专属音效并震动“短短长”，打开 App 会看到倒数、集合点的距离与方向，以及地图上的团色光柱。没点“收到”的人每分钟再提醒一次，最多 3 次；团主看得到谁收到、谁看了没回、谁没反应。';
+
+  @override
+  String get guideS19L4 =>
+      '点名：团主点“点名”，团员一样会收到音效与震动，点“我到了”“还要 5 分钟”或“需要帮忙”。团主看不到团员的位置，只看得到大家的回复。';
+
+  @override
+  String get guideS19L5 =>
+      '20 人以内免费；超过 20 人时，团主可以购买“低语团 7 天方案”，这个团最多 100 人，直到结束。团员永远免费。低语团最长 7 天，到期或团主解散后，名单与记录全部删除。';
 }

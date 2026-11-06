@@ -3542,6 +3542,33 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
+                      // 低語團的集合點：團色光柱（畫面外就在邊緣出現箭頭）；只在一般雷達、有進行中的集合呼叫時顯示
+                      if (!quantumOn && _currentPosition != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: ValueListenableBuilder<WgGroup?>(
+                              valueListenable: WhisperGroup.current,
+                              builder: (context, g, _) {
+                                final call = g?.call;
+                                if (g == null || call == null) return const SizedBox.shrink();
+                                final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+                                final o = quantumLocal(call.lat, call.lng);
+                                final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
+                                    scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
+                                final screen = (Offset.zero & Size(screenWidth, screenHeight)).deflate(36);
+                                final end = _entangleEnd(proj, screen, o.east, o.north);
+                                if (end == null) return const SizedBox.shrink();
+                                final pos = _currentPosition!;
+                                final dist = Geolocator.distanceBetween(pos.latitude, pos.longitude, call.lat, call.lng);
+                                final distText = dist < 1000 ? '${dist.round()} m' : '${(dist / 1000).toStringAsFixed(1)} km';
+                                return CustomPaint(painter: WgPillarPainter(
+                                  at: end.$1, offscreen: end.$2, center: Offset(centerX, centerY), color: g.tint,
+                                  label: [if (call.place.isNotEmpty) call.place, distText].join('\n'), glow: 0.5,
+                                ));
+                              },
+                            ),
+                          ),
+                        ),
                       // 整點報時（光之使者、鐘聲光圈、光波、報時微光）與糾纏光線：畫在氣泡底下
                       if (quantumOn)
                         Positioned.fill(

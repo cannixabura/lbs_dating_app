@@ -966,7 +966,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Pengaturan → Jejak mood-ku memungkinkanmu melihat kembali mood dan tempat yang pernah kamu tulis. Hanya disimpan di ponselmu, dan bisa dimatikan atau dihapus kapan saja.';
 
   @override
-  String get guideS11Title => '16. Pengaturan dan notifikasi';
+  String get guideS11Title => '17. Pengaturan dan notifikasi';
 
   @override
   String get guideS11L1 =>
@@ -981,7 +981,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Setiap Jumat pukul 21.00–23.00 adalah Malam Bercahaya, saat semua orang online bersama dan kota paling terang.';
 
   @override
-  String get guideS12Title => '17. Laporan dan blokir';
+  String get guideS12Title => '18. Laporan dan blokir';
 
   @override
   String get guideS12L1 =>
@@ -1000,7 +1000,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika kamu dalam bahaya mendesak, hubungi nomor darurat setempat (112 di Indonesia, 110 di Taiwan).';
 
   @override
-  String get guideS13Title => '18. Privasi dan akunmu';
+  String get guideS13Title => '19. Privasi dan akunmu';
 
   @override
   String get guideS13L1 =>
@@ -1038,7 +1038,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Orang dari Semesta Paralel punya cincin putus-putus dan menampilkan kotanya. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol. Bisikan, surat untuk masa depan, dan acara tetap di tempat asalnya.';
 
   @override
-  String get guideS15Title => '15. Terjemahan';
+  String get guideS15Title => '16. Terjemahan';
 
   @override
   String get guideS15L1 =>
@@ -2981,4 +2981,27 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get wgChannelDesc => 'Saat pemimpin memanggil semua berkumpul';
+
+  @override
+  String get guideS19Title => '15. Grup Bisikan';
+
+  @override
+  String get guideS19L1 =>
+      'Grup Bisikan adalah grup pribadi untuk perjalanan, karyawisata, pendakian, jalan-jalan, atau kru acara. Buka Pengaturan → Pertemuan → \"Buat grup\", beri nama, pilih warna dan jumlah hari (maks. 7).';
+
+  @override
+  String get guideS19L2 =>
+      'Bergabung: pemimpin mengetuk tombol grup di bawah peta → \"Kode QR\"; anggota memindainya dengan kamera ponsel dan aplikasi terbuka untuk bergabung. Atau buka Pengaturan → Pertemuan → \"Gabung grup\" dan masukkan kode 8 karakter. Orang luar tidak bisa mencari atau meminta bergabung, dan pemimpin bisa mengganti kode QR kapan saja.';
+
+  @override
+  String get guideS19L3 =>
+      'Panggil kumpul: pemimpin mengetuk \"Panggil kumpul\", memilih waktu, dan menjelaskan titik kumpul. Ponsel anggota berbunyi khusus dengan getaran \"pendek pendek panjang\"; di aplikasi terlihat hitung mundur, jarak dan arah ke titik kumpul, serta pilar cahaya di peta. Yang belum mengetuk \"Terima\" diingatkan tiap menit, maksimal 3 kali; pemimpin melihat siapa yang terima, siapa yang melihat, dan siapa yang belum merespons.';
+
+  @override
+  String get guideS19L4 =>
+      'Absen: pemimpin mengetuk \"Absen\"; anggota menerima bunyi dan getaran yang sama lalu menjawab \"Aku sudah sampai\", \"5 menit lagi\", atau \"Butuh bantuan\". Pemimpin tidak pernah melihat lokasi anggota, hanya jawaban mereka.';
+
+  @override
+  String get guideS19L5 =>
+      'Grup hingga 20 orang gratis. Untuk lebih, pemimpin bisa membeli paket 7 hari: hingga 100 orang sampai grup berakhir. Anggota tidak pernah membayar. Grup paling lama 7 hari; saat berakhir, daftar dan catatan dihapus.';
 }

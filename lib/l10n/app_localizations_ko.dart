@@ -923,7 +923,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '설정 → \'나의 무드 궤적\'에서 지금까지 쓴 무드와 장소를 돌아볼 수 있어요. 데이터는 이 휴대폰에만 저장되며 언제든 끄거나 지울 수 있어요.';
 
   @override
-  String get guideS11Title => '16. 설정과 알림';
+  String get guideS11Title => '17. 설정과 알림';
 
   @override
   String get guideS11L1 =>
@@ -938,7 +938,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '매주 금요일 21:00~23:00는 \'라이트업 나이트\'. 다 함께 접속하면 도시가 가장 밝아져요.';
 
   @override
-  String get guideS12Title => '17. 신고와 차단';
+  String get guideS12Title => '18. 신고와 차단';
 
   @override
   String get guideS12L1 =>
@@ -956,7 +956,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideS12L4 => '급박한 위험이 있다면 바로 현지 긴급 번호(한국 112, 대만 110)로 전화하세요.';
 
   @override
-  String get guideS13Title => '18. 개인정보와 계정';
+  String get guideS13Title => '19. 개인정보와 계정';
 
   @override
   String get guideS13L1 =>
@@ -994,7 +994,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '평행우주의 사람에게는 점선 고리와 있는 도시가 표시돼요. 빛 보내기, 노크, 채팅도 할 수 있어요. 속삭임, 미래로 보내는 편지, 모임은 그 도시에만 남아요.';
 
   @override
-  String get guideS15Title => '15. 번역';
+  String get guideS15Title => '16. 번역';
 
   @override
   String get guideS15L1 =>
@@ -2862,4 +2862,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get wgChannelDesc => '리더가 집합을 부를 때';
+
+  @override
+  String get guideS19Title => '15. 속삭임 그룹';
+
+  @override
+  String get guideS19L1 =>
+      '속삭임 그룹은 여행, 견학, 등산, 나들이, 행사 스태프를 위한 비공개 그룹이에요. 설정 → 모임 → \"그룹 만들기\"에서 이름, 색, 기간(최대 7일)을 고르면 돼요.';
+
+  @override
+  String get guideS19L2 =>
+      '참여: 리더가 지도 아래의 그룹 버튼 → \"QR 코드\"를 보여 주면, 멤버는 휴대폰 카메라로 찍어서 앱을 열고 들어와요. 설정 → 모임 → \"그룹 들어가기\"에서 8자리 코드를 입력해도 돼요. 외부인은 검색하거나 신청할 수 없고, 리더는 언제든 QR 코드를 바꿀 수 있어요.';
+
+  @override
+  String get guideS19L3 =>
+      '집합: 리더가 \"집합\"을 누르고 시간과 모이는 곳을 적으면, 멤버 휴대폰이 전용 소리와 \"짧게 짧게 길게\" 진동으로 알려요. 앱에서는 카운트다운, 모이는 곳까지의 거리와 방향, 지도 위 그룹 색 빛기둥이 보여요. \"확인\"을 누르지 않은 사람에게는 1분마다 최대 3번 다시 알리고, 리더는 확인·읽음·반응 없음을 볼 수 있어요.';
+
+  @override
+  String get guideS19L4 =>
+      '출석 확인: 리더가 \"출석 확인\"을 누르면 멤버도 같은 소리와 진동을 받고 \"도착했어요\", \"5분 더\", \"도움 필요\" 중에서 답해요. 리더는 멤버 위치를 볼 수 없고 답만 볼 수 있어요.';
+
+  @override
+  String get guideS19L5 =>
+      '20명까지는 무료예요. 더 많으면 리더가 \"그룹 7일 플랜\"을 사서 그룹이 끝날 때까지 최대 100명이 될 수 있어요. 멤버는 언제나 무료예요. 그룹은 최대 7일이고, 끝나거나 해산하면 명단과 기록은 모두 삭제돼요.';
 }

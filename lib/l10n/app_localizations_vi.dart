@@ -966,7 +966,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cài đặt → Dấu vết tâm trạng cho bạn xem lại những tâm trạng và nơi bạn đã viết. Dữ liệu chỉ lưu trên điện thoại, có thể tắt hoặc xóa bất cứ lúc nào.';
 
   @override
-  String get guideS11Title => '16. Cài đặt và thông báo';
+  String get guideS11Title => '17. Cài đặt và thông báo';
 
   @override
   String get guideS11L1 =>
@@ -981,7 +981,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mỗi thứ Sáu từ 21:00 đến 23:00 là Đêm Thắp Sáng, khi mọi người cùng online và thành phố sáng nhất.';
 
   @override
-  String get guideS12Title => '17. Báo cáo và chặn';
+  String get guideS12Title => '18. Báo cáo và chặn';
 
   @override
   String get guideS12L1 =>
@@ -1000,7 +1000,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn đang gặp nguy hiểm khẩn cấp, hãy gọi ngay số khẩn cấp tại địa phương (113 ở Việt Nam, 110 ở Đài Loan).';
 
   @override
-  String get guideS13Title => '18. Quyền riêng tư và tài khoản';
+  String get guideS13Title => '19. Quyền riêng tư và tài khoản';
 
   @override
   String get guideS13L1 =>
@@ -1038,7 +1038,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Người từ Vũ trụ song song có vòng nét đứt và hiện thành phố của họ. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện. Lời thì thầm, thư gửi tương lai và buổi tụ họp chỉ ở lại nơi đó.';
 
   @override
-  String get guideS15Title => '15. Dịch';
+  String get guideS15Title => '16. Dịch';
 
   @override
   String get guideS15L1 =>
@@ -2977,4 +2977,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wgChannelDesc => 'Khi trưởng nhóm gọi mọi người tập trung';
+
+  @override
+  String get guideS19Title => '15. Nhóm thì thầm';
+
+  @override
+  String get guideS19L1 =>
+      'Nhóm thì thầm là nhóm riêng tư cho chuyến đi, dã ngoại, leo núi, đi chơi hoặc nhân viên sự kiện. Vào Cài đặt → Tụ họp → \"Tạo nhóm\", đặt tên, chọn màu và số ngày (tối đa 7).';
+
+  @override
+  String get guideS19L2 =>
+      'Vào nhóm: trưởng nhóm chạm nút nhóm ở dưới bản đồ → \"Mã QR\"; thành viên quét bằng camera điện thoại và ứng dụng sẽ mở để vào nhóm. Hoặc vào Cài đặt → Tụ họp → \"Vào nhóm\" và nhập mã 8 ký tự. Người ngoài không thể tìm hay xin vào, và trưởng nhóm có thể đổi mã QR bất cứ lúc nào.';
+
+  @override
+  String get guideS19L3 =>
+      'Gọi tập trung: trưởng nhóm chạm \"Gọi tập trung\", chọn giờ và mô tả điểm hẹn. Điện thoại thành viên phát âm thanh riêng kèm rung \"ngắn ngắn dài\"; trong ứng dụng có đếm ngược, khoảng cách và hướng đến điểm hẹn, cùng cột sáng trên bản đồ. Ai chưa chạm \"Đã nhận\" sẽ được nhắc mỗi phút, tối đa 3 lần; trưởng nhóm thấy ai đã nhận, ai đã xem và ai chưa phản hồi.';
+
+  @override
+  String get guideS19L4 =>
+      'Điểm danh: trưởng nhóm chạm \"Điểm danh\"; thành viên nhận cùng âm thanh và rung, rồi chọn \"Tôi đến rồi\", \"Thêm 5 phút\" hoặc \"Cần giúp\". Trưởng nhóm không bao giờ thấy vị trí của thành viên, chỉ thấy câu trả lời.';
+
+  @override
+  String get guideS19L5 =>
+      'Nhóm đến 20 người miễn phí. Nhiều hơn, trưởng nhóm có thể mua gói 7 ngày: tối đa 100 người đến khi nhóm kết thúc. Thành viên luôn miễn phí. Nhóm tồn tại tối đa 7 ngày; khi kết thúc, danh sách và dữ liệu bị xóa.';
 }

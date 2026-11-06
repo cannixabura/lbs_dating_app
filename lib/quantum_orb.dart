@@ -20,18 +20,43 @@ import 'ui/night.dart';
 const _orbsUrl = String.fromEnvironment('ORBS_URL', defaultValue: 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/orbs');
 
 /// 所有款式，依面板上的順序；和 geo-service/orbs.js 的 STYLES 相同
-const orbStyles = ['glow', 'ring', 'rainbow'];
+const orbStyles = ['glow', 'ring', 'rainbow', 'xmas', 'newyear'];
 const orbDefaultStyle = 'glow';
 
 /// 特殊款的商店商品代號（App Store Connect 與 Play Console 都用同一個代號）
-const orbProducts = {'rainbow': 'orb_rainbow'};
+const orbProducts = {'rainbow': 'orb_rainbow', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear'};
+
+/// 限定款的最後販售時間（台北時間，和 orbs.js 相同）：過了就不再賣，買過的人永久保留
+final orbLimitedUntil = {
+  'xmas': DateTime.utc(2026, 12, 25, 15, 59, 59), // 12/25 23:59:59 台北
+  'newyear': DateTime.utc(2027, 1, 1, 15, 59, 59), // 1/1 23:59:59 台北
+};
+
+/// 量子跨年那一刻（量子中心午夜）：跨年款在之後 5 分鐘綻開得特別大
+final _newYearBloom = DateTime.utc(2026, 12, 31, 16);
 
 bool orbIsFree(String style) => !orbProducts.containsKey(style);
+bool orbIsLimited(String style) => orbLimitedUntil.containsKey(style);
+bool orbOnSale(String style, [DateTime? now]) {
+  if (orbIsFree(style)) return false;
+  final until = orbLimitedUntil[style];
+  return until == null || !(now ?? DateTime.now()).toUtc().isAfter(until);
+}
+
+/// 限定款的截止日（台北的月/日），例如 12/25
+String orbUntilLabel(String style) {
+  final until = orbLimitedUntil[style];
+  if (until == null) return '';
+  final tpe = until.add(const Duration(hours: 8));
+  return '${tpe.month}/${tpe.day}';
+}
 String orbStyleOf(Object? raw) => raw is String && orbStyles.contains(raw) ? raw : orbDefaultStyle;
 
 String orbStyleName(String style) => switch (style) {
       'ring' => tr.orbStyleRing,
       'rainbow' => tr.orbStyleRainbow,
+      'xmas' => tr.orbStyleXmas,
+      'newyear' => tr.orbStyleNewYear,
       _ => tr.orbStyleGlow,
     };
 
@@ -54,15 +79,19 @@ class QuantumOrb extends StatelessWidget {
 
   /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）。
   /// 付費的彩虹款球比較大（地圖上約 31，免費款約 26），畫布一樣大，換款式不會讓版面跳動。
-  static double sphereRatio(String style) => style == 'rainbow' ? 0.56 : 0.465;
+  /// 限定款外面有花圈、煙火，球稍微小一點讓裝飾畫得下。
+  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' => 0.5, _ => 0.465 };
 
   @override
   Widget build(BuildContext context) {
-    // 彩虹光環會轉：用時間算角度，跟著氣泡的呼吸動畫一起重畫
-    final spin = style == 'rainbow' ? (DateTime.now().millisecondsSinceEpoch % 6000) / 6000 * 2 * pi : 0.0;
+    // 彩虹光環會轉、雪花會飄、煙火會綻開：用時間算，跟著氣泡的呼吸動畫一起重畫
+    final ms = DateTime.now().millisecondsSinceEpoch;
+    final spin = style == 'rainbow' ? (ms % 6000) / 6000 * 2 * pi : 0.0;
+    final t = style == 'xmas' || style == 'newyear' ? (ms % 600000) / 1000.0 : 0.0;
+    final bloom = style == 'newyear' && ms >= _newYearBloom.millisecondsSinceEpoch && ms < _newYearBloom.millisecondsSinceEpoch + 5 * 60 * 1000;
     final d = size * sphereRatio(style);
     final photo = image;
-    painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, front: front, photo: photo != null);
+    painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, t: t, bloom: bloom, front: front, photo: photo != null);
     return SizedBox(
       width: size, height: size,
       child: Stack(alignment: Alignment.center, children: [
@@ -90,9 +119,110 @@ class QuantumOrbPainter extends CustomPainter {
   final double glow;
   final bool dim;
   final double spin;
+  final double t; // 秒：限定款的雪花、煙火
+  final bool bloom; // 量子跨年那一刻之後 5 分鐘
   final bool front;
   final bool photo;
-  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0, this.front = false, this.photo = false});
+  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0, this.t = 0, this.bloom = false, this.front = false, this.photo = false});
+
+  static double _hash(int i) {
+    final x = sin(i * 127.1 + 311.7) * 43758.5453;
+    return x - x.floorToDouble();
+  }
+
+  static const _gold = Color(0xFFFFD166);
+
+  /// 聖誕款：一圈冬青花圈（深淺綠葉、紅莓、頂端一顆會閃的金星），雪花慢慢飄過光球
+  void _xmas(Canvas canvas, Size size, Offset c, double r) {
+    final k = dim ? 0.4 : 1.0;
+    final rr = r * 1.34;
+    canvas.drawCircle(c, rr, Paint()..style = PaintingStyle.stroke..strokeWidth = r * 0.12..color = const Color(0xFF17583A).withOpacity(0.9 * k));
+    const leaves = 22;
+    for (var i = 0; i < leaves; i++) {
+      final a = i / leaves * 2 * pi + 0.1;
+      final at = c + Offset(cos(a), sin(a)) * rr;
+      canvas.save();
+      canvas.translate(at.dx, at.dy);
+      canvas.rotate(a + (i.isEven ? 0.6 : -0.6));
+      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: r * 0.38, height: r * 0.17),
+          Paint()..color = (i.isEven ? const Color(0xFF2FA866) : const Color(0xFF1E7A4A)).withOpacity(0.95 * k));
+      canvas.restore();
+    }
+    // 紅莓：三顆一組，五組
+    for (var g = 0; g < 5; g++) {
+      final a = g / 5 * 2 * pi + pi / 2 + 0.35;
+      for (var j = 0; j < 3; j++) {
+        final aa = a + (j - 1) * 0.11;
+        final at = c + Offset(cos(aa), sin(aa)) * (rr + (j == 1 ? r * 0.07 : 0));
+        canvas.drawCircle(at, r * 0.075, Paint()..color = const Color(0xFFE53950).withOpacity(k));
+        canvas.drawCircle(at + Offset(-r * 0.02, -r * 0.02), r * 0.025, Paint()..color = Colors.white.withOpacity(0.7 * k));
+      }
+    }
+    // 頂端的金星：慢慢閃
+    final tw = 0.75 + 0.25 * sin(t * 2.4);
+    final top = c + Offset(0, -rr);
+    if (!dim) canvas.drawCircle(top, r * 0.3, Paint()..color = _gold.withOpacity(0.35 * tw)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.12));
+    final star = Path();
+    for (var i = 0; i < 10; i++) {
+      final a = -pi / 2 + i * pi / 5;
+      final len = (i.isEven ? r * 0.24 : r * 0.1) * (0.9 + 0.1 * tw);
+      final pt = top + Offset(cos(a), sin(a)) * len;
+      i == 0 ? star.moveTo(pt.dx, pt.dy) : star.lineTo(pt.dx, pt.dy);
+    }
+    canvas.drawPath(star..close(), Paint()..color = _gold.withOpacity(k));
+    // 雪花：從上往下飄、左右輕輕擺
+    if (dim) return;
+    for (var i = 0; i < 9; i++) {
+      final speed = 0.06 + 0.05 * _hash(i + 7);
+      final y = ((_hash(i) + t * speed) % 1.0);
+      final x = c.dx + (_hash(i + 31) - 0.5) * size.width * 0.9 + sin(t * 0.8 + i) * r * 0.15;
+      final fade = sin(y * pi);
+      canvas.drawCircle(Offset(x, y * size.height), r * (0.04 + 0.03 * _hash(i + 3)), Paint()..color = Colors.white.withOpacity(0.85 * fade));
+    }
+  }
+
+  /// 跨年款：一圈金色的時鐘刻度（12 點最長），一顆光點像秒針繞圈，外面輪流綻開小煙火；
+  /// 量子跨年那一刻之後 5 分鐘煙火更多、更大
+  void _newYear(Canvas canvas, Size size, Offset c, double r) {
+    final k = dim ? 0.4 : 1.0;
+    final rr = r * 1.3;
+    for (var i = 0; i < 12; i++) {
+      final a = -pi / 2 + i / 12 * 2 * pi;
+      final dir = Offset(cos(a), sin(a));
+      final len = i == 0 ? r * 0.24 : r * 0.12;
+      canvas.drawLine(c + dir * (rr - len / 2), c + dir * (rr + len / 2),
+          Paint()..color = _gold.withOpacity((i == 0 ? 1.0 : 0.75) * k)..strokeWidth = i == 0 ? r * 0.08 : r * 0.05..strokeCap = StrokeCap.round);
+    }
+    canvas.drawCircle(c, rr, Paint()..style = PaintingStyle.stroke..strokeWidth = r * 0.025..color = _gold.withOpacity(0.45 * k));
+    final sa = -pi / 2 + (t % 10) / 10 * 2 * pi;
+    final sec = c + Offset(cos(sa), sin(sa)) * rr;
+    if (!dim) canvas.drawCircle(sec, r * 0.16, Paint()..color = Colors.white.withOpacity(0.4)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08));
+    canvas.drawCircle(sec, r * 0.07, Paint()..color = Colors.white.withOpacity(k));
+    if (dim) return;
+    const colors = [_gold, Color(0xFFFF7BD5), Color(0xFF7FD8FF)];
+    final bursts = bloom ? 5 : 3;
+    const period = 3.0;
+    for (var b = 0; b < bursts; b++) {
+      final local = t + b * period / bursts;
+      final cycle = (local / period).floor();
+      final p = (local % period) / period;
+      if (p > 0.7) continue; // 每次綻開之間停一下
+      final q = p / 0.7;
+      final a = _hash(cycle * 13 + b) * 2 * pi;
+      final center = c + Offset(cos(a), sin(a)) * r * (bloom ? 1.55 : 1.62);
+      final color = colors[(cycle + b) % colors.length];
+      final sparks = bloom ? 12 : 8;
+      final reach = r * (bloom ? 0.55 : 0.44) * Curves.easeOut.transform(q);
+      final alpha = (1 - q) * 0.95;
+      for (var j = 0; j < sparks; j++) {
+        final sa2 = j / sparks * 2 * pi + a;
+        final d2 = Offset(cos(sa2), sin(sa2));
+        canvas.drawLine(center + d2 * reach * 0.45, center + d2 * reach,
+            Paint()..color = color.withOpacity(alpha)..strokeWidth = r * 0.065..strokeCap = StrokeCap.round);
+      }
+      canvas.drawCircle(center, r * 0.06 * (1 - q), Paint()..color = Colors.white.withOpacity(alpha));
+    }
+  }
 
   static const _rainbow = [Color(0xFFFF6B6B), Color(0xFFFFD166), Color(0xFF6BE38E), Color(0xFF4FC3F7), Color(0xFF9C7BFF), Color(0xFFFF7BD5), Color(0xFFFF6B6B)];
 
@@ -208,11 +338,13 @@ class QuantumOrbPainter extends CustomPainter {
         Paint()..color = Colors.white.withOpacity(0.9 * k)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.03));
 
     ring(false);
+    if (style == 'xmas') _xmas(canvas, size, c, r);
+    if (style == 'newyear') _newYear(canvas, size, c, r);
   }
 
   @override
   bool shouldRepaint(QuantumOrbPainter old) =>
-      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.front != front || old.photo != photo;
+      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.t != t || old.bloom != bloom || old.front != front || old.photo != photo;
 }
 
 // ---------- 選擇的款式 ----------
@@ -439,6 +571,7 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
     final has = free || owned.contains(style);
     final isSelected = selected == style;
     final price = products[orbProducts[style]]?.price;
+    final limited = orbIsLimited(style);
     return GestureDetector(
       onTap: busy ? null : () => has ? OrbPrefs.set(style) : OrbStore.buy(style),
       child: AnimatedContainer(
@@ -456,6 +589,10 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
           ),
           const SizedBox(height: Night.space2),
           Text(orbStyleName(style), style: const TextStyle(color: Night.ink, fontSize: 14)),
+          if (limited) ...[
+            const SizedBox(height: 2),
+            FittedBox(fit: BoxFit.scaleDown, child: Text(has ? tr.orbLimited : tr.orbLimitedUntil(orbUntilLabel(style)), maxLines: 1, style: Night.caption.copyWith(color: const Color(0xFFFFD166), fontSize: 11))),
+          ],
           const SizedBox(height: 2),
           Text(
             isSelected ? tr.orbInUse : (free ? tr.orbFree : (has ? tr.orbOwned : (price ?? '—'))),
@@ -483,12 +620,16 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
             const SizedBox(height: Night.space4),
             AnimatedBuilder(
               animation: Listenable.merge([OrbPrefs.style, OrbStore.owned, OrbStore.products, OrbStore.busy]),
-              builder: (context, _) => Row(children: [
-                for (final (i, style) in orbStyles.indexed) ...[
-                  if (i > 0) const SizedBox(width: Night.space2),
-                  Expanded(child: _tile(style, OrbPrefs.style.value, OrbStore.owned.value, OrbStore.products.value, OrbStore.busy.value)),
-                ],
-              ]),
+              // 一排三格；限定款過了販售期、又沒買過的就不顯示
+              builder: (context, _) => LayoutBuilder(builder: (context, box) {
+                final owned = OrbStore.owned.value;
+                final shown = [for (final s in orbStyles) if (!orbIsLimited(s) || owned.contains(s) || orbOnSale(s)) s];
+                final w = (box.maxWidth - Night.space2 * 2) / 3;
+                return Wrap(spacing: Night.space2, runSpacing: Night.space2, children: [
+                  for (final style in shown)
+                    SizedBox(width: w, child: _tile(style, OrbPrefs.style.value, owned, OrbStore.products.value, OrbStore.busy.value)),
+                ]);
+              }),
             ),
             if (_notice case final notice?) ...[
               const SizedBox(height: Night.space3),

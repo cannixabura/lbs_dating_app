@@ -28,6 +28,7 @@ import 'package:image_picker/image_picker.dart'; // 🌟 新增：圖片選擇�
 import 'dart:io' show Platform;
 import 'firebase_options.dart';
 import 'legal.dart';
+import 'location_consent.dart';
 import 'mood_card.dart';
 import 'mood_trail.dart';
 import 'mood_place.dart';
@@ -439,6 +440,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     OrbStore.init();
     AiyaStore.init();
     AiyaPrefs.load();
+    MapConsent.load();
     OrbPrefs.load().then((_) => OrbStore.loadOwned());
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
@@ -476,8 +478,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     }
   }
 
+  /// 使用者按下打卡按鈕：沒同意過在地圖上顯示位置就先問（可以拒絕），同意才打卡
+  Future<void> _tapCheckIn() async {
+    if (!await ensureMapConsent(context) || !mounted) return;
+    _checkIn();
+  }
+
   /// 打卡：把此刻的位置公開在地圖上，啟動在線狀態與雷達。只由使用者按下按鈕觸發。
   void _checkIn() {
+    if (!MapConsent.allowed.value) { _checkInRequested = false; return; }
     final pos = _currentPosition;
     if (pos == null) return;
     _checkInRequested = false;
@@ -1575,6 +1584,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       showGlassToast(context, tr.quantumClosedRegion, icon: Icons.block);
       return;
     }
+    if (!await ensureMapConsent(context) || !mounted) return;
     if (!await confirmQuantumWorld(context) || !mounted) return;
     _quantumBusy = true;
     final (status, data) = await QuantumApi.enter(lat: pos.latitude, lng: pos.longitude, mood: _myMood, nickname: _myNickname, extra: QuantumPrefs.payload);
@@ -2053,7 +2063,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         const SizedBox(height: Night.space2),
         Text(tr.checkInBody, style: Night.body, textAlign: TextAlign.center),
         const SizedBox(height: Night.space4),
-        NightButton(tr.checkInButton, icon: Icons.where_to_vote, onPressed: _currentPosition == null ? null : _checkIn),
+        NightButton(tr.checkInButton, icon: Icons.where_to_vote, onPressed: _currentPosition == null ? null : _tapCheckIn),
       ]),
     );
   }
@@ -2063,7 +2073,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
-        onTap: _checkIn,
+        onTap: _tapCheckIn,
         child: Container(
           constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: Night.space4, vertical: Night.space2),
@@ -2285,6 +2295,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         final reminderRow = switchRow(Icons.nightlight_outlined, tr.nightlyReminder, tr.nightlyReminderSubtitle, () => reminderOn, (v) { reminderOn = v; NightlyReminder.setEnabled(v); });
         final placeHintRow = switchRow(Icons.local_cafe_outlined, tr.placeHintsSetting, tr.placeHintsSettingSubtitle, () => PlaceHints.enabled, PlaceHints.setEnabled);
         final aiyaRow = switchRow(Icons.auto_awesome_outlined, tr.aiyaSetting, tr.aiyaSettingSubtitle, () => AiyaPrefs.enabled.value, AiyaPrefs.setEnabled);
+        // 在地圖上顯示我的位置：關掉就立刻結束打卡、離開量子世界；下次打卡會再問一次
+        final mapConsentRow = switchRow(Icons.where_to_vote_outlined, tr.mapConsentSetting, tr.mapConsentSettingSubtitle, () => MapConsent.allowed.value, (v) {
+          MapConsent.set(v);
+          if (!v) {
+            if (quantumOn) _leaveQuantum();
+            if (_checkInPosition != null) _checkOut();
+          }
+        });
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(Night.space4),
@@ -2306,6 +2324,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   ]),
                   section(tr.settingsSectionMe),
                   item(Icons.person_outline, tr.editProfile, subtitle: tr.editProfileSubtitle, onTap: () => go(_showProfileEditDialog)),
+                  mapConsentRow,
                   item(Icons.block, tr.manageBlockList, subtitle: tr.manageBlockListSubtitle, color: Night.danger, onTap: () => go(_showBlockListDialog)),
                   item(Icons.hourglass_bottom, tr.myTimeWhispers, subtitle: tr.myTimeWhispersSubtitle,
                       onTap: () => go(() => showTimeWhisperList(context, lat: _currentPosition?.latitude, lng: _currentPosition?.longitude).then((_) => _fetchTimeWhispers()))),

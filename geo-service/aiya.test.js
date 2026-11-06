@@ -108,3 +108,43 @@ test('fullWidthPunct：中日文旁的半形標點改全形，英文和時間不
     assert.strictEqual(aiya.fullWidthPunct('時間:10:30'), '時間：10:30');
     assert.strictEqual(aiya.parseReply('{"reply":"好啊,一起看星星!","expression":"smile"}').reply, '好啊，一起看星星！');
 });
+
+test('decideOpen：艾婭之友每天 20 次、不受全站預算影響，用完再扣時光包', () => {
+    const full = aiya.DAILY_FREE_BUDGET_MICRO;
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 0, credits: 0, budgetMicro: full, friend: true }), { ok: true, pay: 'friend' });
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 19, credits: 0, budgetMicro: 0, friend: true }), { ok: true, pay: 'friend' });
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 20, credits: 0, budgetMicro: 0, friend: true }), { ok: false, code: 'no_quota' });
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 20, credits: 3, budgetMicro: 0, friend: true }), { ok: true, pay: 'credit' });
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 30, credits: 3, budgetMicro: 0, friend: true }), { ok: false, code: 'daily_max' });
+});
+
+test('sessionAlive：艾婭之友的對話 20 分鐘、40 則', () => {
+    const t0 = 1_000_000;
+    const friend = { id: 'f', startedAt: t0, turns: 25, pay: 'friend' };
+    const free = { id: 'n', startedAt: t0, turns: 5, pay: 'free' };
+    assert.strictEqual(aiya.sessionAlive(friend, t0 + 15 * 60 * 1000), true);
+    assert.strictEqual(aiya.sessionAlive(free, t0 + 15 * 60 * 1000), false);
+    assert.strictEqual(aiya.sessionAlive({ ...friend, turns: 40 }, t0), false);
+    assert.strictEqual(aiya.sessionView(friend, t0).turnsLeft, 15);
+    assert.strictEqual(aiya.sessionView(friend, t0).remainingMs, 20 * 60 * 1000);
+});
+
+test('appleFriend：用 originalTransactionId 當收據，退款時到期時間提前', () => {
+    const b = 'com.softchip.moodwhisper';
+    const tx = { bundleId: b, productId: 'aiya_friend_monthly', transactionId: '9', originalTransactionId: '1', expiresDate: 5000 };
+    assert.deepStrictEqual(aiya.appleFriend(tx, b), { exp: 5000, receipt: 'a_1', productId: 'aiya_friend_monthly' });
+    assert.strictEqual(aiya.appleFriend({ ...tx, revocationDate: 3000 }, b).exp, 3000);
+    assert.throws(() => aiya.appleFriend({ ...tx, productId: 'aiya_time_5' }, b), /unknown_product/);
+    assert.throws(() => aiya.appleFriend({ ...tx, bundleId: 'x' }, b), /wrong_app/);
+    assert.strictEqual(aiya.friendActive({ exp: 5000 }, 4999), true);
+    assert.strictEqual(aiya.friendActive({ exp: 5000 }, 5000), false);
+    assert.strictEqual(aiya.friendActive(null, 0), false);
+});
+
+test('googleFriend：有效、寬限期、已取消但未到期都算；取最晚到期', () => {
+    const sub = (state) => ({ subscriptionState: state, lineItems: [{ productId: 'aiya_friend_monthly', expiryTime: '2026-12-05T00:00:00Z' }] });
+    assert.strictEqual(aiya.googleFriend('aiya_friend_monthly', 'g_x', sub('SUBSCRIPTION_STATE_ACTIVE')).exp, Date.parse('2026-12-05T00:00:00Z'));
+    assert.strictEqual(aiya.googleFriend('aiya_friend_monthly', 'g_x', sub('SUBSCRIPTION_STATE_CANCELED')).receipt, 'g_x');
+    assert.throws(() => aiya.googleFriend('aiya_friend_monthly', 'g_x', sub('SUBSCRIPTION_STATE_EXPIRED')), /not_paid/);
+    assert.throws(() => aiya.googleFriend('aiya_time_5', 'g_x', sub('SUBSCRIPTION_STATE_ACTIVE')), /unknown_product/);
+});

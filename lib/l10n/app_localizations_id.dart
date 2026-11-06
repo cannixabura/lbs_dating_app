@@ -1958,7 +1958,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      'Semua orang yang ada di Dunia Kuantum saat ini berada di satu ruang yang sama, tersusun seperti sarang lebah di sekitar Taipei 101. Kamu mendapat kursi seperti \"Q4-17\" — makin kecil lingkarannya, makin dekat ke titik pusat.\n\nTidak ada yang bisa melihat lokasi aslimu. Orang lain hanya melihat kursimu ditambah seberapa jauh kamu berjalan sejak masuk: gelembungmu ikut bergerak saat berjalan dan berhenti saat naik kendaraan. Nama panggilan dan suasana hatimu tetap sama, dan kamu tetap bisa mengirim kilauan, mengetuk, dan mengobrol, dengan terjemahan sekali ketuk.\n\nSelama di Dunia Kuantum, kamu keluar sementara dari radar biasa dan Semesta Paralel; saat keluar, kamu kembali ke tempat check-in-mu.';
+      'Semua orang yang ada di Dunia Kuantum saat ini berada di satu ruang yang sama, tersusun seperti sarang lebah di sekitar Taipei 101. Kamu mendapat kursi seperti \"Q4-17\" — makin kecil lingkarannya, makin dekat ke titik pusat.\n\nTidak ada yang bisa melihat lokasi aslimu. Orang lain hanya melihat kursimu, yang tetap sejak kamu mengetuk Masuk; kursimu tidak bergerak saat kamu berjalan. Untuk menggantinya, keluar lalu masuk lagi. Nama panggilan dan suasana hatimu tetap sama, dan kamu tetap bisa mengirim kilauan, mengetuk, dan mengobrol, dengan terjemahan sekali ketuk.\n\nSelama di Dunia Kuantum, kamu keluar sementara dari radar biasa dan Semesta Paralel; saat keluar, kamu kembali ke tempat check-in-mu.';
 
   @override
   String get quantumEnter => 'Masuk';
@@ -2057,7 +2057,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      'Tidak ada yang bisa melihat lokasi aslimu: orang lain melihat kursimu ditambah seberapa jauh kamu berjalan sejak masuk. Gelembungmu ikut bergerak saat berjalan dan berhenti di atas 25 km/jam (naik kendaraan). Dunia Kuantum tidak tersedia di Tiongkok daratan.';
+      'Tidak ada yang bisa melihat lokasi aslimu: orang lain hanya melihat kursimu. Setiap kali kamu mengetuk Masuk dihitung sebagai satu check-in, dan kursimu tetap sejak saat itu; kursimu tidak bergerak saat kamu berjalan. Untuk menggantinya, keluar lalu masuk lagi. Dunia Kuantum tidak tersedia di Tiongkok daratan.';
 
   @override
   String get guideS17L4 =>
@@ -2561,4 +2561,113 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS18L5 =>
       'Sesekali AIYA muncul di pilar cahaya: saat lonceng tiap jam, saat pertama kali kamu masuk Dunia Kuantum setiap hari, atau secara kebetulan. Ketuk dia untuk mulai mengobrol. Kalau tidak ingin melihatnya, matikan \"AIYA (AI di Dunia Kuantum)\" di Pengaturan.';
+
+  @override
+  String get orbStyleXmas => 'Natal';
+
+  @override
+  String get orbStyleNewYear => 'Tahun Baru Kuantum';
+
+  @override
+  String get orbLimited => 'Edisi terbatas';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return 'Edisi terbatas · sampai $date';
+  }
+
+  @override
+  String get aiyaFriendTitle => 'Teman AIYA';
+
+  @override
+  String get aiyaFriendSubtitle => 'Paket bulanan perpanjang otomatis';
+
+  @override
+  String get aiyaFriendPerk1 => '20 obrolan per hari (3 jika gratis)';
+
+  @override
+  String get aiyaFriendPerk2 => 'Tiap obrolan 20 menit atau 40 pesan';
+
+  @override
+  String get aiyaFriendPerk3 =>
+      'Tetap bisa mengobrol saat AIYA sedang istirahat';
+
+  @override
+  String get aiyaFriendPerk4 =>
+      'AIYA memakai tampilan “Cahaya Bintang” eksklusif (hanya kamu yang melihat)';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price / bulan';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => 'Berlangganan';
+
+  @override
+  String get aiyaFriendTerms =>
+      'Langganan berlaku 1 bulan dan diperpanjang otomatis dengan pembayaran kecuali perpanjangan otomatis dimatikan setidaknya 24 jam sebelum periode berakhir. Pembayaran diproses oleh akun Apple atau Google kamu; kelola atau batalkan kapan saja di pengaturan langganan akun. Jatah Paket Waktu tetap disimpan dan baru dipakai setelah 20 obrolan harian habis.';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return 'Kamu Teman AIYA sampai $date';
+  }
+
+  @override
+  String get aiyaFriendManage => 'Kelola langganan';
+
+  @override
+  String get aiyaFriendRestore => 'Pulihkan pembelian';
+
+  @override
+  String get aiyaFriendWelcome => 'Kamu sekarang Teman AIYA ✨';
+
+  @override
+  String get aiyaFriendRestored => 'Teman AIYA dipulihkan';
+
+  @override
+  String get aiyaFriendNotFound => 'Tidak ada langganan Teman AIYA yang aktif';
+
+  @override
+  String get aiyaFriendElsewhere => 'Langganan ini sudah dipakai akun lain';
+
+  @override
+  String get aiyaFriendEntry => 'Teman AIYA · 20 per hari';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return 'Teman AIYA · sisa $n hari ini';
+  }
+
+  @override
+  String get guideS17L12 =>
+      'Edisi terbatas: bola kristal Natal (karangan holly, bintang emas berkelip, salju turun) dijual sampai 12/25, dan bola kristal Tahun Baru Kuantum (tanda jam emas dan kembang api, paling besar tepat tengah malam) sampai 1/1, waktu Taiwan. Setelah itu tidak dijual lagi; kalau kamu sudah membeli, tetap jadi milikmu dan bisa dipulihkan.';
+
+  @override
+  String get guideS18L6 =>
+      'Teman AIYA: pilih \"Teman AIYA\" di \"+ Paket Waktu\". Ini paket bulanan perpanjang otomatis: 20 obrolan per hari, tiap obrolan sampai 20 menit atau 40 pesan, tetap bisa mengobrol saat AIYA istirahat, dan tampilan \"Cahaya Bintang\" pada AIYA yang hanya kamu lihat. Paket Waktu baru dipakai setelah 20 obrolan harian habis. Langganan diperpanjang otomatis; batalkan kapan saja di pengaturan langganan Apple atau Google, dan ketuk \"Pulihkan pembelian\" di ponsel baru.';
+
+  @override
+  String get mapConsentTitle => 'Tampilkan lokasimu di peta?';
+
+  @override
+  String get mapConsentBody =>
+      'Jika kamu izinkan, setiap kali kamu sendiri mengetuk Check-in (atau Masuk di Dunia Kuantum), pengguna lain melihat tempat kamu check-in (bukan posisi langsung), nama panggilan, dan suasana hatimu di peta. Tidak ada check-in otomatis, dan kamu hilang dari peta saat keluar dari aplikasi. Kamu bisa menolak, dan bisa mematikannya kapan saja di Pengaturan.';
+
+  @override
+  String get mapConsentAllow => 'Izinkan';
+
+  @override
+  String get mapConsentDecline => 'Jangan izinkan';
+
+  @override
+  String get mapConsentDeclined =>
+      'Oke. Kamu tidak akan muncul di peta siapa pun. Ketuk lagi kapan saja kamu ingin check-in.';
+
+  @override
+  String get mapConsentSetting => 'Tampilkan lokasiku di peta';
+
+  @override
+  String get mapConsentSettingSubtitle =>
+      'Mematikannya langsung mengakhiri check-in; kamu tidak akan muncul di peta siapa pun';
 }

@@ -14,6 +14,9 @@
 //   aiyaReceipts/{收據}       = uid   同一筆購買只加一次
 //   aiyaConsent/{uid}         = { v, at }   同意把文字交給第三方 AI 處理（Apple 5.1.2(i)）
 //   aiyaReports/{id}          使用者檢舉的艾婭回覆
+//   aiyaFriend/{uid}          艾婭之友（月費）= { exp, src, receipt, product }   到期時間由伺服器驗證收據後寫入
+//   aiyaFriendReceipts/{收據}  = uid   同一個訂閱只能給一個帳號；Apple 的續訂通知用它找回帳號
+//   aiyaFriendTokens/{收據}    = Google Play 的購買憑證原文（到期時用來重新查詢續訂）
 // ============================================================================
 
 const MODEL = 'claude-haiku-5-5';
@@ -23,8 +26,14 @@ const PRICE = { input: 0.10, output: 0.50, cacheWrite: 0.125, cacheRead: 0.01 };
 const FREE_PER_DAY = 3;
 const MAX_PER_DAY = 30; // 含付費，避免被拿去當免費翻譯或寫作工具
 const SESSION_MS = 10 * 60 * 1000;
-const SESSION_TTL_S = 15 * 60;
+const SESSION_TTL_S = 25 * 60;
 const MAX_TURNS = 20; // 使用者最多傳 20 則
+
+// 艾婭之友（自動續訂月費）：每天 20 次、每次 20 分鐘或 40 則，全站免費預算用完時照樣能聊
+const FRIEND_PRODUCT = 'aiya_friend_monthly';
+const FRIEND_PER_DAY = 20;
+const FRIEND_SESSION_MS = 20 * 60 * 1000;
+const FRIEND_MAX_TURNS = 40;
 const MAX_INPUT_CHARS = 200;
 const MAX_REPLY_CHARS = 160;
 const MONTHLY_FREE_BUDGET_USD = 200;
@@ -62,12 +71,17 @@ function costMicro(usage) {
 
 /**
  * 能不能開始新的一次聊天
- * @param {{usedToday: number, credits: number, budgetMicro: number, reviewer?: boolean}} s
- * @returns {{ok: true, pay: 'free'|'credit'} | {ok: false, code: 'daily_max'|'no_quota'|'resting'}}
+ * @param {{usedToday: number, credits: number, budgetMicro: number, reviewer?: boolean, friend?: boolean}} s
+ * @returns {{ok: true, pay: 'free'|'friend'|'credit'} | {ok: false, code: 'daily_max'|'no_quota'|'resting'}}
  */
-function decideOpen({ usedToday, credits, budgetMicro, reviewer = false }) {
+function decideOpen({ usedToday, credits, budgetMicro, reviewer = false, friend = false }) {
     if (reviewer) return { ok: true, pay: 'free' };
     if (usedToday >= MAX_PER_DAY) return { ok: false, code: 'daily_max' };
+    // 艾婭之友：每天前 20 次不看全站免費預算；用完再扣時光包
+    if (friend) {
+        if (usedToday < FRIEND_PER_DAY) return { ok: true, pay: 'friend' };
+        return credits > 0 ? { ok: true, pay: 'credit' } : { ok: false, code: 'no_quota' };
+    }
     if (usedToday < FREE_PER_DAY) {
         if (budgetMicro < DAILY_FREE_BUDGET_MICRO) return { ok: true, pay: 'free' };
         // 全站免費預算用完：有時光包的人照樣能聊
@@ -76,19 +90,63 @@ function decideOpen({ usedToday, credits, budgetMicro, reviewer = false }) {
     return credits > 0 ? { ok: true, pay: 'credit' } : { ok: false, code: 'no_quota' };
 }
 
-/** 對話是否還在進行中（10 分鐘內、20 則以內） */
+/** 這次對話的長度與則數：艾婭之友開始的對話是 20 分鐘、40 則，其他是 10 分鐘、20 則 */
+function sessionLimits(session) {
+    return session && session.pay === 'friend' ? { ms: FRIEND_SESSION_MS, turns: FRIEND_MAX_TURNS } : { ms: SESSION_MS, turns: MAX_TURNS };
+}
+
+/** 對話是否還在進行中 */
 function sessionAlive(session, now) {
-    return !!session && now - session.startedAt < SESSION_MS && session.turns < MAX_TURNS;
+    if (!session) return false;
+    const lim = sessionLimits(session);
+    return now - session.startedAt < lim.ms && session.turns < lim.turns;
 }
 
 /** 給 App 顯示的對話狀態 */
 function sessionView(session, now) {
+    const lim = sessionLimits(session);
     return {
         id: session.id,
-        endsAt: session.startedAt + SESSION_MS,
-        turnsLeft: Math.max(0, MAX_TURNS - session.turns),
-        remainingMs: Math.max(0, session.startedAt + SESSION_MS - now),
+        endsAt: session.startedAt + lim.ms,
+        turnsLeft: Math.max(0, lim.turns - session.turns),
+        remainingMs: Math.max(0, session.startedAt + lim.ms - now),
     };
+}
+
+// ---------- 艾婭之友（月費） ----------
+
+/** 訂閱紀錄是否還有效 */
+function friendActive(rec, now) {
+    return !!rec && Number(rec.exp) > now;
+}
+
+/**
+ * Apple 訂閱交易 → 到期時間。同一個訂閱每次續訂的 transactionId 不同，originalTransactionId 不變，用它當收據代號。
+ * @returns {{exp: number, receipt: string, productId: string}}
+ */
+function appleFriend(tx, bundleId) {
+    if (!tx || tx.bundleId !== bundleId) throw new Error('wrong_app');
+    if (tx.productId !== FRIEND_PRODUCT) throw new Error('unknown_product');
+    const id = tx.originalTransactionId || tx.transactionId;
+    if (!id) throw new Error('bad_tx');
+    // 退款或撤銷：到期時間設成撤銷的那一刻
+    const exp = tx.revocationDate ? Number(tx.revocationDate) : Number(tx.expiresDate);
+    if (!Number.isFinite(exp)) throw new Error('bad_tx');
+    return { exp, receipt: `a_${id}`, productId: tx.productId };
+}
+
+/**
+ * Google Play subscriptionsv2 的查詢結果 → 到期時間（取這個商品最晚的到期時間；取消續訂的人用到到期為止）
+ * @returns {{exp: number, receipt: string, productId: string}}
+ */
+function googleFriend(productId, receiptKey, sub) {
+    if (productId !== FRIEND_PRODUCT) throw new Error('unknown_product');
+    if (!sub || !Array.isArray(sub.lineItems)) throw new Error('not_paid');
+    const ok = ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD', 'SUBSCRIPTION_STATE_CANCELED'];
+    if (!ok.includes(sub.subscriptionState)) throw new Error('not_paid');
+    const exps = sub.lineItems.filter((l) => l.productId === productId).map((l) => Date.parse(l.expiryTime)).filter(Number.isFinite);
+    if (!exps.length) throw new Error('not_paid');
+    return { exp: Math.max(...exps), receipt: receiptKey, productId };
 }
 
 // ---------- 角色設定（固定不變，開啟 prompt caching） ----------
@@ -238,6 +296,7 @@ function googlePack(productId, receiptKey, purchase) {
 module.exports = {
     MODEL, PRICE, FREE_PER_DAY, MAX_PER_DAY, SESSION_MS, SESSION_TTL_S, MAX_TURNS, MAX_INPUT_CHARS, MAX_REPLY_CHARS,
     MONTHLY_FREE_BUDGET_USD, DAILY_FREE_BUDGET_MICRO, CONSENT_VERSION, EXPRESSIONS, PACKS, KEY, PERSONA, REPLY_SCHEMA,
-    dayKey, costMicro, decideOpen, sessionAlive, sessionView, contextText, visibleLength, cleanInput, fullWidthPunct, parseReply,
+    FRIEND_PRODUCT, FRIEND_PER_DAY, FRIEND_SESSION_MS, FRIEND_MAX_TURNS,
+    dayKey, costMicro, decideOpen, sessionLimits, sessionAlive, sessionView, friendActive, appleFriend, googleFriend, contextText, visibleLength, cleanInput, fullWidthPunct, parseReply,
     mentionsCrisis, hotline, applePack, googlePack,
 };

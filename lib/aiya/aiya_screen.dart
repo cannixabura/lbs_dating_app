@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../l10n/l10n.dart';
+import '../legal.dart';
 import '../ui/night.dart';
 import 'aiya_face.dart';
 import 'aiya_particles.dart';
@@ -107,6 +108,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     _video.onEnd = (_) => _video.play('idle', _anim.time, loop: true);
     AiyaStore.notice.addListener(_onNotice);
     AiyaStore.credits.addListener(_onCredits);
+    AiyaStore.friendExp.addListener(_onFriend);
     _load();
   }
 
@@ -126,6 +128,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     _typer?.cancel();
     AiyaStore.notice.removeListener(_onNotice);
     AiyaStore.credits.removeListener(_onCredits);
+    AiyaStore.friendExp.removeListener(_onFriend);
     _input.dispose();
     _scroll.dispose();
     _frame.dispose();
@@ -155,6 +158,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   }
 
   void _applyStatus(Map<String, dynamic> s) {
+    AiyaStore.applyStatus(s);
     if (s['freeLeft'] is num) _freeLeft = (s['freeLeft'] as num).toInt();
     if (s['credits'] is num) _credits = (s['credits'] as num).toInt();
     final session = s['session'];
@@ -298,6 +302,19 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     }
   }
 
+  /// 成為艾婭之友：次數多了，問伺服器今天剩幾次；還沒開始聊天就直接敲門
+  Future<void> _onFriend() async {
+    if (!mounted) return;
+    setState(() {});
+    if (!AiyaStore.isFriend) return;
+    _applyStatus(await aiyaCall('status'));
+    if (!mounted) return;
+    if (_sessionId == null && !_opening) {
+      if (Navigator.of(context).canPop()) Navigator.of(context).popUntil((r) => r.settings.name != 'aiyaPacks' && r.settings.name != 'aiyaFriend');
+      _open();
+    }
+  }
+
   Future<bool> _askConsent() async {
     final ok = await showModalBottomSheet<bool>(
       context: context, isDismissible: false, enableDrag: false, backgroundColor: Colors.transparent,
@@ -341,6 +358,10 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   const SizedBox(height: Night.space3),
                   Text(browse ? tr.aiyaPacksBody : tr.aiyaNoQuotaBody, style: Night.body),
                   const SizedBox(height: Night.space4),
+                  if (!AiyaStore.isFriend) ...[
+                    NightButton(tr.aiyaFriendEntry, kind: NightButtonKind.warm, icon: Icons.auto_awesome, onPressed: () { Navigator.pop(ctx); _showFriend(); }),
+                    const SizedBox(height: Night.space2),
+                  ],
                   for (final e in AiyaStore.products.entries) ...[
                     NightButton(
                       '${tr.aiyaPackTimes(e.value)}${details[e.key] != null ? '  ·  ${details[e.key]!.price}' : ''}',
@@ -353,6 +374,82 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   if (busy) const Padding(padding: EdgeInsets.all(Night.space2), child: Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)))),
                   Text(tr.aiyaPackNote, style: Night.caption, textAlign: TextAlign.center),
                 ]),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _date(int ms) {
+    final d = DateTime.fromMillisecondsSinceEpoch(ms);
+    return '${d.year}/${d.month}/${d.day}';
+  }
+
+  /// 艾婭之友（自動續訂月費）：Apple 3.1.2 要的價格、期間、自動續訂說明、條款與隱私權連結、恢復購買、管理訂閱都在這裡
+  void _showFriend() {
+    AiyaStore.loadProducts();
+    Widget perk(String text) => Padding(
+          padding: const EdgeInsets.only(bottom: Night.space2),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Padding(padding: EdgeInsets.only(top: 2), child: Icon(Icons.auto_awesome, size: 16, color: Color(0xFFFFC861))),
+            const SizedBox(width: Night.space2),
+            Expanded(child: Text(text, style: Night.body)),
+          ]),
+        );
+    Widget link(String text, Uri url) => TextButton(
+          onPressed: () => Legal.open(url),
+          style: TextButton.styleFrom(foregroundColor: Night.inkMuted, minimumSize: const Size(44, 36), padding: const EdgeInsets.symmetric(horizontal: 8)),
+          child: Text(text, style: const TextStyle(fontSize: 12, decoration: TextDecoration.underline)),
+        );
+    showModalBottomSheet(
+      context: context, backgroundColor: Colors.transparent, isScrollControlled: true, routeSettings: const RouteSettings(name: 'aiyaFriend'),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: GlassCard(
+            child: SingleChildScrollView(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([AiyaStore.details, AiyaStore.busy, AiyaStore.friendExp]),
+                builder: (context, _) {
+                  final product = AiyaStore.details.value[AiyaStore.friendProduct];
+                  final busy = AiyaStore.busy.value;
+                  final active = AiyaStore.isFriend;
+                  return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Text(tr.aiyaFriendTitle, style: Night.title, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space1),
+                    Text(tr.aiyaFriendSubtitle, style: Night.caption, textAlign: TextAlign.center),
+                    const SizedBox(height: Night.space4),
+                    perk(tr.aiyaFriendPerk1),
+                    perk(tr.aiyaFriendPerk2),
+                    perk(tr.aiyaFriendPerk3),
+                    perk(tr.aiyaFriendPerk4),
+                    const SizedBox(height: Night.space2),
+                    if (active)
+                      Text(tr.aiyaFriendActive(_date(AiyaStore.friendExp.value!)), style: const TextStyle(color: Color(0xFFFFC861), fontSize: 15), textAlign: TextAlign.center)
+                    else ...[
+                      if (product != null)
+                        Text(tr.aiyaFriendPrice(product.price), style: const TextStyle(color: Night.ink, fontSize: 20, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
+                      const SizedBox(height: Night.space3),
+                      NightButton(tr.aiyaFriendSubscribe, kind: NightButtonKind.warm, icon: Icons.auto_awesome, onPressed: busy || product == null ? null : AiyaStore.buyFriend),
+                    ],
+                    if (busy) const Padding(padding: EdgeInsets.all(Night.space2), child: Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)))),
+                    const SizedBox(height: Night.space3),
+                    Text(tr.aiyaFriendTerms, style: Night.caption.copyWith(fontSize: 11)),
+                    const SizedBox(height: Night.space2),
+                    Wrap(alignment: WrapAlignment.center, children: [
+                      link(tr.termsOfUse, Legal.termsUrl),
+                      link(tr.privacyPolicy, Legal.privacyUrl),
+                      TextButton(
+                        onPressed: busy ? null : AiyaStore.restore,
+                        style: TextButton.styleFrom(foregroundColor: Night.inkMuted, minimumSize: const Size(44, 36), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                        child: Text(tr.aiyaFriendRestore, style: const TextStyle(fontSize: 12)),
+                      ),
+                      link(tr.aiyaFriendManage, AiyaStore.manageUrl),
+                    ]),
+                  ]);
+                },
               ),
             ),
           ),
@@ -403,7 +500,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
 
   String _timeLeft() {
     if (_endsAt == null) return '';
-    final s = _endsAt!.difference(DateTime.now()).inSeconds.clamp(0, 600);
+    final s = _endsAt!.difference(DateTime.now()).inSeconds.clamp(0, 3600);
     return tr.aiyaTimeLeft('${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}');
   }
 
@@ -430,6 +527,9 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
               child: CustomPaint(painter: AiyaHoloPainter(_holo!, _anim, _video, _sprite!, stage: stage, repaint: _frame, buf: _buf!)),
             ),
           ),
+        // 艾婭之友：艾婭身邊多了一圈閃爍的星光（只有訂閱的人看得到）
+        if (AiyaStore.isFriend && _holo != null)
+          Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: _StarlightPainter(stage: stage, repaint: _frame, clock: () => _anim.time)))),
         if (_showFps)
           Positioned(
             left: Night.space4, top: mq.padding.top + 48,
@@ -474,7 +574,10 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                 // 剩餘次數＋隨時可以買時光包的入口（不必等免費次數用完）
                 Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, spacing: Night.space2, children: [
                   Text(
-                    [if (_freeLeft > 0) tr.aiyaFreeLeft(_freeLeft), if (_credits > 0) tr.aiyaCreditsLeft(_credits)].join('  ·  '),
+                    [
+                      if (AiyaStore.isFriend) tr.aiyaFriendLeft(_freeLeft) else if (_freeLeft > 0) tr.aiyaFreeLeft(_freeLeft),
+                      if (_credits > 0) tr.aiyaCreditsLeft(_credits),
+                    ].join('  ·  '),
                     style: Night.caption, textAlign: TextAlign.center,
                   ),
                   GestureDetector(
@@ -540,4 +643,46 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
       child: m.mine || m.system ? bubble : GestureDetector(onLongPress: () => _report(m), child: bubble),
     );
   }
+}
+
+/// 艾婭之友的「星光」造型：艾婭四周幾十顆金色星光輪流閃爍、慢慢往上飄，幾顆十字星芒
+class _StarlightPainter extends CustomPainter {
+  final Rect stage;
+  final double Function() clock;
+  _StarlightPainter({required this.stage, required Listenable repaint, required this.clock}) : super(repaint: repaint);
+
+  static double _h(int i) {
+    final x = sin(i * 91.7 + 13.3) * 43758.5453;
+    return x - x.floorToDouble();
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = clock();
+    final c = stage.center;
+    final rx = stage.width * 0.36, ry = stage.height * 0.46;
+    const gold = Color(0xFFFFD98A);
+    for (var i = 0; i < 36; i++) {
+      // 散在艾婭周圍的橢圓帶上，中間（臉）留空
+      final a = _h(i) * 2 * pi;
+      final rad = 0.55 + 0.45 * _h(i + 50);
+      final drift = ((t * (0.02 + 0.02 * _h(i + 9)) + _h(i + 70)) % 1.0);
+      final p = c + Offset(cos(a) * rx * rad, sin(a) * ry * rad - drift * stage.height * 0.12);
+      final tw = 0.5 + 0.5 * sin(t * (1.5 + 2 * _h(i + 20)) + i);
+      final alpha = tw * tw * sin(drift * pi);
+      if (alpha < 0.03) continue;
+      final r = 1.0 + 1.6 * _h(i + 33);
+      canvas.drawCircle(p, r * 2.4, Paint()..color = gold.withValues(alpha: 0.18 * alpha));
+      canvas.drawCircle(p, r, Paint()..color = Colors.white.withValues(alpha: 0.9 * alpha));
+      if (i % 6 == 0) {
+        final len = r * 5 * tw;
+        final paint = Paint()..color = gold.withValues(alpha: 0.7 * alpha)..strokeWidth = 0.8..strokeCap = StrokeCap.round;
+        canvas.drawLine(p - Offset(len, 0), p + Offset(len, 0), paint);
+        canvas.drawLine(p - Offset(0, len), p + Offset(0, len), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _StarlightPainter old) => old.stage != stage;
 }

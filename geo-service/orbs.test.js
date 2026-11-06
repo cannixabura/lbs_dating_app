@@ -86,3 +86,16 @@ test('the shown orb falls back to the basic one unless free or owned', () => {
     assert.strictEqual(o.resolveStyle('__proto__', {}), 'glow');
     assert.strictEqual(o.resolveStyle(undefined, null), 'glow');
 });
+
+test('onSale：限定款只在販售期間買得到，免費款不用買', () => {
+    const o = require('./orbs');
+    assert.strictEqual(o.onSale('rainbow', Date.parse('2030-01-01T00:00:00Z')), true);
+    assert.strictEqual(o.onSale('xmas', Date.parse('2026-11-20T00:00:00+08:00')), true);
+    assert.strictEqual(o.onSale('xmas', Date.parse('2026-12-26T00:00:00+08:00')), false);
+    assert.strictEqual(o.onSale('newyear', Date.parse('2027-01-01T23:00:00+08:00')), true);
+    assert.strictEqual(o.onSale('newyear', Date.parse('2027-01-02T00:00:01+08:00')), false);
+    assert.strictEqual(o.onSale('glow'), false);
+    assert.strictEqual(o.styleOfProduct('orb_xmas'), 'xmas');
+    assert.strictEqual(o.resolveStyle('newyear', { newyear: {} }), 'newyear');
+    assert.strictEqual(o.resolveStyle('newyear', {}), 'glow');
+});

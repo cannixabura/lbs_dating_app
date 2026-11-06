@@ -14,12 +14,20 @@ const crypto = require('crypto');
 const BUNDLE_ID = 'com.softchip.moodwhisper';
 const DEFAULT_STYLE = 'glow';
 
-/** 所有款式：product 是商店的商品代號，沒有 product 的是免費款 */
+/**
+ * 所有款式：product 是商店的商品代號，沒有 product 的是免費款。
+ * until 是限定款的最後販售時間（台北時間）；過了就不再賣，買過的人永久保留、可以恢復購買。
+ */
 const STYLES = {
     glow: {}, // 光球
     ring: {}, // 星環
     rainbow: { product: 'orb_rainbow' }, // 彩虹（長期販售）
+    xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
+    newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定
 };
+
+/** 這一款現在買不買得到：免費款不用買；限定款過了販售期就買不到 */
+const onSale = (s, now = Date.now()) => isStyle(s) && !!STYLES[s].product && !(STYLES[s].until && now > STYLES[s].until);
 
 const FREE_STYLES = Object.keys(STYLES).filter((s) => !STYLES[s].product);
 const styleOfProduct = (productId) => Object.keys(STYLES).find((s) => STYLES[s].product === productId) || null;
@@ -114,5 +122,5 @@ function resolveStyle(requested, owned) {
 
 module.exports = {
     BUNDLE_ID, DEFAULT_STYLE, STYLES, FREE_STYLES, APPLE_ROOT_G3,
-    styleOfProduct, isStyle, isFree, receiptKey, verifyAppleJws, appleGrant, googleGrant, resolveStyle,
+    styleOfProduct, isStyle, isFree, onSale, receiptKey, verifyAppleJws, appleGrant, googleGrant, resolveStyle,
 };

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show SystemNavigator;
 import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'legal.dart';
+import 'location_consent.dart';
 import 'main.dart'; 
 import 'ui/night.dart';
 
@@ -82,6 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
       showGlassToast(context, tr.loginNeedAgree, icon: Icons.description_outlined);
       return;
     }
+
+    // Apple 5.1.2(i)：在地圖上顯示位置前先問，使用者可以拒絕
+    if (!await ensureMapConsent(context) || !mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_mood', mood);

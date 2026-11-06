@@ -3378,7 +3378,7 @@ abstract class AppLocalizations {
   /// No description provided for @quantumIntroBody.
   ///
   /// In zh, this message translates to:
-  /// **'全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，加上你入場後走了多遠：走路時氣泡跟著移動，搭車時暫停。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。'**
+  /// **'全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，固定在你按下「進入」的那一刻，走路也不會移動；想換位置就離開再進入一次。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。'**
   String get quantumIntroBody;
 
   /// No description provided for @quantumEnter.
@@ -3534,7 +3534,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS17L3.
   ///
   /// In zh, this message translates to:
-  /// **'沒有人看得到你的真實位置：大家看到的是你的席位，加上入場後走了多遠。走路時氣泡跟著移動，時速超過 25 公里（搭車）時暫停。中國大陸不開放量子世界。'**
+  /// **'沒有人看得到你的真實位置：大家看到的是你的席位。每次按下「進入」就是一次打卡，席位固定在那一刻，走路不會移動；想換位置就離開再進入。中國大陸不開放量子世界。'**
   String get guideS17L3;
 
   /// No description provided for @guideS17L4.
@@ -4364,6 +4364,192 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'艾婭偶爾會在光柱裡現身：整點報時、每天第一次進入量子世界，或不經意的偶遇；點她就能開始聊天。不想看到她，可以在設定裡關掉「艾婭（量子世界的 AI）」。'**
   String get guideS18L5;
+
+  /// No description provided for @orbStyleXmas.
+  ///
+  /// In zh, this message translates to:
+  /// **'聖誕'**
+  String get orbStyleXmas;
+
+  /// No description provided for @orbStyleNewYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子跨年'**
+  String get orbStyleNewYear;
+
+  /// No description provided for @orbLimited.
+  ///
+  /// In zh, this message translates to:
+  /// **'限定款'**
+  String get orbLimited;
+
+  /// No description provided for @orbLimitedUntil.
+  ///
+  /// In zh, this message translates to:
+  /// **'限定 · {date} 截止'**
+  String orbLimitedUntil(String date);
+
+  /// No description provided for @aiyaFriendTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭之友'**
+  String get aiyaFriendTitle;
+
+  /// No description provided for @aiyaFriendSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'自動續訂的月費方案'**
+  String get aiyaFriendSubtitle;
+
+  /// No description provided for @aiyaFriendPerk1.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天 20 次聊天（免費是 3 次）'**
+  String get aiyaFriendPerk1;
+
+  /// No description provided for @aiyaFriendPerk2.
+  ///
+  /// In zh, this message translates to:
+  /// **'每次聊 20 分鐘或 40 則'**
+  String get aiyaFriendPerk2;
+
+  /// No description provided for @aiyaFriendPerk3.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭休息時，也能找她聊'**
+  String get aiyaFriendPerk3;
+
+  /// No description provided for @aiyaFriendPerk4.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭換上專屬的「星光」造型（只有你看得到）'**
+  String get aiyaFriendPerk4;
+
+  /// No description provided for @aiyaFriendPrice.
+  ///
+  /// In zh, this message translates to:
+  /// **'{price}／月'**
+  String aiyaFriendPrice(String price);
+
+  /// No description provided for @aiyaFriendSubscribe.
+  ///
+  /// In zh, this message translates to:
+  /// **'訂閱'**
+  String get aiyaFriendSubscribe;
+
+  /// No description provided for @aiyaFriendTerms.
+  ///
+  /// In zh, this message translates to:
+  /// **'訂閱期間為 1 個月，到期時會自動續訂並扣款，除非在到期前至少 24 小時關閉自動續訂。付款由 Apple 或 Google 帳戶處理，可以隨時到帳戶的訂閱設定管理或取消。時光包的次數會保留，每天 20 次用完後才會使用。'**
+  String get aiyaFriendTerms;
+
+  /// No description provided for @aiyaFriendActive.
+  ///
+  /// In zh, this message translates to:
+  /// **'你是艾婭之友，有效到 {date}'**
+  String aiyaFriendActive(String date);
+
+  /// No description provided for @aiyaFriendManage.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理訂閱'**
+  String get aiyaFriendManage;
+
+  /// No description provided for @aiyaFriendRestore.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢復購買'**
+  String get aiyaFriendRestore;
+
+  /// No description provided for @aiyaFriendWelcome.
+  ///
+  /// In zh, this message translates to:
+  /// **'你成為艾婭之友了 ✨'**
+  String get aiyaFriendWelcome;
+
+  /// No description provided for @aiyaFriendRestored.
+  ///
+  /// In zh, this message translates to:
+  /// **'已恢復艾婭之友'**
+  String get aiyaFriendRestored;
+
+  /// No description provided for @aiyaFriendNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有找到有效的艾婭之友訂閱'**
+  String get aiyaFriendNotFound;
+
+  /// No description provided for @aiyaFriendElsewhere.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個訂閱已經用在另一個帳號'**
+  String get aiyaFriendElsewhere;
+
+  /// No description provided for @aiyaFriendEntry.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭之友 · 每天 20 次'**
+  String get aiyaFriendEntry;
+
+  /// No description provided for @aiyaFriendLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭之友 · 今天還有 {n} 次'**
+  String aiyaFriendLeft(int n);
+
+  /// No description provided for @guideS17L12.
+  ///
+  /// In zh, this message translates to:
+  /// **'限定款：聖誕水晶球（冬青花圈、會閃的金星、飄雪）賣到 12/25，量子跨年水晶球（金色時鐘刻度、輪流綻開的煙火，跨年那一刻綻開得特別大）賣到 1/1（台灣時間）。過了販售期就不再上架，買過的人永久保留，也可以恢復購買。'**
+  String get guideS17L12;
+
+  /// No description provided for @guideS18L6.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭之友：在「＋ 時光包」裡選「艾婭之友」，是自動續訂的月費方案。每天 20 次聊天、每次 20 分鐘或 40 則，艾婭休息時也能聊，她還會換上只有你看得到的「星光」造型。每天 20 次用完後才扣時光包。訂閱會自動續訂，可以隨時在 Apple 或 Google 的訂閱設定取消；換手機後按「恢復購買」找回。'**
+  String get guideS18L6;
+
+  /// No description provided for @mapConsentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'要在地圖上顯示你的位置嗎？'**
+  String get mapConsentTitle;
+
+  /// No description provided for @mapConsentBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'允許後，每次你自己按下「打卡」或量子世界的「進入」，其他使用者會在地圖上看到你打卡的地方（不是即時位置）、暱稱與心情。不會自動打卡；離開 App 就從地圖上消失。你可以拒絕，也可以隨時在設定關掉。'**
+  String get mapConsentBody;
+
+  /// No description provided for @mapConsentAllow.
+  ///
+  /// In zh, this message translates to:
+  /// **'允許'**
+  String get mapConsentAllow;
+
+  /// No description provided for @mapConsentDecline.
+  ///
+  /// In zh, this message translates to:
+  /// **'不允許'**
+  String get mapConsentDecline;
+
+  /// No description provided for @mapConsentDeclined.
+  ///
+  /// In zh, this message translates to:
+  /// **'好的，你不會出現在任何人的地圖上。想打卡時再按一次就好。'**
+  String get mapConsentDeclined;
+
+  /// No description provided for @mapConsentSetting.
+  ///
+  /// In zh, this message translates to:
+  /// **'在地圖上顯示我的位置'**
+  String get mapConsentSetting;
+
+  /// No description provided for @mapConsentSettingSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'關掉後立即結束打卡，你不會出現在任何人的地圖上'**
+  String get mapConsentSettingSubtitle;
 }
 
 class _AppLocalizationsDelegate

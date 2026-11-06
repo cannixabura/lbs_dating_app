@@ -1813,7 +1813,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      '全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，加上你入場後走了多遠：走路時氣泡跟著移動，搭車時暫停。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。';
+      '全世界此刻在量子世界的人，都在同一個房間裡：以台北 101 為原點排成蜂巢，你會拿到一個席位，例如「Q4-17」，圈數越小越靠近原點。\n\n沒有人看得到你的真實位置。大家看到的是你的席位，固定在你按下「進入」的那一刻，走路也不會移動；想換位置就離開再進入一次。暱稱和心情照舊，一樣可以送微光、敲門和聊天，點一下就翻譯。\n\n在量子世界期間，會暫時離開一般雷達和平行宇宙；離開後回到原本打卡的位置。';
 
   @override
   String get quantumEnter => '進入';
@@ -1906,7 +1906,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      '沒有人看得到你的真實位置：大家看到的是你的席位，加上入場後走了多遠。走路時氣泡跟著移動，時速超過 25 公里（搭車）時暫停。中國大陸不開放量子世界。';
+      '沒有人看得到你的真實位置：大家看到的是你的席位。每次按下「進入」就是一次打卡，席位固定在那一刻，走路不會移動；想換位置就離開再進入。中國大陸不開放量子世界。';
 
   @override
   String get guideS17L4 =>
@@ -2387,6 +2387,111 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS18L5 =>
       '艾婭偶爾會在光柱裡現身：整點報時、每天第一次進入量子世界，或不經意的偶遇；點她就能開始聊天。不想看到她，可以在設定裡關掉「艾婭（量子世界的 AI）」。';
+
+  @override
+  String get orbStyleXmas => '聖誕';
+
+  @override
+  String get orbStyleNewYear => '量子跨年';
+
+  @override
+  String get orbLimited => '限定款';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return '限定 · $date 截止';
+  }
+
+  @override
+  String get aiyaFriendTitle => '艾婭之友';
+
+  @override
+  String get aiyaFriendSubtitle => '自動續訂的月費方案';
+
+  @override
+  String get aiyaFriendPerk1 => '每天 20 次聊天（免費是 3 次）';
+
+  @override
+  String get aiyaFriendPerk2 => '每次聊 20 分鐘或 40 則';
+
+  @override
+  String get aiyaFriendPerk3 => '艾婭休息時，也能找她聊';
+
+  @override
+  String get aiyaFriendPerk4 => '艾婭換上專屬的「星光」造型（只有你看得到）';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price／月';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => '訂閱';
+
+  @override
+  String get aiyaFriendTerms =>
+      '訂閱期間為 1 個月，到期時會自動續訂並扣款，除非在到期前至少 24 小時關閉自動續訂。付款由 Apple 或 Google 帳戶處理，可以隨時到帳戶的訂閱設定管理或取消。時光包的次數會保留，每天 20 次用完後才會使用。';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return '你是艾婭之友，有效到 $date';
+  }
+
+  @override
+  String get aiyaFriendManage => '管理訂閱';
+
+  @override
+  String get aiyaFriendRestore => '恢復購買';
+
+  @override
+  String get aiyaFriendWelcome => '你成為艾婭之友了 ✨';
+
+  @override
+  String get aiyaFriendRestored => '已恢復艾婭之友';
+
+  @override
+  String get aiyaFriendNotFound => '沒有找到有效的艾婭之友訂閱';
+
+  @override
+  String get aiyaFriendElsewhere => '這個訂閱已經用在另一個帳號';
+
+  @override
+  String get aiyaFriendEntry => '艾婭之友 · 每天 20 次';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return '艾婭之友 · 今天還有 $n 次';
+  }
+
+  @override
+  String get guideS17L12 =>
+      '限定款：聖誕水晶球（冬青花圈、會閃的金星、飄雪）賣到 12/25，量子跨年水晶球（金色時鐘刻度、輪流綻開的煙火，跨年那一刻綻開得特別大）賣到 1/1（台灣時間）。過了販售期就不再上架，買過的人永久保留，也可以恢復購買。';
+
+  @override
+  String get guideS18L6 =>
+      '艾婭之友：在「＋ 時光包」裡選「艾婭之友」，是自動續訂的月費方案。每天 20 次聊天、每次 20 分鐘或 40 則，艾婭休息時也能聊，她還會換上只有你看得到的「星光」造型。每天 20 次用完後才扣時光包。訂閱會自動續訂，可以隨時在 Apple 或 Google 的訂閱設定取消；換手機後按「恢復購買」找回。';
+
+  @override
+  String get mapConsentTitle => '要在地圖上顯示你的位置嗎？';
+
+  @override
+  String get mapConsentBody =>
+      '允許後，每次你自己按下「打卡」或量子世界的「進入」，其他使用者會在地圖上看到你打卡的地方（不是即時位置）、暱稱與心情。不會自動打卡；離開 App 就從地圖上消失。你可以拒絕，也可以隨時在設定關掉。';
+
+  @override
+  String get mapConsentAllow => '允許';
+
+  @override
+  String get mapConsentDecline => '不允許';
+
+  @override
+  String get mapConsentDeclined => '好的，你不會出現在任何人的地圖上。想打卡時再按一次就好。';
+
+  @override
+  String get mapConsentSetting => '在地圖上顯示我的位置';
+
+  @override
+  String get mapConsentSettingSubtitle => '關掉後立即結束打卡，你不會出現在任何人的地圖上';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4197,7 +4302,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get quantumIntroBody =>
-      '全世界此刻在量子世界的人，都在同一个房间里：以台北 101 为原点排成蜂巢，你会拿到一个席位，例如“Q4-17”，圈数越小越靠近原点。\n\n没有人看得到你的真实位置。大家看到的是你的席位，加上你入场后走了多远：走路时气泡跟着移动，乘车时暂停。昵称和心情照旧，一样可以送微光、敲门和聊天，点一下就翻译。\n\n在量子世界期间，会暂时离开一般雷达和平行宇宙；离开后回到原本打卡的位置。';
+      '全世界此刻在量子世界的人，都在同一个房间里：以台北 101 为原点排成蜂巢，你会拿到一个席位，例如“Q4-17”，圈数越小越靠近原点。\n\n没有人看得到你的真实位置。大家看到的是你的席位，固定在你点“进入”的那一刻，走路也不会移动；想换位置就离开再进入一次。昵称和心情照旧，一样可以送微光、敲门和聊天，点一下就翻译。\n\n在量子世界期间，会暂时离开一般雷达和平行宇宙；离开后回到原本打卡的位置。';
 
   @override
   String get quantumEnter => '进入';
@@ -4290,7 +4395,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get guideS17L3 =>
-      '没有人看得到你的真实位置：大家看到的是你的席位，加上入场后走了多远。走路时气泡跟着移动，时速超过 25 公里（乘车）时暂停。中国大陆不开放量子世界。';
+      '没有人看得到你的真实位置：大家看到的是你的席位。每次点“进入”就是一次打卡，席位固定在那一刻，走路不会移动；想换位置就离开再进入。中国大陆不开放量子世界。';
 
   @override
   String get guideS17L4 =>
@@ -4771,4 +4876,109 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS18L5 =>
       '艾娅偶尔会在光柱里现身：整点报时、每天第一次进入量子世界，或不经意的偶遇；点她就能开始聊天。不想看到她，可以在设置里关掉「艾娅（量子世界的 AI）」。';
+
+  @override
+  String get orbStyleXmas => '圣诞';
+
+  @override
+  String get orbStyleNewYear => '量子跨年';
+
+  @override
+  String get orbLimited => '限定款';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return '限定 · $date 截止';
+  }
+
+  @override
+  String get aiyaFriendTitle => '艾娅之友';
+
+  @override
+  String get aiyaFriendSubtitle => '自动续订的月费方案';
+
+  @override
+  String get aiyaFriendPerk1 => '每天 20 次聊天（免费是 3 次）';
+
+  @override
+  String get aiyaFriendPerk2 => '每次聊 20 分钟或 40 条';
+
+  @override
+  String get aiyaFriendPerk3 => '艾娅休息时，也能找她聊';
+
+  @override
+  String get aiyaFriendPerk4 => '艾娅换上专属的“星光”造型（只有你看得到）';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price／月';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => '订阅';
+
+  @override
+  String get aiyaFriendTerms =>
+      '订阅期为 1 个月，到期时会自动续订并扣款，除非在到期前至少 24 小时关闭自动续订。付款由 Apple 或 Google 账户处理，可以随时到账户的订阅设置管理或取消。时光包的次数会保留，每天 20 次用完后才会使用。';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return '你是艾娅之友，有效期至 $date';
+  }
+
+  @override
+  String get aiyaFriendManage => '管理订阅';
+
+  @override
+  String get aiyaFriendRestore => '恢复购买';
+
+  @override
+  String get aiyaFriendWelcome => '你成为艾娅之友了 ✨';
+
+  @override
+  String get aiyaFriendRestored => '已恢复艾娅之友';
+
+  @override
+  String get aiyaFriendNotFound => '没有找到有效的艾娅之友订阅';
+
+  @override
+  String get aiyaFriendElsewhere => '这个订阅已经用在另一个账号';
+
+  @override
+  String get aiyaFriendEntry => '艾娅之友 · 每天 20 次';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return '艾娅之友 · 今天还有 $n 次';
+  }
+
+  @override
+  String get guideS17L12 =>
+      '限定款：圣诞水晶球（冬青花环、会闪的金星、飘雪）卖到 12/25，量子跨年水晶球（金色时钟刻度、轮流绽放的烟火，跨年那一刻绽放得特别大）卖到 1/1（台湾时间）。过了销售期就不再上架，买过的人永久保留，也可以恢复购买。';
+
+  @override
+  String get guideS18L6 =>
+      '艾娅之友：在“＋ 时光包”里选“艾娅之友”，是自动续订的月费方案。每天 20 次聊天、每次 20 分钟或 40 条，艾娅休息时也能聊，她还会换上只有你看得到的“星光”造型。每天 20 次用完后才扣时光包。订阅会自动续订，可以随时在 Apple 或 Google 的订阅设置取消；换手机后点“恢复购买”找回。';
+
+  @override
+  String get mapConsentTitle => '要在地图上显示你的位置吗？';
+
+  @override
+  String get mapConsentBody =>
+      '允许后，每次你自己点“打卡”或量子世界的“进入”，其他用户会在地图上看到你打卡的地方（不是实时位置）、昵称与心情。不会自动打卡；离开 App 就从地图上消失。你可以拒绝，也可以随时在设置中关闭。';
+
+  @override
+  String get mapConsentAllow => '允许';
+
+  @override
+  String get mapConsentDecline => '不允许';
+
+  @override
+  String get mapConsentDeclined => '好的，你不会出现在任何人的地图上。想打卡时再点一次就好。';
+
+  @override
+  String get mapConsentSetting => '在地图上显示我的位置';
+
+  @override
+  String get mapConsentSettingSubtitle => '关闭后立即结束打卡，你不会出现在任何人的地图上';
 }

@@ -1008,6 +1008,14 @@ async function playPurchase(productId, token) {
     return (await client.request({ url })).data;
 }
 
+/** Google Play 訂閱的查詢結果（subscriptionsv2） */
+async function playSubscription(token) {
+    const { GoogleAuth } = require("google-auth-library");
+    const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/subscriptionsv2/tokens/${encodeURIComponent(token)}`;
+    return (await client.request({ url })).data;
+}
+
 /** 把款式記到帳號上；同一筆購買已經屬於別的帳號就拒絕 */
 async function grantOrb(uid, src, { style, receipt }) {
     const db = admin.database();
@@ -1067,13 +1075,46 @@ function claude() {
 }
 
 /** 這個人今天的額度狀態 */
+/**
+ * 艾婭之友的訂閱紀錄。Google 的訂閱過期時重新查一次（每小時最多一次），有續訂就延長；
+ * Apple 的續訂由 App Store 伺服器通知（appStoreNotify）和 App 每次啟動時送來的交易更新。
+ */
+async function aiyaFriendRecord(uid, now) {
+    const db = admin.database();
+    const rec = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+    if (!rec || aiya.friendActive(rec, now) || rec.src !== "google" || now - (Number(rec.checkedAt) || 0) < 3600 * 1000) return rec;
+    try {
+        const token = (await db.ref(`aiyaFriendTokens/${rec.receipt}`).once("value")).val();
+        if (!token) return rec;
+        let exp = Number(rec.exp) || 0;
+        try { exp = aiya.googleFriend(rec.product || aiya.FRIEND_PRODUCT, rec.receipt, await playSubscription(token)).exp; } catch (e) { /* 已過期或取消：維持原本的到期時間 */ }
+        await db.ref(`aiyaFriend/${uid}`).update({ exp, checkedAt: now });
+        return { ...rec, exp, checkedAt: now };
+    } catch (e) {
+        console.warn("aiya friend recheck:", e.message);
+        return rec;
+    }
+}
+
+/** 把訂閱記到帳號上；同一個訂閱已經屬於別的帳號就拒絕。restore 會送來舊的交易，所以到期時間只往後延（退款除外） */
+async function grantAiyaFriend(uid, src, { exp, receipt, productId, revoked }, token) {
+    const db = admin.database();
+    const claim = await db.ref(`aiyaFriendReceipts/${receipt}`).transaction((cur) => (cur == null || cur === uid ? uid : undefined));
+    if (!claim.committed) return "owned_elsewhere";
+    const prev = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+    const keep = prev && prev.receipt === receipt && !revoked ? Math.max(Number(prev.exp) || 0, exp) : exp;
+    await db.ref(`aiyaFriend/${uid}`).set({ exp: keep, src, receipt, product: productId, at: admin.database.ServerValue.TIMESTAMP });
+    if (token) await db.ref(`aiyaFriendTokens/${receipt}`).set(token);
+    return "granted";
+}
+
 async function aiyaStatus(uid, now) {
     const day = aiya.dayKey(now);
     const [usedRaw, budgetRaw, reviewer, sessionRaw] = await sendUpstashPipeline([
         ["GET", aiya.KEY.quota(uid, day)], ["GET", aiya.KEY.budget(day)], ["SISMEMBER", demo.REVIEWERS_KEY, uid], ["GET", aiya.KEY.session(uid)],
     ]);
     const db = admin.database();
-    const [creditsSnap, consentSnap] = await Promise.all([db.ref(`aiyaCredits/${uid}`).once("value"), db.ref(`aiyaConsent/${uid}`).once("value")]);
+    const [creditsSnap, consentSnap, friendRec] = await Promise.all([db.ref(`aiyaCredits/${uid}`).once("value"), db.ref(`aiyaConsent/${uid}`).once("value"), aiyaFriendRecord(uid, now)]);
     const consent = consentSnap.val();
     let session = null;
     try { session = sessionRaw ? JSON.parse(sessionRaw) : null; } catch (e) { session = null; }
@@ -1081,14 +1122,16 @@ async function aiyaStatus(uid, now) {
         day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), reviewer: reviewer === 1,
         credits: Math.max(0, Number(creditsSnap.val()) || 0), consented: !!consent && consent.v >= aiya.CONSENT_VERSION,
         session: aiya.sessionAlive(session, now) ? session : null,
+        friend: aiya.friendActive(friendRec, now), friendExp: friendRec ? Number(friendRec.exp) || 0 : 0,
     };
 }
 
 function aiyaStatusView(st, now) {
     return {
-        freeLeft: st.reviewer ? aiya.FREE_PER_DAY : Math.max(0, aiya.FREE_PER_DAY - st.usedToday),
+        freeLeft: st.reviewer ? aiya.FREE_PER_DAY : Math.max(0, (st.friend ? aiya.FRIEND_PER_DAY : aiya.FREE_PER_DAY) - st.usedToday),
         credits: st.credits, consented: st.consented,
-        resting: !st.reviewer && st.budgetMicro >= aiya.DAILY_FREE_BUDGET_MICRO,
+        resting: !st.reviewer && !st.friend && st.budgetMicro >= aiya.DAILY_FREE_BUDGET_MICRO,
+        friend: st.friend, friendExp: st.friendExp,
         session: st.session ? aiya.sessionView(st.session, now) : null,
     };
 }
@@ -1235,10 +1278,25 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         const results = [];
         for (const p of items) {
           try {
-            let grant;
-            if (p.platform === "apple") grant = aiya.applePack(orbs.verifyAppleJws(p.data), orbs.BUNDLE_ID);
-            else if (p.platform === "google" && typeof p.token === "string" && typeof p.productId === "string") grant = aiya.googlePack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
-            else throw new Error("bad_request");
+            // 艾婭之友（訂閱）和時光包（消耗型）分開處理
+            if (p.platform === "apple") {
+              const tx = orbs.verifyAppleJws(p.data);
+              if (tx.productId === aiya.FRIEND_PRODUCT) {
+                const g = aiya.appleFriend(tx, orbs.BUNDLE_ID);
+                results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "apple", { ...g, revoked: !!tx.revocationDate }) });
+                continue;
+              }
+              const grant = aiya.applePack(tx, orbs.BUNDLE_ID);
+              results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant) });
+              continue;
+            }
+            if (p.platform !== "google" || typeof p.token !== "string" || typeof p.productId !== "string") throw new Error("bad_request");
+            if (p.productId === aiya.FRIEND_PRODUCT) {
+              const g = aiya.googleFriend(p.productId, orbs.receiptKey("google", p.token), await playSubscription(p.token));
+              results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "google", g, p.token) });
+              continue;
+            }
+            const grant = aiya.googlePack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
             results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant) });
           } catch (e) {
             console.warn("aiya verify failed:", e.message);
@@ -1246,7 +1304,8 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           }
         }
         const credits = Math.max(0, Number((await admin.database().ref(`aiyaCredits/${uid}`).once("value")).val()) || 0);
-        return res.status(200).json({ success: true, results, credits });
+        const friendRec = (await admin.database().ref(`aiyaFriend/${uid}`).once("value")).val();
+        return res.status(200).json({ success: true, results, credits, friend: aiya.friendActive(friendRec, now), friendExp: friendRec ? Number(friendRec.exp) || 0 : 0 });
       }
 
       return res.status(400).json({ success: false, error: localize(lang, "未知的操作") });
@@ -1255,6 +1314,37 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
       return res.status(500).json({ success: false, code: "busy" });
     }
   });
+});
+
+// ============================================================================
+// App Store 伺服器通知 V2（App Store Connect → App 資訊 → App Store 伺服器通知，正式和沙盒都填這個網址）
+//   艾婭之友續訂、到期、退款時 Apple 會送簽章過的通知；用同一個 Apple Root CA 驗證，不需要 API 金鑰。
+//   一律回 200（否則 Apple 會一直重送）；看不懂或驗證失敗的只記 log。
+// ============================================================================
+exports.appStoreNotify = onRequest({ region: "asia-southeast1" }, async (req, res) => {
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+  try {
+    const payload = orbs.verifyAppleJws(req.body && req.body.signedPayload);
+    const info = payload.data && payload.data.signedTransactionInfo;
+    if (!info) return res.status(200).send("ok");
+    const tx = orbs.verifyAppleJws(info);
+    if (tx.productId !== aiya.FRIEND_PRODUCT) {
+      console.log("appStoreNotify:", payload.notificationType, tx.productId);
+      return res.status(200).send("ok");
+    }
+    const g = aiya.appleFriend(tx, orbs.BUNDLE_ID);
+    const db = admin.database();
+    const uid = (await db.ref(`aiyaFriendReceipts/${g.receipt}`).once("value")).val();
+    if (uid) {
+      const prev = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+      const exp = tx.revocationDate ? g.exp : Math.max(prev && prev.receipt === g.receipt ? Number(prev.exp) || 0 : 0, g.exp);
+      await db.ref(`aiyaFriend/${uid}`).update({ exp, src: "apple", receipt: g.receipt, product: g.productId });
+    }
+    console.log("appStoreNotify:", payload.notificationType, payload.subtype || "", uid ? "matched" : "no account");
+  } catch (e) {
+    console.warn("appStoreNotify failed:", e.message);
+  }
+  return res.status(200).send("ok");
 });
 
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
@@ -1302,6 +1392,13 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       // 艾婭：剩下的時光包次數與同意紀錄一起刪除（消耗型無法恢復，條款已說明）；收據紀錄保留，避免同一筆購買重複加次數
       updates[`aiyaCredits/${uid}`] = null;
       updates[`aiyaConsent/${uid}`] = null;
+      // 艾婭之友：刪掉訂閱紀錄並釋放收據，之後用新帳號可以恢復購買（訂閱本身要到 Apple／Google 取消）
+      const myFriend = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+      updates[`aiyaFriend/${uid}`] = null;
+      if (myFriend && typeof myFriend.receipt === "string") {
+        updates[`aiyaFriendReceipts/${myFriend.receipt}`] = null;
+        updates[`aiyaFriendTokens/${myFriend.receipt}`] = null;
+      }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
       const myBlocks = (await db.ref(`blocks/${uid}`).once("value")).val() || {};
       for (const target of Object.keys(myBlocks)) updates[`blockedBy/${target}/${uid}`] = null;

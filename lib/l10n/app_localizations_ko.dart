@@ -1877,7 +1877,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      '지금 양자 세계에 있는 사람들은 모두 같은 방에 있어요. 타이베이 101을 원점으로 벌집처럼 늘어서고, 당신은 \"Q4-17\" 같은 자리를 받아요. 고리가 작을수록 원점에 가까워요.\n\n누구도 당신의 실제 위치를 볼 수 없어요. 다른 사람에게는 당신의 자리와 들어온 뒤 걸은 거리만 보여요. 걸으면 말풍선이 함께 움직이고, 차를 타는 동안에는 멈춰요. 닉네임과 기분은 그대로이고, 반짝임 보내기·노크·채팅도 할 수 있으며 탭하면 번역돼요.\n\n양자 세계에 있는 동안에는 일반 레이더와 평행우주에서 잠시 벗어나요. 나가면 원래 체크인한 위치로 돌아가요.';
+      '지금 양자 세계에 있는 사람들은 모두 같은 방에 있어요. 타이베이 101을 원점으로 벌집처럼 늘어서고, 당신은 \"Q4-17\" 같은 자리를 받아요. 고리가 작을수록 원점에 가까워요.\n\n누구도 당신의 실제 위치를 볼 수 없어요. 다른 사람에게는 당신의 자리만 보이고, 자리는 \"들어가기\"를 누른 순간에 고정되어 걸어도 움직이지 않아요. 위치를 바꾸려면 나갔다가 다시 들어오세요. 닉네임과 기분은 그대로이고, 반짝임 보내기·노크·채팅도 할 수 있으며 탭하면 번역돼요.\n\n양자 세계에 있는 동안에는 일반 레이더와 평행우주에서 잠시 벗어나요. 나가면 원래 체크인한 위치로 돌아가요.';
 
   @override
   String get quantumEnter => '들어가기';
@@ -1970,7 +1970,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      '누구도 당신의 실제 위치를 볼 수 없어요. 다른 사람에게는 당신의 자리와 들어온 뒤 걸은 거리만 보여요. 걸으면 말풍선이 함께 움직이고, 시속 25km를 넘으면(차량 이동) 멈춰요. 중국 본토에서는 양자 세계를 이용할 수 없어요.';
+      '누구도 당신의 실제 위치를 볼 수 없어요. 다른 사람에게는 당신의 자리만 보여요. \"들어가기\"를 누를 때마다 한 번의 체크인이 되고, 자리는 그 순간에 고정되어 걸어도 움직이지 않아요. 위치를 바꾸려면 나갔다가 다시 들어오세요. 중국 본토에서는 양자 세계를 이용할 수 없어요.';
 
   @override
   String get guideS17L4 =>
@@ -2456,4 +2456,110 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS18L5 =>
       '아이야는 가끔 빛기둥에 나타나요. 매 정시 시보, 그날 처음 양자 세계에 들어올 때, 그리고 우연히요. 누르면 대화를 시작할 수 있어요. 보고 싶지 않다면 설정에서 \"아이야(양자 세계의 AI)\"를 끄세요.';
+
+  @override
+  String get orbStyleXmas => '크리스마스';
+
+  @override
+  String get orbStyleNewYear => '퀀텀 새해';
+
+  @override
+  String get orbLimited => '한정';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return '한정 · $date까지';
+  }
+
+  @override
+  String get aiyaFriendTitle => '아이야의 친구';
+
+  @override
+  String get aiyaFriendSubtitle => '자동 갱신 월간 플랜';
+
+  @override
+  String get aiyaFriendPerk1 => '하루 20번 대화 (무료는 3번)';
+
+  @override
+  String get aiyaFriendPerk2 => '한 번에 20분 또는 메시지 40개';
+
+  @override
+  String get aiyaFriendPerk3 => '아이야가 쉬는 시간에도 대화 가능';
+
+  @override
+  String get aiyaFriendPerk4 => '아이야가 전용 ‘스타라이트’ 모습으로 (나만 보여요)';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price / 월';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => '구독하기';
+
+  @override
+  String get aiyaFriendTerms =>
+      '구독 기간은 1개월이며, 기간 종료 최소 24시간 전에 자동 갱신을 끄지 않으면 자동으로 갱신되고 결제됩니다. 결제는 Apple 또는 Google 계정으로 처리되며, 계정의 구독 설정에서 언제든지 관리하거나 취소할 수 있습니다. 타임 팩 횟수는 유지되며 하루 20번을 다 쓴 뒤에 사용됩니다.';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return '아이야의 친구: $date까지';
+  }
+
+  @override
+  String get aiyaFriendManage => '구독 관리';
+
+  @override
+  String get aiyaFriendRestore => '구매 복원';
+
+  @override
+  String get aiyaFriendWelcome => '아이야의 친구가 되었어요 ✨';
+
+  @override
+  String get aiyaFriendRestored => '아이야의 친구를 복원했어요';
+
+  @override
+  String get aiyaFriendNotFound => '유효한 아이야의 친구 구독이 없어요';
+
+  @override
+  String get aiyaFriendElsewhere => '이 구독은 이미 다른 계정에서 사용 중이에요';
+
+  @override
+  String get aiyaFriendEntry => '아이야의 친구 · 하루 20번';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return '아이야의 친구 · 오늘 $n번 남음';
+  }
+
+  @override
+  String get guideS17L12 =>
+      '한정 디자인: 크리스마스 수정구(호랑가시나무 화환, 반짝이는 금별, 내리는 눈)는 12/25까지, 퀀텀 새해 수정구(금빛 시계 눈금과 차례로 터지는 불꽃, 새해가 되는 순간 특히 크게)는 1/1까지(대만 시간) 판매해요. 기간이 지나면 다시 판매하지 않아요. 구매한 사람은 계속 쓸 수 있고 구매 복원도 돼요.';
+
+  @override
+  String get guideS18L6 =>
+      '아이야의 친구: \"＋ 타임 팩\" 안의 \"아이야의 친구\"는 자동 갱신 월간 플랜이에요. 하루 20번, 한 번에 20분 또는 메시지 40개. 아이야가 쉬는 시간에도 대화할 수 있고, 나만 보이는 \"스타라이트\" 모습이 돼요. 타임 팩은 하루 20번을 다 쓴 뒤에 사용돼요. 자동으로 갱신되며 Apple 또는 Google 구독 설정에서 언제든 취소할 수 있고, 휴대폰을 바꾸면 \"구매 복원\"으로 되찾아요.';
+
+  @override
+  String get mapConsentTitle => '지도에 내 위치를 표시할까요?';
+
+  @override
+  String get mapConsentBody =>
+      '허용하면 내가 직접 \"체크인\"(양자 세계에서는 \"들어가기\")을 누를 때마다 다른 사용자의 지도에 체크인한 곳(실시간 위치가 아님), 닉네임, 기분이 표시돼요. 자동 체크인은 없고, 앱을 나가면 지도에서 사라져요. 거부할 수 있고, 설정에서 언제든 끌 수 있어요.';
+
+  @override
+  String get mapConsentAllow => '허용';
+
+  @override
+  String get mapConsentDecline => '허용 안 함';
+
+  @override
+  String get mapConsentDeclined =>
+      '알겠어요. 누구의 지도에도 표시되지 않아요. 체크인하고 싶을 때 다시 누르세요.';
+
+  @override
+  String get mapConsentSetting => '지도에 내 위치 표시';
+
+  @override
+  String get mapConsentSettingSubtitle => '끄면 바로 체크인이 끝나고 누구의 지도에도 표시되지 않아요';
 }

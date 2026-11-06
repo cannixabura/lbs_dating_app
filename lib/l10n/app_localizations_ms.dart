@@ -1967,7 +1967,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      'Semua orang dalam Dunia Kuantum sekarang berkongsi satu bilik, tersusun seperti sarang lebah di sekeliling Taipei 101. Anda mendapat tempat duduk seperti \"Q4-17\" — lebih kecil gelangnya, lebih dekat dengan titik asal.\n\nTiada siapa dapat melihat lokasi sebenar anda. Orang lain hanya melihat tempat duduk anda dan sejauh mana anda berjalan sejak masuk: gelembung anda bergerak semasa berjalan dan berhenti semasa menaiki kenderaan. Nama panggilan dan mood kekal sama, dan anda masih boleh menghantar kerlipan, mengetuk dan bersembang, dengan terjemahan sekali ketik.\n\nSemasa dalam Dunia Kuantum, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, anda kembali ke tempat daftar masuk anda.';
+      'Semua orang dalam Dunia Kuantum sekarang berkongsi satu bilik, tersusun seperti sarang lebah di sekeliling Taipei 101. Anda mendapat tempat duduk seperti \"Q4-17\" — lebih kecil gelangnya, lebih dekat dengan titik asal.\n\nTiada siapa dapat melihat lokasi sebenar anda. Orang lain hanya melihat tempat duduk anda, yang ditetapkan pada saat anda mengetik Masuk; ia tidak bergerak semasa anda berjalan. Untuk menukarnya, keluar dan masuk semula. Nama panggilan dan mood kekal sama, dan anda masih boleh menghantar kerlipan, mengetuk dan bersembang, dengan terjemahan sekali ketik.\n\nSemasa dalam Dunia Kuantum, anda keluar sementara dari radar biasa dan Alam Selari; apabila keluar, anda kembali ke tempat daftar masuk anda.';
 
   @override
   String get quantumEnter => 'Masuk';
@@ -2067,7 +2067,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      'Tiada siapa dapat melihat lokasi sebenar anda: orang lain melihat tempat duduk anda dan sejauh mana anda berjalan sejak masuk. Gelembung anda bergerak semasa berjalan dan berhenti melebihi 25 km/j (menaiki kenderaan). Dunia Kuantum tidak tersedia di tanah besar China.';
+      'Tiada siapa dapat melihat lokasi sebenar anda: orang lain hanya melihat tempat duduk anda. Setiap kali anda mengetik Masuk dikira sebagai satu daftar masuk, dan tempat duduk anda tetap dari saat itu; ia tidak bergerak semasa anda berjalan. Untuk menukarnya, keluar dan masuk semula. Dunia Kuantum tidak tersedia di tanah besar China.';
 
   @override
   String get guideS17L4 =>
@@ -2573,4 +2573,113 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS18L5 =>
       'Sesekali AIYA muncul dalam tiang cahaya: ketika loceng setiap jam, kali pertama anda masuk ke Dunia Kuantum setiap hari, atau secara kebetulan. Ketik dia untuk mula bersembang. Untuk tidak melihatnya lagi, matikan \"AIYA (AI dalam Dunia Kuantum)\" dalam Tetapan.';
+
+  @override
+  String get orbStyleXmas => 'Krismas';
+
+  @override
+  String get orbStyleNewYear => 'Tahun Baru Kuantum';
+
+  @override
+  String get orbLimited => 'Edisi terhad';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return 'Edisi terhad · hingga $date';
+  }
+
+  @override
+  String get aiyaFriendTitle => 'Rakan AIYA';
+
+  @override
+  String get aiyaFriendSubtitle => 'Pelan bulanan auto-pembaharuan';
+
+  @override
+  String get aiyaFriendPerk1 => '20 sembang sehari (3 jika percuma)';
+
+  @override
+  String get aiyaFriendPerk2 => 'Setiap sembang 20 minit atau 40 mesej';
+
+  @override
+  String get aiyaFriendPerk3 => 'Boleh bersembang walaupun AIYA sedang berehat';
+
+  @override
+  String get aiyaFriendPerk4 =>
+      'AIYA memakai rupa “Cahaya Bintang” eksklusif (hanya anda nampak)';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price / bulan';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => 'Langgan';
+
+  @override
+  String get aiyaFriendTerms =>
+      'Langganan selama 1 bulan dan diperbaharui secara automatik dengan bayaran kecuali auto-pembaharuan dimatikan sekurang-kurangnya 24 jam sebelum tempoh tamat. Bayaran diuruskan oleh akaun Apple atau Google anda; urus atau batal bila-bila masa dalam tetapan langganan akaun. Kiraan Pek Masa dikekalkan dan hanya digunakan selepas 20 sembang harian.';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return 'Anda Rakan AIYA hingga $date';
+  }
+
+  @override
+  String get aiyaFriendManage => 'Urus langganan';
+
+  @override
+  String get aiyaFriendRestore => 'Pulihkan pembelian';
+
+  @override
+  String get aiyaFriendWelcome => 'Anda kini Rakan AIYA ✨';
+
+  @override
+  String get aiyaFriendRestored => 'Rakan AIYA dipulihkan';
+
+  @override
+  String get aiyaFriendNotFound => 'Tiada langganan Rakan AIYA yang aktif';
+
+  @override
+  String get aiyaFriendElsewhere =>
+      'Langganan ini sudah digunakan oleh akaun lain';
+
+  @override
+  String get aiyaFriendEntry => 'Rakan AIYA · 20 sehari';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return 'Rakan AIYA · tinggal $n hari ini';
+  }
+
+  @override
+  String get guideS17L12 =>
+      'Edisi terhad: bebola kristal Krismas (kalungan holi, bintang emas berkelip, salji turun) dijual hingga 12/25, dan bebola kristal Tahun Baru Kuantum (detik jam emas dan bunga api, paling besar tepat tengah malam) hingga 1/1, waktu Taiwan. Selepas itu ia tidak dijual lagi; jika anda membelinya, ia kekal milik anda dan boleh dipulihkan.';
+
+  @override
+  String get guideS18L6 =>
+      'Rakan AIYA: pilih \"Rakan AIYA\" dalam \"+ Pek Masa\". Ia pelan bulanan auto-pembaharuan: 20 sembang sehari, setiap satu hingga 20 minit atau 40 mesej, boleh bersembang walaupun AIYA berehat, dan rupa \"Cahaya Bintang\" pada AIYA yang hanya anda nampak. Pek Masa digunakan selepas 20 sembang harian. Langganan diperbaharui secara automatik; batal bila-bila masa dalam tetapan langganan Apple atau Google, dan ketik \"Pulihkan pembelian\" pada telefon baharu.';
+
+  @override
+  String get mapConsentTitle => 'Tunjukkan lokasi anda pada peta?';
+
+  @override
+  String get mapConsentBody =>
+      'Jika anda benarkan, setiap kali anda sendiri mengetik Daftar masuk (atau Masuk di Dunia Kuantum), pengguna lain melihat tempat anda daftar masuk (bukan lokasi masa nyata), nama panggilan dan mood anda pada peta. Tiada daftar masuk automatik, dan anda hilang dari peta apabila keluar dari aplikasi. Anda boleh menolak, dan boleh mematikannya bila-bila masa dalam Tetapan.';
+
+  @override
+  String get mapConsentAllow => 'Benarkan';
+
+  @override
+  String get mapConsentDecline => 'Jangan benarkan';
+
+  @override
+  String get mapConsentDeclined =>
+      'Baik. Anda tidak akan muncul pada peta sesiapa. Ketik semula bila-bila masa anda mahu daftar masuk.';
+
+  @override
+  String get mapConsentSetting => 'Tunjukkan lokasi saya pada peta';
+
+  @override
+  String get mapConsentSettingSubtitle =>
+      'Mematikannya menamatkan daftar masuk serta-merta; anda tidak akan muncul pada peta sesiapa';
 }

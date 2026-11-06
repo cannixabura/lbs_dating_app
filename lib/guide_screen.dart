@@ -95,6 +95,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS17L9,
       tr.guideS17L10,
       tr.guideS17L11,
+      tr.guideS17L12,
     ]),
     (Icons.auto_awesome_outlined, tr.guideS18Title, [
       tr.guideS18L1,
@@ -102,6 +103,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS18L3,
       tr.guideS18L4,
       tr.guideS18L5,
+      tr.guideS18L6,
     ]),
     (Icons.translate, tr.guideS15Title, [
       tr.guideS15L1,

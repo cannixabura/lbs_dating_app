@@ -87,10 +87,10 @@ class QuantumWalk {
   final double baseEast, baseNorth; // 回到原本席位時，接著伺服器的累計位移
   const QuantumWalk(this.anchorLat, this.anchorLng, {this.baseEast = 0, this.baseNorth = 0});
 
-  ({double east, double north}) at(double lat, double lng) {
-    final d = metersBetween(anchorLat, anchorLng, lat, lng);
-    return (east: baseEast + d.east, north: baseNorth + d.north);
-  }
+  /// Apple 5.1.2(i)：每次顯示位置都要使用者自己打卡，不能自動更新。
+  /// 所以席位固定在入場那一刻，走路不會移動；想換位置要離開再進入（再打卡一次）。
+  /// [lat]、[lng] 保留參數只為了相容呼叫端，不再使用。
+  ({double east, double north}) at(double lat, double lng) => (east: baseEast, north: baseNorth);
 }
 
 // ---------- 不開放的地區 ----------

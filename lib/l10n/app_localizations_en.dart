@@ -2028,7 +2028,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      'Everyone in the Quantum World right now shares one room, arranged as a hive around Taipei 101. You get a seat such as \"Q4-17\" — the smaller the ring, the closer to the origin.\n\nNo one can see your real location. Others see your seat plus how far you have walked since entering: your bubble moves as you walk and pauses while you ride. Your nickname and mood stay the same, and you can still send glimmers, knock and chat, with tap-to-translate.\n\nWhile you are in the Quantum World you temporarily leave the normal radar and Parallel Universe; when you leave, you return to your check-in spot.';
+      'Everyone in the Quantum World right now shares one room, arranged as a hive around Taipei 101. You get a seat such as \"Q4-17\" — the smaller the ring, the closer to the origin.\n\nNo one can see your real location. Others see only your seat, fixed at the moment you tap Enter; it does not move when you walk. To change it, leave and enter again. Your nickname and mood stay the same, and you can still send glimmers, knock and chat, with tap-to-translate.\n\nWhile you are in the Quantum World you temporarily leave the normal radar and Parallel Universe; when you leave, you return to your check-in spot.';
 
   @override
   String get quantumEnter => 'Enter';
@@ -2128,7 +2128,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      'No one can see your real location: others see your seat plus how far you have walked since entering. Your bubble moves as you walk and pauses above 25 km/h (riding). The Quantum World is not available in mainland China.';
+      'No one can see your real location: others see only your seat. Each time you tap Enter counts as a check-in, and your seat stays fixed from that moment; it does not move when you walk. To change it, leave and enter again. The Quantum World is not available in mainland China.';
 
   @override
   String get guideS17L4 =>
@@ -2635,4 +2635,113 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS18L5 =>
       'Now and then AIYA appears in the light pillar: at the hourly chime, the first time you enter Quantum World each day, or by chance. Tap her to start chatting. To stop seeing her, turn off \"AIYA (AI in Quantum World)\" in Settings.';
+
+  @override
+  String get orbStyleXmas => 'Christmas';
+
+  @override
+  String get orbStyleNewYear => 'Quantum New Year';
+
+  @override
+  String get orbLimited => 'Limited';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return 'Limited · until $date';
+  }
+
+  @override
+  String get aiyaFriendTitle => 'AIYA Friend';
+
+  @override
+  String get aiyaFriendSubtitle => 'Auto-renewing monthly plan';
+
+  @override
+  String get aiyaFriendPerk1 => '20 chats a day (3 when free)';
+
+  @override
+  String get aiyaFriendPerk2 => 'Each chat lasts 20 minutes or 40 messages';
+
+  @override
+  String get aiyaFriendPerk3 => 'Talk to her even when AIYA is resting';
+
+  @override
+  String get aiyaFriendPerk4 =>
+      'AIYA wears an exclusive “Starlight” look (only you see it)';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price / month';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => 'Subscribe';
+
+  @override
+  String get aiyaFriendTerms =>
+      'The subscription lasts 1 month and renews automatically with payment unless auto-renew is turned off at least 24 hours before the end of the period. Payment is handled by your Apple or Google account; manage or cancel any time in your account’s subscription settings. Time Pack chats are kept and used only after the 20 daily chats.';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return 'You’re an AIYA Friend until $date';
+  }
+
+  @override
+  String get aiyaFriendManage => 'Manage subscription';
+
+  @override
+  String get aiyaFriendRestore => 'Restore purchases';
+
+  @override
+  String get aiyaFriendWelcome => 'You’re now an AIYA Friend ✨';
+
+  @override
+  String get aiyaFriendRestored => 'AIYA Friend restored';
+
+  @override
+  String get aiyaFriendNotFound => 'No active AIYA Friend subscription found';
+
+  @override
+  String get aiyaFriendElsewhere =>
+      'This subscription is already used by another account';
+
+  @override
+  String get aiyaFriendEntry => 'AIYA Friend · 20 a day';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return 'AIYA Friend · $n left today';
+  }
+
+  @override
+  String get guideS17L12 =>
+      'Limited looks: the Christmas crystal orb (holly wreath, twinkling gold star, falling snow) is sold until 12/25, and the Quantum New Year crystal orb (gold clock ticks and bursting fireworks, extra big at the stroke of midnight) until 1/1, Taiwan time. After that they are never sold again; if you bought one you keep it forever and can restore it.';
+
+  @override
+  String get guideS18L6 =>
+      'AIYA Friend: choose \"AIYA Friend\" under \"+ Time Pack\". It is an auto-renewing monthly plan: 20 chats a day, each up to 20 minutes or 40 messages, chats even while AIYA is resting, and a \"Starlight\" look on AIYA that only you see. Time-pack chats are used only after the 20 daily chats. The subscription renews automatically; cancel any time in your Apple or Google subscription settings, and tap \"Restore purchases\" on a new phone.';
+
+  @override
+  String get mapConsentTitle => 'Show your location on the map?';
+
+  @override
+  String get mapConsentBody =>
+      'If you allow this, each time you tap Check in (or Enter in the Quantum World) yourself, other users see the spot where you checked in (not your live position), your nickname and your mood on the map. There is no automatic check-in, and you disappear from the map when you leave the app. You can decline, and you can turn this off any time in Settings.';
+
+  @override
+  String get mapConsentAllow => 'Allow';
+
+  @override
+  String get mapConsentDecline => 'Don\'t allow';
+
+  @override
+  String get mapConsentDeclined =>
+      'OK. You won\'t appear on anyone\'s map. Tap again whenever you want to check in.';
+
+  @override
+  String get mapConsentSetting => 'Show my location on the map';
+
+  @override
+  String get mapConsentSettingSubtitle =>
+      'Turning this off ends your check-in right away; you won\'t appear on anyone\'s map';
 }

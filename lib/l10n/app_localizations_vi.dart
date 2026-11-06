@@ -1957,7 +1957,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      'Mọi người đang ở Thế giới lượng tử lúc này đều chung một căn phòng, xếp thành tổ ong quanh Taipei 101. Bạn nhận một chỗ ngồi như \"Q4-17\" — vòng càng nhỏ càng gần tâm.\n\nKhông ai thấy được vị trí thật của bạn. Người khác chỉ thấy chỗ ngồi của bạn cộng với quãng đường bạn đã đi kể từ lúc vào: bong bóng di chuyển theo khi bạn đi bộ và dừng lại khi bạn đi xe. Biệt danh và tâm trạng giữ nguyên, bạn vẫn có thể gửi đốm sáng, gõ cửa và trò chuyện, chạm để dịch.\n\nTrong thời gian ở Thế giới lượng tử, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bạn trở lại vị trí đã check-in.';
+      'Mọi người đang ở Thế giới lượng tử lúc này đều chung một căn phòng, xếp thành tổ ong quanh Taipei 101. Bạn nhận một chỗ ngồi như \"Q4-17\" — vòng càng nhỏ càng gần tâm.\n\nKhông ai thấy được vị trí thật của bạn. Người khác chỉ thấy chỗ ngồi của bạn, được cố định lúc bạn chạm Vào; chỗ ngồi không di chuyển khi bạn đi bộ. Muốn đổi chỗ, hãy rời đi rồi vào lại. Biệt danh và tâm trạng giữ nguyên, bạn vẫn có thể gửi đốm sáng, gõ cửa và trò chuyện, chạm để dịch.\n\nTrong thời gian ở Thế giới lượng tử, bạn tạm rời radar thường và Vũ trụ song song; khi rời đi, bạn trở lại vị trí đã check-in.';
 
   @override
   String get quantumEnter => 'Vào';
@@ -2056,7 +2056,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      'Không ai thấy được vị trí thật của bạn: người khác thấy chỗ ngồi của bạn cộng với quãng đường bạn đã đi kể từ lúc vào. Bong bóng di chuyển theo khi bạn đi bộ và dừng lại khi trên 25 km/h (đi xe). Thế giới lượng tử không mở ở Trung Quốc đại lục.';
+      'Không ai thấy được vị trí thật của bạn: người khác chỉ thấy chỗ ngồi của bạn. Mỗi lần chạm Vào là một lần check-in, chỗ ngồi được cố định từ lúc đó và không di chuyển khi bạn đi bộ. Muốn đổi chỗ, hãy rời đi rồi vào lại. Thế giới lượng tử không mở ở Trung Quốc đại lục.';
 
   @override
   String get guideS17L4 =>
@@ -2560,4 +2560,113 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS18L5 =>
       'Thỉnh thoảng AIYA xuất hiện trong cột sáng: lúc chuông báo giờ, lần đầu bạn vào Thế giới lượng tử mỗi ngày, hoặc tình cờ. Chạm vào cô ấy để bắt đầu trò chuyện. Nếu không muốn thấy cô ấy, hãy tắt \"AIYA (AI trong Thế giới Lượng tử)\" trong Cài đặt.';
+
+  @override
+  String get orbStyleXmas => 'Giáng sinh';
+
+  @override
+  String get orbStyleNewYear => 'Năm mới Lượng tử';
+
+  @override
+  String get orbLimited => 'Giới hạn';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return 'Giới hạn · đến $date';
+  }
+
+  @override
+  String get aiyaFriendTitle => 'Bạn của AIYA';
+
+  @override
+  String get aiyaFriendSubtitle => 'Gói tháng tự động gia hạn';
+
+  @override
+  String get aiyaFriendPerk1 => '20 lượt trò chuyện mỗi ngày (miễn phí là 3)';
+
+  @override
+  String get aiyaFriendPerk2 => 'Mỗi lượt 20 phút hoặc 40 tin nhắn';
+
+  @override
+  String get aiyaFriendPerk3 => 'Vẫn trò chuyện được khi AIYA đang nghỉ';
+
+  @override
+  String get aiyaFriendPerk4 =>
+      'AIYA khoác diện mạo “Ánh sao” độc quyền (chỉ bạn thấy)';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price / tháng';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => 'Đăng ký';
+
+  @override
+  String get aiyaFriendTerms =>
+      'Gói kéo dài 1 tháng và tự động gia hạn kèm thanh toán trừ khi bạn tắt tự động gia hạn ít nhất 24 giờ trước khi hết kỳ. Thanh toán do tài khoản Apple hoặc Google xử lý; bạn có thể quản lý hoặc hủy bất cứ lúc nào trong phần cài đặt gói đăng ký của tài khoản. Lượt trong Gói thời gian vẫn được giữ và chỉ dùng sau khi hết 20 lượt mỗi ngày.';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return 'Bạn là Bạn của AIYA đến $date';
+  }
+
+  @override
+  String get aiyaFriendManage => 'Quản lý gói đăng ký';
+
+  @override
+  String get aiyaFriendRestore => 'Khôi phục giao dịch';
+
+  @override
+  String get aiyaFriendWelcome => 'Bạn đã trở thành Bạn của AIYA ✨';
+
+  @override
+  String get aiyaFriendRestored => 'Đã khôi phục Bạn của AIYA';
+
+  @override
+  String get aiyaFriendNotFound =>
+      'Không tìm thấy gói Bạn của AIYA còn hiệu lực';
+
+  @override
+  String get aiyaFriendElsewhere => 'Gói này đã được dùng cho tài khoản khác';
+
+  @override
+  String get aiyaFriendEntry => 'Bạn của AIYA · 20 lượt/ngày';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return 'Bạn của AIYA · hôm nay còn $n lượt';
+  }
+
+  @override
+  String get guideS17L12 =>
+      'Mẫu giới hạn: quả cầu pha lê Giáng sinh (vòng nguyệt quế, ngôi sao vàng lấp lánh, tuyết rơi) bán đến 12/25, và quả cầu pha lê Năm mới Lượng tử (vạch đồng hồ vàng và pháo hoa, rực nhất đúng lúc giao thừa) bán đến 1/1, giờ Đài Loan. Sau đó sẽ không bán lại; ai đã mua được giữ mãi và có thể khôi phục.';
+
+  @override
+  String get guideS18L6 =>
+      'Bạn của AIYA: chọn \"Bạn của AIYA\" trong \"+ Gói thời gian\". Đây là gói tháng tự động gia hạn: 20 lượt mỗi ngày, mỗi lượt đến 20 phút hoặc 40 tin nhắn, vẫn trò chuyện được khi AIYA nghỉ, và AIYA khoác diện mạo \"Ánh sao\" chỉ bạn thấy. Gói thời gian chỉ dùng sau khi hết 20 lượt mỗi ngày. Gói tự động gia hạn; hủy bất cứ lúc nào trong cài đặt gói đăng ký Apple hoặc Google, và chạm \"Khôi phục giao dịch\" trên điện thoại mới.';
+
+  @override
+  String get mapConsentTitle => 'Hiển thị vị trí của bạn trên bản đồ?';
+
+  @override
+  String get mapConsentBody =>
+      'Nếu bạn cho phép, mỗi lần bạn tự chạm Check-in (hoặc Vào trong Thế giới lượng tử), người dùng khác sẽ thấy nơi bạn check-in (không phải vị trí trực tiếp), biệt danh và tâm trạng của bạn trên bản đồ. Không có check-in tự động, và bạn biến khỏi bản đồ khi rời ứng dụng. Bạn có thể từ chối, và có thể tắt bất cứ lúc nào trong Cài đặt.';
+
+  @override
+  String get mapConsentAllow => 'Cho phép';
+
+  @override
+  String get mapConsentDecline => 'Không cho phép';
+
+  @override
+  String get mapConsentDeclined =>
+      'Được rồi. Bạn sẽ không xuất hiện trên bản đồ của ai. Khi muốn check-in, hãy chạm lại.';
+
+  @override
+  String get mapConsentSetting => 'Hiển thị vị trí của tôi trên bản đồ';
+
+  @override
+  String get mapConsentSettingSubtitle =>
+      'Tắt sẽ kết thúc check-in ngay; bạn sẽ không xuất hiện trên bản đồ của ai';
 }

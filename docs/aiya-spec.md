@@ -279,6 +279,8 @@ App ──POST /aiya──▶ Cloud Function `aiya`（asia-southeast1）
 - 隱私權政策、條款、審查備註。
 
 ### 第二期：讓她更像城市的一部分
+
+> **進度（11/5，build 17，未送審）**：艾婭之友 `aiya_friend_monthly`（NT$300／月）完成：伺服器 `aiyaFriend/{uid}`（到期時間）、`aiyaFriendReceipts`、`aiyaFriendTokens`（Google 續訂查詢）、`exports.appStoreNotify`（App Store 伺服器通知 V2，續訂／退款）；App 的艾婭之友畫面（價格、期間、自動續訂說明、條款與隱私權連結、恢復購買、管理訂閱）、星光造型（艾婭身邊的金色星光，只有訂閱的人看得到）。條款與隱私權政策 2026-11.4。節日造型、串流回覆還沒做。
 - 串流回覆：回覆一邊產生一邊打字，等待時間更短。
 - 艾婭主持整點報時、量子跨年倒數。
 - 「今晚的問題」：艾婭每晚出一題，大家的回答整理成匿名的城市答案（需要額外的審核設計）。

@@ -1860,7 +1860,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get quantumIntroBody =>
-      'いま量子世界にいる人は、みんな同じひとつの部屋にいます。台北101を原点にハチの巣状に並び、あなたには「Q4-17」のような席が割り当てられます。輪が小さいほど原点に近い席です。\n\nあなたの本当の位置は誰にも見えません。ほかの人に見えるのは、あなたの席と、入ってから歩いた距離だけです。歩くとバブルも動き、乗り物に乗っている間は止まります。ニックネームと気分はそのまま、きらめきを送る・ノック・チャットもでき、タップで翻訳できます。\n\n量子世界にいる間は、通常のレーダーとパラレルユニバースから一時的に離れます。出ると、チェックインした場所に戻ります。';
+      'いま量子世界にいる人は、みんな同じひとつの部屋にいます。台北101を原点にハチの巣状に並び、あなたには「Q4-17」のような席が割り当てられます。輪が小さいほど原点に近い席です。\n\nあなたの本当の位置は誰にも見えません。ほかの人に見えるのはあなたの席だけで、「入る」をタップした時点で固定され、歩いても動きません。場所を変えたいときは、いったん出てからもう一度入ってください。ニックネームと気分はそのまま、きらめきを送る・ノック・チャットもでき、タップで翻訳できます。\n\n量子世界にいる間は、通常のレーダーとパラレルユニバースから一時的に離れます。出ると、チェックインした場所に戻ります。';
 
   @override
   String get quantumEnter => '入る';
@@ -1953,7 +1953,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideS17L3 =>
-      'あなたの本当の位置は誰にも見えません。ほかの人に見えるのは、あなたの席と、入ってから歩いた距離だけです。歩くとバブルも動き、時速25 kmを超えると（乗り物）止まります。中国大陸では量子世界を利用できません。';
+      'あなたの本当の位置は誰にも見えません。ほかの人に見えるのはあなたの席だけです。「入る」をタップするたびに1回のチェックインになり、席はその時点で固定され、歩いても動きません。場所を変えたいときは、出てからもう一度入ってください。中国大陸では量子世界を利用できません。';
 
   @override
   String get guideS17L4 =>
@@ -2437,4 +2437,110 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS18L5 =>
       'アイヤは時々、光の柱に姿を見せます。毎正時の時報、その日初めて量子世界に入ったとき、そして偶然に。タップすると話し始められます。表示したくない場合は、設定の「アイヤ（量子世界の AI）」をオフにしてください。';
+
+  @override
+  String get orbStyleXmas => 'クリスマス';
+
+  @override
+  String get orbStyleNewYear => '量子カウントダウン';
+
+  @override
+  String get orbLimited => '限定';
+
+  @override
+  String orbLimitedUntil(String date) {
+    return '限定 · $date まで';
+  }
+
+  @override
+  String get aiyaFriendTitle => 'アイヤの友だち';
+
+  @override
+  String get aiyaFriendSubtitle => '自動更新の月額プラン';
+
+  @override
+  String get aiyaFriendPerk1 => '1日20回おしゃべり（無料は3回）';
+
+  @override
+  String get aiyaFriendPerk2 => '1回20分または40メッセージ';
+
+  @override
+  String get aiyaFriendPerk3 => 'アイヤが休んでいる時も話せる';
+
+  @override
+  String get aiyaFriendPerk4 => 'アイヤが限定の「スターライト」姿に（あなただけに見えます）';
+
+  @override
+  String aiyaFriendPrice(String price) {
+    return '$price／月';
+  }
+
+  @override
+  String get aiyaFriendSubscribe => '登録する';
+
+  @override
+  String get aiyaFriendTerms =>
+      '期間は1か月で、期間終了の24時間以上前に自動更新をオフにしない限り、自動的に更新され課金されます。支払いは Apple または Google アカウントで処理され、アカウントのサブスクリプション設定からいつでも管理・解約できます。タイムパックの回数は保持され、1日20回を使い切った後に使われます。';
+
+  @override
+  String aiyaFriendActive(String date) {
+    return 'アイヤの友だち：$date まで有効';
+  }
+
+  @override
+  String get aiyaFriendManage => 'サブスクリプションを管理';
+
+  @override
+  String get aiyaFriendRestore => '購入を復元';
+
+  @override
+  String get aiyaFriendWelcome => 'アイヤの友だちになりました ✨';
+
+  @override
+  String get aiyaFriendRestored => 'アイヤの友だちを復元しました';
+
+  @override
+  String get aiyaFriendNotFound => '有効なアイヤの友だちの登録が見つかりません';
+
+  @override
+  String get aiyaFriendElsewhere => 'この登録は別のアカウントで使われています';
+
+  @override
+  String get aiyaFriendEntry => 'アイヤの友だち · 1日20回';
+
+  @override
+  String aiyaFriendLeft(int n) {
+    return 'アイヤの友だち · 今日あと $n 回';
+  }
+
+  @override
+  String get guideS17L12 =>
+      '限定デザイン：クリスマスの水晶玉（ヒイラギのリース、またたく金の星、舞う雪）は 12/25 まで、量子カウントダウンの水晶玉（金の時計の目盛りと次々に咲く花火、年明けの瞬間は特に大きく）は 1/1 まで（台湾時間）販売。期間後は二度と販売しません。購入した人はずっと使え、購入の復元もできます。';
+
+  @override
+  String get guideS18L6 =>
+      'アイヤの友だち：「＋ タイムパック」の中の「アイヤの友だち」は自動更新の月額プランです。1日20回、1回20分または40メッセージ。アイヤが休んでいる時も話せて、あなただけに見える「スターライト」姿になります。タイムパックは1日20回を使い切った後に使われます。自動更新されます。Apple または Google のサブスクリプション設定でいつでも解約でき、機種変更後は「購入を復元」で戻せます。';
+
+  @override
+  String get mapConsentTitle => '地図にあなたの位置を表示しますか？';
+
+  @override
+  String get mapConsentBody =>
+      '許可すると、あなたが自分で「チェックイン」（量子世界では「入る」）をタップするたびに、ほかのユーザーの地図にチェックインした場所（リアルタイムの位置ではありません）、ニックネーム、気分が表示されます。自動チェックインはなく、アプリを離れると地図から消えます。拒否することも、設定でいつでもオフにすることもできます。';
+
+  @override
+  String get mapConsentAllow => '許可する';
+
+  @override
+  String get mapConsentDecline => '許可しない';
+
+  @override
+  String get mapConsentDeclined =>
+      'わかりました。誰の地図にも表示されません。チェックインしたくなったら、もう一度タップしてください。';
+
+  @override
+  String get mapConsentSetting => '地図に自分の位置を表示';
+
+  @override
+  String get mapConsentSettingSubtitle => 'オフにするとすぐにチェックインが終わり、誰の地図にも表示されません';
 }

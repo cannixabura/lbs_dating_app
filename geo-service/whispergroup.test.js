@@ -77,3 +77,13 @@ test('applePass／googlePass：只認 group_pass_7d', () => {
     assert.deepStrictEqual(g.googlePass('group_pass_7d', 'g_x', { purchaseState: 0 }), { receipt: 'g_x', productId: 'group_pass_7d' });
     assert.throws(() => g.googlePass('group_pass_7d', 'g_x', { purchaseState: 2 }), /not_paid/);
 });
+
+test('makeLost／lostRoster：只傳一次位置，30 分鐘後消失，最新的在上面', () => {
+    assert.deepStrictEqual(g.makeLost({ lat: 'x', lng: 1 }, NOW), { ok: false, code: 'place' });
+    const e = g.makeLost({ lat: 25.04, lng: 121.5 }, NOW).entry;
+    const members = [{ uid: 'a', no: 1 }, { uid: 'b', no: 2 }, { uid: 'c', no: 3 }];
+    const hash = { a: JSON.stringify(e), b: JSON.stringify({ ...e, at: NOW + 60000 }), c: JSON.stringify({ ...e, at: NOW - 31 * 60000 }), gone: JSON.stringify(e) };
+    const rows = g.lostRoster(members, hash, NOW + 120000);
+    assert.deepStrictEqual(rows.map((r) => r.uid), ['b', 'a']);
+    assert.strictEqual(rows[0].lat, 25.04);
+});

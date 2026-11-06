@@ -3018,4 +3018,67 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS19L5 =>
       'Kumpulan sehingga 20 orang adalah percuma. Untuk lebih, ketua boleh membeli pelan 7 hari: sehingga 100 orang sehingga kumpulan tamat. Ahli tidak pernah membayar. Kumpulan paling lama 7 hari; apabila tamat, senarai dan rekod dipadam.';
+
+  @override
+  String get wgFlagButton => 'Angkat bendera';
+
+  @override
+  String get wgFlagHost => 'Ketua';
+
+  @override
+  String get wgFlagHint =>
+      'Angkat telefon supaya kumpulan nampak anda dalam orang ramai. Ketik untuk tutup.';
+
+  @override
+  String get wgLostButton => 'Saya sesat';
+
+  @override
+  String get wgFound => 'Saya jumpa kumpulan';
+
+  @override
+  String get wgLostSent =>
+      'Lokasi anda dihantar kepada ketua. Tunggu di situ atau pergi ke tempat berkumpul.';
+
+  @override
+  String get wgLostTitleAsk => 'Hantar lokasi kepada ketua?';
+
+  @override
+  String get wgLostAsk =>
+      'Lokasi semasa anda dihantar sekali kepada ketua; telefon mereka akan memberi amaran dan menunjukkan anda di peta. Tidak dijejaki, dipadam selepas 30 minit. Ketik \"Saya jumpa kumpulan\" untuk membuangnya lebih awal.';
+
+  @override
+  String get wgLostSend => 'Hantar lokasi saya';
+
+  @override
+  String wgLostTitle(int n) {
+    return '$n ahli sesat';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n minit lalu';
+  }
+
+  @override
+  String get wgNavigate => 'Arah';
+
+  @override
+  String get wgFoundThem => 'Sudah jumpa';
+
+  @override
+  String get guideS19L6 =>
+      'Mencari satu sama lain: dalam orang ramai, ketik \"Angkat bendera\" dan seluruh skrin berkelip dengan warna kumpulan serta nombor anda. Jika benar-benar terpisah, ahli boleh ketik \"Saya sesat\" untuk menghantar lokasi semasa sekali kepada ketua (dipadam selepas 30 minit). Telefon ketua memberi amaran, pin merah muncul di peta dan boleh dapatkan arah.';
+
+  @override
+  String wgLostAlert(int no) {
+    return 'No. $no sesat';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return 'No. $no perlukan bantuan';
+  }
+
+  @override
+  String get wgViewList => 'Buka kumpulan';
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../l10n/l10n.dart';
 import '../ui/night.dart';
@@ -39,6 +42,13 @@ class WgMember {
   WgMember(this.uid, this.no, this.name, this.note, this.state);
 }
 
+class WgLost {
+  final String uid, name, note;
+  final int no, at;
+  final double lat, lng;
+  WgLost(this.uid, this.no, this.name, this.note, this.lat, this.lng, this.at);
+}
+
 class WgCall {
   final String id, place;
   final int at;
@@ -57,6 +67,8 @@ class WgGroup {
   final String? rollId, rollMine;
   final List<WgMember> members, callRoster, rollRoster;
   final int acked, here, help;
+  final List<WgLost> lost; // 團主：迷路的團員（自己按「我迷路了」才有）
+  final bool lostSent; // 團員：我已經傳過迷路位置
   WgGroup.fromJson(Map<String, dynamic> j)
       : code = '${j['code']}', name = '${j['name']}', color = '${j['color']}', role = '${j['role']}', hostName = '${j['hostName'] ?? ''}',
         endsAt = (j['endsAt'] as num).toInt(), limit = (j['limit'] as num).toInt(), count = (j['count'] as num).toInt(),
@@ -71,7 +83,9 @@ class WgGroup {
         rollRoster = [for (final m in ((j['rollRoster'] as Map?)?['rows'] as List? ?? const [])) WgMember('${m['uid']}', (m['no'] as num).toInt(), '${m['name'] ?? ''}', '${m['note'] ?? ''}', '${m['answer']}')],
         acked = ((j['callRoster'] as Map?)?['acked'] as num?)?.toInt() ?? 0,
         here = ((j['rollRoster'] as Map?)?['here'] as num?)?.toInt() ?? 0,
-        help = ((j['rollRoster'] as Map?)?['help'] as num?)?.toInt() ?? 0;
+        help = ((j['rollRoster'] as Map?)?['help'] as num?)?.toInt() ?? 0,
+        lost = [for (final m in (j['lost'] as List? ?? const [])) WgLost('${m['uid']}', (m['no'] as num).toInt(), '${m['name'] ?? ''}', '${m['note'] ?? ''}', (m['lat'] as num).toDouble(), (m['lng'] as num).toDouble(), (m['at'] as num).toInt())],
+        lostSent = j['lostSent'] == true;
   bool get isHost => role == 'host';
   Color get tint => wgColor(color);
 }
@@ -433,6 +447,10 @@ class _HostPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         _Header(g: g),
+        if (g.lost.isNotEmpty) ...[
+          const SizedBox(height: Night.space3),
+          _LostList(g: g),
+        ],
         const SizedBox(height: Night.space4),
         if (g.call == null)
           NightButton(tr.wgCallButton, icon: Icons.campaign_outlined, onPressed: () => _showCallSheet(context, g))
@@ -464,6 +482,7 @@ class _HostPanel extends StatelessWidget {
         ],
         Wrap(alignment: WrapAlignment.center, spacing: 4, children: [
           TextButton.icon(onPressed: () => _showQr(context, g), icon: const Icon(Icons.qr_code_2, size: 18), label: Text(tr.wgQrButton), style: TextButton.styleFrom(foregroundColor: Night.ink)),
+          TextButton.icon(onPressed: () => showWgFlag(context, g), icon: const Icon(Icons.flag_outlined, size: 18), label: Text(tr.wgFlagButton), style: TextButton.styleFrom(foregroundColor: Night.ink)),
           TextButton.icon(onPressed: () => _confirm(context, tr.wgDissolveAsk, () => WhisperGroup.call('dissolve')), icon: const Icon(Icons.logout, size: 18), label: Text(tr.wgDissolve), style: TextButton.styleFrom(foregroundColor: Night.danger)),
         ]),
       ]);
@@ -569,6 +588,15 @@ class _MemberPanel extends StatelessWidget {
           _RollButtons(g: g),
         ],
         const SizedBox(height: Night.space4),
+        Row(children: [
+          Expanded(child: NightButton(tr.wgFlagButton, kind: NightButtonKind.ghost, icon: Icons.flag_outlined, onPressed: () => showWgFlag(context, g))),
+          const SizedBox(width: Night.space2),
+          Expanded(child: g.lostSent
+              ? NightButton(tr.wgFound, kind: NightButtonKind.ghost, icon: Icons.check, onPressed: () => WhisperGroup.call('found'))
+              : NightButton(tr.wgLostButton, kind: NightButtonKind.danger, icon: Icons.wrong_location_outlined, onPressed: () => _askLost(context))),
+        ]),
+        if (g.lostSent) Padding(padding: const EdgeInsets.only(top: Night.space2), child: Text(tr.wgLostSent, style: Night.caption, textAlign: TextAlign.center)),
+        const SizedBox(height: Night.space3),
         TextButton.icon(
           onPressed: () => _confirm(context, tr.wgLeaveAsk, () => WhisperGroup.call('leave')),
           icon: const Icon(Icons.logout, size: 18), label: Text(tr.wgLeave), style: TextButton.styleFrom(foregroundColor: Night.danger),
@@ -687,8 +715,18 @@ Future<void> showWgCallOverlay(BuildContext context, WgCall call) async {
   );
 }
 
-/// 震動「短 短 長」：集合與點名共用
+/// App 開著時推播不會響：自己播一次專屬音效（集合、點名、迷路、需要幫忙共用）
+final _alertPlayer = AudioPlayer();
+Future<void> wgAlertSound() async {
+  try {
+    await _alertPlayer.stop();
+    await _alertPlayer.play(AssetSource('audio/group_call.wav'), volume: 1.0);
+  } catch (_) {}
+}
+
+/// 震動「短 短 長」＋專屬音效：集合、點名、迷路、需要幫忙共用
 Future<void> wgBuzz() async {
+  wgAlertSound();
   HapticFeedback.heavyImpact();
   await Future.delayed(const Duration(milliseconds: 250));
   HapticFeedback.heavyImpact();
@@ -951,4 +989,218 @@ class WgPillarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant WgPillarPainter old) => old.at != at || old.offscreen != offscreen || old.glow != glow || old.label != label || old.color != color;
+}
+
+
+// ---------- 第二版：光之團旗、我迷路了 ----------
+
+/// 光之團旗：整個螢幕變成團色並閃爍，中間是團號（團主是「團主」）。舉起手機讓彼此在人群裡找到你；不需要定位，也不送任何資料
+Future<void> showWgFlag(BuildContext context, WgGroup g) {
+  return Navigator.of(context).push(PageRouteBuilder(
+    opaque: true, pageBuilder: (_, __, ___) => _FlagPage(g: g),
+    transitionsBuilder: (_, a, __, child) => FadeTransition(opacity: a, child: child),
+  ));
+}
+
+class _FlagPage extends StatefulWidget {
+  final WgGroup g;
+  const _FlagPage({required this.g});
+  @override
+  State<_FlagPage> createState() => _FlagPageState();
+}
+
+class _FlagPageState extends State<_FlagPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _blink = AnimationController(vsync: this, duration: const Duration(milliseconds: 700))..repeat(reverse: true);
+
+  @override
+  void initState() {
+    super.initState();
+    WakelockPlus.enable().catchError((_) {});
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  @override
+  void dispose() {
+    _blink.dispose();
+    WakelockPlus.disable().catchError((_) {});
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final g = widget.g;
+    final label = g.isHost ? tr.wgFlagHost : '${g.myNo ?? ''}';
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: AnimatedBuilder(
+        animation: _blink,
+        builder: (context, _) {
+          final bg = Color.lerp(g.tint, Colors.white, 0.15 + 0.55 * _blink.value)!;
+          return Scaffold(
+            backgroundColor: bg,
+            body: SafeArea(
+              child: Column(children: [
+                const Spacer(),
+                Text(g.name, style: const TextStyle(color: Colors.black87, fontSize: 28, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+                FittedBox(child: Text(label, style: const TextStyle(color: Colors.black, fontSize: 260, fontWeight: FontWeight.w800, height: 1.0))),
+                const Spacer(),
+                Padding(padding: const EdgeInsets.all(24), child: Text(tr.wgFlagHint, style: const TextStyle(color: Colors.black54, fontSize: 15), textAlign: TextAlign.center)),
+              ]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// 我迷路了：先說明只傳這一次、30 分鐘後刪除，同意才傳
+void _askLost(BuildContext context) {
+  showModalBottomSheet(
+    context: context, backgroundColor: Colors.transparent,
+    builder: (ctx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(Night.space4),
+        child: _SolidCard(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const Icon(Icons.wrong_location_outlined, color: Night.danger, size: 32),
+          const SizedBox(height: Night.space2),
+          Text(tr.wgLostTitleAsk, style: Night.title, textAlign: TextAlign.center),
+          const SizedBox(height: Night.space2),
+          Text(tr.wgLostAsk, style: Night.body),
+          const SizedBox(height: Night.space4),
+          NightButton(tr.wgLostSend, kind: NightButtonKind.danger, icon: Icons.send, onPressed: () async {
+            Navigator.pop(ctx);
+            Position? pos;
+            try { pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10)); } catch (_) {
+              try { pos = await Geolocator.getLastKnownPosition(); } catch (_) {}
+            }
+            if (!context.mounted) return;
+            if (pos == null) { showGlassToast(context, tr.wgNoLocation, danger: true); return; }
+            final r = await WhisperGroup.call('lost', {'lat': pos.latitude, 'lng': pos.longitude});
+            if (context.mounted) showGlassToast(context, r['success'] == true ? tr.wgLostSent : wgError('${r['code']}'), danger: r['success'] != true, icon: Icons.wrong_location_outlined);
+          }),
+          const SizedBox(height: Night.space2),
+          NightButton(tr.wgCancel, kind: NightButtonKind.text, onPressed: () => Navigator.pop(ctx)),
+        ])),
+      ),
+    ),
+  );
+}
+
+/// 團主：迷路的團員（距離用團主自己的位置算）＋導航過去＋找到了
+class _LostList extends StatefulWidget {
+  final WgGroup g;
+  const _LostList({required this.g});
+  @override
+  State<_LostList> createState() => _LostListState();
+}
+
+class _LostListState extends State<_LostList> {
+  Position? _me;
+  @override
+  void initState() {
+    super.initState();
+    Geolocator.getLastKnownPosition().then((p) { if (mounted && p != null) setState(() => _me = p); }).catchError((_) {});
+  }
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(Night.space3),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Night.danger.withValues(alpha: 0.7))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(tr.wgLostTitle(widget.g.lost.length), style: const TextStyle(color: Night.danger, fontSize: 15, fontWeight: FontWeight.w500)),
+          for (final m in widget.g.lost)
+            Padding(
+              padding: const EdgeInsets.only(top: Night.space2),
+              child: Row(children: [
+                Expanded(child: Text([
+                  tr.wgMemberTitle(m.no), if (m.note.isNotEmpty) m.note,
+                  tr.wgMinutesAgo(max(0, ((DateTime.now().millisecondsSinceEpoch - m.at) / 60000).round())),
+                  if (_me != null) () { final d = Geolocator.distanceBetween(_me!.latitude, _me!.longitude, m.lat, m.lng); return d < 1000 ? '${d.round()} m' : '${(d / 1000).toStringAsFixed(1)} km'; }(),
+                ].join(' · '), style: const TextStyle(color: Night.ink, fontSize: 14))),
+                IconButton(
+                  tooltip: tr.wgNavigate, icon: const Icon(Icons.directions, color: Night.auroraBlue),
+                  onPressed: () => launchUrl(
+                    Platform.isIOS ? Uri.parse('http://maps.apple.com/?daddr=${m.lat},${m.lng}&dirflg=w') : Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}&travelmode=walking'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+                IconButton(tooltip: tr.wgFoundThem, icon: const Icon(Icons.check_circle_outline, color: Night.moodCalm), onPressed: () => WhisperGroup.call('found', {'uid': m.uid})),
+              ]),
+            ),
+        ]),
+      );
+}
+
+/// 團主地圖上的迷路團員：紅色圖釘＋團號（畫面外就在邊緣出現紅色箭頭）
+class WgLostPinPainter extends CustomPainter {
+  final List<(Offset, bool, int)> pins; // 位置、是否在畫面外、團號
+  final Offset center;
+  WgLostPinPainter({required this.pins, required this.center});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final (at, out, no) in pins) {
+      if (out) {
+        final a = atan2(at.dy - center.dy, at.dx - center.dx);
+        canvas.save();
+        canvas.translate(at.dx, at.dy);
+        canvas.rotate(a);
+        canvas.drawCircle(Offset.zero, 18, Paint()..color = Night.danger.withValues(alpha: 0.3));
+        canvas.drawPath(Path()..moveTo(12, 0)..lineTo(-7, -9)..lineTo(-2, 0)..lineTo(-7, 9)..close(), Paint()..color = Night.danger);
+        canvas.restore();
+      } else {
+        canvas.drawCircle(at, 4, Paint()..color = Night.danger);
+        final head = at - const Offset(0, 30);
+        canvas.drawLine(at, head, Paint()..color = Night.danger..strokeWidth = 2);
+        canvas.drawCircle(head, 14, Paint()..color = Night.danger);
+      }
+      final tp = TextPainter(text: TextSpan(text: '$no', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)), textDirection: TextDirection.ltr)..layout();
+      final c = out ? at : at - const Offset(0, 30);
+      tp.paint(canvas, c - Offset(tp.width / 2, tp.height / 2));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant WgLostPinPainter old) => true;
+}
+
+
+/// 團主在前景收到「我迷路了」或「需要幫忙」：音效＋震動＋全螢幕提醒，按「查看」打開低語團面板（迷路名單在最上面）
+Future<void> showWgLeaderAlert(BuildContext context, {required bool lost}) async {
+  await WhisperGroup.refresh();
+  final g = WhisperGroup.current.value;
+  if (g == null || !g.isHost || !context.mounted) return;
+  await wgBuzz();
+  if (!context.mounted) return;
+  final latest = lost && g.lost.isNotEmpty ? g.lost.first : null;
+  final helpers = [for (final m in g.rollRoster) if (m.state == 'help') m.no];
+  final title = latest != null ? tr.wgLostAlert(latest.no) : (helpers.isNotEmpty ? tr.wgHelpAlert(helpers.join('、')) : g.name);
+  final open = await showDialog<bool>(
+    context: context, barrierColor: Night.danger.withValues(alpha: 0.3),
+    builder: (ctx) => Dialog(
+      backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space4),
+      child: _SolidCard(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Icon(lost ? Icons.wrong_location_outlined : Icons.sos, color: Night.danger, size: 40),
+        const SizedBox(height: Night.space2),
+        Text(g.name, style: Night.caption, textAlign: TextAlign.center),
+        const SizedBox(height: Night.space2),
+        Text(title, style: const TextStyle(color: Night.ink, fontSize: 22, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+        const SizedBox(height: Night.space4),
+        if (latest != null) ...[
+          NightButton(tr.wgNavigate, icon: Icons.directions, onPressed: () {
+            Navigator.pop(ctx, false);
+            launchUrl(
+              Platform.isIOS ? Uri.parse('http://maps.apple.com/?daddr=${latest.lat},${latest.lng}&dirflg=w') : Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${latest.lat},${latest.lng}&travelmode=walking'),
+              mode: LaunchMode.externalApplication,
+            );
+          }),
+          const SizedBox(height: Night.space2),
+        ],
+        NightButton(tr.wgViewList, kind: NightButtonKind.ghost, icon: Icons.list_alt, onPressed: () => Navigator.pop(ctx, true)),
+      ])),
+    ),
+  );
+  if (open == true && context.mounted) showWhisperGroupPanel(context);
 }

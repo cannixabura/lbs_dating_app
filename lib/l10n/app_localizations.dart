@@ -5114,6 +5114,108 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'20 人以內免費；超過 20 人時，團主可以購買「低語團 7 天方案」，這個團最多 100 人，直到結束。團員永遠免費。低語團最長 7 天，到期或團主解散後，名單與紀錄全部刪除。'**
   String get guideS19L5;
+
+  /// No description provided for @wgFlagButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'舉旗'**
+  String get wgFlagButton;
+
+  /// No description provided for @wgFlagHost.
+  ///
+  /// In zh, this message translates to:
+  /// **'團主'**
+  String get wgFlagHost;
+
+  /// No description provided for @wgFlagHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'舉起手機，讓大家在人群裡找到你。點一下關閉。'**
+  String get wgFlagHint;
+
+  /// No description provided for @wgLostButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'我迷路了'**
+  String get wgLostButton;
+
+  /// No description provided for @wgFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'我找到團了'**
+  String get wgFound;
+
+  /// No description provided for @wgLostSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'已把位置傳給團主，原地等一下或往集合點走。'**
+  String get wgLostSent;
+
+  /// No description provided for @wgLostTitleAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'傳位置給團主？'**
+  String get wgLostTitleAsk;
+
+  /// No description provided for @wgLostAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'會把你此刻的位置傳一次給團主，團主的手機會響起提醒，地圖上也會出現你的位置。只傳這一次，不會持續追蹤；30 分鐘後自動刪除，找到團也可以按「我找到團了」取消。'**
+  String get wgLostAsk;
+
+  /// No description provided for @wgLostSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'傳送我的位置'**
+  String get wgLostSend;
+
+  /// No description provided for @wgLostTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'迷路的團員 {n} 人'**
+  String wgLostTitle(int n);
+
+  /// No description provided for @wgMinutesAgo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 分鐘前'**
+  String wgMinutesAgo(int n);
+
+  /// No description provided for @wgNavigate.
+  ///
+  /// In zh, this message translates to:
+  /// **'導航過去'**
+  String get wgNavigate;
+
+  /// No description provided for @wgFoundThem.
+  ///
+  /// In zh, this message translates to:
+  /// **'找到了'**
+  String get wgFoundThem;
+
+  /// No description provided for @guideS19L6.
+  ///
+  /// In zh, this message translates to:
+  /// **'找人：在人群裡找不到彼此時，按「舉旗」，整個螢幕會變成團色並閃爍、顯示你的團號，舉起來讓大家看到。真的走散了，團員可以按「我迷路了」，把此刻的位置傳一次給團主（只傳這一次，30 分鐘後刪除），團主的手機會響起提醒，地圖上出現紅色圖釘，可以直接導航過去。'**
+  String get guideS19L6;
+
+  /// No description provided for @wgLostAlert.
+  ///
+  /// In zh, this message translates to:
+  /// **'{no} 號迷路了'**
+  String wgLostAlert(int no);
+
+  /// No description provided for @wgHelpAlert.
+  ///
+  /// In zh, this message translates to:
+  /// **'{no} 號需要幫忙'**
+  String wgHelpAlert(String no);
+
+  /// No description provided for @wgViewList.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看低語團'**
+  String get wgViewList;
 }
 
 class _AppLocalizationsDelegate

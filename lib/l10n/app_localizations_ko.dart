@@ -2885,4 +2885,65 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get guideS19L5 =>
       '20명까지는 무료예요. 더 많으면 리더가 \"그룹 7일 플랜\"을 사서 그룹이 끝날 때까지 최대 100명이 될 수 있어요. 멤버는 언제나 무료예요. 그룹은 최대 7일이고, 끝나거나 해산하면 명단과 기록은 모두 삭제돼요.';
+
+  @override
+  String get wgFlagButton => '깃발 들기';
+
+  @override
+  String get wgFlagHost => '리더';
+
+  @override
+  String get wgFlagHint => '휴대폰을 들어 사람들 속에서 찾을 수 있게 하세요. 누르면 닫혀요.';
+
+  @override
+  String get wgLostButton => '길을 잃었어요';
+
+  @override
+  String get wgFound => '그룹을 찾았어요';
+
+  @override
+  String get wgLostSent => '리더에게 위치를 보냈어요. 그 자리에서 기다리거나 모이는 곳으로 가세요.';
+
+  @override
+  String get wgLostTitleAsk => '리더에게 위치를 보낼까요?';
+
+  @override
+  String get wgLostAsk =>
+      '지금 위치를 리더에게 한 번만 보내요. 리더 휴대폰에 알림이 울리고 지도에 표시돼요. 계속 추적하지 않고 30분 뒤 자동으로 삭제돼요. 그룹을 찾으면 \"그룹을 찾았어요\"로 취소할 수 있어요.';
+
+  @override
+  String get wgLostSend => '내 위치 보내기';
+
+  @override
+  String wgLostTitle(int n) {
+    return '길을 잃은 멤버 $n명';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n분 전';
+  }
+
+  @override
+  String get wgNavigate => '길 안내';
+
+  @override
+  String get wgFoundThem => '찾았어요';
+
+  @override
+  String get guideS19L6 =>
+      '서로 찾기: 사람이 많아 못 찾을 때 \"깃발 들기\"를 누르면 화면 전체가 그룹 색으로 깜박이며 내 번호가 보여요. 정말 길을 잃으면 멤버가 \"길을 잃었어요\"를 눌러 지금 위치를 리더에게 한 번 보낼 수 있어요 (30분 뒤 삭제). 리더 휴대폰이 울리고 지도에 빨간 핀이 나타나며 길 안내도 받을 수 있어요.';
+
+  @override
+  String wgLostAlert(int no) {
+    return '$no번이 길을 잃었어요';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return '$no번이 도움이 필요해요';
+  }
+
+  @override
+  String get wgViewList => '그룹 열기';
 }

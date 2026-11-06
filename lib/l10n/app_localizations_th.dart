@@ -3020,4 +3020,67 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get guideS19L5 =>
       'กลุ่มไม่เกิน 20 คนใช้ฟรี ถ้ามากกว่านั้น หัวหน้าซื้อแพ็กเกจ 7 วันได้ มีสมาชิกได้สูงสุด 100 คนจนกว่ากลุ่มจะสิ้นสุด สมาชิกไม่ต้องจ่าย กลุ่มอยู่ได้นานสุด 7 วัน เมื่อสิ้นสุด รายชื่อและข้อมูลจะถูกลบ';
+
+  @override
+  String get wgFlagButton => 'ยกธง';
+
+  @override
+  String get wgFlagHost => 'หัวหน้า';
+
+  @override
+  String get wgFlagHint =>
+      'ยกโทรศัพท์ขึ้นให้กลุ่มเห็นคุณท่ามกลางฝูงชน แตะเพื่อปิด';
+
+  @override
+  String get wgLostButton => 'ฉันหลงทาง';
+
+  @override
+  String get wgFound => 'ฉันเจอกลุ่มแล้ว';
+
+  @override
+  String get wgLostSent =>
+      'ส่งตำแหน่งให้หัวหน้าแล้ว รออยู่ตรงนั้นหรือเดินไปจุดนัดพบ';
+
+  @override
+  String get wgLostTitleAsk => 'ส่งตำแหน่งให้หัวหน้าไหม';
+
+  @override
+  String get wgLostAsk =>
+      'ตำแหน่งปัจจุบันของคุณจะถูกส่งให้หัวหน้าหนึ่งครั้ง โทรศัพท์ของหัวหน้าจะเตือนและแสดงคุณบนแผนที่ ไม่มีการติดตามต่อเนื่อง ลบอัตโนมัติหลัง 30 นาที แตะ \"ฉันเจอกลุ่มแล้ว\" เพื่อลบเร็วขึ้น';
+
+  @override
+  String get wgLostSend => 'ส่งตำแหน่งของฉัน';
+
+  @override
+  String wgLostTitle(int n) {
+    return 'สมาชิกหลงทาง $n คน';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n นาทีที่แล้ว';
+  }
+
+  @override
+  String get wgNavigate => 'นำทาง';
+
+  @override
+  String get wgFoundThem => 'เจอแล้ว';
+
+  @override
+  String get guideS19L6 =>
+      'ตามหากัน: ในฝูงชน แตะ \"ยกธง\" แล้วหน้าจอทั้งหมดจะกะพริบเป็นสีกลุ่มพร้อมหมายเลขของคุณ ถ้าพลัดหลงจริง สมาชิกแตะ \"ฉันหลงทาง\" เพื่อส่งตำแหน่งปัจจุบันให้หัวหน้าหนึ่งครั้ง (ลบหลัง 30 นาที) โทรศัพท์หัวหน้าจะเตือน มีหมุดสีแดงบนแผนที่ และนำทางไปได้ทันที';
+
+  @override
+  String wgLostAlert(int no) {
+    return 'หมายเลข $no หลงทาง';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return 'หมายเลข $no ต้องการความช่วยเหลือ';
+  }
+
+  @override
+  String get wgViewList => 'เปิดกลุ่ม';
 }

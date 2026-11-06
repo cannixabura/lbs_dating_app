@@ -833,5 +833,22 @@
   "guideS19L2": "Menyertai: ketua ketik butang kumpulan di bawah peta → \"Kod QR\"; ahli imbas dengan kamera telefon dan aplikasi dibuka untuk menyertai. Atau pergi ke Tetapan → Perhimpunan → \"Sertai kumpulan\" dan masukkan kod 8 aksara. Orang luar tidak boleh mencari atau memohon, dan ketua boleh menukar kod QR bila-bila masa.",
   "guideS19L3": "Panggil berkumpul: ketua ketik \"Panggil berkumpul\", pilih masa dan terangkan tempat berkumpul. Telefon ahli memainkan bunyi khas dengan getaran \"pendek pendek panjang\"; dalam aplikasi mereka nampak kiraan detik, jarak dan arah ke tempat berkumpul, serta tiang cahaya di peta. Sesiapa yang belum ketik \"Terima\" diingatkan setiap minit, sehingga 3 kali; ketua nampak siapa terima, siapa melihat dan siapa belum memberi respons.",
   "guideS19L4": "Panggilan nama: ketua ketik \"Panggilan nama\"; ahli menerima bunyi dan getaran yang sama dan menjawab \"Saya sudah sampai\", \"5 minit lagi\" atau \"Perlu bantuan\". Ketua tidak pernah nampak lokasi ahli, hanya jawapan mereka.",
-  "guideS19L5": "Kumpulan sehingga 20 orang adalah percuma. Untuk lebih, ketua boleh membeli pelan 7 hari: sehingga 100 orang sehingga kumpulan tamat. Ahli tidak pernah membayar. Kumpulan paling lama 7 hari; apabila tamat, senarai dan rekod dipadam."
+  "guideS19L5": "Kumpulan sehingga 20 orang adalah percuma. Untuk lebih, ketua boleh membeli pelan 7 hari: sehingga 100 orang sehingga kumpulan tamat. Ahli tidak pernah membayar. Kumpulan paling lama 7 hari; apabila tamat, senarai dan rekod dipadam.",
+  "wgFlagButton": "Angkat bendera",
+  "wgFlagHost": "Ketua",
+  "wgFlagHint": "Angkat telefon supaya kumpulan nampak anda dalam orang ramai. Ketik untuk tutup.",
+  "wgLostButton": "Saya sesat",
+  "wgFound": "Saya jumpa kumpulan",
+  "wgLostSent": "Lokasi anda dihantar kepada ketua. Tunggu di situ atau pergi ke tempat berkumpul.",
+  "wgLostTitleAsk": "Hantar lokasi kepada ketua?",
+  "wgLostAsk": "Lokasi semasa anda dihantar sekali kepada ketua; telefon mereka akan memberi amaran dan menunjukkan anda di peta. Tidak dijejaki, dipadam selepas 30 minit. Ketik \"Saya jumpa kumpulan\" untuk membuangnya lebih awal.",
+  "wgLostSend": "Hantar lokasi saya",
+  "wgLostTitle": "{n} ahli sesat",
+  "wgMinutesAgo": "{n} minit lalu",
+  "wgNavigate": "Arah",
+  "wgFoundThem": "Sudah jumpa",
+  "guideS19L6": "Mencari satu sama lain: dalam orang ramai, ketik \"Angkat bendera\" dan seluruh skrin berkelip dengan warna kumpulan serta nombor anda. Jika benar-benar terpisah, ahli boleh ketik \"Saya sesat\" untuk menghantar lokasi semasa sekali kepada ketua (dipadam selepas 30 minit). Telefon ketua memberi amaran, pin merah muncul di peta dan boleh dapatkan arah.",
+  "wgLostAlert": "No. {no} sesat",
+  "wgHelpAlert": "No. {no} perlukan bantuan",
+  "wgViewList": "Buka kumpulan"
 }

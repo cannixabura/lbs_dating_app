@@ -60,6 +60,7 @@ const TABLE = [
     ['點名：到了請按「我到了」', '点名：到了请点“我到了”', 'Roll call: tap "I\'m here" when you arrive', '点呼：着いたら「着いた」をタップ', '출석 확인: 도착하면 "도착했어요"를 누르세요', 'Panggilan nama: ketik "Saya sudah sampai" bila tiba', 'Absen: ketuk "Aku sudah sampai" saat tiba', 'Điểm danh: đến nơi thì chạm "Tôi đến rồi"', 'เช็กชื่อ: ถึงแล้วแตะ "ฉันมาถึงแล้ว"'],
     ['低語團已解散，謝謝這幾天一起同行。', '低语团已解散，谢谢这几天一起同行。', 'The group has ended. Thanks for traveling together.', 'グループは解散しました。一緒に過ごしてくれてありがとう。', '그룹이 해산됐어요. 함께해 줘서 고마워요.', 'Kumpulan telah tamat. Terima kasih kerana bersama.', 'Grup sudah dibubarkan. Terima kasih sudah ikut bersama.', 'Nhóm đã giải tán. Cảm ơn bạn đã đồng hành.', 'กลุ่มสิ้นสุดแล้ว ขอบคุณที่ร่วมเดินทางด้วยกัน'],
     ['你成為這個低語團的團主了。', '你成为这个低语团的团主了。', "You're now the leader of this group.", 'このグループのリーダーになりました。', '이 그룹의 리더가 되었어요.', 'Anda kini ketua kumpulan ini.', 'Kamu sekarang pemimpin grup ini.', 'Bạn đã trở thành trưởng nhóm.', 'ตอนนี้คุณเป็นหัวหน้ากลุ่มนี้แล้ว'],
+    ['{no} 號迷路了，傳來了目前的位置', '{no} 号迷路了，传来了目前的位置', 'No. {no} is lost and shared their location', '{no} 番が迷子です。現在地が届きました', '{no}번이 길을 잃었어요. 현재 위치를 보냈어요', 'No. {no} sesat dan berkongsi lokasi', 'No. {no} tersesat dan membagikan lokasinya', 'Số {no} bị lạc và đã gửi vị trí', 'หมายเลข {no} หลงทางและส่งตำแหน่งมาแล้ว'],
     ['{no} 號需要幫忙', '{no} 号需要帮忙', 'No. {no} needs help', '{no} 番が助けを求めています', '{no}번이 도움이 필요해요', 'No. {no} perlukan bantuan', 'No. {no} butuh bantuan', 'Số {no} cần giúp đỡ', 'หมายเลข {no} ต้องการความช่วยเหลือ'],
 
     // ---- 集會 ----

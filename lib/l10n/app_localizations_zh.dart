@@ -2813,6 +2813,67 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get guideS19L5 =>
       '20 人以內免費；超過 20 人時，團主可以購買「低語團 7 天方案」，這個團最多 100 人，直到結束。團員永遠免費。低語團最長 7 天，到期或團主解散後，名單與紀錄全部刪除。';
+
+  @override
+  String get wgFlagButton => '舉旗';
+
+  @override
+  String get wgFlagHost => '團主';
+
+  @override
+  String get wgFlagHint => '舉起手機，讓大家在人群裡找到你。點一下關閉。';
+
+  @override
+  String get wgLostButton => '我迷路了';
+
+  @override
+  String get wgFound => '我找到團了';
+
+  @override
+  String get wgLostSent => '已把位置傳給團主，原地等一下或往集合點走。';
+
+  @override
+  String get wgLostTitleAsk => '傳位置給團主？';
+
+  @override
+  String get wgLostAsk =>
+      '會把你此刻的位置傳一次給團主，團主的手機會響起提醒，地圖上也會出現你的位置。只傳這一次，不會持續追蹤；30 分鐘後自動刪除，找到團也可以按「我找到團了」取消。';
+
+  @override
+  String get wgLostSend => '傳送我的位置';
+
+  @override
+  String wgLostTitle(int n) {
+    return '迷路的團員 $n 人';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n 分鐘前';
+  }
+
+  @override
+  String get wgNavigate => '導航過去';
+
+  @override
+  String get wgFoundThem => '找到了';
+
+  @override
+  String get guideS19L6 =>
+      '找人：在人群裡找不到彼此時，按「舉旗」，整個螢幕會變成團色並閃爍、顯示你的團號，舉起來讓大家看到。真的走散了，團員可以按「我迷路了」，把此刻的位置傳一次給團主（只傳這一次，30 分鐘後刪除），團主的手機會響起提醒，地圖上出現紅色圖釘，可以直接導航過去。';
+
+  @override
+  String wgLostAlert(int no) {
+    return '$no 號迷路了';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return '$no 號需要幫忙';
+  }
+
+  @override
+  String get wgViewList => '查看低語團';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5623,4 +5684,65 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get guideS19L5 =>
       '20 人以内免费；超过 20 人时，团主可以购买“低语团 7 天方案”，这个团最多 100 人，直到结束。团员永远免费。低语团最长 7 天，到期或团主解散后，名单与记录全部删除。';
+
+  @override
+  String get wgFlagButton => '举旗';
+
+  @override
+  String get wgFlagHost => '团主';
+
+  @override
+  String get wgFlagHint => '举起手机，让大家在人群里找到你。点一下关闭。';
+
+  @override
+  String get wgLostButton => '我迷路了';
+
+  @override
+  String get wgFound => '我找到团了';
+
+  @override
+  String get wgLostSent => '已把位置传给团主，原地等一下或往集合点走。';
+
+  @override
+  String get wgLostTitleAsk => '传位置给团主？';
+
+  @override
+  String get wgLostAsk =>
+      '会把你此刻的位置传一次给团主，团主的手机会响起提醒，地图上也会出现你的位置。只传这一次，不会持续追踪；30 分钟后自动删除，找到团也可以点“我找到团了”取消。';
+
+  @override
+  String get wgLostSend => '传送我的位置';
+
+  @override
+  String wgLostTitle(int n) {
+    return '迷路的团员 $n 人';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n 分钟前';
+  }
+
+  @override
+  String get wgNavigate => '导航过去';
+
+  @override
+  String get wgFoundThem => '找到了';
+
+  @override
+  String get guideS19L6 =>
+      '找人：在人群里找不到彼此时，点“举旗”，整个屏幕会变成团色并闪烁、显示你的团号，举起来让大家看到。真的走散了，团员可以点“我迷路了”，把此刻的位置传一次给团主（只传这一次，30 分钟后删除），团主的手机会响起提醒，地图上出现红色图钉，可以直接导航过去。';
+
+  @override
+  String wgLostAlert(int no) {
+    return '$no 号迷路了';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return '$no 号需要帮忙';
+  }
+
+  @override
+  String get wgViewList => '查看低语团';
 }

@@ -3085,4 +3085,67 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS19L5 =>
       'Groups of up to 20 people are free. For more, the leader can buy the group 7-day plan: up to 100 people until the group ends. Members never pay. A group lasts at most 7 days; when it expires or the leader ends it, the list and records are deleted.';
+
+  @override
+  String get wgFlagButton => 'Raise flag';
+
+  @override
+  String get wgFlagHost => 'Leader';
+
+  @override
+  String get wgFlagHint =>
+      'Hold up your phone so the group can spot you in the crowd. Tap to close.';
+
+  @override
+  String get wgLostButton => 'I\'m lost';
+
+  @override
+  String get wgFound => 'I found the group';
+
+  @override
+  String get wgLostSent =>
+      'Your location was sent to the leader. Wait where you are or head to the meeting point.';
+
+  @override
+  String get wgLostTitleAsk => 'Send your location to the leader?';
+
+  @override
+  String get wgLostAsk =>
+      'Your current location is sent to the leader once; their phone alerts them and shows you on the map. It is sent only this once, never tracked, and deleted after 30 minutes. Tap \"I found the group\" to remove it sooner.';
+
+  @override
+  String get wgLostSend => 'Send my location';
+
+  @override
+  String wgLostTitle(int n) {
+    return '$n lost member(s)';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String get wgNavigate => 'Directions';
+
+  @override
+  String get wgFoundThem => 'Found them';
+
+  @override
+  String get guideS19L6 =>
+      'Finding each other: in a crowd, tap \"Raise flag\" and your whole screen flashes in the group color with your number; hold it up so others can spot you. If a member really gets separated, they can tap \"I\'m lost\" to send their current location to the leader once (deleted after 30 minutes). The leader\'s phone alerts them, a red pin appears on the map, and they can get directions.';
+
+  @override
+  String wgLostAlert(int no) {
+    return 'No. $no is lost';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return 'No. $no needs help';
+  }
+
+  @override
+  String get wgViewList => 'Open group';
 }

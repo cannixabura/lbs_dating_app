@@ -833,5 +833,22 @@
   "guideS19L2": "Vào nhóm: trưởng nhóm chạm nút nhóm ở dưới bản đồ → \"Mã QR\"; thành viên quét bằng camera điện thoại và ứng dụng sẽ mở để vào nhóm. Hoặc vào Cài đặt → Tụ họp → \"Vào nhóm\" và nhập mã 8 ký tự. Người ngoài không thể tìm hay xin vào, và trưởng nhóm có thể đổi mã QR bất cứ lúc nào.",
   "guideS19L3": "Gọi tập trung: trưởng nhóm chạm \"Gọi tập trung\", chọn giờ và mô tả điểm hẹn. Điện thoại thành viên phát âm thanh riêng kèm rung \"ngắn ngắn dài\"; trong ứng dụng có đếm ngược, khoảng cách và hướng đến điểm hẹn, cùng cột sáng trên bản đồ. Ai chưa chạm \"Đã nhận\" sẽ được nhắc mỗi phút, tối đa 3 lần; trưởng nhóm thấy ai đã nhận, ai đã xem và ai chưa phản hồi.",
   "guideS19L4": "Điểm danh: trưởng nhóm chạm \"Điểm danh\"; thành viên nhận cùng âm thanh và rung, rồi chọn \"Tôi đến rồi\", \"Thêm 5 phút\" hoặc \"Cần giúp\". Trưởng nhóm không bao giờ thấy vị trí của thành viên, chỉ thấy câu trả lời.",
-  "guideS19L5": "Nhóm đến 20 người miễn phí. Nhiều hơn, trưởng nhóm có thể mua gói 7 ngày: tối đa 100 người đến khi nhóm kết thúc. Thành viên luôn miễn phí. Nhóm tồn tại tối đa 7 ngày; khi kết thúc, danh sách và dữ liệu bị xóa."
+  "guideS19L5": "Nhóm đến 20 người miễn phí. Nhiều hơn, trưởng nhóm có thể mua gói 7 ngày: tối đa 100 người đến khi nhóm kết thúc. Thành viên luôn miễn phí. Nhóm tồn tại tối đa 7 ngày; khi kết thúc, danh sách và dữ liệu bị xóa.",
+  "wgFlagButton": "Giơ cờ",
+  "wgFlagHost": "Trưởng nhóm",
+  "wgFlagHint": "Giơ điện thoại lên để cả nhóm thấy bạn giữa đám đông. Chạm để đóng.",
+  "wgLostButton": "Tôi bị lạc",
+  "wgFound": "Tôi đã tìm thấy nhóm",
+  "wgLostSent": "Đã gửi vị trí cho trưởng nhóm. Hãy đợi tại chỗ hoặc đi đến điểm hẹn.",
+  "wgLostTitleAsk": "Gửi vị trí cho trưởng nhóm?",
+  "wgLostAsk": "Vị trí hiện tại của bạn được gửi một lần cho trưởng nhóm; điện thoại của họ sẽ báo và hiện bạn trên bản đồ. Không theo dõi liên tục, tự xóa sau 30 phút. Chạm \"Tôi đã tìm thấy nhóm\" để xóa sớm hơn.",
+  "wgLostSend": "Gửi vị trí của tôi",
+  "wgLostTitle": "{n} thành viên bị lạc",
+  "wgMinutesAgo": "{n} phút trước",
+  "wgNavigate": "Chỉ đường",
+  "wgFoundThem": "Đã tìm thấy",
+  "guideS19L6": "Tìm nhau: giữa đám đông, chạm \"Giơ cờ\" để cả màn hình nhấp nháy màu nhóm và hiện số của bạn. Nếu thật sự bị lạc, thành viên có thể chạm \"Tôi bị lạc\" để gửi vị trí hiện tại một lần cho trưởng nhóm (xóa sau 30 phút). Điện thoại trưởng nhóm sẽ báo, ghim đỏ hiện trên bản đồ và có thể chỉ đường.",
+  "wgLostAlert": "Số {no} bị lạc",
+  "wgHelpAlert": "Số {no} cần giúp đỡ",
+  "wgViewList": "Mở nhóm"
 }

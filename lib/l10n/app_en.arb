@@ -833,5 +833,22 @@
   "guideS19L2": "Joining: the leader taps the group button at the bottom of the map → \"QR code\"; members scan it with the phone camera and the app opens to join. Or go to Settings → Gatherings → \"Join a group\" and enter the 8-character code. Outsiders cannot search for or request to join, and the leader can replace the QR code at any time.",
   "guideS19L3": "Calling everyone: the leader taps \"Call everyone\", picks a time and describes the meeting point. Members' phones play a special sound with a \"short short long\" vibration; in the app they see a countdown, the distance and direction to the meeting point, and a pillar of light on the map. Anyone who has not tapped \"Got it\" is reminded once a minute, up to 3 times; the leader sees who got it, who saw it and who has not responded.",
   "guideS19L4": "Roll call: the leader taps \"Roll call\"; members get the same sound and vibration and tap \"I'm here\", \"5 more min\" or \"Need help\". The leader never sees members' locations, only their replies.",
-  "guideS19L5": "Groups of up to 20 people are free. For more, the leader can buy the group 7-day plan: up to 100 people until the group ends. Members never pay. A group lasts at most 7 days; when it expires or the leader ends it, the list and records are deleted."
+  "guideS19L5": "Groups of up to 20 people are free. For more, the leader can buy the group 7-day plan: up to 100 people until the group ends. Members never pay. A group lasts at most 7 days; when it expires or the leader ends it, the list and records are deleted.",
+  "wgFlagButton": "Raise flag",
+  "wgFlagHost": "Leader",
+  "wgFlagHint": "Hold up your phone so the group can spot you in the crowd. Tap to close.",
+  "wgLostButton": "I'm lost",
+  "wgFound": "I found the group",
+  "wgLostSent": "Your location was sent to the leader. Wait where you are or head to the meeting point.",
+  "wgLostTitleAsk": "Send your location to the leader?",
+  "wgLostAsk": "Your current location is sent to the leader once; their phone alerts them and shows you on the map. It is sent only this once, never tracked, and deleted after 30 minutes. Tap \"I found the group\" to remove it sooner.",
+  "wgLostSend": "Send my location",
+  "wgLostTitle": "{n} lost member(s)",
+  "wgMinutesAgo": "{n} min ago",
+  "wgNavigate": "Directions",
+  "wgFoundThem": "Found them",
+  "guideS19L6": "Finding each other: in a crowd, tap \"Raise flag\" and your whole screen flashes in the group color with your number; hold it up so others can spot you. If a member really gets separated, they can tap \"I'm lost\" to send their current location to the leader once (deleted after 30 minutes). The leader's phone alerts them, a red pin appears on the map, and they can get directions.",
+  "wgLostAlert": "No. {no} is lost",
+  "wgHelpAlert": "No. {no} needs help",
+  "wgViewList": "Open group"
 }

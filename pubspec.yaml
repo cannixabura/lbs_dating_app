@@ -64,6 +64,7 @@ dependencies:
   in_app_purchase: ^3.3.1
   qr_flutter: ^4.1.0
   app_links: ^7.2.2
+  wakelock_plus: ^1.8.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -113,6 +114,7 @@ flutter:
     - assets/cards/
     - assets/audio/knock.mp3
     - assets/audio/chime.m4a
+    - assets/audio/group_call.wav
     - assets/map/night_style.json
     - assets/opencc/s2t.txt
     - assets/aiya/

@@ -2866,4 +2866,65 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get guideS19L5 =>
       '20 人までは無料。それ以上はリーダーが「グループ 7 日間プラン」を購入すると、終了まで最大 100 人になります。メンバーは常に無料です。グループは最長 7 日で、期限切れか解散すると名簿と記録はすべて削除されます。';
+
+  @override
+  String get wgFlagButton => '旗を掲げる';
+
+  @override
+  String get wgFlagHost => 'リーダー';
+
+  @override
+  String get wgFlagHint => 'スマホを掲げて、人混みの中で見つけてもらいましょう。タップで閉じます。';
+
+  @override
+  String get wgLostButton => '迷子になった';
+
+  @override
+  String get wgFound => '合流できた';
+
+  @override
+  String get wgLostSent => 'リーダーに現在地を送りました。その場で待つか集合場所へ向かってください。';
+
+  @override
+  String get wgLostTitleAsk => 'リーダーに現在地を送りますか？';
+
+  @override
+  String get wgLostAsk =>
+      '今いる場所を 1 回だけリーダーに送ります。リーダーのスマホに通知が届き、地図に表示されます。追跡はせず、30 分後に自動で削除されます。合流したら「合流できた」で取り消せます。';
+
+  @override
+  String get wgLostSend => '現在地を送る';
+
+  @override
+  String wgLostTitle(int n) {
+    return '迷子のメンバー $n 人';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n 分前';
+  }
+
+  @override
+  String get wgNavigate => '経路案内';
+
+  @override
+  String get wgFoundThem => '合流した';
+
+  @override
+  String get guideS19L6 =>
+      'お互いを探す：人混みで見つからないときは「旗を掲げる」をタップ。画面全体がグループ色で点滅し、番号が表示されます。本当にはぐれたら、メンバーは「迷子になった」で現在地を 1 回だけリーダーに送れます（30 分後に削除）。リーダーのスマホに通知が届き、地図に赤いピンが表示され、経路案内もできます。';
+
+  @override
+  String wgLostAlert(int no) {
+    return '$no 番が迷子です';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return '$no 番が助けを求めています';
+  }
+
+  @override
+  String get wgViewList => 'グループを開く';
 }

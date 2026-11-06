@@ -3000,4 +3000,67 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS19L5 =>
       'Nhóm đến 20 người miễn phí. Nhiều hơn, trưởng nhóm có thể mua gói 7 ngày: tối đa 100 người đến khi nhóm kết thúc. Thành viên luôn miễn phí. Nhóm tồn tại tối đa 7 ngày; khi kết thúc, danh sách và dữ liệu bị xóa.';
+
+  @override
+  String get wgFlagButton => 'Giơ cờ';
+
+  @override
+  String get wgFlagHost => 'Trưởng nhóm';
+
+  @override
+  String get wgFlagHint =>
+      'Giơ điện thoại lên để cả nhóm thấy bạn giữa đám đông. Chạm để đóng.';
+
+  @override
+  String get wgLostButton => 'Tôi bị lạc';
+
+  @override
+  String get wgFound => 'Tôi đã tìm thấy nhóm';
+
+  @override
+  String get wgLostSent =>
+      'Đã gửi vị trí cho trưởng nhóm. Hãy đợi tại chỗ hoặc đi đến điểm hẹn.';
+
+  @override
+  String get wgLostTitleAsk => 'Gửi vị trí cho trưởng nhóm?';
+
+  @override
+  String get wgLostAsk =>
+      'Vị trí hiện tại của bạn được gửi một lần cho trưởng nhóm; điện thoại của họ sẽ báo và hiện bạn trên bản đồ. Không theo dõi liên tục, tự xóa sau 30 phút. Chạm \"Tôi đã tìm thấy nhóm\" để xóa sớm hơn.';
+
+  @override
+  String get wgLostSend => 'Gửi vị trí của tôi';
+
+  @override
+  String wgLostTitle(int n) {
+    return '$n thành viên bị lạc';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n phút trước';
+  }
+
+  @override
+  String get wgNavigate => 'Chỉ đường';
+
+  @override
+  String get wgFoundThem => 'Đã tìm thấy';
+
+  @override
+  String get guideS19L6 =>
+      'Tìm nhau: giữa đám đông, chạm \"Giơ cờ\" để cả màn hình nhấp nháy màu nhóm và hiện số của bạn. Nếu thật sự bị lạc, thành viên có thể chạm \"Tôi bị lạc\" để gửi vị trí hiện tại một lần cho trưởng nhóm (xóa sau 30 phút). Điện thoại trưởng nhóm sẽ báo, ghim đỏ hiện trên bản đồ và có thể chỉ đường.';
+
+  @override
+  String wgLostAlert(int no) {
+    return 'Số $no bị lạc';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return 'Số $no cần giúp đỡ';
+  }
+
+  @override
+  String get wgViewList => 'Mở nhóm';
 }

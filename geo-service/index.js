@@ -1426,7 +1426,7 @@ function wgCallText(call, now) {
 /** 整團刪掉（解散、過期） */
 async function wgDestroy(code, members) {
   await sendUpstashPipeline([
-    ["DEL", wgroup.KEY.group(code), wgroup.KEY.members(code), wgroup.KEY.call(code), wgroup.KEY.acks(code), wgroup.KEY.roll(code), wgroup.KEY.answers(code)],
+    ["DEL", wgroup.KEY.group(code), wgroup.KEY.members(code), wgroup.KEY.call(code), wgroup.KEY.acks(code), wgroup.KEY.roll(code), wgroup.KEY.answers(code), wgroup.KEY.lost(code)],
     ["SREM", wgroup.KEY.activeCalls, code],
     ...members.map((m) => ["DEL", wgroup.KEY.of(m.uid)]),
   ]);
@@ -1442,10 +1442,12 @@ async function wgStatusView(uid, now) {
     else await sendUpstashCommand(["DEL", wgroup.KEY.of(uid)]);
     return { group: null };
   }
-  const [members, call, roll, acksFlat, answersFlat] = await Promise.all([
+  const [members, call, roll, acksFlat, answersFlat, lostFlat] = await Promise.all([
     wgMembers(code), wgJson(wgroup.KEY.call(code)), wgJson(wgroup.KEY.roll(code)),
     sendUpstashCommand(["HGETALL", wgroup.KEY.acks(code)]), sendUpstashCommand(["HGETALL", wgroup.KEY.answers(code)]),
+    sendUpstashCommand(["HGETALL", wgroup.KEY.lost(code)]),
   ]);
+  const lostHash = wgHash(lostFlat);
   const acks = wgHash(acksFlat), answers = wgHash(answersFlat);
   const me = members.find((m) => m.uid === uid);
   const isHost = g.host === uid;
@@ -1456,6 +1458,7 @@ async function wgStatusView(uid, now) {
     role: isHost ? "host" : "member", myNo: me ? me.no : null, hostName: hostIdx >= 0 ? (nicks[hostIdx] || "") : "",
     call: wgroup.callLive(call, now) ? { id: call.id, at: call.at, place: call.place, lat: call.lat, lng: call.lng, mine: acks[uid] || null } : null,
     roll: roll ? { id: roll.id, sentAt: roll.sentAt, mine: answers[uid] || null } : null,
+    lostSent: wgroup.lostRoster(members.filter((m) => m.uid === uid), lostHash, now).length > 0,
   };
   if (isHost) {
     view.qr = `https://mood-whisper-f7de9.web.app/g/${code}?v=${g.qrVer}`;
@@ -1463,6 +1466,7 @@ async function wgStatusView(uid, now) {
     view.members = others;
     if (view.call) view.callRoster = wgroup.callRoster(others, acks);
     if (view.roll) view.rollRoster = wgroup.rollRoster(others, answers);
+    view.lost = wgroup.lostRoster(others, lostHash, now);
   }
   return { group: view };
 }
@@ -1580,7 +1584,7 @@ exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_S
           if (note && isDisallowed(note)) return fail("filtered");
           await sendUpstashCommand(["HSET", wgroup.KEY.members(code), target, JSON.stringify({ no: m.no, note, joinedAt: m.joinedAt })]);
         } else if (action === "kick") {
-          await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), target], ["DEL", wgroup.KEY.of(target)], ["HDEL", wgroup.KEY.acks(code), target], ["HDEL", wgroup.KEY.answers(code), target]]);
+          await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), target], ["DEL", wgroup.KEY.of(target)], ["HDEL", wgroup.KEY.acks(code), target], ["HDEL", wgroup.KEY.answers(code), target], ["HDEL", wgroup.KEY.lost(code), target]]);
         } else {
           // 交棒：直接把團主交給這位團員（例如副領隊）；原團主留在團裡當團員
           const hostRow = members.find((x) => x.uid === g.host);
@@ -1594,6 +1598,28 @@ exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_S
         return ok();
       }
 
+      // 我迷路了：團員自己按下才把此刻的位置傳一次給團主（30 分鐘後自動消失，不會持續追蹤）
+      if (action === "lost") {
+        if (isHost) return fail("bad_request");
+        const made = wgroup.makeLost({ lat: req.body.lat, lng: req.body.lng }, now);
+        if (!made.ok) return fail(made.code);
+        await sendUpstashPipeline([
+          ["HSET", wgroup.KEY.lost(code), uid, JSON.stringify(made.entry)],
+          ["EXPIRE", wgroup.KEY.lost(code), String(Math.ceil(wgroup.LOST_TTL_MS / 1000))],
+        ]);
+        const me = (await wgMembers(code)).find((m) => m.uid === uid);
+        await wgPush([g.host], `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, `${me ? me.no : "?"} 號迷路了，傳來了目前的位置`, { type: "wgroup_lost", code }, { urgent: true });
+        return ok();
+      }
+
+      // 找到團了：團員自己取消，或團主幫他清掉
+      if (action === "found") {
+        const target = isHost ? String(req.body.uid || "") : uid;
+        if (!target) return fail("bad_request");
+        await sendUpstashCommand(["HDEL", wgroup.KEY.lost(code), target]);
+        return ok();
+      }
+
       if (action === "rotate_qr") {
         await wgSaveGroup(code, { ...g, qrVer: (g.qrVer || 1) + 1 });
         return ok();
@@ -1601,7 +1627,7 @@ exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_S
 
       if (action === "leave") {
         if (isHost) return fail("host"); // 團主要先交棒或解散
-        await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(code), uid], ["HDEL", wgroup.KEY.answers(code), uid]]);
+        await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(code), uid], ["HDEL", wgroup.KEY.answers(code), uid], ["HDEL", wgroup.KEY.lost(code), uid]]);
         return res.status(200).json({ success: true, group: null });
       }
 
@@ -1709,7 +1735,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       if (myGroup) {
         const wg = await wgLoad(myGroup);
         if (wg && wg.host === uid) await wgDestroy(myGroup, await wgMembers(myGroup));
-        else await sendUpstashPipeline([["HDEL", wgroup.KEY.members(myGroup), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(myGroup), uid], ["HDEL", wgroup.KEY.answers(myGroup), uid]]);
+        else await sendUpstashPipeline([["HDEL", wgroup.KEY.members(myGroup), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(myGroup), uid], ["HDEL", wgroup.KEY.answers(myGroup), uid], ["HDEL", wgroup.KEY.lost(myGroup), uid]]);
       }
       updates[`aiyaCredits/${uid}`] = null;
       updates[`aiyaConsent/${uid}`] = null;

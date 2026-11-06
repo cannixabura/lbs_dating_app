@@ -16,6 +16,7 @@
 //   wgroup_roll:{code}         目前的點名 JSON（id, sentAt）
 //   wgroup_answers:{code}      hash  uid → here | 5min | help（只屬於目前的點名）
 //   wgroup_active_calls        set   有進行中集合呼叫的團（每分鐘的提醒排程用）
+//   wgroup_lost:{code}         hash  uid → JSON { lat, lng, at }：團員自己按「我迷路了」才傳一次位置給團主，30 分鐘後失效
 // ============================================================================
 
 const crypto = require('crypto');
@@ -35,6 +36,7 @@ const REMIND_MAX = 3;
 const CALL_LEAD_MAX_MS = 3 * 60 * 60 * 1000; // 集合時間最多 3 小時後
 const CALL_LINGER_MS = 30 * 60 * 1000; // 集合時間過 30 分鐘，集合點自動消失
 const ANSWERS = ['here', '5min', 'help'];
+const LOST_TTL_MS = 30 * 60 * 1000; // 「我迷路了」的位置 30 分鐘後自動消失
 
 const KEY = {
     group: (code) => `wgroup:${code}`,
@@ -45,6 +47,7 @@ const KEY = {
     roll: (code) => `wgroup_roll:${code}`,
     answers: (code) => `wgroup_answers:${code}`,
     activeCalls: 'wgroup_active_calls',
+    lost: (code) => `wgroup_lost:${code}`,
 };
 
 const segmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
@@ -153,6 +156,30 @@ function rollRoster(members, answers) {
 const cleanNote = (note) => clip(note, MAX_NOTE);
 const cleanPlace = (place) => clip(place, MAX_PLACE);
 
+/**
+ * 「我迷路了」：團員自己按下時傳一次位置（不會持續追蹤）
+ * @returns {{ok: true, entry: object} | {ok: false, code: 'place'}}
+ */
+function makeLost({ lat, lng }, now) {
+    const la = Number(lat), lo = Number(lng);
+    if (!Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) return { ok: false, code: 'place' };
+    return { ok: true, entry: { lat: la, lng: lo, at: now } };
+}
+
+/** 團主看到的迷路名單：只留 30 分鐘內、還在團裡的人，最新的在最上面 */
+function lostRoster(members, lostHash, now) {
+    const rows = [];
+    for (const m of members) {
+        const raw = (lostHash || {})[m.uid];
+        if (!raw) continue;
+        let e;
+        try { e = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (err) { continue; }
+        if (!e || now - e.at > LOST_TTL_MS) continue;
+        rows.push({ uid: m.uid, no: m.no, name: m.name || '', note: m.note || '', lat: e.lat, lng: e.lng, at: e.at });
+    }
+    return rows.sort((a, b) => b.at - a.at);
+}
+
 // ---------- 低語團 7 天方案（消耗型：一次購買＝一個團付費到解散） ----------
 
 /** Apple 消耗型交易 → 收據代號 */
@@ -173,7 +200,7 @@ function googlePass(productId, receiptKey, purchase) {
 
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, PASS_PRODUCT, CODE_LENGTH, MAX_NAME, MAX_PLACE, MAX_NOTE, COLORS,
-    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, KEY,
+    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, KEY,
     newCode, isCode, taipeiDayEnd, makeGroup, isOpen, memberLimit, canJoin, nextNumber, makeCall, callLive,
-    dueReminders, callRoster, rollRoster, cleanNote, cleanPlace, applePass, googlePass,
+    dueReminders, callRoster, rollRoster, makeLost, lostRoster, cleanNote, cleanPlace, applePass, googlePass,
 };

@@ -833,5 +833,22 @@
   "guideS19L2": "Bergabung: pemimpin mengetuk tombol grup di bawah peta → \"Kode QR\"; anggota memindainya dengan kamera ponsel dan aplikasi terbuka untuk bergabung. Atau buka Pengaturan → Pertemuan → \"Gabung grup\" dan masukkan kode 8 karakter. Orang luar tidak bisa mencari atau meminta bergabung, dan pemimpin bisa mengganti kode QR kapan saja.",
   "guideS19L3": "Panggil kumpul: pemimpin mengetuk \"Panggil kumpul\", memilih waktu, dan menjelaskan titik kumpul. Ponsel anggota berbunyi khusus dengan getaran \"pendek pendek panjang\"; di aplikasi terlihat hitung mundur, jarak dan arah ke titik kumpul, serta pilar cahaya di peta. Yang belum mengetuk \"Terima\" diingatkan tiap menit, maksimal 3 kali; pemimpin melihat siapa yang terima, siapa yang melihat, dan siapa yang belum merespons.",
   "guideS19L4": "Absen: pemimpin mengetuk \"Absen\"; anggota menerima bunyi dan getaran yang sama lalu menjawab \"Aku sudah sampai\", \"5 menit lagi\", atau \"Butuh bantuan\". Pemimpin tidak pernah melihat lokasi anggota, hanya jawaban mereka.",
-  "guideS19L5": "Grup hingga 20 orang gratis. Untuk lebih, pemimpin bisa membeli paket 7 hari: hingga 100 orang sampai grup berakhir. Anggota tidak pernah membayar. Grup paling lama 7 hari; saat berakhir, daftar dan catatan dihapus."
+  "guideS19L5": "Grup hingga 20 orang gratis. Untuk lebih, pemimpin bisa membeli paket 7 hari: hingga 100 orang sampai grup berakhir. Anggota tidak pernah membayar. Grup paling lama 7 hari; saat berakhir, daftar dan catatan dihapus.",
+  "wgFlagButton": "Angkat bendera",
+  "wgFlagHost": "Pemimpin",
+  "wgFlagHint": "Angkat ponselmu agar grup bisa melihatmu di keramaian. Ketuk untuk menutup.",
+  "wgLostButton": "Aku tersesat",
+  "wgFound": "Aku sudah ketemu grup",
+  "wgLostSent": "Lokasimu sudah dikirim ke pemimpin. Tunggu di tempat atau menuju titik kumpul.",
+  "wgLostTitleAsk": "Kirim lokasi ke pemimpin?",
+  "wgLostAsk": "Lokasimu saat ini dikirim sekali ke pemimpin; ponselnya akan berbunyi dan menampilkanmu di peta. Tidak dilacak terus, dihapus setelah 30 menit. Ketuk \"Aku sudah ketemu grup\" untuk menghapusnya lebih cepat.",
+  "wgLostSend": "Kirim lokasiku",
+  "wgLostTitle": "{n} anggota tersesat",
+  "wgMinutesAgo": "{n} menit lalu",
+  "wgNavigate": "Petunjuk arah",
+  "wgFoundThem": "Sudah ketemu",
+  "guideS19L6": "Saling mencari: di keramaian, ketuk \"Angkat bendera\" dan seluruh layar berkedip dengan warna grup serta nomormu. Kalau benar-benar terpisah, anggota bisa mengetuk \"Aku tersesat\" untuk mengirim lokasi saat ini sekali ke pemimpin (dihapus setelah 30 menit). Ponsel pemimpin berbunyi, pin merah muncul di peta, dan bisa langsung minta petunjuk arah.",
+  "wgLostAlert": "No. {no} tersesat",
+  "wgHelpAlert": "No. {no} butuh bantuan",
+  "wgViewList": "Buka grup"
 }

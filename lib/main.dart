@@ -636,6 +636,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         if ('${message.data['type']}'.startsWith('wgroup_')) {
           WhisperGroup.onPush(message.data);
           if (message.data['type'] == 'wgroup_call' || message.data['type'] == 'wgroup_roll') return;
+          // 團主：團員迷路或需要幫忙 → 音效＋震動＋全螢幕提醒（不只一閃而過的提示）
+          if (message.data['type'] == 'wgroup_lost' || message.data['type'] == 'wgroup_help') {
+            if (mounted && !_wgOverlayOpen) {
+              _wgOverlayOpen = true;
+              showWgLeaderAlert(context, lost: message.data['type'] == 'wgroup_lost').whenComplete(() => _wgOverlayOpen = false);
+            }
+            return;
+          }
         }
         // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
         if (message.data['type'] == 'chat_message' && message.data['roomId'] == ChatScreen.activeRoomId) return;
@@ -3542,29 +3550,43 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
-                      // 低語團的集合點：團色光柱（畫面外就在邊緣出現箭頭）；只在一般雷達、有進行中的集合呼叫時顯示
+                      // 低語團：集合點的團色光柱與團主看到的迷路團員圖釘（畫面外就在邊緣出現箭頭）；只在一般雷達顯示
                       if (!quantumOn && _currentPosition != null)
                         Positioned.fill(
                           child: IgnorePointer(
                             child: ValueListenableBuilder<WgGroup?>(
                               valueListenable: WhisperGroup.current,
                               builder: (context, g, _) {
-                                final call = g?.call;
-                                if (g == null || call == null) return const SizedBox.shrink();
+                                if (g == null || (g.call == null && g.lost.isEmpty)) return const SizedBox.shrink();
                                 final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
-                                final o = quantumLocal(call.lat, call.lng);
                                 final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
                                     scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
                                 final screen = (Offset.zero & Size(screenWidth, screenHeight)).deflate(36);
-                                final end = _entangleEnd(proj, screen, o.east, o.north);
-                                if (end == null) return const SizedBox.shrink();
-                                final pos = _currentPosition!;
-                                final dist = Geolocator.distanceBetween(pos.latitude, pos.longitude, call.lat, call.lng);
-                                final distText = dist < 1000 ? '${dist.round()} m' : '${(dist / 1000).toStringAsFixed(1)} km';
-                                return CustomPaint(painter: WgPillarPainter(
-                                  at: end.$1, offscreen: end.$2, center: Offset(centerX, centerY), color: g.tint,
-                                  label: [if (call.place.isNotEmpty) call.place, distText].join('\n'), glow: 0.5,
-                                ));
+                                final layers = <Widget>[];
+                                final call = g.call;
+                                if (call != null) {
+                                  final o = quantumLocal(call.lat, call.lng);
+                                  final end = _entangleEnd(proj, screen, o.east, o.north);
+                                  if (end != null) {
+                                    final pos = _currentPosition!;
+                                    final dist = Geolocator.distanceBetween(pos.latitude, pos.longitude, call.lat, call.lng);
+                                    final distText = dist < 1000 ? '${dist.round()} m' : '${(dist / 1000).toStringAsFixed(1)} km';
+                                    layers.add(CustomPaint(size: Size.infinite, painter: WgPillarPainter(
+                                      at: end.$1, offscreen: end.$2, center: Offset(centerX, centerY), color: g.tint,
+                                      label: [if (call.place.isNotEmpty) call.place, distText].join('\n'), glow: 0.5,
+                                    )));
+                                  }
+                                }
+                                // 團主：自己按「我迷路了」的團員（紅色圖釘）
+                                if (g.isHost && g.lost.isNotEmpty) {
+                                  final pins = <(Offset, bool, int)>[];
+                                  for (final m in g.lost) {
+                                    final o = quantumLocal(m.lat, m.lng);
+                                    if (_entangleEnd(proj, screen, o.east, o.north) case (final at, final out)?) pins.add((at, out, m.no));
+                                  }
+                                  layers.add(CustomPaint(size: Size.infinite, painter: WgLostPinPainter(pins: pins, center: Offset(centerX, centerY))));
+                                }
+                                return Stack(children: layers);
                               },
                             ),
                           ),

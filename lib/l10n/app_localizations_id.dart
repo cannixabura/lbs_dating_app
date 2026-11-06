@@ -3004,4 +3004,67 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS19L5 =>
       'Grup hingga 20 orang gratis. Untuk lebih, pemimpin bisa membeli paket 7 hari: hingga 100 orang sampai grup berakhir. Anggota tidak pernah membayar. Grup paling lama 7 hari; saat berakhir, daftar dan catatan dihapus.';
+
+  @override
+  String get wgFlagButton => 'Angkat bendera';
+
+  @override
+  String get wgFlagHost => 'Pemimpin';
+
+  @override
+  String get wgFlagHint =>
+      'Angkat ponselmu agar grup bisa melihatmu di keramaian. Ketuk untuk menutup.';
+
+  @override
+  String get wgLostButton => 'Aku tersesat';
+
+  @override
+  String get wgFound => 'Aku sudah ketemu grup';
+
+  @override
+  String get wgLostSent =>
+      'Lokasimu sudah dikirim ke pemimpin. Tunggu di tempat atau menuju titik kumpul.';
+
+  @override
+  String get wgLostTitleAsk => 'Kirim lokasi ke pemimpin?';
+
+  @override
+  String get wgLostAsk =>
+      'Lokasimu saat ini dikirim sekali ke pemimpin; ponselnya akan berbunyi dan menampilkanmu di peta. Tidak dilacak terus, dihapus setelah 30 menit. Ketuk \"Aku sudah ketemu grup\" untuk menghapusnya lebih cepat.';
+
+  @override
+  String get wgLostSend => 'Kirim lokasiku';
+
+  @override
+  String wgLostTitle(int n) {
+    return '$n anggota tersesat';
+  }
+
+  @override
+  String wgMinutesAgo(int n) {
+    return '$n menit lalu';
+  }
+
+  @override
+  String get wgNavigate => 'Petunjuk arah';
+
+  @override
+  String get wgFoundThem => 'Sudah ketemu';
+
+  @override
+  String get guideS19L6 =>
+      'Saling mencari: di keramaian, ketuk \"Angkat bendera\" dan seluruh layar berkedip dengan warna grup serta nomormu. Kalau benar-benar terpisah, anggota bisa mengetuk \"Aku tersesat\" untuk mengirim lokasi saat ini sekali ke pemimpin (dihapus setelah 30 menit). Ponsel pemimpin berbunyi, pin merah muncul di peta, dan bisa langsung minta petunjuk arah.';
+
+  @override
+  String wgLostAlert(int no) {
+    return 'No. $no tersesat';
+  }
+
+  @override
+  String wgHelpAlert(String no) {
+    return 'No. $no butuh bantuan';
+  }
+
+  @override
+  String get wgViewList => 'Buka grup';
 }

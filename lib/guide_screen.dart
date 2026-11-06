@@ -111,6 +111,7 @@ class GuideScreen extends StatelessWidget {
       tr.guideS19L3,
       tr.guideS19L4,
       tr.guideS19L5,
+      tr.guideS19L6,
     ]),
     (Icons.translate, tr.guideS15Title, [
       tr.guideS15L1,

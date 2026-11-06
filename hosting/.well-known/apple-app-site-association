@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["JCFN9LMAXF.com.softchip.moodwhisper"],
+        "components": [{ "/": "/g/*", "comment": "低語團 QR code 與分享連結" }]
+      }
+    ]
+  }
+}

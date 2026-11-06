@@ -24,6 +24,7 @@ const parallel = require("./parallel");
 const quantum = require("./quantum");
 const orbs = require("./orbs");
 const aiya = require("./aiya");
+const wgroup = require("./whispergroup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -1347,6 +1348,319 @@ exports.appStoreNotify = onRequest({ region: "asia-southeast1" }, async (req, re
   return res.status(200).send("ok");
 });
 
+// ============================================================================
+// API：低語團（私人團體）—— 規格 docs/whisper-group-spec.md；純函式在 whispergroup.js
+//   團主：create / call / call_done / rollcall / note / kick / rotate_qr / handoff / dissolve / verify
+//   團員：join / seen / ack / answer / leave
+//   所有人：status
+//   團員的位置不會給團主；集合點是團主自己放的座標。
+// ============================================================================
+const WG_COLOR_DOT = { violet: "🟣", pink: "🩷", blue: "🔵", teal: "🩵", green: "🟢", gold: "🟡", orange: "🟠", red: "🔴" };
+
+async function wgLoad(code) {
+  if (!wgroup.isCode(code)) return null;
+  const raw = await sendUpstashCommand(["GET", wgroup.KEY.group(code)]);
+  try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+
+async function wgSaveGroup(code, g) {
+  const ttl = String(Math.max(60, Math.ceil((g.endsAt + 86400000 - Date.now()) / 1000)));
+  await sendUpstashCommand(["SET", wgroup.KEY.group(code), JSON.stringify(g), "EX", ttl]);
+}
+
+async function wgMembers(code) {
+  const flat = (await sendUpstashCommand(["HGETALL", wgroup.KEY.members(code)])) || [];
+  const out = [];
+  for (let i = 0; i < flat.length; i += 2) {
+    try { out.push({ uid: flat[i], ...JSON.parse(flat[i + 1]) }); } catch (e) { /* 壞掉的列略過 */ }
+  }
+  return out.sort((a, b) => a.no - b.no);
+}
+
+const wgHash = (flat) => { const o = {}; for (let i = 0; i < (flat || []).length; i += 2) o[flat[i]] = flat[i + 1]; return o; };
+
+async function wgJson(key) {
+  const raw = await sendUpstashCommand(["GET", key]);
+  try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+
+/** 推給團員：集合呼叫用時效性通知（iOS 穿透專注模式）與專屬音效／震動頻道 */
+async function wgPush(uids, title, body, data, { urgent = false } = {}) {
+  if (!uids.length) return 0;
+  const [snaps, langs] = await Promise.all([
+    Promise.all(uids.map((u) => admin.database().ref(`tokens/${u}`).once("value"))),
+    sendUpstashPipeline(uids.map((u) => ["HGET", `user_data:${u}`, "lang"])).catch(() => []),
+  ]);
+  const messages = [];
+  snaps.forEach((snap, i) => {
+    const token = snap.val();
+    if (!token) return;
+    const lang = langs[i];
+    messages.push({
+      token,
+      notification: { title: localize(lang, title), body: localize(lang, body) },
+      data,
+      android: urgent
+        ? { priority: "high", notification: { channelId: "group_call", sound: "group_call", defaultVibrateTimings: false, vibrateTimingsMillis: [0, 150, 100, 150, 100, 600] } }
+        : { priority: "high", notification: { sound: "default" } },
+      apns: {
+        headers: { "apns-priority": "10", "apns-push-type": "alert" },
+        payload: { aps: urgent ? { sound: "group_call.caf", "interruption-level": "time-sensitive" } : { sound: "default" } },
+      },
+    });
+  });
+  let sent = 0;
+  for (let i = 0; i < messages.length; i += 500) {
+    try { sent += (await admin.messaging().sendEach(messages.slice(i, i + 500))).successCount; } catch (e) { console.error("whisper group push failed:", e); }
+  }
+  return sent;
+}
+
+/** 集合呼叫的推播文字（繁中原文，送出時翻成收件人的語言） */
+function wgCallText(call, now) {
+  const mins = Math.max(0, Math.round((call.at - now) / 60000));
+  if (call.place) return mins > 0 ? `${mins} 分鐘後到「${call.place}」集合` : `現在到「${call.place}」集合`;
+  return mins > 0 ? `${mins} 分鐘後集合，打開 App 看集合點` : "現在集合，打開 App 看集合點";
+}
+
+/** 整團刪掉（解散、過期） */
+async function wgDestroy(code, members) {
+  await sendUpstashPipeline([
+    ["DEL", wgroup.KEY.group(code), wgroup.KEY.members(code), wgroup.KEY.call(code), wgroup.KEY.acks(code), wgroup.KEY.roll(code), wgroup.KEY.answers(code)],
+    ["SREM", wgroup.KEY.activeCalls, code],
+    ...members.map((m) => ["DEL", wgroup.KEY.of(m.uid)]),
+  ]);
+}
+
+/** 給 App 的狀態：團主看得到名單與每個人的回覆；團員只看到自己的 */
+async function wgStatusView(uid, now) {
+  const code = await sendUpstashCommand(["GET", wgroup.KEY.of(uid)]);
+  if (!code) return { group: null };
+  const g = await wgLoad(code);
+  if (!g || !wgroup.isOpen(g, now)) {
+    if (g) await wgDestroy(code, await wgMembers(code));
+    else await sendUpstashCommand(["DEL", wgroup.KEY.of(uid)]);
+    return { group: null };
+  }
+  const [members, call, roll, acksFlat, answersFlat] = await Promise.all([
+    wgMembers(code), wgJson(wgroup.KEY.call(code)), wgJson(wgroup.KEY.roll(code)),
+    sendUpstashCommand(["HGETALL", wgroup.KEY.acks(code)]), sendUpstashCommand(["HGETALL", wgroup.KEY.answers(code)]),
+  ]);
+  const acks = wgHash(acksFlat), answers = wgHash(answersFlat);
+  const me = members.find((m) => m.uid === uid);
+  const isHost = g.host === uid;
+  const nicks = await sendUpstashPipeline(members.map((m) => ["HGET", `user_data:${m.uid}`, "nickname"])).catch(() => []);
+  const hostIdx = members.findIndex((m) => m.uid === g.host);
+  const view = {
+    code, name: g.name, color: g.color, endsAt: g.endsAt, paid: !!g.paid, limit: wgroup.memberLimit(g), count: members.length,
+    role: isHost ? "host" : "member", myNo: me ? me.no : null, hostName: hostIdx >= 0 ? (nicks[hostIdx] || "") : "",
+    call: wgroup.callLive(call, now) ? { id: call.id, at: call.at, place: call.place, lat: call.lat, lng: call.lng, mine: acks[uid] || null } : null,
+    roll: roll ? { id: roll.id, sentAt: roll.sentAt, mine: answers[uid] || null } : null,
+  };
+  if (isHost) {
+    view.qr = `https://mood-whisper-f7de9.web.app/g/${code}?v=${g.qrVer}`;
+    const others = members.filter((m) => m.uid !== g.host).map((m) => ({ uid: m.uid, no: m.no, note: m.note || "", name: nicks[members.indexOf(m)] || "" }));
+    view.members = others;
+    if (view.call) view.callRoster = wgroup.callRoster(others, acks);
+    if (view.roll) view.rollRoster = wgroup.rollRoster(others, answers);
+  }
+  return { group: view };
+}
+
+exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const lang = langOf(req);
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: localize(lang, "未授權") });
+    const action = req.body.action, now = Date.now();
+    const fail = (code, status = 200) => res.status(status).json({ success: false, code });
+    const ok = async (extra = {}) => res.status(200).json({ success: true, ...(await wgStatusView(uid, now)), ...extra });
+    try {
+      if (action === "status") return ok();
+
+      if (action === "create") {
+        if (await sendUpstashCommand(["GET", wgroup.KEY.of(uid)])) return fail("in_group");
+        const made = wgroup.makeGroup({ host: uid, name: req.body.name, color: req.body.color, days: req.body.days }, now);
+        if (!made.ok) return fail(made.code);
+        if (isDisallowed(made.group.name)) return fail("filtered");
+        let code = wgroup.newCode();
+        for (let i = 0; i < 3 && (await sendUpstashCommand(["EXISTS", wgroup.KEY.group(code)])) === 1; i++) code = wgroup.newCode();
+        await wgSaveGroup(code, made.group);
+        const ttl = String(Math.ceil((made.group.endsAt + 86400000 - now) / 1000));
+        await sendUpstashPipeline([
+          ["HSET", wgroup.KEY.members(code), uid, JSON.stringify({ no: 0, note: "", joinedAt: now })],
+          ["EXPIRE", wgroup.KEY.members(code), ttl],
+          ["SET", wgroup.KEY.of(uid), code, "EX", ttl],
+        ]);
+        return ok();
+      }
+
+      if (action === "join") {
+        const code = String(req.body.code || "").toUpperCase();
+        const g = await wgLoad(code);
+        if (!g) return fail("not_found");
+        const current = await sendUpstashCommand(["GET", wgroup.KEY.of(uid)]);
+        if (current && current !== code) return fail("in_group");
+        const members = await wgMembers(code);
+        const check = wgroup.canJoin(g, { count: members.length, qrVer: req.body.v, alreadyMember: members.some((m) => m.uid === uid) }, now);
+        if (!check.ok) return check.code === "already" ? ok() : fail(check.code);
+        const no = wgroup.nextNumber(members);
+        const ttl = String(Math.ceil((g.endsAt + 86400000 - now) / 1000));
+        await sendUpstashPipeline([
+          ["HSETNX", wgroup.KEY.members(code), uid, JSON.stringify({ no, note: "", joinedAt: now })],
+          ["SET", wgroup.KEY.of(uid), code, "EX", ttl],
+        ]);
+        return ok();
+      }
+
+      // 以下都要已經在團裡
+      const code = await sendUpstashCommand(["GET", wgroup.KEY.of(uid)]);
+      const g = code ? await wgLoad(code) : null;
+      if (!g || !wgroup.isOpen(g, now)) return fail("no_group");
+      const isHost = g.host === uid;
+      const hostOnly = ["call", "call_done", "rollcall", "note", "kick", "rotate_qr", "handoff", "dissolve", "verify"];
+      if (hostOnly.includes(action) && !isHost) return fail("not_host", 403);
+
+      if (action === "call") {
+        const made = wgroup.makeCall({ at: req.body.at, place: req.body.place, lat: req.body.lat, lng: req.body.lng }, now);
+        if (!made.ok) return fail(made.code);
+        if (made.call.place && isDisallowed(made.call.place)) return fail("filtered");
+        await sendUpstashPipeline([
+          ["SET", wgroup.KEY.call(code), JSON.stringify(made.call), "EX", String(Math.ceil((made.call.at + wgroup.CALL_LINGER_MS - now) / 1000))],
+          ["DEL", wgroup.KEY.acks(code)],
+          ["SADD", wgroup.KEY.activeCalls, code],
+        ]);
+        const others = (await wgMembers(code)).filter((m) => m.uid !== g.host).map((m) => m.uid);
+        await wgPush(others, `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, wgCallText(made.call, now), { type: "wgroup_call", code, callId: made.call.id }, { urgent: true });
+        return ok();
+      }
+
+      if (action === "seen" || action === "ack") {
+        const call = await wgJson(wgroup.KEY.call(code));
+        if (!call || call.id !== req.body.callId) return fail("ended");
+        if (action === "ack") await sendUpstashCommand(["HSET", wgroup.KEY.acks(code), uid, "ack"]);
+        else await sendUpstashCommand(["HSETNX", wgroup.KEY.acks(code), uid, "seen"]);
+        return ok();
+      }
+
+      if (action === "call_done") {
+        await sendUpstashPipeline([["DEL", wgroup.KEY.call(code), wgroup.KEY.acks(code)], ["SREM", wgroup.KEY.activeCalls, code]]);
+        return ok();
+      }
+
+      if (action === "rollcall") {
+        const roll = { id: `${now.toString(36)}`, sentAt: now };
+        const ttl = String(Math.ceil((g.endsAt + 86400000 - now) / 1000));
+        await sendUpstashPipeline([["SET", wgroup.KEY.roll(code), JSON.stringify(roll), "EX", ttl], ["DEL", wgroup.KEY.answers(code)]]);
+        const others = (await wgMembers(code)).filter((m) => m.uid !== g.host).map((m) => m.uid);
+        await wgPush(others, `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, "點名：到了請按「我到了」", { type: "wgroup_roll", code, rollId: roll.id }, { urgent: true });
+        return ok();
+      }
+
+      if (action === "answer") {
+        const roll = await wgJson(wgroup.KEY.roll(code));
+        if (!roll || roll.id !== req.body.rollId) return fail("ended");
+        if (!wgroup.ANSWERS.includes(req.body.answer)) return fail("bad_request");
+        await sendUpstashCommand(["HSET", wgroup.KEY.answers(code), uid, req.body.answer]);
+        if (req.body.answer === "help") {
+          const me = (await wgMembers(code)).find((m) => m.uid === uid);
+          await wgPush([g.host], `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, `${me ? me.no : "?"} 號需要幫忙`, { type: "wgroup_help", code }, { urgent: true });
+        }
+        return ok();
+      }
+
+      if (action === "note" || action === "kick" || action === "handoff") {
+        const target = String(req.body.uid || "");
+        const members = await wgMembers(code);
+        const m = members.find((x) => x.uid === target);
+        if (!m || target === g.host) return fail("bad_request");
+        if (action === "note") {
+          const note = wgroup.cleanNote(req.body.note);
+          if (note && isDisallowed(note)) return fail("filtered");
+          await sendUpstashCommand(["HSET", wgroup.KEY.members(code), target, JSON.stringify({ no: m.no, note, joinedAt: m.joinedAt })]);
+        } else if (action === "kick") {
+          await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), target], ["DEL", wgroup.KEY.of(target)], ["HDEL", wgroup.KEY.acks(code), target], ["HDEL", wgroup.KEY.answers(code), target]]);
+        } else {
+          // 交棒：直接把團主交給這位團員（例如副領隊）；原團主留在團裡當團員
+          const hostRow = members.find((x) => x.uid === g.host);
+          await wgSaveGroup(code, { ...g, host: target });
+          await sendUpstashPipeline([
+            ["HSET", wgroup.KEY.members(code), target, JSON.stringify({ no: 0, note: "", joinedAt: m.joinedAt })],
+            ["HSET", wgroup.KEY.members(code), g.host, JSON.stringify({ no: m.no, note: "", joinedAt: hostRow ? hostRow.joinedAt : now })],
+          ]);
+          await wgPush([target], `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, "你成為這個低語團的團主了。", { type: "wgroup_handoff", code });
+        }
+        return ok();
+      }
+
+      if (action === "rotate_qr") {
+        await wgSaveGroup(code, { ...g, qrVer: (g.qrVer || 1) + 1 });
+        return ok();
+      }
+
+      if (action === "leave") {
+        if (isHost) return fail("host"); // 團主要先交棒或解散
+        await sendUpstashPipeline([["HDEL", wgroup.KEY.members(code), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(code), uid], ["HDEL", wgroup.KEY.answers(code), uid]]);
+        return res.status(200).json({ success: true, group: null });
+      }
+
+      if (action === "dissolve") {
+        const members = await wgMembers(code);
+        await wgDestroy(code, members);
+        await wgPush(members.filter((m) => m.uid !== uid).map((m) => m.uid), `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, "低語團已解散，謝謝這幾天一起同行。", { type: "wgroup_end", code });
+        return res.status(200).json({ success: true, group: null });
+      }
+
+      if (action === "verify") {
+        // 低語團 7 天方案：一次購買＝目前帶的這一團付費到解散
+        const p = req.body.purchase || {};
+        let grant;
+        try {
+          if (p.platform === "apple") grant = wgroup.applePass(orbs.verifyAppleJws(p.data), orbs.BUNDLE_ID);
+          else if (p.platform === "google" && typeof p.token === "string") grant = wgroup.googlePass(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
+          else return fail("bad_request");
+        } catch (e) {
+          console.warn("whisper group verify failed:", e.message);
+          return fail(e.message);
+        }
+        const db = admin.database();
+        const claim = await db.ref(`groupPassReceipts/${grant.receipt}`).transaction((cur) => (cur == null || cur === code ? code : undefined));
+        if (!claim.committed) return fail("used");
+        if (!g.paid) await wgSaveGroup(code, { ...g, paid: true });
+        return ok({ result: "granted" });
+      }
+
+      return res.status(400).json({ success: false, error: localize(lang, "未知的操作") });
+    } catch (error) {
+      console.error("whisperGroup failed:", error);
+      return res.status(500).json({ success: false, code: "busy" });
+    }
+  });
+});
+
+// 每分鐘：集合呼叫還沒按「收到」的團員再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來
+exports.remindWhisperGroups = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+  const now = Date.now();
+  const codes = (await sendUpstashCommand(["SMEMBERS", wgroup.KEY.activeCalls])) || [];
+  for (const code of codes) {
+    try {
+      const [g, call] = await Promise.all([wgLoad(code), wgJson(wgroup.KEY.call(code))]);
+      if (!g || !call || !wgroup.callLive(call, now)) { await sendUpstashCommand(["SREM", wgroup.KEY.activeCalls, code]); continue; }
+      const members = (await wgMembers(code)).filter((m) => m.uid !== g.host).map((m) => m.uid);
+      const acks = wgHash(await sendUpstashCommand(["HGETALL", wgroup.KEY.acks(code)]));
+      const due = wgroup.dueReminders(call, members, acks, now);
+      if (!due.length) continue;
+      await wgPush(due, `${WG_COLOR_DOT[g.color] || "🟣"} ${g.name}`, `再提醒一次：${wgCallText(call, now)}`, { type: "wgroup_call", code, callId: call.id }, { urgent: true });
+      for (const u of due) call.remind[u] = (call.remind[u] || 0) + 1;
+      call.lastRemindAt = now;
+      await sendUpstashCommand(["SET", wgroup.KEY.call(code), JSON.stringify(call), "EX", String(Math.max(60, Math.ceil((call.at + wgroup.CALL_LINGER_MS - now) / 1000)))]);
+    } catch (e) {
+      console.error(`[低語團] ${code} 提醒失敗:`, e);
+    }
+  }
+});
+
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
@@ -1390,6 +1704,13 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       updates[`orbOwned/${uid}`] = null;
       for (const owned of Object.values(myOrbs)) if (owned && typeof owned.receipt === "string") updates[`orbReceipts/${owned.receipt}`] = null;
       // 艾婭：剩下的時光包次數與同意紀錄一起刪除（消耗型無法恢復，條款已說明）；收據紀錄保留，避免同一筆購買重複加次數
+      // 低語團：團主就整團解散，團員就退出
+      const myGroup = await sendUpstashCommand(["GET", wgroup.KEY.of(uid)]);
+      if (myGroup) {
+        const wg = await wgLoad(myGroup);
+        if (wg && wg.host === uid) await wgDestroy(myGroup, await wgMembers(myGroup));
+        else await sendUpstashPipeline([["HDEL", wgroup.KEY.members(myGroup), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(myGroup), uid], ["HDEL", wgroup.KEY.answers(myGroup), uid]]);
+      }
       updates[`aiyaCredits/${uid}`] = null;
       updates[`aiyaConsent/${uid}`] = null;
       // 艾婭之友：刪掉訂閱紀錄並釋放收據，之後用新帳號可以恢復購買（訂閱本身要到 Apple／Google 取消）

@@ -2693,4 +2693,308 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get mapConsentSettingSubtitle =>
       'ปิดแล้วการเช็กอินจะจบทันที และคุณจะไม่ปรากฏบนแผนที่ของใคร';
+
+  @override
+  String get wgErrInGroup => 'คุณอยู่ในกลุ่มหนึ่งแล้ว ออกจากกลุ่มก่อน';
+
+  @override
+  String get wgErrFull =>
+      'กลุ่มนี้มีครบ 20 คนแล้ว ขอให้หัวหน้าซื้อแพ็กเกจ 7 วัน';
+
+  @override
+  String get wgErrPaidFull => 'กลุ่มนี้เต็มแล้ว (100 คน)';
+
+  @override
+  String get wgErrQr => 'QR code นี้ถูกเปลี่ยนแล้ว ขอใหม่จากหัวหน้า';
+
+  @override
+  String get wgErrEnded => 'กลุ่มนี้สิ้นสุดแล้วหรือไม่มีอยู่';
+
+  @override
+  String get wgErrFiltered => 'มีคำที่ไม่อนุญาต โปรดแก้ไข';
+
+  @override
+  String get wgErrHostLeave => 'หัวหน้าออกไม่ได้ ส่งต่อหรือยุบกลุ่มก่อน';
+
+  @override
+  String get wgErrBusy => 'เชื่อมต่อไม่ได้ ลองอีกครั้ง';
+
+  @override
+  String get wgErrName => 'ตั้งชื่อกลุ่มของคุณ';
+
+  @override
+  String get wgPassUnavailable => 'ร้านค้ายังใช้งานไม่ได้';
+
+  @override
+  String get wgPassFailed => 'การซื้อไม่สำเร็จ';
+
+  @override
+  String get wgPassDone => 'เปิดแพ็กเกจ 7 วันแล้ว กลุ่มมีได้สูงสุด 100 คน';
+
+  @override
+  String get wgCreateTitle => 'สร้างกลุ่ม';
+
+  @override
+  String get wgCreateBody => 'กลุ่มส่วนตัว: เข้าได้เฉพาะคนที่มี QR code ของคุณ';
+
+  @override
+  String get wgNameLabel => 'ชื่อกลุ่ม';
+
+  @override
+  String get wgColorLabel => 'สีกลุ่ม';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '$n วัน รวมวันนี้';
+  }
+
+  @override
+  String get wgFreeNote =>
+      'ฟรีถึง 20 คน ถ้ามากกว่านั้น หัวหน้าซื้อแพ็กเกจ 7 วัน (สูงสุด 100 คน)';
+
+  @override
+  String get wgCreateButton => 'สร้าง';
+
+  @override
+  String wgJoined(String name, int no) {
+    return 'เข้าร่วม \"$name\" แล้ว คุณคือหมายเลข $no';
+  }
+
+  @override
+  String get wgJoinTitle => 'เข้าร่วมกลุ่ม';
+
+  @override
+  String get wgJoinBody => 'สแกน QR code ของหัวหน้าด้วยกล้อง หรือใส่รหัส 8 ตัว';
+
+  @override
+  String get wgJoinButton => 'เข้าร่วม';
+
+  @override
+  String wgButtonLabel(String name) {
+    return 'กลุ่ม $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n/$limit คน';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return 'ถึง $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return 'ฉันหมายเลข $n';
+  }
+
+  @override
+  String get wgCallButton => 'เรียกรวมตัว';
+
+  @override
+  String get wgCallDone => 'ครบแล้ว จบการรวมตัว';
+
+  @override
+  String get wgRollButton => 'เช็กชื่อ';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return 'เช็กชื่อ: มาแล้ว $here/$total';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return 'สมาชิก $n คน (แตะเพื่อบันทึก ส่งต่อ หรือนำออก)';
+  }
+
+  @override
+  String get wgNoMembers => 'ยังไม่มีสมาชิก แตะ \"QR code\" ให้ทุกคนสแกน';
+
+  @override
+  String get wgQrButton => 'QR code';
+
+  @override
+  String get wgDissolveAsk =>
+      'ยุบกลุ่มนี้ไหม ทุกคนจะได้รับแจ้งและข้อมูลจะถูกลบ';
+
+  @override
+  String get wgDissolve => 'ยุบกลุ่ม';
+
+  @override
+  String wgCallIn(int n) {
+    return 'รวมตัวในอีก $n นาที';
+  }
+
+  @override
+  String get wgCallNow => 'รวมตัวตอนนี้';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return 'รับทราบ $acked/$total';
+  }
+
+  @override
+  String get wgAnswerHere => 'ฉันมาถึงแล้ว';
+
+  @override
+  String get wgAnswer5min => 'อีก 5 นาที';
+
+  @override
+  String get wgAnswerHelp => 'ต้องการความช่วยเหลือ';
+
+  @override
+  String get wgNoReply => 'ยังไม่ตอบ';
+
+  @override
+  String get wgStateAck => 'รับทราบ';
+
+  @override
+  String get wgStateSeen => 'อ่านแล้ว';
+
+  @override
+  String get wgStateNone => 'ไม่มีการตอบสนอง';
+
+  @override
+  String get wgPassTitle => 'แพ็กเกจกลุ่ม 7 วัน';
+
+  @override
+  String get wgPassBody =>
+      'ฟรีถึง 20 คน เมื่อซื้อแล้วกลุ่มนี้มีได้สูงสุด 100 คนจนกว่าจะสิ้นสุด ซื้อครั้งเดียวใช้กับกลุ่มนี้เท่านั้น ไม่ต่ออายุอัตโนมัติ';
+
+  @override
+  String get wgPassButton => 'ซื้อแพ็กเกจ 7 วัน';
+
+  @override
+  String wgHostIs(String name) {
+    return 'หัวหน้า: $name';
+  }
+
+  @override
+  String get wgNoCall =>
+      'ตอนนี้ยังไม่มีการเรียกรวมตัว เมื่อหัวหน้าเรียก โทรศัพท์จะดัง';
+
+  @override
+  String get wgRollAsk => 'หัวหน้ากำลังเช็กชื่อ';
+
+  @override
+  String get wgLeaveAsk => 'ออกจากกลุ่มนี้ไหม';
+
+  @override
+  String get wgLeave => 'ออกจากกลุ่ม';
+
+  @override
+  String get wgCallTitle => 'รวมตัว!';
+
+  @override
+  String get wgAcked => '✓ แจ้งหัวหน้าแล้วว่าคุณรับทราบ';
+
+  @override
+  String get wgAckButton => 'รับทราบ';
+
+  @override
+  String get wgCallSheetTitle => 'เรียกรวมตัว';
+
+  @override
+  String get wgNow => 'ตอนนี้';
+
+  @override
+  String wgInMinutes(int n) {
+    return 'อีก $n นาที';
+  }
+
+  @override
+  String get wgPlaceLabel => 'จุดนัดพบ';
+
+  @override
+  String get wgPlaceHint => 'เช่น ทางออก 6 สถานี Ximen';
+
+  @override
+  String get wgPlaceNote => 'จุดนัดพบจะตั้งที่ตำแหน่งปัจจุบันของคุณ';
+
+  @override
+  String get wgSendCall => 'ส่งการเรียก';
+
+  @override
+  String get wgNoLocation => 'หาตำแหน่งไม่ได้ ตั้งจุดนัดพบไม่ได้';
+
+  @override
+  String get wgQrTitle => 'สแกนเพื่อเข้าร่วม';
+
+  @override
+  String get wgQrBody => 'สแกนด้วยกล้อง หรือใส่รหัสด้านล่าง';
+
+  @override
+  String wgShareText(String name, String url) {
+    return 'เข้าร่วมกลุ่ม \"$name\" ของฉัน: $url';
+  }
+
+  @override
+  String get wgShare => 'แชร์ลิงก์';
+
+  @override
+  String get wgRotateAsk =>
+      'เปลี่ยน QR code ไหม รหัสและลิงก์เดิมจะใช้ไม่ได้ทันที';
+
+  @override
+  String get wgRotate => 'เปลี่ยน QR code';
+
+  @override
+  String wgMemberTitle(int no) {
+    return 'หมายเลข $no';
+  }
+
+  @override
+  String get wgEditNote => 'บันทึก';
+
+  @override
+  String get wgHandoff => 'ให้เป็นหัวหน้า';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return 'ส่งต่อหัวหน้าให้หมายเลข $no ไหม คุณจะเป็นสมาชิก';
+  }
+
+  @override
+  String get wgKick => 'นำออกจากกลุ่ม';
+
+  @override
+  String wgKickAsk(int no) {
+    return 'นำหมายเลข $no ออกจากกลุ่มไหม';
+  }
+
+  @override
+  String get wgNotePrivate => 'มีแค่คุณที่เห็นบันทึก เช่น ชื่อหรือเลขห้อง';
+
+  @override
+  String get wgSave => 'บันทึก';
+
+  @override
+  String get wgConfirm => 'ยืนยัน';
+
+  @override
+  String get wgCancel => 'ยกเลิก';
+
+  @override
+  String get wgSettingCreate => 'สร้างกลุ่ม';
+
+  @override
+  String get wgSettingCreateSub => 'กลุ่มส่วนตัวสำหรับทริป ทัศนศึกษา เดินป่า';
+
+  @override
+  String get wgSettingJoin => 'เข้าร่วมกลุ่ม';
+
+  @override
+  String get wgSettingJoinSub => 'ใส่รหัส 8 ตัวจากหัวหน้า';
+
+  @override
+  String wgSettingOpen(String name) {
+    return 'กลุ่มของฉัน: $name';
+  }
+
+  @override
+  String get wgChannelName => 'การเรียกรวมกลุ่ม';
+
+  @override
+  String get wgChannelDesc => 'เมื่อหัวหน้ากลุ่มเรียกทุกคนมารวมตัว';
 }

@@ -2562,4 +2562,304 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get mapConsentSettingSubtitle => '끄면 바로 체크인이 끝나고 누구의 지도에도 표시되지 않아요';
+
+  @override
+  String get wgErrInGroup => '이미 그룹에 들어 있어요. 먼저 나가야 해요.';
+
+  @override
+  String get wgErrFull => '이 그룹은 이미 20명이에요. 리더에게 7일 플랜을 부탁하세요.';
+
+  @override
+  String get wgErrPaidFull => '이 그룹은 100명으로 가득 찼어요.';
+
+  @override
+  String get wgErrQr => '이 QR 코드는 바뀌었어요. 리더에게 새 코드를 받으세요.';
+
+  @override
+  String get wgErrEnded => '이 그룹은 끝났거나 없어요.';
+
+  @override
+  String get wgErrFiltered => '부적절한 말이 있어요. 고쳐 주세요.';
+
+  @override
+  String get wgErrHostLeave => '리더는 나갈 수 없어요. 먼저 넘기거나 해산하세요.';
+
+  @override
+  String get wgErrBusy => '연결하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get wgErrName => '그룹 이름을 정해 주세요.';
+
+  @override
+  String get wgPassUnavailable => '지금은 스토어를 이용할 수 없어요.';
+
+  @override
+  String get wgPassFailed => '구매가 완료되지 않았어요.';
+
+  @override
+  String get wgPassDone => '7일 플랜이 켜졌어요. 최대 100명까지 함께할 수 있어요.';
+
+  @override
+  String get wgCreateTitle => '그룹 만들기';
+
+  @override
+  String get wgCreateBody =>
+      '비공개 그룹: QR 코드를 받은 사람만 들어올 수 있어요. 집합, 출석 확인, 모이는 곳 지정을 할 수 있어요.';
+
+  @override
+  String get wgNameLabel => '그룹 이름';
+
+  @override
+  String get wgColorLabel => '그룹 색';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '$n일 (오늘 포함)';
+  }
+
+  @override
+  String get wgFreeNote => '20명까지 무료예요. 더 많으면 리더가 7일 플랜으로 100명까지 늘릴 수 있어요.';
+
+  @override
+  String get wgCreateButton => '만들기';
+
+  @override
+  String wgJoined(String name, int no) {
+    return '\"$name\"에 들어왔어요. $no번이에요';
+  }
+
+  @override
+  String get wgJoinTitle => '그룹 들어가기';
+
+  @override
+  String get wgJoinBody => '카메라로 리더의 QR 코드를 찍는 게 가장 빨라요. 8자리 코드를 입력해도 돼요.';
+
+  @override
+  String get wgJoinButton => '들어가기';
+
+  @override
+  String wgButtonLabel(String name) {
+    return '그룹 $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n/$limit명';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return '$date까지';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return '나는 $n번';
+  }
+
+  @override
+  String get wgCallButton => '집합';
+
+  @override
+  String get wgCallDone => '다 모였어요, 집합 끝내기';
+
+  @override
+  String get wgRollButton => '출석 확인';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return '출석: $here/$total명 도착';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '멤버 $n명 (눌러서 메모, 넘기기, 내보내기)';
+  }
+
+  @override
+  String get wgNoMembers => '아직 멤버가 없어요. \"QR 코드\"를 보여 주세요.';
+
+  @override
+  String get wgQrButton => 'QR 코드';
+
+  @override
+  String get wgDissolveAsk => '그룹을 해산할까요? 모두에게 알림이 가고 명단과 기록이 삭제돼요.';
+
+  @override
+  String get wgDissolve => '해산';
+
+  @override
+  String wgCallIn(int n) {
+    return '$n분 뒤 집합';
+  }
+
+  @override
+  String get wgCallNow => '지금 집합';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return '확인 $acked/$total';
+  }
+
+  @override
+  String get wgAnswerHere => '도착했어요';
+
+  @override
+  String get wgAnswer5min => '5분 더';
+
+  @override
+  String get wgAnswerHelp => '도움 필요';
+
+  @override
+  String get wgNoReply => '응답 없음';
+
+  @override
+  String get wgStateAck => '확인';
+
+  @override
+  String get wgStateSeen => '읽음';
+
+  @override
+  String get wgStateNone => '반응 없음';
+
+  @override
+  String get wgPassTitle => '그룹 7일 플랜';
+
+  @override
+  String get wgPassBody =>
+      '20명까지 무료예요. 구매하면 이 그룹은 끝날 때까지 최대 100명이에요. 한 번 구매는 이 그룹에만 적용되고 자동 갱신되지 않아요.';
+
+  @override
+  String get wgPassButton => '7일 플랜 구매';
+
+  @override
+  String wgHostIs(String name) {
+    return '리더: $name';
+  }
+
+  @override
+  String get wgNoCall => '지금은 집합 호출이 없어요. 리더가 부르면 휴대폰이 울려요.';
+
+  @override
+  String get wgRollAsk => '리더가 출석을 확인해요';
+
+  @override
+  String get wgLeaveAsk => '이 그룹에서 나갈까요?';
+
+  @override
+  String get wgLeave => '그룹 나가기';
+
+  @override
+  String get wgCallTitle => '집합!';
+
+  @override
+  String get wgAcked => '✓ 리더에게 확인했다고 알렸어요';
+
+  @override
+  String get wgAckButton => '확인';
+
+  @override
+  String get wgCallSheetTitle => '집합 호출';
+
+  @override
+  String get wgNow => '지금';
+
+  @override
+  String wgInMinutes(int n) {
+    return '$n분 뒤';
+  }
+
+  @override
+  String get wgPlaceLabel => '모이는 곳';
+
+  @override
+  String get wgPlaceHint => '예: 시먼역 6번 출구';
+
+  @override
+  String get wgPlaceNote => '모이는 곳은 지금 위치로 정해져요. 멤버에게 거리와 방향이 보여요.';
+
+  @override
+  String get wgSendCall => '호출 보내기';
+
+  @override
+  String get wgNoLocation => '위치를 찾지 못해 모이는 곳을 정할 수 없어요.';
+
+  @override
+  String get wgQrTitle => '스캔해서 들어오기';
+
+  @override
+  String get wgQrBody => '휴대폰 카메라로 찍거나 아래 코드를 입력해서 들어와요.';
+
+  @override
+  String wgShareText(String name, String url) {
+    return '내 그룹 \"$name\"에 들어와요: $url';
+  }
+
+  @override
+  String get wgShare => '링크 공유';
+
+  @override
+  String get wgRotateAsk => 'QR 코드를 바꿀까요? 이전 코드와 링크는 바로 쓸 수 없어요.';
+
+  @override
+  String get wgRotate => 'QR 코드 바꾸기';
+
+  @override
+  String wgMemberTitle(int no) {
+    return '$no번';
+  }
+
+  @override
+  String get wgEditNote => '메모';
+
+  @override
+  String get wgHandoff => '리더 넘기기';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return '$no번에게 리더를 넘길까요? 나는 멤버가 돼요.';
+  }
+
+  @override
+  String get wgKick => '그룹에서 내보내기';
+
+  @override
+  String wgKickAsk(int no) {
+    return '$no번을 그룹에서 내보낼까요?';
+  }
+
+  @override
+  String get wgNotePrivate => '메모는 나만 볼 수 있어요 (이름, 방 번호 등).';
+
+  @override
+  String get wgSave => '저장';
+
+  @override
+  String get wgConfirm => '확인';
+
+  @override
+  String get wgCancel => '취소';
+
+  @override
+  String get wgSettingCreate => '그룹 만들기';
+
+  @override
+  String get wgSettingCreateSub => '여행, 견학, 등산용 비공개 그룹: 집합과 출석 확인';
+
+  @override
+  String get wgSettingJoin => '그룹 들어가기';
+
+  @override
+  String get wgSettingJoinSub => '리더의 8자리 코드 입력';
+
+  @override
+  String wgSettingOpen(String name) {
+    return '내 그룹: $name';
+  }
+
+  @override
+  String get wgChannelName => '그룹 집합';
+
+  @override
+  String get wgChannelDesc => '리더가 집합을 부를 때';
 }

@@ -1547,5 +1547,227 @@
   "mapConsentDecline": "不允許",
   "mapConsentDeclined": "好的，你不會出現在任何人的地圖上。想打卡時再按一次就好。",
   "mapConsentSetting": "在地圖上顯示我的位置",
-  "mapConsentSettingSubtitle": "關掉後立即結束打卡，你不會出現在任何人的地圖上"
+  "mapConsentSettingSubtitle": "關掉後立即結束打卡，你不會出現在任何人的地圖上",
+  "wgErrInGroup": "你已經在一個低語團裡了，先退出才能加入或開新的團。",
+  "wgErrFull": "這個低語團已經 20 人了，請團主開通 7 天方案就能再加入。",
+  "wgErrPaidFull": "這個低語團已經滿 100 人了。",
+  "wgErrQr": "這個 QR code 已經換新了，請團主給你新的。",
+  "wgErrEnded": "這個低語團已經結束或不存在。",
+  "wgErrFiltered": "內容包含不適當的字詞，請修改後再送出。",
+  "wgErrHostLeave": "團主不能直接退出，請先交棒給團員或解散低語團。",
+  "wgErrBusy": "暫時連不上，請稍後再試。",
+  "wgErrName": "請幫低語團取個名字。",
+  "wgPassUnavailable": "商店暫時無法購買，請稍後再試。",
+  "wgPassFailed": "購買沒有完成，請再試一次。",
+  "wgPassDone": "已開通 7 天方案，這個低語團最多可以 100 人。",
+  "wgCreateTitle": "開一個低語團",
+  "wgCreateBody": "私人的團體：只有拿到你的 QR code 的人才能加入。可以集合、點名、放集合點。",
+  "wgNameLabel": "團名",
+  "wgColorLabel": "團色",
+  "wgDaysLabel": "行程 {n} 天（含今天）",
+  "@wgDaysLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wgFreeNote": "20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。",
+  "wgCreateButton": "開團",
+  "wgJoined": "已加入「{name}」，你是 {no} 號",
+  "@wgJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "no": {
+        "type": "int"
+      }
+    }
+  },
+  "wgJoinTitle": "加入低語團",
+  "wgJoinBody": "用手機相機掃團主的 QR code 最快；也可以輸入 8 碼團代碼。",
+  "wgJoinButton": "加入",
+  "wgButtonLabel": "低語團 {name}",
+  "@wgButtonLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wgCount": "{n}／{limit} 人",
+  "@wgCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "wgUntil": "到 {date}",
+  "@wgUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wgMyNo": "我是 {n} 號",
+  "@wgMyNo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wgCallButton": "集合",
+  "wgCallDone": "人齊了，結束集合",
+  "wgRollButton": "點名",
+  "wgRollSummary": "點名：到了 {here}／{total}",
+  "@wgRollSummary": {
+    "placeholders": {
+      "here": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wgMembersTitle": "團員 {n} 人（點一下可以備註、交棒或移除）",
+  "@wgMembersTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wgNoMembers": "還沒有團員，按「QR code」讓大家掃描加入。",
+  "wgQrButton": "QR code",
+  "wgDissolveAsk": "要解散這個低語團嗎？所有團員會收到通知，名單與紀錄會全部刪除。",
+  "wgDissolve": "解散",
+  "wgCallIn": "{n} 分鐘後集合",
+  "@wgCallIn": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wgCallNow": "現在集合",
+  "wgAckSummary": "收到 {acked}／{total}",
+  "@wgAckSummary": {
+    "placeholders": {
+      "acked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "wgAnswerHere": "我到了",
+  "wgAnswer5min": "還要 5 分鐘",
+  "wgAnswerHelp": "需要幫忙",
+  "wgNoReply": "沒回",
+  "wgStateAck": "收到",
+  "wgStateSeen": "看了沒回",
+  "wgStateNone": "沒反應",
+  "wgPassTitle": "低語團 7 天方案",
+  "wgPassBody": "20 人以內免費。開通後這個團最多 100 人，直到低語團結束；一次購買只用在這一團，不會自動續費。",
+  "wgPassButton": "開通 7 天方案",
+  "wgHostIs": "團主：{name}",
+  "@wgHostIs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wgNoCall": "目前沒有集合呼叫。團主一按「集合」，你的手機就會響。",
+  "wgRollAsk": "團主在點名",
+  "wgLeaveAsk": "要退出這個低語團嗎？",
+  "wgLeave": "退出低語團",
+  "wgCallTitle": "集合！",
+  "wgAcked": "✓ 已經告訴團主你收到了",
+  "wgAckButton": "收到",
+  "wgCallSheetTitle": "集合呼叫",
+  "wgNow": "現在",
+  "wgInMinutes": "{n} 分鐘後",
+  "@wgInMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wgPlaceLabel": "集合點說明",
+  "wgPlaceHint": "例如：捷運西門站 6 號出口",
+  "wgPlaceNote": "集合點會放在你現在的位置，團員看得到距離與方向。",
+  "wgSendCall": "送出集合呼叫",
+  "wgNoLocation": "抓不到你的位置，沒辦法放集合點。",
+  "wgQrTitle": "讓大家掃描加入",
+  "wgQrBody": "用手機相機掃描就能加入；也可以輸入下面的團代碼。",
+  "wgShareText": "加入我的低語團「{name}」：{url}",
+  "@wgShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "wgShare": "分享連結",
+  "wgRotateAsk": "要換新 QR code 嗎？舊的 QR code 和連結會立即失效。",
+  "wgRotate": "換新 QR code",
+  "wgMemberTitle": "{no} 號",
+  "@wgMemberTitle": {
+    "placeholders": {
+      "no": {
+        "type": "int"
+      }
+    }
+  },
+  "wgEditNote": "備註",
+  "wgHandoff": "交棒給他當團主",
+  "wgHandoffAsk": "要把團主交給 {no} 號嗎？你會變成團員。",
+  "@wgHandoffAsk": {
+    "placeholders": {
+      "no": {
+        "type": "int"
+      }
+    }
+  },
+  "wgKick": "移出低語團",
+  "wgKickAsk": "要把 {no} 號移出低語團嗎？",
+  "@wgKickAsk": {
+    "placeholders": {
+      "no": {
+        "type": "int"
+      }
+    }
+  },
+  "wgNotePrivate": "備註只有你看得到，例如名字或房號。",
+  "wgSave": "儲存",
+  "wgConfirm": "確定",
+  "wgCancel": "取消",
+  "wgSettingCreate": "開一個低語團",
+  "wgSettingCreateSub": "私人團體：旅行、校外教學、登山、出遊時集合與點名",
+  "wgSettingJoin": "加入低語團",
+  "wgSettingJoinSub": "輸入團主給你的 8 碼團代碼",
+  "wgSettingOpen": "我的低語團：{name}",
+  "@wgSettingOpen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wgChannelName": "低語團集合",
+  "wgChannelDesc": "團主按下「集合」時的提醒"
 }

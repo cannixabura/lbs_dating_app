@@ -4550,6 +4550,534 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'關掉後立即結束打卡，你不會出現在任何人的地圖上'**
   String get mapConsentSettingSubtitle;
+
+  /// No description provided for @wgErrInGroup.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經在一個低語團裡了，先退出才能加入或開新的團。'**
+  String get wgErrInGroup;
+
+  /// No description provided for @wgErrFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個低語團已經 20 人了，請團主開通 7 天方案就能再加入。'**
+  String get wgErrFull;
+
+  /// No description provided for @wgErrPaidFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個低語團已經滿 100 人了。'**
+  String get wgErrPaidFull;
+
+  /// No description provided for @wgErrQr.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個 QR code 已經換新了，請團主給你新的。'**
+  String get wgErrQr;
+
+  /// No description provided for @wgErrEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個低語團已經結束或不存在。'**
+  String get wgErrEnded;
+
+  /// No description provided for @wgErrFiltered.
+  ///
+  /// In zh, this message translates to:
+  /// **'內容包含不適當的字詞，請修改後再送出。'**
+  String get wgErrFiltered;
+
+  /// No description provided for @wgErrHostLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'團主不能直接退出，請先交棒給團員或解散低語團。'**
+  String get wgErrHostLeave;
+
+  /// No description provided for @wgErrBusy.
+  ///
+  /// In zh, this message translates to:
+  /// **'暫時連不上，請稍後再試。'**
+  String get wgErrBusy;
+
+  /// No description provided for @wgErrName.
+  ///
+  /// In zh, this message translates to:
+  /// **'請幫低語團取個名字。'**
+  String get wgErrName;
+
+  /// No description provided for @wgPassUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'商店暫時無法購買，請稍後再試。'**
+  String get wgPassUnavailable;
+
+  /// No description provided for @wgPassFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'購買沒有完成，請再試一次。'**
+  String get wgPassFailed;
+
+  /// No description provided for @wgPassDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已開通 7 天方案，這個低語團最多可以 100 人。'**
+  String get wgPassDone;
+
+  /// No description provided for @wgCreateTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'開一個低語團'**
+  String get wgCreateTitle;
+
+  /// No description provided for @wgCreateBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'私人的團體：只有拿到你的 QR code 的人才能加入。可以集合、點名、放集合點。'**
+  String get wgCreateBody;
+
+  /// No description provided for @wgNameLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'團名'**
+  String get wgNameLabel;
+
+  /// No description provided for @wgColorLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'團色'**
+  String get wgColorLabel;
+
+  /// No description provided for @wgDaysLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'行程 {n} 天（含今天）'**
+  String wgDaysLabel(int n);
+
+  /// No description provided for @wgFreeNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。'**
+  String get wgFreeNote;
+
+  /// No description provided for @wgCreateButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'開團'**
+  String get wgCreateButton;
+
+  /// No description provided for @wgJoined.
+  ///
+  /// In zh, this message translates to:
+  /// **'已加入「{name}」，你是 {no} 號'**
+  String wgJoined(String name, int no);
+
+  /// No description provided for @wgJoinTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入低語團'**
+  String get wgJoinTitle;
+
+  /// No description provided for @wgJoinBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'用手機相機掃團主的 QR code 最快；也可以輸入 8 碼團代碼。'**
+  String get wgJoinBody;
+
+  /// No description provided for @wgJoinButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入'**
+  String get wgJoinButton;
+
+  /// No description provided for @wgButtonLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'低語團 {name}'**
+  String wgButtonLabel(String name);
+
+  /// No description provided for @wgCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n}／{limit} 人'**
+  String wgCount(int n, int limit);
+
+  /// No description provided for @wgUntil.
+  ///
+  /// In zh, this message translates to:
+  /// **'到 {date}'**
+  String wgUntil(String date);
+
+  /// No description provided for @wgMyNo.
+  ///
+  /// In zh, this message translates to:
+  /// **'我是 {n} 號'**
+  String wgMyNo(int n);
+
+  /// No description provided for @wgCallButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合'**
+  String get wgCallButton;
+
+  /// No description provided for @wgCallDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'人齊了，結束集合'**
+  String get wgCallDone;
+
+  /// No description provided for @wgRollButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'點名'**
+  String get wgRollButton;
+
+  /// No description provided for @wgRollSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'點名：到了 {here}／{total}'**
+  String wgRollSummary(int here, int total);
+
+  /// No description provided for @wgMembersTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'團員 {n} 人（點一下可以備註、交棒或移除）'**
+  String wgMembersTitle(int n);
+
+  /// No description provided for @wgNoMembers.
+  ///
+  /// In zh, this message translates to:
+  /// **'還沒有團員，按「QR code」讓大家掃描加入。'**
+  String get wgNoMembers;
+
+  /// No description provided for @wgQrButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'QR code'**
+  String get wgQrButton;
+
+  /// No description provided for @wgDissolveAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'要解散這個低語團嗎？所有團員會收到通知，名單與紀錄會全部刪除。'**
+  String get wgDissolveAsk;
+
+  /// No description provided for @wgDissolve.
+  ///
+  /// In zh, this message translates to:
+  /// **'解散'**
+  String get wgDissolve;
+
+  /// No description provided for @wgCallIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 分鐘後集合'**
+  String wgCallIn(int n);
+
+  /// No description provided for @wgCallNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'現在集合'**
+  String get wgCallNow;
+
+  /// No description provided for @wgAckSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'收到 {acked}／{total}'**
+  String wgAckSummary(int acked, int total);
+
+  /// No description provided for @wgAnswerHere.
+  ///
+  /// In zh, this message translates to:
+  /// **'我到了'**
+  String get wgAnswerHere;
+
+  /// No description provided for @wgAnswer5min.
+  ///
+  /// In zh, this message translates to:
+  /// **'還要 5 分鐘'**
+  String get wgAnswer5min;
+
+  /// No description provided for @wgAnswerHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要幫忙'**
+  String get wgAnswerHelp;
+
+  /// No description provided for @wgNoReply.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒回'**
+  String get wgNoReply;
+
+  /// No description provided for @wgStateAck.
+  ///
+  /// In zh, this message translates to:
+  /// **'收到'**
+  String get wgStateAck;
+
+  /// No description provided for @wgStateSeen.
+  ///
+  /// In zh, this message translates to:
+  /// **'看了沒回'**
+  String get wgStateSeen;
+
+  /// No description provided for @wgStateNone.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒反應'**
+  String get wgStateNone;
+
+  /// No description provided for @wgPassTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'低語團 7 天方案'**
+  String get wgPassTitle;
+
+  /// No description provided for @wgPassBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'20 人以內免費。開通後這個團最多 100 人，直到低語團結束；一次購買只用在這一團，不會自動續費。'**
+  String get wgPassBody;
+
+  /// No description provided for @wgPassButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'開通 7 天方案'**
+  String get wgPassButton;
+
+  /// No description provided for @wgHostIs.
+  ///
+  /// In zh, this message translates to:
+  /// **'團主：{name}'**
+  String wgHostIs(String name);
+
+  /// No description provided for @wgNoCall.
+  ///
+  /// In zh, this message translates to:
+  /// **'目前沒有集合呼叫。團主一按「集合」，你的手機就會響。'**
+  String get wgNoCall;
+
+  /// No description provided for @wgRollAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'團主在點名'**
+  String get wgRollAsk;
+
+  /// No description provided for @wgLeaveAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'要退出這個低語團嗎？'**
+  String get wgLeaveAsk;
+
+  /// No description provided for @wgLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'退出低語團'**
+  String get wgLeave;
+
+  /// No description provided for @wgCallTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合！'**
+  String get wgCallTitle;
+
+  /// No description provided for @wgAcked.
+  ///
+  /// In zh, this message translates to:
+  /// **'✓ 已經告訴團主你收到了'**
+  String get wgAcked;
+
+  /// No description provided for @wgAckButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'收到'**
+  String get wgAckButton;
+
+  /// No description provided for @wgCallSheetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合呼叫'**
+  String get wgCallSheetTitle;
+
+  /// No description provided for @wgNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'現在'**
+  String get wgNow;
+
+  /// No description provided for @wgInMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 分鐘後'**
+  String wgInMinutes(int n);
+
+  /// No description provided for @wgPlaceLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合點說明'**
+  String get wgPlaceLabel;
+
+  /// No description provided for @wgPlaceHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'例如：捷運西門站 6 號出口'**
+  String get wgPlaceHint;
+
+  /// No description provided for @wgPlaceNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'集合點會放在你現在的位置，團員看得到距離與方向。'**
+  String get wgPlaceNote;
+
+  /// No description provided for @wgSendCall.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出集合呼叫'**
+  String get wgSendCall;
+
+  /// No description provided for @wgNoLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'抓不到你的位置，沒辦法放集合點。'**
+  String get wgNoLocation;
+
+  /// No description provided for @wgQrTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'讓大家掃描加入'**
+  String get wgQrTitle;
+
+  /// No description provided for @wgQrBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'用手機相機掃描就能加入；也可以輸入下面的團代碼。'**
+  String get wgQrBody;
+
+  /// No description provided for @wgShareText.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入我的低語團「{name}」：{url}'**
+  String wgShareText(String name, String url);
+
+  /// No description provided for @wgShare.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享連結'**
+  String get wgShare;
+
+  /// No description provided for @wgRotateAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'要換新 QR code 嗎？舊的 QR code 和連結會立即失效。'**
+  String get wgRotateAsk;
+
+  /// No description provided for @wgRotate.
+  ///
+  /// In zh, this message translates to:
+  /// **'換新 QR code'**
+  String get wgRotate;
+
+  /// No description provided for @wgMemberTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'{no} 號'**
+  String wgMemberTitle(int no);
+
+  /// No description provided for @wgEditNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'備註'**
+  String get wgEditNote;
+
+  /// No description provided for @wgHandoff.
+  ///
+  /// In zh, this message translates to:
+  /// **'交棒給他當團主'**
+  String get wgHandoff;
+
+  /// No description provided for @wgHandoffAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'要把團主交給 {no} 號嗎？你會變成團員。'**
+  String wgHandoffAsk(int no);
+
+  /// No description provided for @wgKick.
+  ///
+  /// In zh, this message translates to:
+  /// **'移出低語團'**
+  String get wgKick;
+
+  /// No description provided for @wgKickAsk.
+  ///
+  /// In zh, this message translates to:
+  /// **'要把 {no} 號移出低語團嗎？'**
+  String wgKickAsk(int no);
+
+  /// No description provided for @wgNotePrivate.
+  ///
+  /// In zh, this message translates to:
+  /// **'備註只有你看得到，例如名字或房號。'**
+  String get wgNotePrivate;
+
+  /// No description provided for @wgSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'儲存'**
+  String get wgSave;
+
+  /// No description provided for @wgConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'確定'**
+  String get wgConfirm;
+
+  /// No description provided for @wgCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get wgCancel;
+
+  /// No description provided for @wgSettingCreate.
+  ///
+  /// In zh, this message translates to:
+  /// **'開一個低語團'**
+  String get wgSettingCreate;
+
+  /// No description provided for @wgSettingCreateSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'私人團體：旅行、校外教學、登山、出遊時集合與點名'**
+  String get wgSettingCreateSub;
+
+  /// No description provided for @wgSettingJoin.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入低語團'**
+  String get wgSettingJoin;
+
+  /// No description provided for @wgSettingJoinSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'輸入團主給你的 8 碼團代碼'**
+  String get wgSettingJoinSub;
+
+  /// No description provided for @wgSettingOpen.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的低語團：{name}'**
+  String wgSettingOpen(String name);
+
+  /// No description provided for @wgChannelName.
+  ///
+  /// In zh, this message translates to:
+  /// **'低語團集合'**
+  String get wgChannelName;
+
+  /// No description provided for @wgChannelDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'團主按下「集合」時的提醒'**
+  String get wgChannelDesc;
 }
 
 class _AppLocalizationsDelegate

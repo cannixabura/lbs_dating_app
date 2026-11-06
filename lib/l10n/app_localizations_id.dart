@@ -2670,4 +2670,315 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get mapConsentSettingSubtitle =>
       'Mematikannya langsung mengakhiri check-in; kamu tidak akan muncul di peta siapa pun';
+
+  @override
+  String get wgErrInGroup => 'Kamu sudah ada di satu grup. Keluar dulu.';
+
+  @override
+  String get wgErrFull =>
+      'Grup ini sudah 20 orang. Minta pemimpin membeli paket 7 hari.';
+
+  @override
+  String get wgErrPaidFull => 'Grup ini penuh (100 orang).';
+
+  @override
+  String get wgErrQr =>
+      'Kode QR ini sudah diganti. Minta yang baru ke pemimpin.';
+
+  @override
+  String get wgErrEnded => 'Grup ini sudah berakhir atau tidak ada.';
+
+  @override
+  String get wgErrFiltered => 'Ini berisi kata yang tidak diizinkan.';
+
+  @override
+  String get wgErrHostLeave =>
+      'Pemimpin tidak bisa keluar. Serahkan atau bubarkan grup dulu.';
+
+  @override
+  String get wgErrBusy => 'Gagal terhubung. Coba lagi.';
+
+  @override
+  String get wgErrName => 'Beri nama grupmu.';
+
+  @override
+  String get wgPassUnavailable => 'Toko sedang tidak tersedia.';
+
+  @override
+  String get wgPassFailed => 'Pembelian tidak berhasil.';
+
+  @override
+  String get wgPassDone => 'Paket 7 hari aktif. Grup bisa sampai 100 orang.';
+
+  @override
+  String get wgCreateTitle => 'Buat grup';
+
+  @override
+  String get wgCreateBody =>
+      'Grup pribadi: hanya yang punya kode QR-mu yang bisa gabung.';
+
+  @override
+  String get wgNameLabel => 'Nama grup';
+
+  @override
+  String get wgColorLabel => 'Warna grup';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '$n hari, termasuk hari ini';
+  }
+
+  @override
+  String get wgFreeNote =>
+      'Gratis sampai 20 orang. Lebih dari itu, pemimpin beli paket 7 hari (hingga 100).';
+
+  @override
+  String get wgCreateButton => 'Buat';
+
+  @override
+  String wgJoined(String name, int no) {
+    return 'Bergabung ke \"$name\". Kamu No. $no';
+  }
+
+  @override
+  String get wgJoinTitle => 'Gabung grup';
+
+  @override
+  String get wgJoinBody =>
+      'Pindai kode QR pemimpin dengan kamera, atau masukkan kode 8 karakter.';
+
+  @override
+  String get wgJoinButton => 'Gabung';
+
+  @override
+  String wgButtonLabel(String name) {
+    return 'Grup $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n/$limit orang';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return 'sampai $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return 'Aku No. $n';
+  }
+
+  @override
+  String get wgCallButton => 'Panggil kumpul';
+
+  @override
+  String get wgCallDone => 'Semua sudah ada, akhiri';
+
+  @override
+  String get wgRollButton => 'Absen';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return 'Absen: $here/$total hadir';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '$n anggota (ketuk untuk catatan, serahkan, atau keluarkan)';
+  }
+
+  @override
+  String get wgNoMembers =>
+      'Belum ada anggota. Ketuk \"Kode QR\" agar dipindai.';
+
+  @override
+  String get wgQrButton => 'Kode QR';
+
+  @override
+  String get wgDissolveAsk =>
+      'Bubarkan grup? Semua diberi tahu dan catatan dihapus.';
+
+  @override
+  String get wgDissolve => 'Bubarkan';
+
+  @override
+  String wgCallIn(int n) {
+    return 'Kumpul dalam $n menit';
+  }
+
+  @override
+  String get wgCallNow => 'Kumpul sekarang';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return '$acked/$total terima';
+  }
+
+  @override
+  String get wgAnswerHere => 'Aku sudah sampai';
+
+  @override
+  String get wgAnswer5min => '5 menit lagi';
+
+  @override
+  String get wgAnswerHelp => 'Butuh bantuan';
+
+  @override
+  String get wgNoReply => 'Belum jawab';
+
+  @override
+  String get wgStateAck => 'Terima';
+
+  @override
+  String get wgStateSeen => 'Dilihat';
+
+  @override
+  String get wgStateNone => 'Tidak ada respons';
+
+  @override
+  String get wgPassTitle => 'Paket 7 hari grup';
+
+  @override
+  String get wgPassBody =>
+      'Gratis hingga 20 orang. Dengan paket, grup ini bisa sampai 100 orang sampai berakhir. Sekali beli hanya untuk grup ini, tidak diperpanjang otomatis.';
+
+  @override
+  String get wgPassButton => 'Beli paket 7 hari';
+
+  @override
+  String wgHostIs(String name) {
+    return 'Pemimpin: $name';
+  }
+
+  @override
+  String get wgNoCall =>
+      'Belum ada panggilan. Saat pemimpin memanggil, ponselmu akan berbunyi.';
+
+  @override
+  String get wgRollAsk => 'Pemimpin sedang absen';
+
+  @override
+  String get wgLeaveAsk => 'Keluar dari grup ini?';
+
+  @override
+  String get wgLeave => 'Keluar grup';
+
+  @override
+  String get wgCallTitle => 'Saatnya kumpul!';
+
+  @override
+  String get wgAcked => '✓ Pemimpin tahu kamu sudah terima';
+
+  @override
+  String get wgAckButton => 'Terima';
+
+  @override
+  String get wgCallSheetTitle => 'Panggil kumpul';
+
+  @override
+  String get wgNow => 'Sekarang';
+
+  @override
+  String wgInMinutes(int n) {
+    return 'Dalam $n menit';
+  }
+
+  @override
+  String get wgPlaceLabel => 'Titik kumpul';
+
+  @override
+  String get wgPlaceHint => 'mis. Pintu keluar 6 MRT Ximen';
+
+  @override
+  String get wgPlaceNote => 'Titik kumpul diatur di lokasimu sekarang.';
+
+  @override
+  String get wgSendCall => 'Kirim panggilan';
+
+  @override
+  String get wgNoLocation => 'Lokasimu tidak terdeteksi untuk titik kumpul.';
+
+  @override
+  String get wgQrTitle => 'Pindai untuk gabung';
+
+  @override
+  String get wgQrBody => 'Pindai dengan kamera, atau masukkan kode di bawah.';
+
+  @override
+  String wgShareText(String name, String url) {
+    return 'Gabung ke grupku \"$name\": $url';
+  }
+
+  @override
+  String get wgShare => 'Bagikan tautan';
+
+  @override
+  String get wgRotateAsk =>
+      'Ganti kode QR? Kode dan tautan lama langsung tidak berlaku.';
+
+  @override
+  String get wgRotate => 'Kode QR baru';
+
+  @override
+  String wgMemberTitle(int no) {
+    return 'No. $no';
+  }
+
+  @override
+  String get wgEditNote => 'Catatan';
+
+  @override
+  String get wgHandoff => 'Jadikan pemimpin';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return 'Serahkan ke No. $no? Kamu akan jadi anggota.';
+  }
+
+  @override
+  String get wgKick => 'Keluarkan dari grup';
+
+  @override
+  String wgKickAsk(int no) {
+    return 'Keluarkan No. $no dari grup?';
+  }
+
+  @override
+  String get wgNotePrivate =>
+      'Hanya kamu yang melihat catatan, mis. nama atau nomor kamar.';
+
+  @override
+  String get wgSave => 'Simpan';
+
+  @override
+  String get wgConfirm => 'Konfirmasi';
+
+  @override
+  String get wgCancel => 'Batal';
+
+  @override
+  String get wgSettingCreate => 'Buat grup';
+
+  @override
+  String get wgSettingCreateSub =>
+      'Grup pribadi untuk perjalanan dan pendakian';
+
+  @override
+  String get wgSettingJoin => 'Gabung grup';
+
+  @override
+  String get wgSettingJoinSub => 'Masukkan kode 8 karakter dari pemimpin';
+
+  @override
+  String wgSettingOpen(String name) {
+    return 'Grupku: $name';
+  }
+
+  @override
+  String get wgChannelName => 'Panggilan grup';
+
+  @override
+  String get wgChannelDesc => 'Saat pemimpin memanggil semua berkumpul';
 }

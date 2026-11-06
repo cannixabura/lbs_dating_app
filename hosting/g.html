@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#070b1f">
+<title>加入低語團 · 城市低語</title>
+<link rel="icon" href="/img/icon.png">
+<style>
+:root { color-scheme: dark; --bg: #070b1f; --card: #1a1f4a; --line: rgba(196,170,255,.38); --ink: #f3f0ff; --muted: #b9b6d6; --violet: #b44cff; --blue: #4fc3f7; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: radial-gradient(circle at 50% 20%, #241a55, var(--bg) 60%); color: var(--ink);
+  font: 400 16px/1.7 "Noto Sans TC", "PingFang TC", system-ui, sans-serif; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.card { width: 100%; max-width: 420px; background: rgba(26,31,74,.72); border: 1px solid var(--line); border-radius: 24px; padding: 28px 22px; text-align: center; }
+h1 { font-size: 24px; margin: 8px 0 4px; }
+.code { font-size: 30px; letter-spacing: 6px; margin: 16px 0; color: var(--ink); }
+p { color: var(--muted); margin: 6px 0; }
+a.btn { display: block; margin-top: 12px; padding: 14px; border-radius: 999px; text-decoration: none; color: #fff; font-weight: 500; background: linear-gradient(90deg, #8e2de2, #2a63d4); }
+a.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+small { display: block; margin-top: 18px; color: #8c89b0; font-size: 12px; }
+</style>
+</head>
+<body>
+<main class="card">
+  <img src="/img/icon.png" alt="" width="64" height="64" style="border-radius:16px">
+  <h1>加入低語團</h1>
+  <p>這是一個私人的團體，只有拿到團主分享的人才能加入。</p>
+  <div class="code" id="code">— — — —</div>
+  <a class="btn" id="open" href="#">打開城市低語加入</a>
+  <a class="btn ghost" href="https://apps.apple.com/app/id6820145668">App Store 下載</a>
+  <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.softchip.moodwhisper">Google Play 下載</a>
+  <p style="margin-top:16px">已經安裝 App：用手機相機掃 QR code，會直接打開。也可以在 App 的「設定 → 集會 → 加入低語團」輸入上面的團代碼。</p>
+  <small>Join this private group: open the app, or enter the code above in Settings → Join a group.</small>
+</main>
+<script>
+// 團代碼只顯示在這一頁，不傳到任何地方
+const m = location.pathname.match(/\/g\/([A-HJ-NP-Z2-9]{8})/i);
+if (m) {
+  const code = m[1].toUpperCase();
+  document.getElementById('code').textContent = code;
+  document.getElementById('open').href = location.href;
+}
+</script>
+</body>
+</html>

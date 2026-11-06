@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.softchip.moodwhisper",
+      "sha256_cert_fingerprints": [
+        "43:3B:35:00:DD:C4:DA:83:95:87:70:9D:C4:24:09:16:BA:FE:F9:82:B1:28:49:D7:D3:93:18:04:F8:C7:9E:DE",
+        "84:97:7C:A1:10:B9:CC:49:7B:AC:68:32:37:A7:9C:01:1E:C8:AD:FB:9E:ED:B8:8D:D2:9B:7F:6D:BD:75:F5:38",
+        "B5:B5:DB:16:A0:15:A0:17:62:A0:84:50:EA:0E:91:81:E2:5A:15:A2:39:91:BD:A9:24:33:D2:79:0B:B2:D0:14"
+      ]
+    }
+  }
+]

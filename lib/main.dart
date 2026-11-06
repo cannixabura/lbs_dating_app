@@ -52,6 +52,8 @@ import 'quantum_world.dart';
 import 'aiya/aiya_cameo.dart';
 import 'aiya/aiya_screen.dart';
 import 'aiya/aiya_store.dart';
+import 'whisper_group/whisper_group.dart';
+import 'package:app_links/app_links.dart';
 import 'translate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'hidden_content.dart';
@@ -441,6 +443,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     AiyaStore.init();
     AiyaPrefs.load();
     MapConsent.load();
+    // 低語團：讀自己目前所在的團（不在團裡就不顯示地圖按鈕）、聽購買結果、聽分享連結／QR code
+    GroupPassStore.init();
+    WhisperGroup.createAndroidChannel();
+    WhisperGroup.refresh();
+    WhisperGroup.incomingCall.addListener(_onWgIncomingCall);
+    WhisperGroup.incomingRoll.addListener(_onWgIncomingRoll);
+    _listenGroupLinks();
     OrbPrefs.load().then((_) => OrbStore.loadOwned());
     rootBundle.loadString(_nightStyleAsset).then((style) { if (mounted) setState(() => _mapStyle = style); });
     _listenToBlockLists(); 
@@ -619,7 +628,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       } catch (e) {}
       
       messaging.onTokenRefresh.listen((newToken) { _dbRef.child('tokens/${widget.uid}').set(newToken); });
+      // 點推播打開 App：低語團的通知直接打開低語團面板
+      FirebaseMessaging.onMessageOpenedApp.listen((m) => _openFromPush(m.data));
+      FirebaseMessaging.instance.getInitialMessage().then((m) { if (m != null) _openFromPush(m.data); });
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        // 低語團：重新整理；集合呼叫會跳出全螢幕卡片，不另外顯示提示
+        if ('${message.data['type']}'.startsWith('wgroup_')) {
+          WhisperGroup.onPush(message.data);
+          if (message.data['type'] == 'wgroup_call' || message.data['type'] == 'wgroup_roll') return;
+        }
         // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
         if (message.data['type'] == 'chat_message' && message.data['roomId'] == ChatScreen.activeRoomId) return;
         if (message.notification != null && mounted) {
@@ -627,6 +644,45 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         }
       });
     }
+  }
+
+  // ---------- 低語團 ----------
+  StreamSubscription<Uri>? _linkSub;
+  bool _wgOverlayOpen = false;
+
+  /// QR code／分享連結：https://mood-whisper-f7de9.web.app/g/<團代碼>?v=<版本>
+  void _listenGroupLinks() {
+    final links = AppLinks();
+    void handle(Uri? uri) {
+      final parsed = uri == null ? null : WhisperGroup.parseLink(uri);
+      if (parsed == null || !mounted) return;
+      joinWhisperGroup(context, parsed.$1, parsed.$2);
+    }
+    links.getInitialLink().then(handle).catchError((_) {});
+    _linkSub = links.uriLinkStream.listen(handle, onError: (_) {});
+  }
+
+  void _openFromPush(Map<String, dynamic> data) {
+    if (!'${data['type']}'.startsWith('wgroup_')) return;
+    WhisperGroup.refresh().then((_) { if (mounted && WhisperGroup.current.value != null) showWhisperGroupPanel(context); });
+  }
+
+  /// 前景收到集合呼叫：全螢幕卡片＋震動
+  void _onWgIncomingCall() {
+    final call = WhisperGroup.incomingCall.value;
+    if (call == null || !mounted || _wgOverlayOpen) return;
+    WhisperGroup.incomingCall.value = null;
+    _wgOverlayOpen = true;
+    showWgCallOverlay(context, call).whenComplete(() => _wgOverlayOpen = false);
+  }
+
+  /// 前景收到點名：全螢幕卡片＋震動（和集合呼叫一樣明顯）
+  void _onWgIncomingRoll() {
+    final rollId = WhisperGroup.incomingRoll.value;
+    if (rollId == null || !mounted || _wgOverlayOpen) return;
+    WhisperGroup.incomingRoll.value = null;
+    _wgOverlayOpen = true;
+    showWgRollOverlay(context, rollId).whenComplete(() => _wgOverlayOpen = false);
   }
 
   // ==========================================
@@ -2337,6 +2393,13 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.campaign_outlined, tr.gatheringHost,
                       subtitle: _hostedGathering == null ? tr.gatheringHostSubtitle : tr.gatheringHosting(_hostedGathering!.emoji, _hostedGathering!.name),
                       onTap: () => go(_openGatheringHost)),
+                  // 低語團：在團裡就打開面板；不在團裡可以開團或輸入團代碼加入
+                  if (WhisperGroup.current.value case final g?)
+                    item(Icons.groups_2_outlined, tr.wgSettingOpen(g.name), subtitle: tr.wgCount(g.count, g.limit), onTap: () => go(() => showWhisperGroupPanel(context)))
+                  else ...[
+                    item(Icons.groups_2_outlined, tr.wgSettingCreate, subtitle: tr.wgSettingCreateSub, onTap: () => go(() => showCreateWhisperGroup(context))),
+                    item(Icons.qr_code_2, tr.wgSettingJoin, subtitle: tr.wgSettingJoinSub, onTap: () => go(() => showJoinByCode(context))),
+                  ],
                   section(tr.settingsSectionShare),
                   item(Icons.ios_share, tr.shareMoodCard, subtitle: tr.shareMoodCardSubtitle, onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, tr.inviteFriends, subtitle: tr.inviteFriendsSubtitle, onTap: () => go(() => shareInvite(context))),
@@ -3273,6 +3336,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (state == AppLifecycleState.resumed) {
       // 從系統設定回來：重新檢查定位權限與精確位置
       if (_locationIssue != _LocationIssue.none) _checkLocation();
+      WhisperGroup.refresh();
       // 回到前景：立刻回報為活躍，並馬上刷新雷達
       if (_isInForeground) return;
       _isInForeground = true;
@@ -3284,6 +3348,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } else if (state == AppLifecycleState.hidden || state == AppLifecycleState.paused) {
       // 鎖屏 / 切到背景：打卡立刻結束、從地圖上消失，回來要自己重新打卡（Apple 5.1.2(i)）
       // 註：iOS 開啟 App 切換器只會進入 inactive，此時從切換器滑掉 App 會觸發 onDisconnect → exited
+      WhisperGroup.pause();
       if (!_isInForeground) return;
       _isInForeground = false;
       _heartbeatTimer?.cancel();
@@ -3297,6 +3362,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   @override
   void dispose() {
+    _linkSub?.cancel();
+    WhisperGroup.incomingCall.removeListener(_onWgIncomingCall);
+    WhisperGroup.incomingRoll.removeListener(_onWgIncomingRoll);
     HiddenContent.instance.removeListener(_onHiddenContentChanged);
     quantumSession.removeListener(_onQuantumChanged);
     _quantumEntry.dispose(); _quantumCollapse.dispose(); _quantumGlow.dispose();
@@ -3724,7 +3792,12 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (!quantumOn)
                       Positioned(
                         left: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
-                        child: BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
+                        // 低語團按鈕：只有在團裡（團主或團員）才出現，放在城市燈塔旁
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          BeaconControls(on: _beaconOn, filters: _beaconFilters, count: _visibleBeaconToilets.length, onToggle: _toggleBeacon, onFilter: _toggleBeaconFilter),
+                          const SizedBox(width: Night.space2),
+                          const WhisperGroupButton(),
+                        ]),
                       ),
                       // 結束打卡（底部選單右上方）
                       if (_locationServicesStarted && !quantumOn)

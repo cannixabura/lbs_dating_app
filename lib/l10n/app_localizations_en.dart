@@ -2744,4 +2744,322 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mapConsentSettingSubtitle =>
       'Turning this off ends your check-in right away; you won\'t appear on anyone\'s map';
+
+  @override
+  String get wgErrInGroup =>
+      'You\'re already in a group. Leave it first to join or start another.';
+
+  @override
+  String get wgErrFull =>
+      'This group already has 20 people. Ask the leader to get the 7-day plan.';
+
+  @override
+  String get wgErrPaidFull => 'This group is full (100 people).';
+
+  @override
+  String get wgErrQr =>
+      'This QR code was replaced. Ask the leader for the new one.';
+
+  @override
+  String get wgErrEnded => 'This group has ended or does not exist.';
+
+  @override
+  String get wgErrFiltered =>
+      'This contains words that are not allowed. Please edit it.';
+
+  @override
+  String get wgErrHostLeave =>
+      'Leaders cannot leave. Hand over to a member or end the group first.';
+
+  @override
+  String get wgErrBusy => 'Couldn\'t connect. Please try again.';
+
+  @override
+  String get wgErrName => 'Give your group a name.';
+
+  @override
+  String get wgPassUnavailable => 'The store isn\'t available right now.';
+
+  @override
+  String get wgPassFailed =>
+      'The purchase didn\'t go through. Please try again.';
+
+  @override
+  String get wgPassDone =>
+      'The 7-day plan is on. This group can now have up to 100 people.';
+
+  @override
+  String get wgCreateTitle => 'Start a group';
+
+  @override
+  String get wgCreateBody =>
+      'A private group: only people with your QR code can join. Call everyone together, take roll call and set a meeting point.';
+
+  @override
+  String get wgNameLabel => 'Group name';
+
+  @override
+  String get wgColorLabel => 'Group color';
+
+  @override
+  String wgDaysLabel(int n) {
+    return 'Lasts $n day(s), including today';
+  }
+
+  @override
+  String get wgFreeNote =>
+      'Free for up to 20 people. For more, the leader gets the 7-day plan (up to 100).';
+
+  @override
+  String get wgCreateButton => 'Start group';
+
+  @override
+  String wgJoined(String name, int no) {
+    return 'Joined \"$name\". You are No. $no';
+  }
+
+  @override
+  String get wgJoinTitle => 'Join a group';
+
+  @override
+  String get wgJoinBody =>
+      'Scanning the leader\'s QR code with your camera is fastest, or enter the 8-character code.';
+
+  @override
+  String get wgJoinButton => 'Join';
+
+  @override
+  String wgButtonLabel(String name) {
+    return 'Group $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n/$limit people';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return 'I\'m No. $n';
+  }
+
+  @override
+  String get wgCallButton => 'Call everyone';
+
+  @override
+  String get wgCallDone => 'Everyone\'s here, end the call';
+
+  @override
+  String get wgRollButton => 'Roll call';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return 'Roll call: $here/$total here';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '$n members (tap to add a note, hand over or remove)';
+  }
+
+  @override
+  String get wgNoMembers =>
+      'No members yet. Tap \"QR code\" so people can scan to join.';
+
+  @override
+  String get wgQrButton => 'QR code';
+
+  @override
+  String get wgDissolveAsk =>
+      'End this group? Everyone will be notified and the list and records will be deleted.';
+
+  @override
+  String get wgDissolve => 'End group';
+
+  @override
+  String wgCallIn(int n) {
+    return 'Meet in $n min';
+  }
+
+  @override
+  String get wgCallNow => 'Meet now';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return '$acked/$total got it';
+  }
+
+  @override
+  String get wgAnswerHere => 'I\'m here';
+
+  @override
+  String get wgAnswer5min => '5 more min';
+
+  @override
+  String get wgAnswerHelp => 'Need help';
+
+  @override
+  String get wgNoReply => 'No reply';
+
+  @override
+  String get wgStateAck => 'Got it';
+
+  @override
+  String get wgStateSeen => 'Seen';
+
+  @override
+  String get wgStateNone => 'No response';
+
+  @override
+  String get wgPassTitle => 'Group 7-day plan';
+
+  @override
+  String get wgPassBody =>
+      'Free for up to 20 people. With the plan, this group can have up to 100 people until it ends. One purchase covers this group only and does not renew.';
+
+  @override
+  String get wgPassButton => 'Get 7-day plan';
+
+  @override
+  String wgHostIs(String name) {
+    return 'Leader: $name';
+  }
+
+  @override
+  String get wgNoCall =>
+      'No call right now. When the leader calls everyone, your phone will ring.';
+
+  @override
+  String get wgRollAsk => 'The leader is taking roll call';
+
+  @override
+  String get wgLeaveAsk => 'Leave this group?';
+
+  @override
+  String get wgLeave => 'Leave group';
+
+  @override
+  String get wgCallTitle => 'Time to meet!';
+
+  @override
+  String get wgAcked => '✓ The leader knows you got it';
+
+  @override
+  String get wgAckButton => 'Got it';
+
+  @override
+  String get wgCallSheetTitle => 'Call everyone together';
+
+  @override
+  String get wgNow => 'Now';
+
+  @override
+  String wgInMinutes(int n) {
+    return 'In $n min';
+  }
+
+  @override
+  String get wgPlaceLabel => 'Meeting point';
+
+  @override
+  String get wgPlaceHint => 'e.g. Ximen MRT exit 6';
+
+  @override
+  String get wgPlaceNote =>
+      'The meeting point is set to where you are now. Members see the distance and direction.';
+
+  @override
+  String get wgSendCall => 'Send call';
+
+  @override
+  String get wgNoLocation =>
+      'Couldn\'t get your location for the meeting point.';
+
+  @override
+  String get wgQrTitle => 'Scan to join';
+
+  @override
+  String get wgQrBody =>
+      'Scan with the phone camera to join, or enter the code below.';
+
+  @override
+  String wgShareText(String name, String url) {
+    return 'Join my group \"$name\": $url';
+  }
+
+  @override
+  String get wgShare => 'Share link';
+
+  @override
+  String get wgRotateAsk =>
+      'Replace the QR code? The old code and link stop working right away.';
+
+  @override
+  String get wgRotate => 'New QR code';
+
+  @override
+  String wgMemberTitle(int no) {
+    return 'No. $no';
+  }
+
+  @override
+  String get wgEditNote => 'Note';
+
+  @override
+  String get wgHandoff => 'Make them the leader';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return 'Hand the group over to No. $no? You will become a member.';
+  }
+
+  @override
+  String get wgKick => 'Remove from group';
+
+  @override
+  String wgKickAsk(int no) {
+    return 'Remove No. $no from the group?';
+  }
+
+  @override
+  String get wgNotePrivate =>
+      'Only you see notes, such as a name or room number.';
+
+  @override
+  String get wgSave => 'Save';
+
+  @override
+  String get wgConfirm => 'Confirm';
+
+  @override
+  String get wgCancel => 'Cancel';
+
+  @override
+  String get wgSettingCreate => 'Start a group';
+
+  @override
+  String get wgSettingCreateSub =>
+      'Private group for trips, school outings and hikes: call everyone and take roll call';
+
+  @override
+  String get wgSettingJoin => 'Join a group';
+
+  @override
+  String get wgSettingJoinSub => 'Enter the leader\'s 8-character code';
+
+  @override
+  String wgSettingOpen(String name) {
+    return 'My group: $name';
+  }
+
+  @override
+  String get wgChannelName => 'Group calls';
+
+  @override
+  String get wgChannelDesc => 'When the group leader calls everyone together';
 }

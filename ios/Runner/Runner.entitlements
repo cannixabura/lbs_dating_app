@@ -4,5 +4,11 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.usernotifications.time-sensitive</key>
+	<true/>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:mood-whisper-f7de9.web.app</string>
+	</array>
 </dict>
 </plist>

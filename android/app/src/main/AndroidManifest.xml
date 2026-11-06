@@ -34,6 +34,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
+            <!-- 低語團的 QR code／分享連結：https://mood-whisper-f7de9.web.app/g/<團代碼> 直接打開 App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="mood-whisper-f7de9.web.app" android:pathPrefix="/g/"/>
+            </intent-filter>
         </activity>
         <!-- 每晚提醒的排程通知 -->
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />

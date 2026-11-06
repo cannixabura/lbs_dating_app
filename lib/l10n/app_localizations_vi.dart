@@ -2669,4 +2669,312 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get mapConsentSettingSubtitle =>
       'Tắt sẽ kết thúc check-in ngay; bạn sẽ không xuất hiện trên bản đồ của ai';
+
+  @override
+  String get wgErrInGroup => 'Bạn đã ở trong một nhóm. Hãy rời nhóm trước.';
+
+  @override
+  String get wgErrFull =>
+      'Nhóm đã có 20 người. Hãy nhờ trưởng nhóm mua gói 7 ngày.';
+
+  @override
+  String get wgErrPaidFull => 'Nhóm đã đủ 100 người.';
+
+  @override
+  String get wgErrQr => 'Mã QR này đã được đổi. Hãy xin mã mới từ trưởng nhóm.';
+
+  @override
+  String get wgErrEnded => 'Nhóm này đã kết thúc hoặc không tồn tại.';
+
+  @override
+  String get wgErrFiltered => 'Nội dung có từ ngữ không phù hợp.';
+
+  @override
+  String get wgErrHostLeave =>
+      'Trưởng nhóm không thể rời. Hãy chuyển giao hoặc giải tán trước.';
+
+  @override
+  String get wgErrBusy => 'Không kết nối được. Vui lòng thử lại.';
+
+  @override
+  String get wgErrName => 'Hãy đặt tên cho nhóm.';
+
+  @override
+  String get wgPassUnavailable => 'Cửa hàng hiện không khả dụng.';
+
+  @override
+  String get wgPassFailed => 'Mua chưa thành công.';
+
+  @override
+  String get wgPassDone => 'Đã bật gói 7 ngày. Nhóm có thể tối đa 100 người.';
+
+  @override
+  String get wgCreateTitle => 'Tạo nhóm';
+
+  @override
+  String get wgCreateBody =>
+      'Nhóm riêng tư: chỉ người có mã QR của bạn mới vào được.';
+
+  @override
+  String get wgNameLabel => 'Tên nhóm';
+
+  @override
+  String get wgColorLabel => 'Màu nhóm';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '$n ngày, tính cả hôm nay';
+  }
+
+  @override
+  String get wgFreeNote =>
+      'Miễn phí đến 20 người. Nhiều hơn thì trưởng nhóm mua gói 7 ngày (tối đa 100).';
+
+  @override
+  String get wgCreateButton => 'Tạo nhóm';
+
+  @override
+  String wgJoined(String name, int no) {
+    return 'Đã vào \"$name\". Bạn là số $no';
+  }
+
+  @override
+  String get wgJoinTitle => 'Vào nhóm';
+
+  @override
+  String get wgJoinBody =>
+      'Quét mã QR của trưởng nhóm bằng camera, hoặc nhập mã 8 ký tự.';
+
+  @override
+  String get wgJoinButton => 'Vào';
+
+  @override
+  String wgButtonLabel(String name) {
+    return 'Nhóm $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n/$limit người';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return 'đến $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return 'Tôi số $n';
+  }
+
+  @override
+  String get wgCallButton => 'Gọi tập trung';
+
+  @override
+  String get wgCallDone => 'Đủ người, kết thúc tập trung';
+
+  @override
+  String get wgRollButton => 'Điểm danh';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return 'Điểm danh: $here/$total đã đến';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '$n thành viên (chạm để ghi chú, chuyển giao hoặc xóa)';
+  }
+
+  @override
+  String get wgNoMembers =>
+      'Chưa có thành viên. Chạm \"Mã QR\" để mọi người quét.';
+
+  @override
+  String get wgQrButton => 'Mã QR';
+
+  @override
+  String get wgDissolveAsk =>
+      'Giải tán nhóm? Mọi người sẽ được báo và dữ liệu bị xóa.';
+
+  @override
+  String get wgDissolve => 'Giải tán';
+
+  @override
+  String wgCallIn(int n) {
+    return 'Tập trung sau $n phút';
+  }
+
+  @override
+  String get wgCallNow => 'Tập trung ngay';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return 'Đã nhận $acked/$total';
+  }
+
+  @override
+  String get wgAnswerHere => 'Tôi đến rồi';
+
+  @override
+  String get wgAnswer5min => 'Thêm 5 phút';
+
+  @override
+  String get wgAnswerHelp => 'Cần giúp';
+
+  @override
+  String get wgNoReply => 'Chưa trả lời';
+
+  @override
+  String get wgStateAck => 'Đã nhận';
+
+  @override
+  String get wgStateSeen => 'Đã xem';
+
+  @override
+  String get wgStateNone => 'Chưa phản hồi';
+
+  @override
+  String get wgPassTitle => 'Gói nhóm 7 ngày';
+
+  @override
+  String get wgPassBody =>
+      'Miễn phí đến 20 người. Có gói thì nhóm này tối đa 100 người đến khi kết thúc. Mỗi lần mua chỉ cho nhóm này, không tự gia hạn.';
+
+  @override
+  String get wgPassButton => 'Mua gói 7 ngày';
+
+  @override
+  String wgHostIs(String name) {
+    return 'Trưởng nhóm: $name';
+  }
+
+  @override
+  String get wgNoCall =>
+      'Hiện chưa có lệnh tập trung. Khi trưởng nhóm gọi, điện thoại sẽ đổ chuông.';
+
+  @override
+  String get wgRollAsk => 'Trưởng nhóm đang điểm danh';
+
+  @override
+  String get wgLeaveAsk => 'Rời nhóm này?';
+
+  @override
+  String get wgLeave => 'Rời nhóm';
+
+  @override
+  String get wgCallTitle => 'Tập trung!';
+
+  @override
+  String get wgAcked => '✓ Đã báo trưởng nhóm bạn đã nhận';
+
+  @override
+  String get wgAckButton => 'Đã nhận';
+
+  @override
+  String get wgCallSheetTitle => 'Gọi tập trung';
+
+  @override
+  String get wgNow => 'Ngay';
+
+  @override
+  String wgInMinutes(int n) {
+    return 'Sau $n phút';
+  }
+
+  @override
+  String get wgPlaceLabel => 'Điểm hẹn';
+
+  @override
+  String get wgPlaceHint => 'VD: Lối ra số 6 ga Ximen';
+
+  @override
+  String get wgPlaceNote => 'Điểm hẹn được đặt ở vị trí hiện tại của bạn.';
+
+  @override
+  String get wgSendCall => 'Gửi lệnh gọi';
+
+  @override
+  String get wgNoLocation => 'Không lấy được vị trí để đặt điểm hẹn.';
+
+  @override
+  String get wgQrTitle => 'Quét để vào nhóm';
+
+  @override
+  String get wgQrBody => 'Quét bằng camera, hoặc nhập mã bên dưới.';
+
+  @override
+  String wgShareText(String name, String url) {
+    return 'Vào nhóm \"$name\" của mình: $url';
+  }
+
+  @override
+  String get wgShare => 'Chia sẻ link';
+
+  @override
+  String get wgRotateAsk => 'Đổi mã QR? Mã và link cũ sẽ hết hiệu lực ngay.';
+
+  @override
+  String get wgRotate => 'Đổi mã QR';
+
+  @override
+  String wgMemberTitle(int no) {
+    return 'Số $no';
+  }
+
+  @override
+  String get wgEditNote => 'Ghi chú';
+
+  @override
+  String get wgHandoff => 'Chuyển làm trưởng nhóm';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return 'Chuyển nhóm cho số $no? Bạn sẽ thành thành viên.';
+  }
+
+  @override
+  String get wgKick => 'Xóa khỏi nhóm';
+
+  @override
+  String wgKickAsk(int no) {
+    return 'Xóa số $no khỏi nhóm?';
+  }
+
+  @override
+  String get wgNotePrivate => 'Chỉ bạn thấy ghi chú, ví dụ tên hoặc số phòng.';
+
+  @override
+  String get wgSave => 'Lưu';
+
+  @override
+  String get wgConfirm => 'Xác nhận';
+
+  @override
+  String get wgCancel => 'Hủy';
+
+  @override
+  String get wgSettingCreate => 'Tạo nhóm';
+
+  @override
+  String get wgSettingCreateSub =>
+      'Nhóm riêng cho chuyến đi, dã ngoại, leo núi';
+
+  @override
+  String get wgSettingJoin => 'Vào nhóm';
+
+  @override
+  String get wgSettingJoinSub => 'Nhập mã 8 ký tự của trưởng nhóm';
+
+  @override
+  String wgSettingOpen(String name) {
+    return 'Nhóm của tôi: $name';
+  }
+
+  @override
+  String get wgChannelName => 'Lệnh tập trung nhóm';
+
+  @override
+  String get wgChannelDesc => 'Khi trưởng nhóm gọi mọi người tập trung';
 }

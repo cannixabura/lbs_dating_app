@@ -2492,6 +2492,304 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mapConsentSettingSubtitle => '關掉後立即結束打卡，你不會出現在任何人的地圖上';
+
+  @override
+  String get wgErrInGroup => '你已經在一個低語團裡了，先退出才能加入或開新的團。';
+
+  @override
+  String get wgErrFull => '這個低語團已經 20 人了，請團主開通 7 天方案就能再加入。';
+
+  @override
+  String get wgErrPaidFull => '這個低語團已經滿 100 人了。';
+
+  @override
+  String get wgErrQr => '這個 QR code 已經換新了，請團主給你新的。';
+
+  @override
+  String get wgErrEnded => '這個低語團已經結束或不存在。';
+
+  @override
+  String get wgErrFiltered => '內容包含不適當的字詞，請修改後再送出。';
+
+  @override
+  String get wgErrHostLeave => '團主不能直接退出，請先交棒給團員或解散低語團。';
+
+  @override
+  String get wgErrBusy => '暫時連不上，請稍後再試。';
+
+  @override
+  String get wgErrName => '請幫低語團取個名字。';
+
+  @override
+  String get wgPassUnavailable => '商店暫時無法購買，請稍後再試。';
+
+  @override
+  String get wgPassFailed => '購買沒有完成，請再試一次。';
+
+  @override
+  String get wgPassDone => '已開通 7 天方案，這個低語團最多可以 100 人。';
+
+  @override
+  String get wgCreateTitle => '開一個低語團';
+
+  @override
+  String get wgCreateBody => '私人的團體：只有拿到你的 QR code 的人才能加入。可以集合、點名、放集合點。';
+
+  @override
+  String get wgNameLabel => '團名';
+
+  @override
+  String get wgColorLabel => '團色';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '行程 $n 天（含今天）';
+  }
+
+  @override
+  String get wgFreeNote => '20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。';
+
+  @override
+  String get wgCreateButton => '開團';
+
+  @override
+  String wgJoined(String name, int no) {
+    return '已加入「$name」，你是 $no 號';
+  }
+
+  @override
+  String get wgJoinTitle => '加入低語團';
+
+  @override
+  String get wgJoinBody => '用手機相機掃團主的 QR code 最快；也可以輸入 8 碼團代碼。';
+
+  @override
+  String get wgJoinButton => '加入';
+
+  @override
+  String wgButtonLabel(String name) {
+    return '低語團 $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n／$limit 人';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return '到 $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return '我是 $n 號';
+  }
+
+  @override
+  String get wgCallButton => '集合';
+
+  @override
+  String get wgCallDone => '人齊了，結束集合';
+
+  @override
+  String get wgRollButton => '點名';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return '點名：到了 $here／$total';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '團員 $n 人（點一下可以備註、交棒或移除）';
+  }
+
+  @override
+  String get wgNoMembers => '還沒有團員，按「QR code」讓大家掃描加入。';
+
+  @override
+  String get wgQrButton => 'QR code';
+
+  @override
+  String get wgDissolveAsk => '要解散這個低語團嗎？所有團員會收到通知，名單與紀錄會全部刪除。';
+
+  @override
+  String get wgDissolve => '解散';
+
+  @override
+  String wgCallIn(int n) {
+    return '$n 分鐘後集合';
+  }
+
+  @override
+  String get wgCallNow => '現在集合';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return '收到 $acked／$total';
+  }
+
+  @override
+  String get wgAnswerHere => '我到了';
+
+  @override
+  String get wgAnswer5min => '還要 5 分鐘';
+
+  @override
+  String get wgAnswerHelp => '需要幫忙';
+
+  @override
+  String get wgNoReply => '沒回';
+
+  @override
+  String get wgStateAck => '收到';
+
+  @override
+  String get wgStateSeen => '看了沒回';
+
+  @override
+  String get wgStateNone => '沒反應';
+
+  @override
+  String get wgPassTitle => '低語團 7 天方案';
+
+  @override
+  String get wgPassBody => '20 人以內免費。開通後這個團最多 100 人，直到低語團結束；一次購買只用在這一團，不會自動續費。';
+
+  @override
+  String get wgPassButton => '開通 7 天方案';
+
+  @override
+  String wgHostIs(String name) {
+    return '團主：$name';
+  }
+
+  @override
+  String get wgNoCall => '目前沒有集合呼叫。團主一按「集合」，你的手機就會響。';
+
+  @override
+  String get wgRollAsk => '團主在點名';
+
+  @override
+  String get wgLeaveAsk => '要退出這個低語團嗎？';
+
+  @override
+  String get wgLeave => '退出低語團';
+
+  @override
+  String get wgCallTitle => '集合！';
+
+  @override
+  String get wgAcked => '✓ 已經告訴團主你收到了';
+
+  @override
+  String get wgAckButton => '收到';
+
+  @override
+  String get wgCallSheetTitle => '集合呼叫';
+
+  @override
+  String get wgNow => '現在';
+
+  @override
+  String wgInMinutes(int n) {
+    return '$n 分鐘後';
+  }
+
+  @override
+  String get wgPlaceLabel => '集合點說明';
+
+  @override
+  String get wgPlaceHint => '例如：捷運西門站 6 號出口';
+
+  @override
+  String get wgPlaceNote => '集合點會放在你現在的位置，團員看得到距離與方向。';
+
+  @override
+  String get wgSendCall => '送出集合呼叫';
+
+  @override
+  String get wgNoLocation => '抓不到你的位置，沒辦法放集合點。';
+
+  @override
+  String get wgQrTitle => '讓大家掃描加入';
+
+  @override
+  String get wgQrBody => '用手機相機掃描就能加入；也可以輸入下面的團代碼。';
+
+  @override
+  String wgShareText(String name, String url) {
+    return '加入我的低語團「$name」：$url';
+  }
+
+  @override
+  String get wgShare => '分享連結';
+
+  @override
+  String get wgRotateAsk => '要換新 QR code 嗎？舊的 QR code 和連結會立即失效。';
+
+  @override
+  String get wgRotate => '換新 QR code';
+
+  @override
+  String wgMemberTitle(int no) {
+    return '$no 號';
+  }
+
+  @override
+  String get wgEditNote => '備註';
+
+  @override
+  String get wgHandoff => '交棒給他當團主';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return '要把團主交給 $no 號嗎？你會變成團員。';
+  }
+
+  @override
+  String get wgKick => '移出低語團';
+
+  @override
+  String wgKickAsk(int no) {
+    return '要把 $no 號移出低語團嗎？';
+  }
+
+  @override
+  String get wgNotePrivate => '備註只有你看得到，例如名字或房號。';
+
+  @override
+  String get wgSave => '儲存';
+
+  @override
+  String get wgConfirm => '確定';
+
+  @override
+  String get wgCancel => '取消';
+
+  @override
+  String get wgSettingCreate => '開一個低語團';
+
+  @override
+  String get wgSettingCreateSub => '私人團體：旅行、校外教學、登山、出遊時集合與點名';
+
+  @override
+  String get wgSettingJoin => '加入低語團';
+
+  @override
+  String get wgSettingJoinSub => '輸入團主給你的 8 碼團代碼';
+
+  @override
+  String wgSettingOpen(String name) {
+    return '我的低語團：$name';
+  }
+
+  @override
+  String get wgChannelName => '低語團集合';
+
+  @override
+  String get wgChannelDesc => '團主按下「集合」時的提醒';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4981,4 +5279,302 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mapConsentSettingSubtitle => '关闭后立即结束打卡，你不会出现在任何人的地图上';
+
+  @override
+  String get wgErrInGroup => '你已经在一个低语团里了，先退出才能加入或开新的团。';
+
+  @override
+  String get wgErrFull => '这个低语团已经 20 人了，请团主开通 7 天方案就能再加入。';
+
+  @override
+  String get wgErrPaidFull => '这个低语团已经满 100 人了。';
+
+  @override
+  String get wgErrQr => '这个 QR code 已经换新了，请团主给你新的。';
+
+  @override
+  String get wgErrEnded => '这个低语团已经结束或不存在。';
+
+  @override
+  String get wgErrFiltered => '内容包含不适当的字词，请修改后再送出。';
+
+  @override
+  String get wgErrHostLeave => '团主不能直接退出，请先交棒给团员或解散低语团。';
+
+  @override
+  String get wgErrBusy => '暂时连不上，请稍后再试。';
+
+  @override
+  String get wgErrName => '请帮低语团取个名字。';
+
+  @override
+  String get wgPassUnavailable => '商店暂时无法购买，请稍后再试。';
+
+  @override
+  String get wgPassFailed => '购买没有完成，请再试一次。';
+
+  @override
+  String get wgPassDone => '已开通 7 天方案，这个低语团最多可以 100 人。';
+
+  @override
+  String get wgCreateTitle => '开一个低语团';
+
+  @override
+  String get wgCreateBody => '私人的团体：只有拿到你的 QR code 的人才能加入。可以集合、点名、放集合点。';
+
+  @override
+  String get wgNameLabel => '团名';
+
+  @override
+  String get wgColorLabel => '团色';
+
+  @override
+  String wgDaysLabel(int n) {
+    return '行程 $n 天（含今天）';
+  }
+
+  @override
+  String get wgFreeNote => '20 人以内免费；超过 20 人时，团主开通 7 天方案就能到 100 人。';
+
+  @override
+  String get wgCreateButton => '开团';
+
+  @override
+  String wgJoined(String name, int no) {
+    return '已加入“$name”，你是 $no 号';
+  }
+
+  @override
+  String get wgJoinTitle => '加入低语团';
+
+  @override
+  String get wgJoinBody => '用手机相机扫团主的 QR code 最快；也可以输入 8 码团代码。';
+
+  @override
+  String get wgJoinButton => '加入';
+
+  @override
+  String wgButtonLabel(String name) {
+    return '低语团 $name';
+  }
+
+  @override
+  String wgCount(int n, int limit) {
+    return '$n／$limit 人';
+  }
+
+  @override
+  String wgUntil(String date) {
+    return '到 $date';
+  }
+
+  @override
+  String wgMyNo(int n) {
+    return '我是 $n 号';
+  }
+
+  @override
+  String get wgCallButton => '集合';
+
+  @override
+  String get wgCallDone => '人齐了，结束集合';
+
+  @override
+  String get wgRollButton => '点名';
+
+  @override
+  String wgRollSummary(int here, int total) {
+    return '点名：到了 $here／$total';
+  }
+
+  @override
+  String wgMembersTitle(int n) {
+    return '团员 $n 人（点一下可以备注、交棒或移除）';
+  }
+
+  @override
+  String get wgNoMembers => '还没有团员，点“QR code”让大家扫描加入。';
+
+  @override
+  String get wgQrButton => 'QR code';
+
+  @override
+  String get wgDissolveAsk => '要解散这个低语团吗？所有团员会收到通知，名单与记录会全部删除。';
+
+  @override
+  String get wgDissolve => '解散';
+
+  @override
+  String wgCallIn(int n) {
+    return '$n 分钟后集合';
+  }
+
+  @override
+  String get wgCallNow => '现在集合';
+
+  @override
+  String wgAckSummary(int acked, int total) {
+    return '收到 $acked／$total';
+  }
+
+  @override
+  String get wgAnswerHere => '我到了';
+
+  @override
+  String get wgAnswer5min => '还要 5 分钟';
+
+  @override
+  String get wgAnswerHelp => '需要帮忙';
+
+  @override
+  String get wgNoReply => '没回';
+
+  @override
+  String get wgStateAck => '收到';
+
+  @override
+  String get wgStateSeen => '看了没回';
+
+  @override
+  String get wgStateNone => '没反应';
+
+  @override
+  String get wgPassTitle => '低语团 7 天方案';
+
+  @override
+  String get wgPassBody => '20 人以内免费。开通后这个团最多 100 人，直到低语团结束；一次购买只用在这一团，不会自动续费。';
+
+  @override
+  String get wgPassButton => '开通 7 天方案';
+
+  @override
+  String wgHostIs(String name) {
+    return '团主：$name';
+  }
+
+  @override
+  String get wgNoCall => '目前没有集合呼叫。团主一按“集合”，你的手机就会响。';
+
+  @override
+  String get wgRollAsk => '团主在点名';
+
+  @override
+  String get wgLeaveAsk => '要退出这个低语团吗？';
+
+  @override
+  String get wgLeave => '退出低语团';
+
+  @override
+  String get wgCallTitle => '集合！';
+
+  @override
+  String get wgAcked => '✓ 已经告诉团主你收到了';
+
+  @override
+  String get wgAckButton => '收到';
+
+  @override
+  String get wgCallSheetTitle => '集合呼叫';
+
+  @override
+  String get wgNow => '现在';
+
+  @override
+  String wgInMinutes(int n) {
+    return '$n 分钟后';
+  }
+
+  @override
+  String get wgPlaceLabel => '集合点说明';
+
+  @override
+  String get wgPlaceHint => '例如：地铁西门站 6 号出口';
+
+  @override
+  String get wgPlaceNote => '集合点会放在你现在的位置，团员看得到距离与方向。';
+
+  @override
+  String get wgSendCall => '送出集合呼叫';
+
+  @override
+  String get wgNoLocation => '抓不到你的位置，没办法放集合点。';
+
+  @override
+  String get wgQrTitle => '让大家扫描加入';
+
+  @override
+  String get wgQrBody => '用手机相机扫描就能加入；也可以输入下面的团代码。';
+
+  @override
+  String wgShareText(String name, String url) {
+    return '加入我的低语团“$name”：$url';
+  }
+
+  @override
+  String get wgShare => '分享链接';
+
+  @override
+  String get wgRotateAsk => '要换新 QR code 吗？旧的 QR code 和链接会立即失效。';
+
+  @override
+  String get wgRotate => '换新 QR code';
+
+  @override
+  String wgMemberTitle(int no) {
+    return '$no 号';
+  }
+
+  @override
+  String get wgEditNote => '备注';
+
+  @override
+  String get wgHandoff => '交棒给他当团主';
+
+  @override
+  String wgHandoffAsk(int no) {
+    return '要把团主交给 $no 号吗？你会变成团员。';
+  }
+
+  @override
+  String get wgKick => '移出低语团';
+
+  @override
+  String wgKickAsk(int no) {
+    return '要把 $no 号移出低语团吗？';
+  }
+
+  @override
+  String get wgNotePrivate => '备注只有你看得到，例如名字或房号。';
+
+  @override
+  String get wgSave => '保存';
+
+  @override
+  String get wgConfirm => '确定';
+
+  @override
+  String get wgCancel => '取消';
+
+  @override
+  String get wgSettingCreate => '开一个低语团';
+
+  @override
+  String get wgSettingCreateSub => '私人团体：旅行、校外教学、登山、出游时集合与点名';
+
+  @override
+  String get wgSettingJoin => '加入低语团';
+
+  @override
+  String get wgSettingJoinSub => '输入团主给你的 8 码团代码';
+
+  @override
+  String wgSettingOpen(String name) {
+    return '我的低语团：$name';
+  }
+
+  @override
+  String get wgChannelName => '低语团集合';
+
+  @override
+  String get wgChannelDesc => '团主点“集合”时的提醒';
 }

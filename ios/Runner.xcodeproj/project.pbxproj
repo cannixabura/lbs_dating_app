@@ -20,6 +20,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		FEFF888617B949196E5C5686 /* group_call.caf in Resources */ = {isa = PBXBuildFile; fileRef = CA3B1379FFB4982FD095E3EE /* group_call.caf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A142222D5400856D7DFA2987 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		A577C05CB89E096B0DCCE311 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		CA3B1379FFB4982FD095E3EE /* group_call.caf */ = {isa = PBXFileReference; includeInIndex = 1; path = group_call.caf; sourceTree = "<group>"; };
 		D0BBD8B155CC118E9B936F07 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -161,6 +163,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				CA3B1379FFB4982FD095E3EE /* group_call.caf */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				5A1D10000000000000000002 /* InfoPlist.strings in Resources */,
 				8B21DFF7EC57E36B04A474B0 /* GoogleService-Info.plist in Resources */,
+				FEFF888617B949196E5C5686 /* group_call.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

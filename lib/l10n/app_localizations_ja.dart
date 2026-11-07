@@ -2978,4 +2978,24 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       '季節スタイルは買い切りでずっと使えます。見た目だけで、会話回数には影響しません。限定品は販売期間後は再販しません。';
+
+  @override
+  String get orbStyleStarTrail => 'スタートレイル';
+
+  @override
+  String get orbStyleRings => '年輪';
+
+  @override
+  String get orbGrowNote =>
+      '育つ光球：スタートレイルは量子出会いカードを1枚完成するごとに星が1つ増えます（同じ相手は24時間に1回、最大24個）。年輪は量子世界に合計3時間いるごとに1本増えます（最大12本）。記録はアカウントに保存され、今から数え始めます。数だけを記録し、相手や場所は記録しません。';
+
+  @override
+  String orbGrowStars(int count) {
+    return 'いま $count 個の星';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return 'いま $count 本の年輪';
+  }
 }

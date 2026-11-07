@@ -5300,6 +5300,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'節日造型是一次購買、永久擁有，只改變艾婭的樣子，不影響聊天次數。限定款過了販售期就不再上架。'**
   String get aiyaSkinNote;
+
+  /// No description provided for @orbStyleStarTrail.
+  ///
+  /// In zh, this message translates to:
+  /// **'星軌'**
+  String get orbStyleStarTrail;
+
+  /// No description provided for @orbStyleRings.
+  ///
+  /// In zh, this message translates to:
+  /// **'年輪'**
+  String get orbStyleRings;
+
+  /// No description provided for @orbGrowNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'會長大的光球：星軌每完成一張量子相遇卡多一顆星（同一個人 24 小時內算一次，最多 24 顆）；年輪在量子世界累積待滿 3 小時多一圈（最多 12 圈）。成長紀錄跟著帳號，現在就開始累積，只記數量，不記對象和地點。'**
+  String get orbGrowNote;
+
+  /// No description provided for @orbGrowStars.
+  ///
+  /// In zh, this message translates to:
+  /// **'已累積 {count} 顆星'**
+  String orbGrowStars(int count);
+
+  /// No description provided for @orbGrowRings.
+  ///
+  /// In zh, this message translates to:
+  /// **'已累積 {count} 圈'**
+  String orbGrowRings(int count);
 }
 
 class _AppLocalizationsDelegate

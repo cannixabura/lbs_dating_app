@@ -2924,6 +2924,26 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiyaSkinNote => '節日造型是一次購買、永久擁有，只改變艾婭的樣子，不影響聊天次數。限定款過了販售期就不再上架。';
+
+  @override
+  String get orbStyleStarTrail => '星軌';
+
+  @override
+  String get orbStyleRings => '年輪';
+
+  @override
+  String get orbGrowNote =>
+      '會長大的光球：星軌每完成一張量子相遇卡多一顆星（同一個人 24 小時內算一次，最多 24 顆）；年輪在量子世界累積待滿 3 小時多一圈（最多 12 圈）。成長紀錄跟著帳號，現在就開始累積，只記數量，不記對象和地點。';
+
+  @override
+  String orbGrowStars(int count) {
+    return '已累積 $count 顆星';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return '已累積 $count 圈';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5845,4 +5865,24 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get aiyaSkinNote => '节日造型是一次购买、永久拥有，只改变艾娅的样子，不影响聊天次数。限定款过了销售期就不再上架。';
+
+  @override
+  String get orbStyleStarTrail => '星轨';
+
+  @override
+  String get orbStyleRings => '年轮';
+
+  @override
+  String get orbGrowNote =>
+      '会长大的光球：星轨每完成一张量子相遇卡多一颗星（同一个人 24 小时内算一次，最多 24 颗）；年轮在量子世界累积待满 3 小时多一圈（最多 12 圈）。成长记录跟着账号，现在就开始累积，只记数量，不记对象和地点。';
+
+  @override
+  String orbGrowStars(int count) {
+    return '已累积 $count 颗星';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return '已累积 $count 圈';
+  }
 }

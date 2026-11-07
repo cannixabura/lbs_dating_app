@@ -22,6 +22,8 @@ const STYLES = {
     glow: {}, // 光球
     ring: {}, // 星環
     rainbow: { product: 'orb_rainbow' }, // 彩虹（長期販售）
+    startrail: { product: 'orb_startrail', grows: true }, // 星軌：每完成一張量子相遇卡多一顆星（長期販售）
+    rings: { product: 'orb_rings', grows: true }, // 年輪：在量子世界累積待滿 3 小時多一圈（長期販售）
     xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
     newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定
     // 艾婭節日造型：只有買的人看到自己的艾婭換造型；和光球共用購買驗證與擁有紀錄（orbOwned），但不是光球款式
@@ -38,6 +40,38 @@ const styleOfProduct = (productId) => Object.keys(STYLES).find((s) => STYLES[s].
 const isStyle = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !STYLES[s].skin;
 const isSkin = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !!STYLES[s].skin;
 const isFree = (s) => isStyle(s) && !STYLES[s].product;
+
+// ---------- 會長大的光球（規格 §5.5 A）----------
+// 成長紀錄跟著帳號保存（Redis orb_growth:{uid} = { sec, stars }），不管有沒有買、換了哪一款都一直累積；
+// 只記數量，不記對象、時間、地點。
+const GROWTH = { ringSec: 3 * 3600, maxRings: 12, maxStars: 24, beatCapSec: 60 };
+const growthKey = (uid) => `orb_growth:${uid}`;
+
+/** 兩次心跳之間待了幾秒：斷線很久回來不算，最多算 60 秒 */
+function beatSeconds(prevBeat, now) {
+    const prev = Number(prevBeat);
+    if (!Number.isFinite(prev) || prev <= 0 || now <= prev) return 0;
+    return Math.min(GROWTH.beatCapSec, Math.floor((now - prev) / 1000));
+}
+
+/** 畫面上看到的星星數和年輪圈數 */
+function growthView(sec, stars) {
+    return {
+        stars: Math.max(0, Math.min(GROWTH.maxStars, Math.floor(Number(stars) || 0))),
+        rings: Math.max(0, Math.min(GROWTH.maxRings, Math.floor((Number(sec) || 0) / GROWTH.ringSec))),
+    };
+}
+
+/** 席位上存的成長（給附近的人畫）："星星.圈數" */
+const growthField = (v) => `${v.stars}.${v.rings}`;
+function parseGrowthField(raw) {
+    const m = /^(\d+)\.(\d+)$/.exec(String(raw || ''));
+    return m ? growthView(Number(m[2]) * GROWTH.ringSec, Number(m[1])) : null;
+}
+const isGrowing = (s) => isStyle(s) && !!STYLES[s].grows;
+
+/** 一張相遇卡同一對 24 小時內只算一次（key 是雜湊，不存是誰和誰） */
+const meetPairKey = (a, b) => `orb_meet:${crypto.createHash('sha256').update([a, b].sort().join('|')).digest('hex').slice(0, 32)}`;
 
 /** 一筆購買的代號：Apple 用 originalTransactionId，Google 用購買憑證的雜湊（憑證很長，也不必存原文） */
 const receiptKey = (src, id) => src === 'apple' ? `a_${id}` : `g_${crypto.createHash('sha256').update(String(id)).digest('hex').slice(0, 40)}`;
@@ -127,5 +161,6 @@ function resolveStyle(requested, owned) {
 
 module.exports = {
     BUNDLE_ID, DEFAULT_STYLE, STYLES, FREE_STYLES, APPLE_ROOT_G3,
+    GROWTH, growthKey, beatSeconds, growthView, growthField, parseGrowthField, isGrowing, meetPairKey,
     styleOfProduct, isStyle, isSkin, isFree, onSale, receiptKey, verifyAppleJws, appleGrant, googleGrant, resolveStyle,
 };

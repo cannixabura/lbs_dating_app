@@ -148,3 +148,20 @@ test('googleFriend：有效、寬限期、已取消但未到期都算；取最�
     assert.throws(() => aiya.googleFriend('aiya_friend_monthly', 'g_x', sub('SUBSCRIPTION_STATE_EXPIRED')), /not_paid/);
     assert.throws(() => aiya.googleFriend('aiya_time_5', 'g_x', sub('SUBSCRIPTION_STATE_ACTIVE')), /unknown_product/);
 });
+
+test('partialReply：從串流中的 JSON 取出目前的回覆文字', () => {
+    assert.strictEqual(aiya.partialReply(''), null);
+    assert.strictEqual(aiya.partialReply('{"rep'), null);
+    assert.strictEqual(aiya.partialReply('{"reply":"'), '');
+    assert.strictEqual(aiya.partialReply('{"reply":"今晚'), '今晚');
+    assert.strictEqual(aiya.partialReply('{"reply": "他說\\"嗨\\"\\n好'), '他說"嗨"\n好');
+    assert.strictEqual(aiya.partialReply('{"reply":"a\\u4e2'), 'a');
+    assert.strictEqual(aiya.partialReply('{"reply":"a\\u4e2d'), 'a中');
+    assert.strictEqual(aiya.partialReply('{"reply":"a\\'), 'a');
+    assert.strictEqual(aiya.partialReply('{"reply":"完成","expression":"smile"}'), '完成');
+});
+
+test('streamSafe：扣住最後幾個字', () => {
+    assert.strictEqual(aiya.streamSafe('12345'), '');
+    assert.strictEqual(aiya.streamSafe('1234567890'), '1234');
+});

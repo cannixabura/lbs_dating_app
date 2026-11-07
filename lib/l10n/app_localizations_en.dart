@@ -3199,4 +3199,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       'Holiday looks are one-time purchases you keep forever. They only change how AIYA looks, not your chats. Limited looks are not sold again after their sale ends.';
+
+  @override
+  String get orbStyleStarTrail => 'Star Trail';
+
+  @override
+  String get orbStyleRings => 'Growth Rings';
+
+  @override
+  String get orbGrowNote =>
+      'Growing orbs: Star Trail gains a star for each Quantum Meet Card (once per person per 24 hours, up to 24). Growth Rings gain a ring for every 3 hours spent in the Quantum World (up to 12). Growth is saved to your account and starts counting now. Only the counts are kept, never who or where.';
+
+  @override
+  String orbGrowStars(int count) {
+    return '$count stars so far';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return '$count rings so far';
+  }
 }

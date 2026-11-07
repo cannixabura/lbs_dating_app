@@ -3114,4 +3114,24 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       'Diện mạo lễ hội mua một lần dùng mãi. Chỉ đổi dáng vẻ AIYA, không ảnh hưởng lượt trò chuyện. Bản giới hạn sẽ không bán lại sau khi hết hạn.';
+
+  @override
+  String get orbStyleStarTrail => 'Quỹ đạo sao';
+
+  @override
+  String get orbStyleRings => 'Vân gỗ';
+
+  @override
+  String get orbGrowNote =>
+      'Quả cầu lớn dần: Quỹ đạo sao thêm một ngôi sao cho mỗi Thẻ gặp gỡ lượng tử (mỗi người tính một lần trong 24 giờ, tối đa 24). Vân gỗ thêm một vòng cho mỗi 3 giờ ở Thế giới lượng tử (tối đa 12). Tiến trình lưu theo tài khoản và bắt đầu tính từ bây giờ. Chỉ lưu số lượng, không lưu là ai hay ở đâu.';
+
+  @override
+  String orbGrowStars(int count) {
+    return 'Đã có $count ngôi sao';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return 'Đã có $count vòng';
+  }
 }

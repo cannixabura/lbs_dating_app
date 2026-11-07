@@ -3134,4 +3134,24 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       'ลุคเทศกาลซื้อครั้งเดียวใช้ได้ตลอด เปลี่ยนแค่หน้าตาของไอยา ไม่กระทบจำนวนแชต รุ่นลิมิเต็ดจะไม่ขายอีกหลังหมดช่วงขาย';
+
+  @override
+  String get orbStyleStarTrail => 'วงโคจรดาว';
+
+  @override
+  String get orbStyleRings => 'วงปี';
+
+  @override
+  String get orbGrowNote =>
+      'ลูกแก้วที่โตได้: วงโคจรดาวได้ดาวเพิ่ม 1 ดวงทุกครั้งที่ทำการ์ดพบกันควอนตัมสำเร็จ (คนเดิมนับครั้งเดียวใน 24 ชั่วโมง สูงสุด 24 ดวง) วงปีเพิ่ม 1 วงทุกครั้งที่อยู่ในโลกควอนตัมครบ 3 ชั่วโมง (สูงสุด 12 วง) บันทึกไว้กับบัญชีและเริ่มนับตั้งแต่ตอนนี้ เก็บแค่จำนวน ไม่เก็บว่าเป็นใครหรือที่ไหน';
+
+  @override
+  String orbGrowStars(int count) {
+    return 'สะสมแล้ว $count ดวง';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return 'สะสมแล้ว $count วง';
+  }
 }

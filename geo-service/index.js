@@ -1,5 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { onValueWritten } = require("firebase-functions/v2/database");
 const functionsV1 = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 const { defineSecret } = require("firebase-functions/params");
@@ -548,10 +549,11 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
 
     const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
-    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb"]));
+    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb", "grow"]));
     const users = [];
     members.forEach((m, i) => {
-        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb] = profiles[i] || [];
+        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb, growRaw] = profiles[i] || [];
+        const grow = orbs.isGrowing(orb) ? orbs.parseGrowthField(growRaw) : null;
         if (ord == null || hidden === "1" || !nickname) return;
         const tz = tzRaw == null ? NaN : parseInt(tzRaw, 10);
         users.push({ uid: m[0], ...coordOf(m), mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: parseInt(beat || "0", 10),
@@ -559,6 +561,8 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
             // 晝夜色調一律有；當地時間只在對方同意時才給
             ...(quantum.validTz(tz) ? { day: quantum.dayPart(tz, now), ...(showTime === "1" ? { tz } : {}) } : {}),
             ...(topics ? { topics: parseTopics(topics) } : {}),
+            // 會長大的光球：星軌的星星數、年輪的圈數
+            ...(grow ? { grow: [grow.stars, grow.rings] } : {}),
             // 量子跨年：這個人的時區已經跨年
             ...(nyWave && quantum.validTz(tz) && quantum.crossedNewYear(tz, now) ? { ny: true } : {}) });
     });
@@ -610,8 +614,9 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const reviewCode = demo.isReviewCode(req.body.mood);
         const mood = reviewCode ? demo.REVIEW_MOOD : maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
         const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
-        const [existing, hidden] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"]]);
+        const [existing, hidden, growRaw] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"]]);
         const prev = hashToObject(existing);
+        const growth = orbs.growthView(...(growRaw || []));
         let resumed = false;
         if (prev.ord != null && now - parseInt(prev.beat || "0", 10) < quantum.GRACE_MS) {
             resumed = true; // 斷線 3 分鐘內回來：回到原本的席位
@@ -634,7 +639,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 "homeAccEast", resumed ? String(st.east) : "0", "homeAccNorth", resumed ? String(st.north) : "0",
                 ...quantumProfileFields(req.body),
                 ...(await quantumOrbFields(uid, req.body.orb, resumed ? prev.orb : undefined)),
-                "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0"],
+                "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth)],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ...quantumTzCommands(uid, req.body),
             ["ZADD", quantum.KEY.region(region), String(now), uid],
@@ -645,13 +650,17 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)],
             ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : []),
         ]);
-        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1" });
+        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth });
       }
 
       if (action === "beat") {
-        const [existing, hidden] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"]]);
+        const [existing, hidden, growRaw] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"]]);
         const h = hashToObject(existing);
         if (h.ord == null) return res.status(410).json({ success: false, code: "expired" }); // 席位已釋放，要重新入場
+        // 年輪：累積在量子世界待的秒數（跟著帳號，不管現在用哪一款）
+        const addSec = orbs.beatSeconds(h.beat, now);
+        const [growSec, growStars] = growRaw || [];
+        const growth = orbs.growthView((Number(growSec) || 0) + addSec, growStars);
         const { east, north } = req.body;
         let acc = { east: parseFloat(h.east) || 0, north: parseFloat(h.north) || 0 };
         const raw = quantum.validDisplacement(east, north) ? { east, north } : null;
@@ -661,7 +670,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 homeAccEast: h.homeAccEast == null ? undefined : parseFloat(h.homeAccEast), homeAccNorth: h.homeAccNorth == null ? undefined : parseFloat(h.homeAccNorth) }, raw, now);
         }
         const st = quantumState({ ...h, east: acc.east, north: acc.north });
-        const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0"];
+        const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth)];
         if (raw) fields.push("rawEast", String(raw.east), "rawNorth", String(raw.north), "rawAt", String(now));
         if (typeof req.body.quiet === "boolean") fields.push("quiet", req.body.quiet ? "1" : "0");
         fields.push(...quantumProfileFields(req.body), ...(await quantumOrbFields(uid, req.body.orb, h.orb)));
@@ -674,6 +683,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         }
         await sendUpstashPipeline([
             ["HSET", quantum.KEY.seat(uid), ...fields],
+            ...(addSec > 0 ? [["HINCRBY", orbs.growthKey(uid), "sec", String(addSec)]] : []),
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ...quantumTzCommands(uid, req.body),
             ...(quantum.newYearTogether(now) ? [["ZADD", quantum.KEY.newYear(quantum.newYearAt(now)), "NX", String(now), uid], ["EXPIRE", quantum.KEY.newYear(quantum.newYearAt(now)), "172800"]] : []),
@@ -684,7 +694,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const radiusKM = quantum.clampRadius(req.body.radiusKM);
         const [scan, online, extras] = await Promise.all([quantumScan(uid, st.pos, radiusKM, lang, now), quantumOnlineCounts(now), quantumExtras(uid, now)]);
         if (Math.random() < 0.1) sweepQuantumSeats(now).catch((e) => console.error('quantum sweep failed:', e));
-        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online });
+        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online, growth });
       }
 
       if (action === "leave") {
@@ -1242,9 +1252,23 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
 
         session.msgs.push({ role: "user", content: text });
         session.turns += 1;
+        // stream: true（1.0.5 起）→ 一行一個 JSON：{t:"delta",text} 是到目前為止（已遮蔽）的回覆，最後 {t:"done",…} 跟一般回應一樣
+        const wantStream = req.body.stream === true;
+        const send = (o) => res.write(JSON.stringify(o) + "\n");
+        const finish = (body) => {
+          if (!wantStream) return res.status(200).json(body);
+          send({ t: "done", ...body });
+          return res.end();
+        };
+        if (wantStream) {
+          res.status(200);
+          res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+          res.setHeader("Cache-Control", "no-cache");
+          res.flushHeaders();
+        }
         let parsed = null, code = null;
         try {
-          const response = await claude().messages.create({
+          const params = {
             model: aiya.MODEL,
             max_tokens: 1024,
             output_config: { effort: "low", format: { type: "json_schema", schema: aiya.REPLY_SCHEMA } },
@@ -1253,7 +1277,21 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
               { type: "text", text: await aiyaContext(session.lang || lang, now) },
             ],
             messages: session.msgs,
-          });
+          };
+          let response;
+          if (wantStream) {
+            let shownLen = 0;
+            const stream = claude().messages.stream(params);
+            stream.on("text", (_delta, snapshot) => {
+              const partial = aiya.partialReply(snapshot);
+              if (partial == null) return;
+              const shown = aiya.streamSafe(maskBlockedTerms(partial));
+              if (shown.length > shownLen) { shownLen = shown.length; send({ t: "delta", text: shown }); }
+            });
+            response = await stream.finalMessage();
+          } else {
+            response = await claude().messages.create(params);
+          }
           const spent = aiya.costMicro(response.usage);
           const day = aiya.dayKey(now);
           const budgetKey = session.pay === "free" ? aiya.KEY.budget(day) : `aiya_paid:${day}`;
@@ -1273,13 +1311,13 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           session.msgs.pop();
           session.turns -= 1;
           await saveAiyaSession(uid, session);
-          return res.status(200).json({ success: false, code, session: aiya.sessionView(session, now) });
+          return finish({ success: false, code, session: aiya.sessionView(session, now) });
         }
         let reply = maskBlockedTerms(parsed.reply);
         if (aiya.mentionsCrisis(text)) reply = `${reply} ${aiya.hotline(session.lang || lang)}`;
         session.msgs.push({ role: "assistant", content: JSON.stringify({ reply: parsed.reply, expression: parsed.expression }) });
         await saveAiyaSession(uid, session);
-        return res.status(200).json({ success: true, reply, expression: parsed.expression, session: aiya.sessionView(session, now) });
+        return finish({ success: true, reply, expression: parsed.expression, session: aiya.sessionView(session, now) });
       }
 
       if (action === "close") {
@@ -1338,6 +1376,11 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
       return res.status(400).json({ success: false, error: localize(lang, "未知的操作") });
     } catch (error) {
       console.error("aiya failed:", error);
+      if (res.headersSent) {
+        // 串流已經開始：用最後一行告訴 App 失敗
+        try { res.write(JSON.stringify({ t: "done", success: false, code: "busy" }) + "\n"); res.end(); } catch (e) { /* 連線已斷 */ }
+        return;
+      }
       return res.status(500).json({ success: false, code: "busy" });
     }
   });
@@ -1698,6 +1741,21 @@ exports.whisperGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_S
 
 // 每分鐘：集合呼叫還沒按「收到」的團員再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來
 // ============================================================================
+// 星軌：量子相遇卡完成（對方按下同意，quantumMeet/{邀請的人}/{同意的人}.op = 'yes'）時，兩人各多一顆星。
+// 同一對 24 小時內只算一次；只記數量，不記是誰和誰。
+// ============================================================================
+exports.orbMeetStars = onValueWritten({ ref: "/quantumMeet/{asker}/{accepter}", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async (event) => {
+  const after = event.data.after.val();
+  const before = event.data.before.val();
+  if (!after || after.op !== "yes" || (before && before.op === "yes")) return;
+  const { asker, accepter } = event.params;
+  if (asker === accepter) return;
+  const first = await sendUpstashCommand(["SET", orbs.meetPairKey(asker, accepter), "1", "NX", "EX", "86400"]);
+  if (first !== "OK") return;
+  await sendUpstashPipeline([["HINCRBY", orbs.growthKey(asker), "stars", "1"], ["HINCRBY", orbs.growthKey(accepter), "stars", "1"]]);
+});
+
+// ============================================================================
 // Google Play 退款：每天查最近 3 天被退款／退單／撤銷的一次性購買（時光包、光球、艾婭造型）
 // ============================================================================
 exports.googleRefunds = onSchedule({ schedule: "every day 04:30", timeZone: "Asia/Taipei", region: "asia-southeast1" }, async () => {
@@ -1753,7 +1811,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const hostingGid = (await db.ref(`hosting/${uid}`).once("value")).val();
       if (hostingGid) await endGathering(hostingGid, 'host_left');
       const [quantumOrd, quantumRegion] = (await sendUpstashCommand(["HMGET", quantum.KEY.seat(uid), "ord", "region"])) || [];
-      await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`], ["DEL", aiya.KEY.session(uid)],
+      await sendUpstashPipeline([["ZREM", "city_users", uid], ["ZREM", parallel.GEO_KEY, uid], ["DEL", `user_data:${uid}`], ["DEL", orbs.growthKey(uid)], ["SREM", demo.REVIEWERS_KEY, uid], ["DEL", `demo_anchor:${uid}`], ["DEL", aiya.KEY.session(uid)],
           ...(await quantumReleaseCommands([{ uid, ord: quantumOrd ?? null, region: quantumRegion }]))]);
       const myWhispers = (await sendUpstashCommand(["SMEMBERS", `whispers_by:${uid}`])) || [];
       if (myWhispers.length > 0) {

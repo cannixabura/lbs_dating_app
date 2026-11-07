@@ -75,6 +75,17 @@ test('beat returns neighbours with mood, seat code and online count, never real 
     assert.deepStrictEqual(r.online.regions, { other: 4 }); // 台灣只有 4 人，不單獨顯示
 });
 
+test('growing orbs: time in the world is counted per account; neighbours see stars and rings only on growing styles', async () => {
+    clock += 10000;
+    run(['HSET', 'orb_growth:dave', 'sec', String(3 * 3600 * 2 - 10), 'stars', '4']);
+    rtdb['orbOwned/dave'] = { rings: { receipt: 'a_1' } };
+    let r = await beat('dave', { orb: 'rings' });
+    assert.deepStrictEqual(r.growth, { stars: 4, rings: 2 }); // 這次心跳的 10 秒剛好補滿第 2 圈
+    r = await beat('alice');
+    assert.deepStrictEqual(r.data.find((u) => u.uid === 'dave').grow, [4, 2]);
+    assert.strictEqual(r.data.find((u) => u.uid === 'bob').grow, undefined); // 不是會長大的款式就不帶
+});
+
 test('walking moves the bubble; riding a train does not', async () => {
     clock += 10000;
     let r = await beat('bob', { east: 12, north: 0 });

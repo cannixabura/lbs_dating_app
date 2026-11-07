@@ -1662,6 +1662,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (parallelUniverseOn.value) { await setParallelUniverse(false); parallelHomeCity.value = null; }
     if (!mounted) return;
     final me = Map<String, dynamic>.from(data['me'] as Map);
+    OrbGrowth.apply(data['growth']);
     final base = (east: (me['east'] as num?)?.toDouble() ?? 0, north: (me['north'] as num?)?.toDouble() ?? 0);
     void arrive() {
       _quantumWalk = QuantumWalk(pos.latitude, pos.longitude, baseEast: base.east, baseNorth: base.north);
@@ -1717,6 +1718,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (status == 410) return _leaveQuantum(message: tr.quantumSeatExpired, notifyServer: false); // 席位已釋放（斷線超過 3 分鐘）
     if (status != 200 || data['success'] != true) return;
     _quantumLastSent = raw;
+    OrbGrowth.apply(data['growth']);
     final online = data['online'] is Map ? Map<String, dynamic>.from(data['online'] as Map) : const <String, dynamic>{};
     quantumSession.value = quantumSession.value!.copyWith(
       me: Map<String, dynamic>.from(data['me'] as Map),
@@ -1831,6 +1833,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'quantumSeat': user['quantum'],
         // 量子化身：光球款式（主色仍然是心情色）
         'quantumOrb': user['quantum'] != null ? orbStyleOf(user['orb']) : null,
+        // 會長大的光球：星軌的星星數、年輪的圈數
+        'quantumGrow': OrbGrowth.parse(user['grow']),
         'quiet': user['quiet'] == true,
         // 第二期：晝夜色調、當地時間（對方同意才有）、量子同頻主題
         'day': user['day'],
@@ -2873,6 +2877,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               parallelCity: user['parallelCity'] as String?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
               orb: user['quantumOrb'] as String?,
+              orbGrow: user['quantumGrow'] as ({int stars, int rings})?,
             ),
           ),
         ),
@@ -3632,9 +3637,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (quantumOn && !_quantumSelfCollapse && !_quantumReform)
                         Positioned(
                           left: centerX - 28, top: centerY - 28,
-                          child: IgnorePointer(child: ValueListenableBuilder<String>(
-                            valueListenable: OrbPrefs.style,
-                            builder: (context, style, _) => QuantumOrb(style: style, color: _getMoodColor(_myMood), size: 56, image: orbImage(_myAvatarUrl)),
+                          child: IgnorePointer(child: AnimatedBuilder(
+                            animation: Listenable.merge([OrbPrefs.style, OrbGrowth.mine]),
+                            builder: (context, _) => QuantumOrb(style: OrbPrefs.style.value, color: _getMoodColor(_myMood), size: 56, image: orbImage(_myAvatarUrl),
+                                stars: OrbGrowth.mine.value.stars, rings: OrbGrowth.mine.value.rings),
                           )),
                         ),
 
@@ -3916,6 +3922,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final Color? dayTint; // 量子世界的晝夜色調：依主人的當地時間
   final bool newYear; // 量子跨年：主人的時區已經跨年，頭像外一圈金色光環
   final String? orb; // 量子化身：量子世界裡用光球取代大頭貼
+  final ({int stars, int rings})? orbGrow; // 會長大的光球
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -3935,6 +3942,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.dayTint,
     this.newYear = false,
     this.orb,
+    this.orbGrow,
     this.shadowOpacity = 1.0
   });
 
@@ -4099,6 +4107,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                       if (widget.orb case final orb?)
                         // 量子化身：大頭貼合成的球型頭像，球緣和光暈是心情色；敲門中、殘影的顏色規則和大頭貼一樣
                         QuantumOrb(style: orb, color: accent, size: 56, glow: glowValue, image: orbImage(peerAvatarUrl),
+                            stars: widget.orbGrow?.stars ?? 0, rings: widget.orbGrow?.rings ?? 0,
                             dim: widget.isShadow || (widget.isInactive && !isPending))
                       else
                       Container(

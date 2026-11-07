@@ -864,5 +864,10 @@
   "aiyaSkinStarlightSub": "Dành cho Bạn của AIYA",
   "aiyaSkinXmas": "Giáng sinh",
   "aiyaSkinNewYear": "Năm mới Lượng tử",
-  "aiyaSkinNote": "Diện mạo lễ hội mua một lần dùng mãi. Chỉ đổi dáng vẻ AIYA, không ảnh hưởng lượt trò chuyện. Bản giới hạn sẽ không bán lại sau khi hết hạn."
+  "aiyaSkinNote": "Diện mạo lễ hội mua một lần dùng mãi. Chỉ đổi dáng vẻ AIYA, không ảnh hưởng lượt trò chuyện. Bản giới hạn sẽ không bán lại sau khi hết hạn.",
+  "orbStyleStarTrail": "Quỹ đạo sao",
+  "orbStyleRings": "Vân gỗ",
+  "orbGrowNote": "Quả cầu lớn dần: Quỹ đạo sao thêm một ngôi sao cho mỗi Thẻ gặp gỡ lượng tử (mỗi người tính một lần trong 24 giờ, tối đa 24). Vân gỗ thêm một vòng cho mỗi 3 giờ ở Thế giới lượng tử (tối đa 12). Tiến trình lưu theo tài khoản và bắt đầu tính từ bây giờ. Chỉ lưu số lượng, không lưu là ai hay ở đâu.",
+  "orbGrowStars": "Đã có {count} ngôi sao",
+  "orbGrowRings": "Đã có {count} vòng"
 }

@@ -864,5 +864,10 @@
   "aiyaSkinStarlightSub": "Khusus Teman AIYA",
   "aiyaSkinXmas": "Natal",
   "aiyaSkinNewYear": "Tahun Baru Kuantum",
-  "aiyaSkinNote": "Gaya liburan dibeli sekali dan jadi milikmu selamanya. Hanya mengubah tampilan AIYA. Edisi terbatas tidak dijual lagi setelah masa penjualan."
+  "aiyaSkinNote": "Gaya liburan dibeli sekali dan jadi milikmu selamanya. Hanya mengubah tampilan AIYA. Edisi terbatas tidak dijual lagi setelah masa penjualan.",
+  "orbStyleStarTrail": "Jejak Bintang",
+  "orbStyleRings": "Lingkar Tahun",
+  "orbGrowNote": "Orb yang tumbuh: Jejak Bintang mendapat satu bintang untuk setiap Kartu Pertemuan Kuantum (sekali per orang dalam 24 jam, maksimal 24). Lingkar Tahun bertambah satu setiap 3 jam di Dunia Kuantum (maksimal 12). Catatan tersimpan di akunmu dan mulai dihitung sekarang. Hanya jumlah yang disimpan, bukan siapa atau di mana.",
+  "orbGrowStars": "{count} bintang sejauh ini",
+  "orbGrowRings": "{count} lingkar sejauh ini"
 }

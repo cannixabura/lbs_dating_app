@@ -768,9 +768,10 @@ class QuantumSheetExtras extends StatelessWidget {
           if (OrbPrefs.style.value != before) onPrefsChanged();
         },
         child: Row(children: [
-          ValueListenableBuilder<String>(
-            valueListenable: OrbPrefs.style,
-            builder: (context, style, _) => QuantumOrb(style: style, color: moodColor, size: 52, image: orbImage(avatarUrl)),
+          AnimatedBuilder(
+            animation: Listenable.merge([OrbPrefs.style, OrbGrowth.mine]),
+            builder: (context, _) => QuantumOrb(style: OrbPrefs.style.value, color: moodColor, size: 52, image: orbImage(avatarUrl),
+                stars: OrbGrowth.mine.value.stars, rings: OrbGrowth.mine.value.rings),
           ),
           const SizedBox(width: Night.space3),
           Expanded(

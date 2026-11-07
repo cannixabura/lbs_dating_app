@@ -293,10 +293,43 @@ function googlePack(productId, receiptKey, purchase) {
     return { credits: credits * qty, receipt: receiptKey, productId };
 }
 
+/**
+ * 串流中的 JSON（{"reply":"…","expression":"…"}）目前收到的 reply 文字；還沒開始就回 null。
+ * 處理 JSON 跳脫字元，最後半個跳脫（例如只收到 \\u4e）先不顯示。
+ */
+function partialReply(json) {
+    if (typeof json !== 'string') return null;
+    const m = /"reply"\s*:\s*"/.exec(json);
+    if (!m) return null;
+    const ESC = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
+    let out = '';
+    for (let i = m.index + m[0].length; i < json.length; i++) {
+        const c = json[i];
+        if (c === '"') break;
+        if (c !== '\\') { out += c; continue; }
+        const n = json[i + 1];
+        if (n === undefined) break;
+        if (n === 'u') {
+            const hex = json.slice(i + 2, i + 6);
+            if (!/^[0-9a-fA-F]{4}$/.test(hex)) break;
+            out += String.fromCharCode(parseInt(hex, 16));
+            i += 5;
+        } else {
+            out += ESC[n] !== undefined ? ESC[n] : n;
+            i += 1;
+        }
+    }
+    return out;
+}
+
+/** 串流時先扣住最後幾個字：髒話可能只收到一半，還沒被遮住 */
+const STREAM_HOLD = 6;
+const streamSafe = (text) => (typeof text === 'string' && text.length > STREAM_HOLD ? text.slice(0, text.length - STREAM_HOLD) : '');
+
 module.exports = {
     MODEL, PRICE, FREE_PER_DAY, MAX_PER_DAY, SESSION_MS, SESSION_TTL_S, MAX_TURNS, MAX_INPUT_CHARS, MAX_REPLY_CHARS,
     MONTHLY_FREE_BUDGET_USD, DAILY_FREE_BUDGET_MICRO, CONSENT_VERSION, EXPRESSIONS, PACKS, KEY, PERSONA, REPLY_SCHEMA,
     FRIEND_PRODUCT, FRIEND_PER_DAY, FRIEND_SESSION_MS, FRIEND_MAX_TURNS,
     dayKey, costMicro, decideOpen, sessionLimits, sessionAlive, sessionView, friendActive, appleFriend, googleFriend, contextText, visibleLength, cleanInput, fullWidthPunct, parseReply,
-    mentionsCrisis, hotline, applePack, googlePack,
+    mentionsCrisis, hotline, applePack, googlePack, partialReply, streamSafe, STREAM_HOLD,
 };

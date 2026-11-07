@@ -110,3 +110,20 @@ test('艾婭造型：和光球共用購買驗證，但不能當光球款式', ()
     assert.strictEqual(o.onSale('aiya_xmas', Date.parse('2026-12-26T00:00:00+08:00')), false);
     assert.ok(!o.FREE_STYLES.includes('aiya_xmas'));
 });
+
+test('會長大的光球：心跳秒數、星星與年輪', () => {
+    const orbs = require('./orbs');
+    assert.strictEqual(orbs.isGrowing('startrail'), true);
+    assert.strictEqual(orbs.isGrowing('rainbow'), false);
+    assert.strictEqual(orbs.styleOfProduct('orb_rings'), 'rings');
+    const now = 1_000_000_000;
+    assert.strictEqual(orbs.beatSeconds(now - 15000, now), 15);
+    assert.strictEqual(orbs.beatSeconds(now - 600000, now), 60); // 斷線很久：最多 60 秒
+    assert.strictEqual(orbs.beatSeconds(undefined, now), 0);
+    assert.deepStrictEqual(orbs.growthView(3 * 3600 * 2 + 5, 3), { stars: 3, rings: 2 });
+    assert.deepStrictEqual(orbs.growthView(999 * 3600, 500), { stars: 24, rings: 12 });
+    assert.strictEqual(orbs.growthField({ stars: 5, rings: 3 }), '5.3');
+    assert.deepStrictEqual(orbs.parseGrowthField('5.3'), { stars: 5, rings: 3 });
+    assert.strictEqual(orbs.parseGrowthField('x'), null);
+    assert.strictEqual(orbs.meetPairKey('a', 'b'), orbs.meetPairKey('b', 'a'));
+});

@@ -20,11 +20,11 @@ import 'ui/night.dart';
 const _orbsUrl = String.fromEnvironment('ORBS_URL', defaultValue: 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/orbs');
 
 /// 所有款式，依面板上的順序；和 geo-service/orbs.js 的 STYLES 相同
-const orbStyles = ['glow', 'ring', 'rainbow', 'xmas', 'newyear'];
+const orbStyles = ['glow', 'ring', 'rainbow', 'startrail', 'rings', 'xmas', 'newyear'];
 const orbDefaultStyle = 'glow';
 
 /// 特殊款的商店商品代號（App Store Connect 與 Play Console 都用同一個代號）
-const orbProducts = {'rainbow': 'orb_rainbow', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear', 'aiya_xmas': 'aiya_skin_xmas', 'aiya_newyear': 'aiya_skin_newyear'};
+const orbProducts = {'rainbow': 'orb_rainbow', 'startrail': 'orb_startrail', 'rings': 'orb_rings', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear', 'aiya_xmas': 'aiya_skin_xmas', 'aiya_newyear': 'aiya_skin_newyear'};
 
 /// 艾婭節日造型：和光球共用購買與擁有紀錄（orbOwned），但不是光球款式，只有買的人看得到自己的艾婭換造型
 const aiyaSkins = ['aiya_xmas', 'aiya_newyear'];
@@ -55,11 +55,32 @@ String orbUntilLabel(String style) {
   final tpe = until.add(const Duration(hours: 8));
   return '${tpe.month}/${tpe.day}';
 }
+/// 會長大的光球：星軌（每完成一張量子相遇卡多一顆星）、年輪（在量子世界累積待滿 3 小時多一圈）
+const orbGrowingStyles = {'startrail', 'rings'};
+
+/// 自己的成長紀錄（伺服器每次心跳回傳）；不管有沒有買、用哪一款都一直累積
+class OrbGrowth {
+  OrbGrowth._();
+  static final mine = ValueNotifier<({int stars, int rings})>((stars: 0, rings: 0));
+
+  static void apply(Object? raw) {
+    if (raw is! Map) return;
+    final stars = (raw['stars'] as num?)?.toInt() ?? 0, rings = (raw['rings'] as num?)?.toInt() ?? 0;
+    if (stars != mine.value.stars || rings != mine.value.rings) mine.value = (stars: stars, rings: rings);
+  }
+
+  /// 附近的人的成長：伺服器給 [星星, 圈數]，只有會長大的款式才有
+  static ({int stars, int rings})? parse(Object? raw) =>
+      raw is List && raw.length == 2 && raw[0] is num && raw[1] is num ? (stars: (raw[0] as num).toInt(), rings: (raw[1] as num).toInt()) : null;
+}
+
 String orbStyleOf(Object? raw) => raw is String && orbStyles.contains(raw) ? raw : orbDefaultStyle;
 
 String orbStyleName(String style) => switch (style) {
       'ring' => tr.orbStyleRing,
       'rainbow' => tr.orbStyleRainbow,
+      'startrail' => tr.orbStyleStarTrail,
+      'rings' => tr.orbStyleRings,
       'xmas' => tr.orbStyleXmas,
       'newyear' => tr.orbStyleNewYear,
       'aiya_xmas' => tr.aiyaSkinXmas,
@@ -82,23 +103,24 @@ class QuantumOrb extends StatelessWidget {
   final double glow; // 0～1：呼吸光暈
   final bool dim; // 殘影、休息中
   final ImageProvider? image; // 大頭貼
-  const QuantumOrb({super.key, required this.style, required this.color, this.size = 30, this.glow = 0.5, this.dim = false, this.image});
+  final int stars, rings; // 會長大的光球：星軌的星星數、年輪的圈數
+  const QuantumOrb({super.key, required this.style, required this.color, this.size = 30, this.glow = 0.5, this.dim = false, this.image, this.stars = 0, this.rings = 0});
 
   /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）。
   /// 付費的彩虹款球比較大（地圖上約 31，免費款約 26），畫布一樣大，換款式不會讓版面跳動。
   /// 限定款外面有花圈、煙火，球稍微小一點讓裝飾畫得下。
-  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' => 0.5, _ => 0.465 };
+  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' || 'startrail' || 'rings' => 0.5, _ => 0.465 };
 
   @override
   Widget build(BuildContext context) {
     // 彩虹光環會轉、雪花會飄、煙火會綻開：用時間算，跟著氣泡的呼吸動畫一起重畫
     final ms = DateTime.now().millisecondsSinceEpoch;
     final spin = style == 'rainbow' ? (ms % 6000) / 6000 * 2 * pi : 0.0;
-    final t = style == 'xmas' || style == 'newyear' ? (ms % 600000) / 1000.0 : 0.0;
+    final t = style == 'xmas' || style == 'newyear' || style == 'startrail' ? (ms % 600000) / 1000.0 : 0.0;
     final bloom = style == 'newyear' && ms >= _newYearBloom.millisecondsSinceEpoch && ms < _newYearBloom.millisecondsSinceEpoch + 5 * 60 * 1000;
     final d = size * sphereRatio(style);
     final photo = image;
-    painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, t: t, bloom: bloom, front: front, photo: photo != null);
+    painter(bool front) => QuantumOrbPainter(style: style, color: color, glow: glow, dim: dim, spin: spin, t: t, bloom: bloom, front: front, photo: photo != null, stars: stars, rings: rings);
     return SizedBox(
       width: size, height: size,
       child: Stack(alignment: Alignment.center, children: [
@@ -130,7 +152,8 @@ class QuantumOrbPainter extends CustomPainter {
   final bool bloom; // 量子跨年那一刻之後 5 分鐘
   final bool front;
   final bool photo;
-  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0, this.t = 0, this.bloom = false, this.front = false, this.photo = false});
+  final int stars, rings;
+  QuantumOrbPainter({required this.style, required this.color, this.glow = 0.5, this.dim = false, this.spin = 0, this.t = 0, this.bloom = false, this.front = false, this.photo = false, this.stars = 0, this.rings = 0});
 
   static double _hash(int i) {
     final x = sin(i * 127.1 + 311.7) * 43758.5453;
@@ -231,6 +254,66 @@ class QuantumOrbPainter extends CustomPainter {
     }
   }
 
+  /// 星軌款：一條傾斜的軌道，每顆星是一張完成的量子相遇卡，跟著軌道繞（後半圈在球後面）；還沒有星星時只有淡淡的軌道
+  void _starTrail(Canvas canvas, Offset c, double r, Color base, {required bool back}) {
+    final k = dim ? 0.4 : 1.0;
+    final rx = r * 1.45, ry = r * 0.5;
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(-0.32);
+    final orbit = Rect.fromCenter(center: Offset.zero, width: rx * 2, height: ry * 2);
+    canvas.drawArc(orbit, back ? pi : 0, pi, false, Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = max(0.8, r * 0.03)
+      ..color = Color.lerp(base, Colors.white, 0.6)!.withOpacity((stars == 0 ? 0.35 : 0.5) * k));
+    final n = stars.clamp(0, 24);
+    for (var i = 0; i < n; i++) {
+      final a = i / n * 2 * pi + t * 0.35;
+      final behind = sin(a) < 0;
+      if (behind != back) continue;
+      final p = Offset(cos(a) * rx, sin(a) * ry);
+      final tw = 0.7 + 0.3 * sin(t * 3 + i * 1.7);
+      final sr = r * (0.09 + 0.03 * _hash(i + 50)) * (behind ? 0.8 : 1.0);
+      if (!dim) canvas.drawCircle(p, sr * 2.4, Paint()..color = _gold.withOpacity(0.28 * tw)..maskFilter = MaskFilter.blur(BlurStyle.normal, sr));
+      final star = Path();
+      for (var j = 0; j < 8; j++) {
+        final aa = -pi / 2 + j * pi / 4;
+        final len = j.isEven ? sr * 1.5 : sr * 0.5;
+        final pt = p + Offset(cos(aa), sin(aa)) * len;
+        j == 0 ? star.moveTo(pt.dx, pt.dy) : star.lineTo(pt.dx, pt.dy);
+      }
+      canvas.drawPath(star..close(), Paint()..color = Color.lerp(_gold, Colors.white, 0.4)!.withOpacity((behind ? 0.6 : 1.0) * tw * k));
+    }
+    canvas.restore();
+  }
+
+  /// 年輪款：從球緣往外一圈一圈的細紋，每圈是在量子世界累積待滿的 3 小時；越外圈越淡。還沒有年輪時只有一圈淡淡的輪廓
+  void _rings(Canvas canvas, Offset c, double r, Color base) {
+    final k = dim ? 0.4 : 1.0;
+    final n = rings.clamp(0, 12);
+    final wood = Color.lerp(base, const Color(0xFFE8C48A), 0.55)!;
+    if (n == 0) {
+      canvas.drawCircle(c, r * 1.12, Paint()..style = PaintingStyle.stroke..strokeWidth = max(0.8, r * 0.025)..color = wood.withOpacity(0.35 * k));
+      return;
+    }
+    for (var i = 0; i < n; i++) {
+      final f = i / 11; // 固定間距：圈數越多長得越寬，像真的樹
+      // 年輪不是正圓：每圈輕輕起伏，像真的木紋
+      final path = Path();
+      final rr = r * (1.07 + 0.03 * i);
+      for (var j = 0; j <= 48; j++) {
+        final a = j / 48 * 2 * pi;
+        final wob = 1 + 0.008 * sin(a * 3 + i * 1.3) + 0.005 * sin(a * 5 + i);
+        final pt = c + Offset(cos(a), sin(a)) * rr * wob;
+        j == 0 ? path.moveTo(pt.dx, pt.dy) : path.lineTo(pt.dx, pt.dy);
+      }
+      canvas.drawPath(path..close(), Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(0.8, r * (i == n - 1 ? 0.04 : 0.022))
+        ..color = wood.withOpacity((0.9 - 0.45 * f) * k));
+    }
+  }
+
   static const _rainbow = [Color(0xFFFF6B6B), Color(0xFFFFD166), Color(0xFF6BE38E), Color(0xFF4FC3F7), Color(0xFF9C7BFF), Color(0xFFFF7BD5), Color(0xFFFF6B6B)];
 
   @override
@@ -290,6 +373,8 @@ class QuantumOrbPainter extends CustomPainter {
       }
       ring(true);
       halo();
+      if (style == 'rings') _rings(canvas, c, r, base);
+      if (style == 'startrail') _starTrail(canvas, c, r, base, back: true);
       // 球的底色：沒有大頭貼時就是一顆心情色的光球
       canvas.drawCircle(c, r, Paint()
         ..shader = RadialGradient(
@@ -345,13 +430,14 @@ class QuantumOrbPainter extends CustomPainter {
         Paint()..color = Colors.white.withOpacity(0.9 * k)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.03));
 
     ring(false);
+    if (style == 'startrail') _starTrail(canvas, c, r, base, back: false);
     if (style == 'xmas') _xmas(canvas, size, c, r);
     if (style == 'newyear') _newYear(canvas, size, c, r);
   }
 
   @override
   bool shouldRepaint(QuantumOrbPainter old) =>
-      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.t != t || old.bloom != bloom || old.front != front || old.photo != photo;
+      old.style != style || old.color != color || old.glow != glow || old.dim != dim || old.spin != spin || old.t != t || old.bloom != bloom || old.front != front || old.photo != photo || old.stars != stars || old.rings != rings;
 }
 
 // ---------- 艾婭的造型 ----------
@@ -619,11 +705,19 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           AnimatedBuilder(
-            animation: _breath,
-            builder: (context, _) => QuantumOrb(style: style, color: widget.moodColor, size: 84, glow: _breath.value, image: widget.image),
+            animation: Listenable.merge([_breath, OrbGrowth.mine]),
+            builder: (context, _) => QuantumOrb(style: style, color: widget.moodColor, size: 84, glow: _breath.value, image: widget.image,
+                stars: OrbGrowth.mine.value.stars, rings: OrbGrowth.mine.value.rings),
           ),
           const SizedBox(height: Night.space2),
           Text(orbStyleName(style), style: const TextStyle(color: Night.ink, fontSize: 14)),
+          // 會長大的光球：顯示自己已經累積了多少（還沒買也一直在累積）
+          if (orbGrowingStyles.contains(style)) ...[
+            const SizedBox(height: 2),
+            FittedBox(fit: BoxFit.scaleDown, child: Text(
+              style == 'startrail' ? tr.orbGrowStars(OrbGrowth.mine.value.stars) : tr.orbGrowRings(OrbGrowth.mine.value.rings),
+              maxLines: 1, style: Night.caption.copyWith(color: const Color(0xFFFFD166), fontSize: 11))),
+          ],
           if (limited) ...[
             const SizedBox(height: 2),
             FittedBox(fit: BoxFit.scaleDown, child: Text(has ? tr.orbLimited : tr.orbLimitedUntil(orbUntilLabel(style)), maxLines: 1, style: Night.caption.copyWith(color: const Color(0xFFFFD166), fontSize: 11))),
@@ -672,6 +766,8 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
             ],
             const SizedBox(height: Night.space3),
             Text(tr.orbCosmeticNote, style: Night.caption, textAlign: TextAlign.center),
+            const SizedBox(height: Night.space2),
+            Text(tr.orbGrowNote, style: Night.caption.copyWith(fontSize: 11), textAlign: TextAlign.center),
             const SizedBox(height: Night.space2),
             ValueListenableBuilder<bool>(
               valueListenable: OrbStore.busy,

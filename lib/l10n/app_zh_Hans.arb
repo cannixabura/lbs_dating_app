@@ -864,5 +864,10 @@
   "aiyaSkinStarlightSub": "艾娅之友专属",
   "aiyaSkinXmas": "圣诞",
   "aiyaSkinNewYear": "量子跨年",
-  "aiyaSkinNote": "节日造型是一次购买、永久拥有，只改变艾娅的样子，不影响聊天次数。限定款过了销售期就不再上架。"
+  "aiyaSkinNote": "节日造型是一次购买、永久拥有，只改变艾娅的样子，不影响聊天次数。限定款过了销售期就不再上架。",
+  "orbStyleStarTrail": "星轨",
+  "orbStyleRings": "年轮",
+  "orbGrowNote": "会长大的光球：星轨每完成一张量子相遇卡多一颗星（同一个人 24 小时内算一次，最多 24 颗）；年轮在量子世界累积待满 3 小时多一圈（最多 12 圈）。成长记录跟着账号，现在就开始累积，只记数量，不记对象和地点。",
+  "orbGrowStars": "已累积 {count} 颗星",
+  "orbGrowRings": "已累积 {count} 圈"
 }

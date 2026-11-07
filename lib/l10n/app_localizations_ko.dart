@@ -2997,4 +2997,24 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       '시즌 스타일은 한 번 사면 계속 쓸 수 있어요. 모습만 바뀌고 대화 횟수에는 영향이 없어요. 한정판은 판매 기간 뒤 다시 팔지 않아요.';
+
+  @override
+  String get orbStyleStarTrail => '스타 트레일';
+
+  @override
+  String get orbStyleRings => '나이테';
+
+  @override
+  String get orbGrowNote =>
+      '자라는 광구: 스타 트레일은 퀀텀 만남 카드를 완성할 때마다 별이 하나 늘어요(같은 사람은 24시간에 한 번, 최대 24개). 나이테는 퀀텀 월드에 3시간 머물 때마다 한 줄 늘어요(최대 12줄). 기록은 계정에 저장되고 지금부터 쌓여요. 개수만 기록하고 상대나 장소는 기록하지 않아요.';
+
+  @override
+  String orbGrowStars(int count) {
+    return '지금까지 별 $count개';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return '지금까지 나이테 $count개';
+  }
 }

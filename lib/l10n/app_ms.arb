@@ -864,5 +864,10 @@
   "aiyaSkinStarlightSub": "Untuk Rakan AIYA",
   "aiyaSkinXmas": "Krismas",
   "aiyaSkinNewYear": "Tahun Baru Kuantum",
-  "aiyaSkinNote": "Gaya perayaan dibeli sekali dan kekal milik anda. Ia hanya mengubah rupa AIYA. Edisi terhad tidak dijual lagi selepas tempoh jualan."
+  "aiyaSkinNote": "Gaya perayaan dibeli sekali dan kekal milik anda. Ia hanya mengubah rupa AIYA. Edisi terhad tidak dijual lagi selepas tempoh jualan.",
+  "orbStyleStarTrail": "Jejak Bintang",
+  "orbStyleRings": "Gelang Usia",
+  "orbGrowNote": "Orb yang membesar: Jejak Bintang mendapat satu bintang untuk setiap Kad Pertemuan Kuantum (sekali bagi setiap orang dalam 24 jam, maksimum 24). Gelang Usia bertambah satu bagi setiap 3 jam di Dunia Kuantum (maksimum 12). Rekod disimpan dalam akaun anda dan mula dikira sekarang. Hanya bilangan disimpan, bukan siapa atau di mana.",
+  "orbGrowStars": "{count} bintang setakat ini",
+  "orbGrowRings": "{count} gelang setakat ini"
 }

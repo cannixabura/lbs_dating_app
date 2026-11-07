@@ -3118,4 +3118,24 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get aiyaSkinNote =>
       'Gaya liburan dibeli sekali dan jadi milikmu selamanya. Hanya mengubah tampilan AIYA. Edisi terbatas tidak dijual lagi setelah masa penjualan.';
+
+  @override
+  String get orbStyleStarTrail => 'Jejak Bintang';
+
+  @override
+  String get orbStyleRings => 'Lingkar Tahun';
+
+  @override
+  String get orbGrowNote =>
+      'Orb yang tumbuh: Jejak Bintang mendapat satu bintang untuk setiap Kartu Pertemuan Kuantum (sekali per orang dalam 24 jam, maksimal 24). Lingkar Tahun bertambah satu setiap 3 jam di Dunia Kuantum (maksimal 12). Catatan tersimpan di akunmu dan mulai dihitung sekarang. Hanya jumlah yang disimpan, bukan siapa atau di mana.';
+
+  @override
+  String orbGrowStars(int count) {
+    return '$count bintang sejauh ini';
+  }
+
+  @override
+  String orbGrowRings(int count) {
+    return '$count lingkar sejauh ini';
+  }
 }

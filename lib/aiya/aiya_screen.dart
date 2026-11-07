@@ -11,6 +11,7 @@ import '../quantum_orb.dart';
 import '../ui/night.dart';
 import 'aiya_face.dart';
 import 'aiya_particles.dart';
+import 'aiya_skins.dart';
 import 'aiya_store.dart';
 import 'aiya_video.dart';
 
@@ -52,6 +53,28 @@ class AiyaPillarChip extends StatelessWidget {
           ),
         ),
       );
+}
+
+/// 串流中正在說的一句
+class _LiveLine {
+  final _Msg msg;
+  String target = '';
+  int shown = 0;
+  bool done = false;
+  String expression = 'smile';
+  _LiveLine(this.msg);
+
+  /// 收到完整的回覆：最後的版本（可能多了專線資訊、遮蔽結果不同）和已經打出來的不一樣時，從一樣的地方接著打
+  void finish(String reply, String expr) {
+    final full = reply.characters.toList();
+    if (!reply.startsWith(msg.text)) {
+      shown = shown < full.length ? shown : full.length;
+      msg.text = full.take(shown).join();
+    }
+    target = reply;
+    expression = expr;
+    done = true;
+  }
 }
 
 class _Msg {
@@ -227,6 +250,32 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     _scrollDown();
   }
 
+  /// 串流中的一句：伺服器每送來一段就把 target 變長，打字機追著打；收完（finish）而且打完才換成這句的表情
+  _LiveLine _startLive() {
+    _typer?.cancel();
+    _video.play(aiyaTalkClips[_rnd.nextInt(aiyaTalkClips.length)], _anim.time);
+    final line = _LiveLine(_Msg(''));
+    setState(() => _msgs.add(line.msg));
+    _typer = Timer.periodic(const Duration(milliseconds: 90), (t) {
+      if (!mounted) { t.cancel(); return; }
+      final chars = line.target.characters.toList();
+      if (line.shown >= chars.length) {
+        if (line.done) {
+          t.cancel();
+          _anim.setExpr(line.expression);
+          final after = aiyaExprClip[line.expression] ?? 'idle';
+          _video.play(after, _anim.time, loop: after == 'idle');
+        }
+        return;
+      }
+      _anim.speakChar(chars[line.shown]);
+      setState(() => line.msg.text += chars[line.shown]);
+      line.shown++;
+      _scrollDown();
+    });
+    return line;
+  }
+
   /// 艾婭說一句：播說話的片段，一個字一個字打出來；說完換成這句的表情，再回到平常的微笑
   void _speak(String text, String expression, {String? talkClip}) {
     _typer?.cancel();
@@ -260,13 +309,33 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     _scrollDown();
     _anim.setExpr('think');
     _video.play('think', _anim.time, loop: true);
-    final r = await aiyaCall('say', {'sessionId': _sessionId, 'text': text});
+    // 串流：第一段字一到就開始說，不用等整句
+    _LiveLine? live;
+    var r = <String, dynamic>{'success': false, 'code': 'busy'};
+    await for (final e in aiyaSayStream({'sessionId': _sessionId, 'text': text})) {
+      if (!mounted) return;
+      if (e['t'] == 'delta') {
+        live ??= _startLive();
+        live.target = '${e['text']}';
+      } else {
+        r = e;
+      }
+    }
     if (!mounted) return;
     setState(() => _sending = false);
     final session = r['session'];
     if (session is Map) _turnsLeft = (session['turnsLeft'] as num?)?.toInt() ?? _turnsLeft;
+    if (r['success'] != true && live != null) {
+      // 說到一半斷掉：拿掉這句半截的話
+      _typer?.cancel();
+      setState(() => _msgs.remove(live!.msg));
+    }
     if (r['success'] == true) {
-      _speak('${r['reply']}', '${r['expression']}');
+      if (live != null) {
+        live.finish('${r['reply']}', '${r['expression']}');
+      } else {
+        _speak('${r['reply']}', '${r['expression']}');
+      }
       if (_turnsLeft <= 0) Future.delayed(const Duration(seconds: 6), _finish);
       return;
     }
@@ -600,8 +669,8 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
             animation: Listenable.merge([AiyaSkinPrefs.selected, OrbStore.owned, AiyaStore.friendExp]),
             builder: (context, _) => switch (AiyaSkinPrefs.effective(friend: AiyaStore.isFriend, owned: OrbStore.owned.value)) {
               'starlight' => CustomPaint(painter: _StarlightPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
-              'aiya_xmas' => CustomPaint(painter: _XmasSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
-              'aiya_newyear' => CustomPaint(painter: _NewYearSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
+              'aiya_xmas' => CustomPaint(painter: AiyaXmasSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
+              'aiya_newyear' => CustomPaint(painter: AiyaNewYearSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
               _ => const SizedBox.shrink(),
             },
           ))),
@@ -771,89 +840,3 @@ class _StarlightPainter extends CustomPainter {
   bool shouldRepaint(covariant _StarlightPainter old) => old.stage != stage;
 }
 
-
-/// 聖誕造型：雪花慢慢飄過艾婭，身後一圈冬青花圈與閃爍的小燈
-class _XmasSkinPainter extends CustomPainter {
-  final Rect stage;
-  final double Function() clock;
-  _XmasSkinPainter({required this.stage, required Listenable repaint, required this.clock}) : super(repaint: repaint);
-  static double _h(int i) { final x = sin(i * 71.3 + 4.1) * 43758.5453; return x - x.floorToDouble(); }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final t = clock();
-    final c = stage.center;
-    final rx = stage.width * 0.46, ry = stage.height * 0.5;
-    // 花圈：沿著橢圓排葉子，下半圈藏在她身後所以淡一點
-    for (var i = 0; i < 40; i++) {
-      final a = i / 40 * 2 * pi;
-      final p = c + Offset(cos(a) * rx, sin(a) * ry);
-      final back = sin(a) > 0.2 ? 0.35 : 0.85;
-      canvas.save();
-      canvas.translate(p.dx, p.dy);
-      canvas.rotate(a + (i.isEven ? 0.7 : -0.7));
-      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 14, height: 6), Paint()..color = (i.isEven ? const Color(0xFF2FA866) : const Color(0xFF1E7A4A)).withValues(alpha: back));
-      canvas.restore();
-      if (i % 4 == 0) {
-        // 小燈：紅、金、白輪流閃
-        final tw = 0.5 + 0.5 * sin(t * 3 + i);
-        final col = const [Color(0xFFFF5A6E), Color(0xFFFFD166), Colors.white][(i ~/ 4) % 3];
-        canvas.drawCircle(p, 5, Paint()..color = col.withValues(alpha: 0.25 * tw * back));
-        canvas.drawCircle(p, 2.2, Paint()..color = col.withValues(alpha: (0.5 + 0.5 * tw) * back));
-      }
-    }
-    // 雪花
-    for (var i = 0; i < 46; i++) {
-      final speed = 0.04 + 0.04 * _h(i + 9);
-      final y = (_h(i) + t * speed) % 1.0;
-      final x = stage.left - stage.width * 0.2 + _h(i + 30) * stage.width * 1.4 + sin(t * 0.7 + i) * 8;
-      final fade = sin(y * pi);
-      final r = 1.2 + 2.2 * _h(i + 3);
-      canvas.drawCircle(Offset(x, stage.top - stage.height * 0.1 + y * stage.height * 1.25), r, Paint()..color = Colors.white.withValues(alpha: 0.75 * fade));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _XmasSkinPainter old) => old.stage != stage;
-}
-
-/// 跨年造型：艾婭身邊輪流綻開金色、粉色、藍色的小煙火，頭頂一圈金色光環
-class _NewYearSkinPainter extends CustomPainter {
-  final Rect stage;
-  final double Function() clock;
-  _NewYearSkinPainter({required this.stage, required Listenable repaint, required this.clock}) : super(repaint: repaint);
-  static double _h(int i) { final x = sin(i * 53.7 + 9.2) * 43758.5453; return x - x.floorToDouble(); }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final t = clock();
-    final c = stage.center;
-    // 頭頂的金色光環
-    final halo = Rect.fromCenter(center: Offset(c.dx, stage.top + stage.height * 0.08), width: stage.width * 0.42, height: stage.width * 0.1);
-    canvas.drawOval(halo, Paint()..style = PaintingStyle.stroke..strokeWidth = 2.5..color = const Color(0xFFFFD166).withValues(alpha: 0.75 + 0.2 * sin(t * 2)));
-    const colors = [Color(0xFFFFD166), Color(0xFFFF7BD5), Color(0xFF7FD8FF)];
-    const bursts = 4, period = 2.6;
-    for (var b = 0; b < bursts; b++) {
-      final local = t + b * period / bursts;
-      final cycle = (local / period).floor();
-      final p = (local % period) / period;
-      if (p > 0.75) continue;
-      final q = p / 0.75;
-      // 煙火在她兩側和頭頂，避開臉
-      final side = _h(cycle * 7 + b) < 0.5 ? -1.0 : 1.0;
-      final center = Offset(c.dx + side * stage.width * (0.32 + 0.18 * _h(cycle * 3 + b)), stage.top + stage.height * (0.05 + 0.5 * _h(cycle * 5 + b)));
-      final color = colors[(cycle + b) % colors.length];
-      final reach = stage.width * 0.13 * Curves.easeOut.transform(q);
-      final alpha = (1 - q) * 0.95;
-      for (var j = 0; j < 12; j++) {
-        final a = j / 12 * 2 * pi;
-        final d = Offset(cos(a), sin(a));
-        canvas.drawLine(center + d * reach * 0.4, center + d * reach, Paint()..color = color.withValues(alpha: alpha)..strokeWidth = 2..strokeCap = StrokeCap.round);
-      }
-      canvas.drawCircle(center, 3 * (1 - q), Paint()..color = Colors.white.withValues(alpha: alpha));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _NewYearSkinPainter old) => old.stage != stage;
-}

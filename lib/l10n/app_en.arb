@@ -864,5 +864,10 @@
   "aiyaSkinStarlightSub": "For AIYA Friends",
   "aiyaSkinXmas": "Christmas",
   "aiyaSkinNewYear": "Quantum New Year",
-  "aiyaSkinNote": "Holiday looks are one-time purchases you keep forever. They only change how AIYA looks, not your chats. Limited looks are not sold again after their sale ends."
+  "aiyaSkinNote": "Holiday looks are one-time purchases you keep forever. They only change how AIYA looks, not your chats. Limited looks are not sold again after their sale ends.",
+  "orbStyleStarTrail": "Star Trail",
+  "orbStyleRings": "Growth Rings",
+  "orbGrowNote": "Growing orbs: Star Trail gains a star for each Quantum Meet Card (once per person per 24 hours, up to 24). Growth Rings gain a ring for every 3 hours spent in the Quantum World (up to 12). Growth is saved to your account and starts counting now. Only the counts are kept, never who or where.",
+  "orbGrowStars": "{count} stars so far",
+  "orbGrowRings": "{count} rings so far"
 }

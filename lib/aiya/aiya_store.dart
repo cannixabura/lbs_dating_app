@@ -54,6 +54,46 @@ Future<Map<String, dynamic>> aiyaCall(String action, [Map<String, dynamic> body 
   }
 }
 
+/// 跟艾婭說一句（串流）：一邊收一邊吐出 {t: 'delta', text: 到目前為止的回覆}，最後一筆是完整結果（和 aiyaCall 的回應一樣）。
+/// 伺服器還沒更新時會直接回一整個 JSON，當成最後一筆。
+Stream<Map<String, dynamic>> aiyaSayStream(Map<String, dynamic> body) async* {
+  if (aiyaMock) {
+    final r = await _mockCall('say', body);
+    if (r['success'] == true) {
+      final s = '${r['reply']}';
+      for (var i = 3; i < s.length; i += 3) {
+        await Future.delayed(const Duration(milliseconds: 120));
+        yield {'t': 'delta', 'text': s.substring(0, i)};
+      }
+    }
+    yield r;
+    return;
+  }
+  final client = http.Client();
+  try {
+    if (aiyaLive && FirebaseAuth.instance.currentUser == null) await FirebaseAuth.instance.signInAnonymously();
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    final request = http.Request('POST', Uri.parse(_aiyaUrl))
+      ..headers.addAll({'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'})
+      ..body = jsonEncode({'action': 'say', 'lang': currentLanguageTag, 'stream': true, ...body});
+    final response = await client.send(request).timeout(const Duration(seconds: 20));
+    Map<String, dynamic>? last;
+    await for (final line in response.stream.transform(utf8.decoder).transform(const LineSplitter()).timeout(const Duration(seconds: 40))) {
+      if (line.trim().isEmpty) continue;
+      final m = jsonDecode(line);
+      if (m is! Map<String, dynamic>) continue;
+      if (m['t'] == 'delta') { yield m; continue; }
+      last = m;
+      break;
+    }
+    yield last ?? {'success': false, 'code': 'busy'};
+  } catch (_) {
+    yield {'success': false, 'code': 'busy'};
+  } finally {
+    client.close();
+  }
+}
+
 /// 設定裡的「艾婭」開關：關掉後量子世界的光柱不再顯示艾婭
 class AiyaPrefs {
   AiyaPrefs._();

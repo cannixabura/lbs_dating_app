@@ -19,6 +19,7 @@ function run([cmd, ...a]) {
         case 'SET': db.set(a[0], String(a[1])); return 'OK';
         case 'INCR': { const v = Number(db.get(a[0]) || 0) + 1; db.set(a[0], String(v)); return v; }
         case 'HSET': { const h = hash(a[0]); for (let i = 1; i < a.length; i += 2) h.set(a[i], String(a[i + 1])); return 1; }
+        case 'HINCRBY': { const h = hash(a[0]); const v = (parseInt(h.get(a[1]) || '0', 10) || 0) + parseInt(a[2], 10); h.set(a[1], String(v)); return v; }
         case 'HGET': return db.has(a[0]) ? (hash(a[0]).get(a[1]) ?? null) : null;
         case 'HMGET': return a.slice(1).map((f) => (db.has(a[0]) ? (hash(a[0]).get(f) ?? null) : null));
         case 'HGETALL': return db.has(a[0]) ? [...hash(a[0]).entries()].flat() : [];

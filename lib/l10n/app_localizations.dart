@@ -5630,6 +5630,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'對方已經有糾纏款配對了，這次不會扣款'**
   String get giftBlockedPaired;
+
+  /// No description provided for @orbStyleValentine.
+  ///
+  /// In zh, this message translates to:
+  /// **'情人節'**
+  String get orbStyleValentine;
+
+  /// No description provided for @orbStyleSakura.
+  ///
+  /// In zh, this message translates to:
+  /// **'櫻花季'**
+  String get orbStyleSakura;
 }
 
 class _AppLocalizationsDelegate

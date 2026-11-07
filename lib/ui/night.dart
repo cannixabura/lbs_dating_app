@@ -249,3 +249,29 @@ class _GlassToastState extends State<_GlassToast> with SingleTickerProviderState
       'love' => (tr.moodLove, Night.moodLove),
       _ => (tr.moodOther, Night.moodDefault),
     };
+
+
+/// 面板標題：置中標題，右上角一個關閉鈕（面板很長、點不到外面時也能關）
+class SheetTitle extends StatelessWidget {
+  final String title;
+  final String closeTooltip;
+  const SheetTitle(this.title, {super.key, required this.closeTooltip});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(alignment: Alignment.center, children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 44),
+        child: Text(title, style: Night.title, textAlign: TextAlign.center),
+      ),
+      Align(
+        alignment: Alignment.centerRight,
+        child: IconButton(
+          tooltip: closeTooltip,
+          icon: const Icon(Icons.close, color: Night.inkMuted),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
+    ]);
+  }
+}

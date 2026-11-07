@@ -919,5 +919,7 @@
   "giftBlockedOff": "상대가 선물 받기를 꺼 두었어요. 결제되지 않았어요.",
   "giftBlockedBlocked": "이 사람에게는 선물을 보낼 수 없어요. 결제되지 않았어요.",
   "giftBlockedOwned": "상대가 이미 이 광구를 갖고 있어요. 다른 걸 골라 주세요(결제되지 않았어요).",
-  "giftBlockedPaired": "상대에게 이미 얽힘 커플이 있어요. 결제되지 않았어요."
+  "giftBlockedPaired": "상대에게 이미 얽힘 커플이 있어요. 결제되지 않았어요.",
+  "orbStyleValentine": "밸런타인",
+  "orbStyleSakura": "벚꽃"
 }

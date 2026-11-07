@@ -334,7 +334,7 @@ class _GiftSheetState extends State<_GiftSheet> {
                 final paired = GiftState.pair.value != null;
                 return SingleChildScrollView(
                   child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Text(_pickingStyle ? tr.giftPickStyle(widget.toName) : tr.giftSheetTitle(widget.toName), style: Night.title, textAlign: TextAlign.center),
+                    SheetTitle(_pickingStyle ? tr.giftPickStyle(widget.toName) : tr.giftSheetTitle(widget.toName), closeTooltip: tr.close),
                     const SizedBox(height: Night.space4),
                     if (_pickingStyle) ...[
                       _stylePicker(),
@@ -491,7 +491,7 @@ class _GiftInboxState extends State<_GiftInbox> {
               builder: (context, inbox, _) => Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const Icon(Icons.card_giftcard, color: Night.cityAmber, size: 32),
                 const SizedBox(height: Night.space2),
-                Text(tr.giftInboxTitle, style: Night.title, textAlign: TextAlign.center),
+                SheetTitle(tr.giftInboxTitle, closeTooltip: tr.close),
                 const SizedBox(height: Night.space3),
                 if (inbox.isEmpty) Text(tr.giftInboxEmpty, style: Night.caption, textAlign: TextAlign.center),
                 for (final g in inbox)

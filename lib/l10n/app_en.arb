@@ -919,5 +919,7 @@
   "giftBlockedOff": "They have turned off gifts. You were not charged.",
   "giftBlockedBlocked": "You cannot send gifts to this person. You were not charged.",
   "giftBlockedOwned": "They already have this orb. Pick another one (you were not charged).",
-  "giftBlockedPaired": "They already have an entangled pair. You were not charged."
+  "giftBlockedPaired": "They already have an entangled pair. You were not charged.",
+  "orbStyleValentine": "Valentine",
+  "orbStyleSakura": "Sakura"
 }

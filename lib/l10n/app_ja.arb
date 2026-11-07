@@ -919,5 +919,7 @@
   "giftBlockedOff": "相手はギフトの受け取りをオフにしています。課金はされていません。",
   "giftBlockedBlocked": "この人にはギフトを贈れません。課金はされていません。",
   "giftBlockedOwned": "相手はこの光球を持っています。別のものを選んでください（課金はされていません）。",
-  "giftBlockedPaired": "相手にはすでにペアがいます。課金はされていません。"
+  "giftBlockedPaired": "相手にはすでにペアがいます。課金はされていません。",
+  "orbStyleValentine": "バレンタイン",
+  "orbStyleSakura": "桜"
 }

@@ -3329,4 +3329,10 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get giftBlockedPaired =>
       'Mereka sudah berpasangan. Kamu tidak dikenai biaya.';
+
+  @override
+  String get orbStyleValentine => 'Valentine';
+
+  @override
+  String get orbStyleSakura => 'Sakura';
 }

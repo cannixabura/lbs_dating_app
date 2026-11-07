@@ -3116,6 +3116,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get giftBlockedPaired => '對方已經有糾纏款配對了，這次不會扣款';
+
+  @override
+  String get orbStyleValentine => '情人節';
+
+  @override
+  String get orbStyleSakura => '櫻花季';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6229,4 +6235,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get giftBlockedPaired => '对方已经有纠缠款配对了，这次不会扣款';
+
+  @override
+  String get orbStyleValentine => '情人节';
+
+  @override
+  String get orbStyleSakura => '樱花季';
 }

@@ -27,6 +27,8 @@ const STYLES = {
     pair: { granted: true }, // 糾纏款：只能透過「糾纏款」禮物取得（一人買、送給對方，對方接受後兩人都有），兩人都在量子世界時有一條光繩相連
     xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
     newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定
+    valentine: { product: 'orb_valentine', until: Date.parse('2027-02-14T23:59:59+08:00') }, // 情人節 2027 限定
+    sakura: { product: 'orb_sakura', until: Date.parse('2027-04-10T23:59:59+08:00') }, // 櫻花季 2027 限定
     // 艾婭節日造型：只有買的人看到自己的艾婭換造型；和光球共用購買驗證與擁有紀錄（orbOwned），但不是光球款式
     aiya_xmas: { product: 'aiya_skin_xmas', until: Date.parse('2026-12-25T23:59:59+08:00'), skin: true },
     aiya_newyear: { product: 'aiya_skin_newyear', until: Date.parse('2027-01-01T23:59:59+08:00'), skin: true },

@@ -3319,4 +3319,10 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get giftBlockedPaired =>
       'Họ đã có cặp vướng víu. Bạn chưa bị trừ tiền.';
+
+  @override
+  String get orbStyleValentine => 'Valentine';
+
+  @override
+  String get orbStyleSakura => 'Hoa anh đào';
 }

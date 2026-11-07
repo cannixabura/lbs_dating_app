@@ -3190,4 +3190,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get giftBlockedPaired => '상대에게 이미 얽힘 커플이 있어요. 결제되지 않았어요.';
+
+  @override
+  String get orbStyleValentine => '밸런타인';
+
+  @override
+  String get orbStyleSakura => '벚꽃';
 }

@@ -919,5 +919,7 @@
   "giftBlockedOff": "对方关掉了接收礼物，这次不会扣款",
   "giftBlockedBlocked": "无法送礼物给这个人，这次不会扣款",
   "giftBlockedOwned": "对方已经有这款光球了，换一款送吧（这次不会扣款）",
-  "giftBlockedPaired": "对方已经有纠缠款配对了，这次不会扣款"
+  "giftBlockedPaired": "对方已经有纠缠款配对了，这次不会扣款",
+  "orbStyleValentine": "情人节",
+  "orbStyleSakura": "樱花季"
 }

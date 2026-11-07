@@ -3336,4 +3336,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get giftBlockedPaired =>
       'เขามีคู่พัวพันแล้ว คุณยังไม่ถูกเรียกเก็บเงิน';
+
+  @override
+  String get orbStyleValentine => 'วาเลนไทน์';
+
+  @override
+  String get orbStyleSakura => 'ซากุระ';
 }

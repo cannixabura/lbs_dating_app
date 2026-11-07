@@ -919,5 +919,7 @@
   "giftBlockedOff": "Họ đã tắt nhận quà. Bạn chưa bị trừ tiền.",
   "giftBlockedBlocked": "Bạn không thể tặng quà cho người này. Bạn chưa bị trừ tiền.",
   "giftBlockedOwned": "Họ đã có quả cầu này. Hãy chọn kiểu khác (bạn chưa bị trừ tiền).",
-  "giftBlockedPaired": "Họ đã có cặp vướng víu. Bạn chưa bị trừ tiền."
+  "giftBlockedPaired": "Họ đã có cặp vướng víu. Bạn chưa bị trừ tiền.",
+  "orbStyleValentine": "Valentine",
+  "orbStyleSakura": "Hoa anh đào"
 }

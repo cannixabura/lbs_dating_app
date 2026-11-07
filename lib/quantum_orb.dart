@@ -20,11 +20,11 @@ import 'ui/night.dart';
 const _orbsUrl = String.fromEnvironment('ORBS_URL', defaultValue: 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/orbs');
 
 /// 所有款式，依面板上的順序；和 geo-service/orbs.js 的 STYLES 相同
-const orbStyles = ['glow', 'ring', 'rainbow', 'startrail', 'rings', 'pair', 'xmas', 'newyear'];
+const orbStyles = ['glow', 'ring', 'rainbow', 'startrail', 'rings', 'pair', 'xmas', 'newyear', 'valentine', 'sakura'];
 const orbDefaultStyle = 'glow';
 
 /// 特殊款的商店商品代號（App Store Connect 與 Play Console 都用同一個代號）
-const orbProducts = {'rainbow': 'orb_rainbow', 'startrail': 'orb_startrail', 'rings': 'orb_rings', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear', 'aiya_xmas': 'aiya_skin_xmas', 'aiya_newyear': 'aiya_skin_newyear'};
+const orbProducts = {'rainbow': 'orb_rainbow', 'startrail': 'orb_startrail', 'rings': 'orb_rings', 'xmas': 'orb_xmas', 'newyear': 'orb_newyear', 'valentine': 'orb_valentine', 'sakura': 'orb_sakura', 'aiya_xmas': 'aiya_skin_xmas', 'aiya_newyear': 'aiya_skin_newyear'};
 
 /// 艾婭節日造型：和光球共用購買與擁有紀錄（orbOwned），但不是光球款式，只有買的人看得到自己的艾婭換造型
 const aiyaSkins = ['aiya_xmas', 'aiya_newyear'];
@@ -33,6 +33,8 @@ const aiyaSkins = ['aiya_xmas', 'aiya_newyear'];
 final orbLimitedUntil = {
   'xmas': DateTime.utc(2026, 12, 25, 15, 59, 59), // 12/25 23:59:59 台北
   'newyear': DateTime.utc(2027, 1, 1, 15, 59, 59), // 1/1 23:59:59 台北
+  'valentine': DateTime.utc(2027, 2, 14, 15, 59, 59), // 2/14 23:59:59 台北
+  'sakura': DateTime.utc(2027, 4, 10, 15, 59, 59), // 4/10 23:59:59 台北
   'aiya_xmas': DateTime.utc(2026, 12, 25, 15, 59, 59),
   'aiya_newyear': DateTime.utc(2027, 1, 1, 15, 59, 59),
 };
@@ -88,6 +90,8 @@ String orbStyleName(String style) => switch (style) {
       'pair' => tr.orbStylePair,
       'xmas' => tr.orbStyleXmas,
       'newyear' => tr.orbStyleNewYear,
+      'valentine' => tr.orbStyleValentine,
+      'sakura' => tr.orbStyleSakura,
       'aiya_xmas' => tr.aiyaSkinXmas,
       'aiya_newyear' => tr.aiyaSkinNewYear,
       _ => tr.orbStyleGlow,
@@ -115,14 +119,14 @@ class QuantumOrb extends StatelessWidget {
   /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）。
   /// 付費的彩虹款球比較大（地圖上約 31，免費款約 26），畫布一樣大，換款式不會讓版面跳動。
   /// 限定款外面有花圈、煙火，球稍微小一點讓裝飾畫得下。
-  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' || 'startrail' || 'rings' || 'pair' => 0.5, _ => 0.465 };
+  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' || 'startrail' || 'rings' || 'pair' || 'valentine' || 'sakura' => 0.5, _ => 0.465 };
 
   @override
   Widget build(BuildContext context) {
     // 彩虹光環會轉、雪花會飄、煙火會綻開：用時間算，跟著氣泡的呼吸動畫一起重畫
     final ms = DateTime.now().millisecondsSinceEpoch;
     final spin = style == 'rainbow' ? (ms % 6000) / 6000 * 2 * pi : 0.0;
-    final t = style == 'xmas' || style == 'newyear' || style == 'startrail' || style == 'pair' || bouquet ? (ms % 600000) / 1000.0 : 0.0;
+    final t = style == 'xmas' || style == 'newyear' || style == 'startrail' || style == 'pair' || style == 'valentine' || style == 'sakura' || bouquet ? (ms % 600000) / 1000.0 : 0.0;
     final bloom = style == 'newyear' && ms >= _newYearBloom.millisecondsSinceEpoch && ms < _newYearBloom.millisecondsSinceEpoch + 5 * 60 * 1000;
     final d = size * sphereRatio(style);
     final photo = image;
@@ -363,6 +367,100 @@ class QuantumOrbPainter extends CustomPainter {
     }
   }
 
+  static Path _heart(Offset c, double s) {
+    // 以 c 為中心、寬約 2s 的愛心
+    return Path()
+      ..moveTo(c.dx, c.dy + s * 0.9)
+      ..cubicTo(c.dx - s * 1.3, c.dy + s * 0.1, c.dx - s * 1.0, c.dy - s * 1.0, c.dx, c.dy - s * 0.35)
+      ..cubicTo(c.dx + s * 1.0, c.dy - s * 1.0, c.dx + s * 1.3, c.dy + s * 0.1, c.dx, c.dy + s * 0.9)
+      ..close();
+  }
+
+  /// 情人節款：一圈粉紅與玫瑰金的心形光粒子繞著轉（後半圈淡），跟著「撲通、撲通」的心跳一縮一放，小愛心從球頂往上飄
+  void _valentine(Canvas canvas, Size size, Offset c, double r, {required bool back}) {
+    final k = dim ? 0.4 : 1.0;
+    // 心跳：每 1.2 秒兩下
+    final beatT = t % 1.2;
+    final beat = 1 + 0.12 * (exp(-pow((beatT - 0.1) / 0.06, 2).toDouble()) + 0.7 * exp(-pow((beatT - 0.35) / 0.06, 2).toDouble()));
+    const colors = [Color(0xFFFF4D7D), Color(0xFFFF8AB3), Color(0xFFFFC2A8), Color(0xFFFF6FA0)];
+    const n = 12;
+    for (var i = 0; i < n; i++) {
+      final a = i / n * 2 * pi + t * 0.5;
+      final depth = sin(a);
+      if ((depth < 0) != back) continue;
+      final p = c + Offset(cos(a) * r * 1.42, depth * r * 0.55 - r * 0.05);
+      final sz = r * (0.15 + 0.05 * depth) * beat;
+      final color = colors[i % colors.length];
+      if (!dim) canvas.drawPath(_heart(p, sz * 1.6), Paint()..color = color.withOpacity(0.25 * (0.6 + 0.4 * depth))..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08));
+      canvas.drawPath(_heart(p, sz), Paint()..color = Color.lerp(color, Colors.white, depth > 0 ? 0.15 : 0)!.withOpacity((back ? 0.45 : 0.95) * k));
+    }
+    if (back || dim) return;
+    // 往上飄的小愛心
+    for (var i = 0; i < 4; i++) {
+      final life = (t * 0.32 + i * 0.25) % 1.0;
+      final p = c + Offset(sin(life * 5 + i * 2) * r * 0.35 + (i - 1.5) * r * 0.25, -r * 1.05 - life * r * 0.9);
+      canvas.drawPath(_heart(p, r * 0.1 * (1 - life * 0.4)), Paint()..color = colors[i].withOpacity(0.9 * sin(life * pi)));
+    }
+    // 球面上一點粉色光暈
+    canvas.drawCircle(c, r * 1.05, Paint()..style = PaintingStyle.stroke..strokeWidth = r * 0.06..color = const Color(0xFFFF8AB3).withOpacity(0.55 * beat.clamp(0, 1.2) / 1.2));
+  }
+
+  /// 櫻花季款：左上方伸出一段櫻花枝（深褐枝幹、五瓣花、花苞），花瓣從枝頭慢慢飄落、翻轉，風一吹往右下飄
+  void _sakura(Canvas canvas, Size size, Offset c, double r) {
+    final k = dim ? 0.4 : 1.0;
+    const petal = Color(0xFFFFC1D9), petalDeep = Color(0xFFFF8FB8), center = Color(0xFFFFE08A);
+    // 枝幹：沿著球的左上外緣的一道弧
+    final branch = Path()
+      ..moveTo(c.dx - r * 1.55, c.dy + r * 0.2)
+      ..quadraticBezierTo(c.dx - r * 1.45, c.dy - r * 1.2, c.dx + r * 0.1, c.dy - r * 1.42)
+      ..quadraticBezierTo(c.dx + r * 0.6, c.dy - r * 1.5, c.dx + r * 0.95, c.dy - r * 1.25);
+    canvas.drawPath(branch, Paint()..style = PaintingStyle.stroke..strokeWidth = r * 0.09..strokeCap = StrokeCap.round..color = const Color(0xFF6B4A3A).withOpacity(0.95 * k));
+    canvas.drawLine(c + Offset(-r * 1.2, -r * 0.85), c + Offset(-r * 0.85, -r * 0.75), Paint()..strokeWidth = r * 0.06..strokeCap = StrokeCap.round..color = const Color(0xFF6B4A3A).withOpacity(0.9 * k));
+    void flower(Offset at, double s, double rot, double open) {
+      for (var j = 0; j < 5; j++) {
+        final a = rot + j * 2 * pi / 5;
+        final pc = at + Offset(cos(a), sin(a)) * s * 0.55 * open;
+        canvas.save();
+        canvas.translate(pc.dx, pc.dy);
+        canvas.rotate(a + pi / 2);
+        final shape = Path()
+          ..moveTo(0, s * 0.55)
+          ..quadraticBezierTo(-s * 0.5, s * 0.1, -s * 0.2, -s * 0.45)
+          ..lineTo(0, -s * 0.32) // 花瓣尖端的小缺口
+          ..lineTo(s * 0.2, -s * 0.45)
+          ..quadraticBezierTo(s * 0.5, s * 0.1, 0, s * 0.55)
+          ..close();
+        canvas.drawPath(shape, Paint()..shader = RadialGradient(colors: [Colors.white, petal, petalDeep], stops: const [0, 0.6, 1]).createShader(Rect.fromCircle(center: Offset.zero, radius: s * 0.6))..color = Colors.white.withOpacity(k));
+        canvas.restore();
+      }
+      canvas.drawCircle(at, s * 0.14, Paint()..color = center.withOpacity(k));
+    }
+    final sway = sin(t * 0.9) * 0.08;
+    flower(c + Offset(-r * 1.38, -r * 0.55), r * 0.36, 0.3 + sway, 1);
+    flower(c + Offset(-r * 0.75, -r * 1.3), r * 0.42, 1.1 - sway, 1);
+    flower(c + Offset(r * 0.25, -r * 1.48), r * 0.32, 0.6 + sway, 0.9);
+    flower(c + Offset(-r * 1.05, -r * 0.8), r * 0.24, 2.0, 0.8);
+    // 花苞
+    for (final b in [Offset(r * 0.9, -r * 1.28), Offset(-r * 1.55, r * 0.1)]) {
+      canvas.drawOval(Rect.fromCenter(center: c + b, width: r * 0.16, height: r * 0.22), Paint()..color = petalDeep.withOpacity(k));
+    }
+    if (dim) return;
+    // 飄落的花瓣：從枝頭往右下飄、翻轉
+    for (var i = 0; i < 7; i++) {
+      final life = (t * 0.16 + _hash(i + 40)) % 1.0;
+      final start = c + Offset(-r * 1.3 + _hash(i + 41) * r * 2.0, -r * 1.4);
+      final p = start + Offset(life * r * 1.2 + sin(life * 6 + i) * r * 0.25, life * r * 3.0);
+      if (p.dy > size.height) continue;
+      final flip = cos(t * 2.5 + i * 1.7);
+      canvas.save();
+      canvas.translate(p.dx, p.dy);
+      canvas.rotate(t * 1.2 + i);
+      canvas.scale(1, flip.abs() * 0.8 + 0.2);
+      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: r * 0.2, height: r * 0.13), Paint()..color = (i.isEven ? petal : petalDeep).withOpacity(0.95 * sin(life * pi)));
+      canvas.restore();
+    }
+  }
+
   static const _rainbow = [Color(0xFFFF6B6B), Color(0xFFFFD166), Color(0xFF6BE38E), Color(0xFF4FC3F7), Color(0xFF9C7BFF), Color(0xFFFF7BD5), Color(0xFFFF6B6B)];
 
   @override
@@ -425,6 +523,7 @@ class QuantumOrbPainter extends CustomPainter {
       if (style == 'rings') _rings(canvas, c, r, base);
       if (style == 'startrail') _starTrail(canvas, c, r, base, back: true);
       if (style == 'pair') _pair(canvas, c, r, back: true);
+      if (style == 'valentine') _valentine(canvas, size, c, r, back: true);
       // 球的底色：沒有大頭貼時就是一顆心情色的光球
       canvas.drawCircle(c, r, Paint()
         ..shader = RadialGradient(
@@ -482,6 +581,8 @@ class QuantumOrbPainter extends CustomPainter {
     ring(false);
     if (style == 'startrail') _starTrail(canvas, c, r, base, back: false);
     if (style == 'pair') _pair(canvas, c, r, back: false);
+    if (style == 'valentine') _valentine(canvas, size, c, r, back: false);
+    if (style == 'sakura') _sakura(canvas, size, c, r);
     if (bouquet) _petals(canvas, c, r);
     if (style == 'xmas') _xmas(canvas, size, c, r);
     if (style == 'newyear') _newYear(canvas, size, c, r);
@@ -699,6 +800,7 @@ Future<void> showOrbSheet(BuildContext context, {required Color moodColor, Strin
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    useSafeArea: true, // 款式多、比螢幕高時，面板不能蓋到狀態列
     builder: (sheetContext) => _OrbSheet(moodColor: moodColor, image: orbImage(avatarUrl)),
   );
 }
@@ -794,8 +896,10 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
         child: DecoratedBox(
           decoration: BoxDecoration(color: Night.night900, borderRadius: BorderRadius.circular(Night.radiusLg)),
           child: GlassCard(
+          // 款式越來越多：整個面板可以捲動，說明文字不會跑到面板外面
+          child: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(tr.orbTitle, style: Night.title, textAlign: TextAlign.center),
+            SheetTitle(tr.orbTitle, closeTooltip: tr.close),
             const SizedBox(height: Night.space1),
             Text(tr.orbSubtitle, style: Night.caption, textAlign: TextAlign.center),
             const SizedBox(height: Night.space4),
@@ -828,6 +932,7 @@ class _OrbSheetState extends State<_OrbSheet> with SingleTickerProviderStateMixi
                   : TextButton(onPressed: OrbStore.restore, style: TextButton.styleFrom(foregroundColor: Night.inkMuted, minimumSize: const Size(44, 44)), child: Text(tr.orbRestore)),
             ),
           ]),
+          ),
           ),
         ),
       ),

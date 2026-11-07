@@ -127,3 +127,13 @@ test('會長大的光球：心跳秒數、星星與年輪', () => {
     assert.strictEqual(orbs.parseGrowthField('x'), null);
     assert.strictEqual(orbs.meetPairKey('a', 'b'), orbs.meetPairKey('b', 'a'));
 });
+
+test('情人節、櫻花季限定款：商品代號與販售截止', () => {
+    const orbs = require('./orbs');
+    assert.strictEqual(orbs.styleOfProduct('orb_valentine'), 'valentine');
+    assert.strictEqual(orbs.styleOfProduct('orb_sakura'), 'sakura');
+    assert.strictEqual(orbs.onSale('valentine', Date.parse('2027-02-14T23:00:00+08:00')), true);
+    assert.strictEqual(orbs.onSale('valentine', Date.parse('2027-02-15T00:00:01+08:00')), false);
+    assert.strictEqual(orbs.onSale('sakura', Date.parse('2027-04-11T00:00:01+08:00')), false);
+    assert.strictEqual(orbs.resolveStyle('sakura', { sakura: {} }), 'sakura');
+});

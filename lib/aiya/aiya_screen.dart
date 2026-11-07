@@ -569,7 +569,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   }
                   final products = OrbStore.products.value;
                   return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Text(tr.aiyaSkinTitle, style: Night.title, textAlign: TextAlign.center),
+                    SheetTitle(tr.aiyaSkinTitle, closeTooltip: tr.close),
                     const SizedBox(height: Night.space1),
                     Text(tr.aiyaSkinSubtitle, style: Night.caption, textAlign: TextAlign.center),
                     const SizedBox(height: Night.space4),

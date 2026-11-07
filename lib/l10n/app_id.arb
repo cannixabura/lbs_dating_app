@@ -919,5 +919,7 @@
   "giftBlockedOff": "Mereka mematikan terima hadiah. Kamu tidak dikenai biaya.",
   "giftBlockedBlocked": "Kamu tidak bisa mengirim hadiah ke orang ini. Kamu tidak dikenai biaya.",
   "giftBlockedOwned": "Mereka sudah punya orb ini. Pilih yang lain (kamu tidak dikenai biaya).",
-  "giftBlockedPaired": "Mereka sudah berpasangan. Kamu tidak dikenai biaya."
+  "giftBlockedPaired": "Mereka sudah berpasangan. Kamu tidak dikenai biaya.",
+  "orbStyleValentine": "Valentine",
+  "orbStyleSakura": "Sakura"
 }

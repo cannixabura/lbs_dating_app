@@ -3170,4 +3170,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get giftBlockedPaired => '相手にはすでにペアがいます。課金はされていません。';
+
+  @override
+  String get orbStyleValentine => 'バレンタイン';
+
+  @override
+  String get orbStyleSakura => '桜';
 }

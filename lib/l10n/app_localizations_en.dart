@@ -3412,4 +3412,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get giftBlockedPaired =>
       'They already have an entangled pair. You were not charged.';
+
+  @override
+  String get orbStyleValentine => 'Valentine';
+
+  @override
+  String get orbStyleSakura => 'Sakura';
 }

@@ -2011,5 +2011,7 @@
   "giftBlockedOff": "對方關掉了接收禮物，這次不會扣款",
   "giftBlockedBlocked": "無法送禮物給這個人，這次不會扣款",
   "giftBlockedOwned": "對方已經有這款光球了，換一款送吧（這次不會扣款）",
-  "giftBlockedPaired": "對方已經有糾纏款配對了，這次不會扣款"
+  "giftBlockedPaired": "對方已經有糾纏款配對了，這次不會扣款",
+  "orbStyleValentine": "情人節",
+  "orbStyleSakura": "櫻花季"
 }

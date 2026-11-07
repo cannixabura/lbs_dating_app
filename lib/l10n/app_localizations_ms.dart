@@ -3343,4 +3343,10 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get giftBlockedPaired => 'Mereka sudah berpasangan. Anda tidak dicaj.';
+
+  @override
+  String get orbStyleValentine => 'Valentine';
+
+  @override
+  String get orbStyleSakura => 'Sakura';
 }

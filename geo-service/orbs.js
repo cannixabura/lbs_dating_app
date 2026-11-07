@@ -24,6 +24,7 @@ const STYLES = {
     rainbow: { product: 'orb_rainbow' }, // 彩虹（長期販售）
     startrail: { product: 'orb_startrail', grows: true }, // 星軌：每完成一張量子相遇卡多一顆星（長期販售）
     rings: { product: 'orb_rings', grows: true }, // 年輪：在量子世界累積待滿 3 小時多一圈（長期販售）
+    pair: { granted: true }, // 糾纏款：只能透過「糾纏款」禮物取得（一人買、送給對方，對方接受後兩人都有），兩人都在量子世界時有一條光繩相連
     xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
     newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定
     // 艾婭節日造型：只有買的人看到自己的艾婭換造型；和光球共用購買驗證與擁有紀錄（orbOwned），但不是光球款式
@@ -34,12 +35,12 @@ const STYLES = {
 /** 這一款現在買不買得到：免費款不用買；限定款過了販售期就買不到 */
 const onSale = (s, now = Date.now()) => (isStyle(s) || isSkin(s)) && !!STYLES[s].product && !(STYLES[s].until && now > STYLES[s].until);
 
-const FREE_STYLES = Object.keys(STYLES).filter((s) => !STYLES[s].product);
+const FREE_STYLES = Object.keys(STYLES).filter((s) => !STYLES[s].product && !STYLES[s].granted);
 const styleOfProduct = (productId) => Object.keys(STYLES).find((s) => STYLES[s].product === productId) || null;
 /** 光球款式（艾婭造型不算：不能拿來當量子世界的頭像） */
 const isStyle = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !STYLES[s].skin;
 const isSkin = (s) => typeof s === 'string' && Object.prototype.hasOwnProperty.call(STYLES, s) && !!STYLES[s].skin;
-const isFree = (s) => isStyle(s) && !STYLES[s].product;
+const isFree = (s) => isStyle(s) && !STYLES[s].product && !STYLES[s].granted;
 
 // ---------- 會長大的光球（規格 §5.5 A）----------
 // 成長紀錄跟著帳號保存（Redis orb_growth:{uid} = { sec, stars }），不管有沒有買、換了哪一款都一直累積；

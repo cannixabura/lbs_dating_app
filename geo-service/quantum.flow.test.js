@@ -86,6 +86,21 @@ test('growing orbs: time in the world is counted per account; neighbours see sta
     assert.strictEqual(r.data.find((u) => u.uid === 'bob').grow, undefined); // 不是會長大的款式就不帶
 });
 
+test('gifts in the world: a paired partner gets a rope at any distance; a bouquet shows petals to neighbours', async () => {
+    clock += 10000;
+    run(['SET', 'orb_pair:alice', 'carol']);
+    run(['SET', 'gift_bouquet:bob', '1']);
+    await beat('bob');
+    await beat('carol');
+    const r = await beat('alice');
+    assert.strictEqual(r.pair.uid, 'carol');
+    assert.ok(typeof r.pair.lat === 'number' && typeof r.pair.code === 'string');
+    assert.strictEqual(r.data.find((u) => u.uid === 'bob').bouquet, true);
+    assert.strictEqual(r.data.find((u) => u.uid === 'carol').bouquet, undefined);
+    run(['DEL', 'orb_pair:alice']);
+    run(['DEL', 'gift_bouquet:bob']);
+});
+
 test('walking moves the bubble; riding a train does not', async () => {
     clock += 10000;
     let r = await beat('bob', { east: 12, north: 0 });

@@ -2944,6 +2944,178 @@ class AppLocalizationsZh extends AppLocalizations {
   String orbGrowRings(int count) {
     return '已累積 $count 圈';
   }
+
+  @override
+  String get giftAction => '送禮物';
+
+  @override
+  String giftSheetTitle(String name) {
+    return '送禮物給 $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return '挑一款光球送給 $name';
+  }
+
+  @override
+  String get giftBouquetName => '光之花束';
+
+  @override
+  String get giftBouquetDesc => '對方收下時畫面綻開一束光，之後 24 小時光球旁有一圈花瓣光點';
+
+  @override
+  String get giftOrbName => '送一款光球';
+
+  @override
+  String get giftOrbDesc => '你挑一款，對方收下後永久擁有';
+
+  @override
+  String get giftPairName => '糾纏款';
+
+  @override
+  String get giftPairDesc => '你和對方各一顆，配成一對；兩人都在量子世界時有光繩相連';
+
+  @override
+  String get giftPairYouHave => '你已經有糾纏款配對了';
+
+  @override
+  String get giftNote => '對方可以收下或婉拒；婉拒或 7 天沒回應會退回給你，可以再送給別人。';
+
+  @override
+  String get giftVouchersTitle => '退回的禮物（不用再付錢）';
+
+  @override
+  String get giftSendVoucher => '送出';
+
+  @override
+  String giftSent(String name) {
+    return '禮物已送給 $name，等對方收下';
+  }
+
+  @override
+  String get giftReturnedOff => '對方關掉了接收禮物，禮物已退回給你';
+
+  @override
+  String get giftReturnedBlocked => '無法送給這個人，禮物已退回給你';
+
+  @override
+  String get giftReturnedOwned => '對方已經有這款光球，禮物已退回給你，可以改送別款';
+
+  @override
+  String get giftReturnedPaired => '對方已經有糾纏款配對，禮物已退回給你';
+
+  @override
+  String get giftReturnedYouPaired => '你已經有糾纏款配對，禮物已退回給你';
+
+  @override
+  String get giftReturnedGeneric => '禮物已退回給你，可以再送給別人';
+
+  @override
+  String get giftStoreUnavailable => '商店暫時無法使用';
+
+  @override
+  String get giftFailed => '送禮沒有完成，請稍後再試';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name 送你一束光之花束';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name 送你一款光球「$style」';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name 想和你配成糾纏款';
+  }
+
+  @override
+  String get giftInboxTitle => '收到的禮物';
+
+  @override
+  String get giftInboxEmpty => '目前沒有禮物';
+
+  @override
+  String get giftInboxNote => '婉拒的禮物會退回給對方；7 天沒回覆也會自動退回。';
+
+  @override
+  String get giftAccept => '收下';
+
+  @override
+  String get giftDecline => '婉拒';
+
+  @override
+  String get giftDeclined => '已婉拒，禮物會退回給對方';
+
+  @override
+  String get giftAcceptedOrb => '收下了！到量子化身就能換上';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return '你和 $name 配成糾纏款了';
+  }
+
+  @override
+  String get giftAcceptedBouquet => '收下了光之花束，24 小時內你的光球旁會有花瓣光點';
+
+  @override
+  String get giftAlreadyOwned => '你已經有這款光球了，禮物退回給對方';
+
+  @override
+  String get giftAlreadyPaired => '已經有糾纏款配對了，禮物退回給對方';
+
+  @override
+  String get giftSettingsTitle => '禮物';
+
+  @override
+  String get giftReceiveToggle => '接收禮物';
+
+  @override
+  String get giftReceiveToggleSub => '關掉後，別人送的禮物會直接退回給對方';
+
+  @override
+  String get giftVouchersHint => '在對方的選單裡點「送禮物」就能再送出';
+
+  @override
+  String get giftUnpair => '解除糾纏款配對';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return '確定要解除和 $name 的糾纏款配對嗎？兩人都會保留糾纏款光球，但不再有光繩相連。';
+  }
+
+  @override
+  String get orbStylePair => '糾纏款';
+
+  @override
+  String giftPairedWith(String name) {
+    return '糾纏款配對：$name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return '收到的禮物（$count）';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '退回的禮物 $count 份';
+  }
+
+  @override
+  String get giftBlockedOff => '對方關掉了接收禮物，這次不會扣款';
+
+  @override
+  String get giftBlockedBlocked => '無法送禮物給這個人，這次不會扣款';
+
+  @override
+  String get giftBlockedOwned => '對方已經有這款光球了，換一款送吧（這次不會扣款）';
+
+  @override
+  String get giftBlockedPaired => '對方已經有糾纏款配對了，這次不會扣款';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5885,4 +6057,176 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String orbGrowRings(int count) {
     return '已累积 $count 圈';
   }
+
+  @override
+  String get giftAction => '送礼物';
+
+  @override
+  String giftSheetTitle(String name) {
+    return '送礼物给 $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return '挑一款光球送给 $name';
+  }
+
+  @override
+  String get giftBouquetName => '光之花束';
+
+  @override
+  String get giftBouquetDesc => '对方收下时画面绽开一束光，之后 24 小时光球旁有一圈花瓣光点';
+
+  @override
+  String get giftOrbName => '送一款光球';
+
+  @override
+  String get giftOrbDesc => '你挑一款，对方收下后永久拥有';
+
+  @override
+  String get giftPairName => '纠缠款';
+
+  @override
+  String get giftPairDesc => '你和对方各一颗，配成一对；两人都在量子世界时有光绳相连';
+
+  @override
+  String get giftPairYouHave => '你已经有纠缠款配对了';
+
+  @override
+  String get giftNote => '对方可以收下或婉拒；婉拒或 7 天没回应会退回给你，可以再送给别人。';
+
+  @override
+  String get giftVouchersTitle => '退回的礼物（不用再付钱）';
+
+  @override
+  String get giftSendVoucher => '送出';
+
+  @override
+  String giftSent(String name) {
+    return '礼物已送给 $name，等对方收下';
+  }
+
+  @override
+  String get giftReturnedOff => '对方关掉了接收礼物，礼物已退回给你';
+
+  @override
+  String get giftReturnedBlocked => '无法送给这个人，礼物已退回给你';
+
+  @override
+  String get giftReturnedOwned => '对方已经有这款光球，礼物已退回给你，可以改送别款';
+
+  @override
+  String get giftReturnedPaired => '对方已经有纠缠款配对，礼物已退回给你';
+
+  @override
+  String get giftReturnedYouPaired => '你已经有纠缠款配对，礼物已退回给你';
+
+  @override
+  String get giftReturnedGeneric => '礼物已退回给你，可以再送给别人';
+
+  @override
+  String get giftStoreUnavailable => '商店暂时无法使用';
+
+  @override
+  String get giftFailed => '送礼没有完成，请稍后再试';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name 送你一束光之花束';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name 送你一款光球「$style」';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name 想和你配成纠缠款';
+  }
+
+  @override
+  String get giftInboxTitle => '收到的礼物';
+
+  @override
+  String get giftInboxEmpty => '目前没有礼物';
+
+  @override
+  String get giftInboxNote => '婉拒的礼物会退回给对方；7 天没回复也会自动退回。';
+
+  @override
+  String get giftAccept => '收下';
+
+  @override
+  String get giftDecline => '婉拒';
+
+  @override
+  String get giftDeclined => '已婉拒，礼物会退回给对方';
+
+  @override
+  String get giftAcceptedOrb => '收下了！到量子化身就能换上';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return '你和 $name 配成纠缠款了';
+  }
+
+  @override
+  String get giftAcceptedBouquet => '收下了光之花束，24 小时内你的光球旁会有花瓣光点';
+
+  @override
+  String get giftAlreadyOwned => '你已经有这款光球了，礼物退回给对方';
+
+  @override
+  String get giftAlreadyPaired => '已经有纠缠款配对了，礼物退回给对方';
+
+  @override
+  String get giftSettingsTitle => '礼物';
+
+  @override
+  String get giftReceiveToggle => '接收礼物';
+
+  @override
+  String get giftReceiveToggleSub => '关掉后，别人送的礼物会直接退回给对方';
+
+  @override
+  String get giftVouchersHint => '在对方的菜单里点“送礼物”就能再送出';
+
+  @override
+  String get giftUnpair => '解除纠缠款配对';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return '确定要解除和 $name 的纠缠款配对吗？两人都会保留纠缠款光球，但不再有光绳相连。';
+  }
+
+  @override
+  String get orbStylePair => '纠缠款';
+
+  @override
+  String giftPairedWith(String name) {
+    return '纠缠款配对：$name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return '收到的礼物（$count）';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '退回的礼物 $count 份';
+  }
+
+  @override
+  String get giftBlockedOff => '对方关掉了接收礼物，这次不会扣款';
+
+  @override
+  String get giftBlockedBlocked => '无法送礼物给这个人，这次不会扣款';
+
+  @override
+  String get giftBlockedOwned => '对方已经有这款光球了，换一款送吧（这次不会扣款）';
+
+  @override
+  String get giftBlockedPaired => '对方已经有纠缠款配对了，这次不会扣款';
 }

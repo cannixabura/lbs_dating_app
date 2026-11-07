@@ -5330,6 +5330,306 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已累積 {count} 圈'**
   String orbGrowRings(int count);
+
+  /// No description provided for @giftAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'送禮物'**
+  String get giftAction;
+
+  /// No description provided for @giftSheetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'送禮物給 {name}'**
+  String giftSheetTitle(String name);
+
+  /// No description provided for @giftPickStyle.
+  ///
+  /// In zh, this message translates to:
+  /// **'挑一款光球送給 {name}'**
+  String giftPickStyle(String name);
+
+  /// No description provided for @giftBouquetName.
+  ///
+  /// In zh, this message translates to:
+  /// **'光之花束'**
+  String get giftBouquetName;
+
+  /// No description provided for @giftBouquetDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方收下時畫面綻開一束光，之後 24 小時光球旁有一圈花瓣光點'**
+  String get giftBouquetDesc;
+
+  /// No description provided for @giftOrbName.
+  ///
+  /// In zh, this message translates to:
+  /// **'送一款光球'**
+  String get giftOrbName;
+
+  /// No description provided for @giftOrbDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'你挑一款，對方收下後永久擁有'**
+  String get giftOrbDesc;
+
+  /// No description provided for @giftPairName.
+  ///
+  /// In zh, this message translates to:
+  /// **'糾纏款'**
+  String get giftPairName;
+
+  /// No description provided for @giftPairDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'你和對方各一顆，配成一對；兩人都在量子世界時有光繩相連'**
+  String get giftPairDesc;
+
+  /// No description provided for @giftPairYouHave.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經有糾纏款配對了'**
+  String get giftPairYouHave;
+
+  /// No description provided for @giftNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方可以收下或婉拒；婉拒或 7 天沒回應會退回給你，可以再送給別人。'**
+  String get giftNote;
+
+  /// No description provided for @giftVouchersTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'退回的禮物（不用再付錢）'**
+  String get giftVouchersTitle;
+
+  /// No description provided for @giftSendVoucher.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出'**
+  String get giftSendVoucher;
+
+  /// No description provided for @giftSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'禮物已送給 {name}，等對方收下'**
+  String giftSent(String name);
+
+  /// No description provided for @giftReturnedOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方關掉了接收禮物，禮物已退回給你'**
+  String get giftReturnedOff;
+
+  /// No description provided for @giftReturnedBlocked.
+  ///
+  /// In zh, this message translates to:
+  /// **'無法送給這個人，禮物已退回給你'**
+  String get giftReturnedBlocked;
+
+  /// No description provided for @giftReturnedOwned.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經有這款光球，禮物已退回給你，可以改送別款'**
+  String get giftReturnedOwned;
+
+  /// No description provided for @giftReturnedPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經有糾纏款配對，禮物已退回給你'**
+  String get giftReturnedPaired;
+
+  /// No description provided for @giftReturnedYouPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經有糾纏款配對，禮物已退回給你'**
+  String get giftReturnedYouPaired;
+
+  /// No description provided for @giftReturnedGeneric.
+  ///
+  /// In zh, this message translates to:
+  /// **'禮物已退回給你，可以再送給別人'**
+  String get giftReturnedGeneric;
+
+  /// No description provided for @giftStoreUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'商店暫時無法使用'**
+  String get giftStoreUnavailable;
+
+  /// No description provided for @giftFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'送禮沒有完成，請稍後再試'**
+  String get giftFailed;
+
+  /// No description provided for @giftFromBouquet.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} 送你一束光之花束'**
+  String giftFromBouquet(String name);
+
+  /// No description provided for @giftFromOrb.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} 送你一款光球「{style}」'**
+  String giftFromOrb(String name, String style);
+
+  /// No description provided for @giftFromPair.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} 想和你配成糾纏款'**
+  String giftFromPair(String name);
+
+  /// No description provided for @giftInboxTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'收到的禮物'**
+  String get giftInboxTitle;
+
+  /// No description provided for @giftInboxEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'目前沒有禮物'**
+  String get giftInboxEmpty;
+
+  /// No description provided for @giftInboxNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'婉拒的禮物會退回給對方；7 天沒回覆也會自動退回。'**
+  String get giftInboxNote;
+
+  /// No description provided for @giftAccept.
+  ///
+  /// In zh, this message translates to:
+  /// **'收下'**
+  String get giftAccept;
+
+  /// No description provided for @giftDecline.
+  ///
+  /// In zh, this message translates to:
+  /// **'婉拒'**
+  String get giftDecline;
+
+  /// No description provided for @giftDeclined.
+  ///
+  /// In zh, this message translates to:
+  /// **'已婉拒，禮物會退回給對方'**
+  String get giftDeclined;
+
+  /// No description provided for @giftAcceptedOrb.
+  ///
+  /// In zh, this message translates to:
+  /// **'收下了！到量子化身就能換上'**
+  String get giftAcceptedOrb;
+
+  /// No description provided for @giftAcceptedPair.
+  ///
+  /// In zh, this message translates to:
+  /// **'你和 {name} 配成糾纏款了'**
+  String giftAcceptedPair(String name);
+
+  /// No description provided for @giftAcceptedBouquet.
+  ///
+  /// In zh, this message translates to:
+  /// **'收下了光之花束，24 小時內你的光球旁會有花瓣光點'**
+  String get giftAcceptedBouquet;
+
+  /// No description provided for @giftAlreadyOwned.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經有這款光球了，禮物退回給對方'**
+  String get giftAlreadyOwned;
+
+  /// No description provided for @giftAlreadyPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'已經有糾纏款配對了，禮物退回給對方'**
+  String get giftAlreadyPaired;
+
+  /// No description provided for @giftSettingsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'禮物'**
+  String get giftSettingsTitle;
+
+  /// No description provided for @giftReceiveToggle.
+  ///
+  /// In zh, this message translates to:
+  /// **'接收禮物'**
+  String get giftReceiveToggle;
+
+  /// No description provided for @giftReceiveToggleSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'關掉後，別人送的禮物會直接退回給對方'**
+  String get giftReceiveToggleSub;
+
+  /// No description provided for @giftVouchersHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'在對方的選單裡點「送禮物」就能再送出'**
+  String get giftVouchersHint;
+
+  /// No description provided for @giftUnpair.
+  ///
+  /// In zh, this message translates to:
+  /// **'解除糾纏款配對'**
+  String get giftUnpair;
+
+  /// No description provided for @giftUnpairConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'確定要解除和 {name} 的糾纏款配對嗎？兩人都會保留糾纏款光球，但不再有光繩相連。'**
+  String giftUnpairConfirm(String name);
+
+  /// No description provided for @orbStylePair.
+  ///
+  /// In zh, this message translates to:
+  /// **'糾纏款'**
+  String get orbStylePair;
+
+  /// No description provided for @giftPairedWith.
+  ///
+  /// In zh, this message translates to:
+  /// **'糾纏款配對：{name}'**
+  String giftPairedWith(String name);
+
+  /// No description provided for @giftInboxCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'收到的禮物（{count}）'**
+  String giftInboxCount(int count);
+
+  /// No description provided for @giftVouchersCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'退回的禮物 {count} 份'**
+  String giftVouchersCount(int count);
+
+  /// No description provided for @giftBlockedOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方關掉了接收禮物，這次不會扣款'**
+  String get giftBlockedOff;
+
+  /// No description provided for @giftBlockedBlocked.
+  ///
+  /// In zh, this message translates to:
+  /// **'無法送禮物給這個人，這次不會扣款'**
+  String get giftBlockedBlocked;
+
+  /// No description provided for @giftBlockedOwned.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經有這款光球了，換一款送吧（這次不會扣款）'**
+  String get giftBlockedOwned;
+
+  /// No description provided for @giftBlockedPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經有糾纏款配對了，這次不會扣款'**
+  String get giftBlockedPaired;
 }
 
 class _AppLocalizationsDelegate

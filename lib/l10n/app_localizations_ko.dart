@@ -3017,4 +3017,177 @@ class AppLocalizationsKo extends AppLocalizations {
   String orbGrowRings(int count) {
     return '지금까지 나이테 $count개';
   }
+
+  @override
+  String get giftAction => '선물하기';
+
+  @override
+  String giftSheetTitle(String name) {
+    return '$name님에게 선물하기';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return '$name님에게 줄 광구를 고르세요';
+  }
+
+  @override
+  String get giftBouquetName => '빛의 꽃다발';
+
+  @override
+  String get giftBouquetDesc => '받으면 빛의 꽃이 피어나고, 24시간 동안 광구 주위에 꽃잎 빛이 돌아요';
+
+  @override
+  String get giftOrbName => '광구 선물';
+
+  @override
+  String get giftOrbDesc => '내가 고르고, 받으면 상대가 계속 쓸 수 있어요';
+
+  @override
+  String get giftPairName => '얽힘 커플';
+
+  @override
+  String get giftPairDesc => '둘이 하나씩 갖는 커플 광구; 둘 다 퀀텀 월드에 있으면 빛의 끈으로 이어져요';
+
+  @override
+  String get giftPairYouHave => '이미 얽힘 커플이 있어요';
+
+  @override
+  String get giftNote =>
+      '상대는 받거나 거절할 수 있어요. 거절하거나 7일 동안 답이 없으면 돌아와서 다른 사람에게 줄 수 있어요.';
+
+  @override
+  String get giftVouchersTitle => '돌아온 선물 (추가 결제 없음)';
+
+  @override
+  String get giftSendVoucher => '보내기';
+
+  @override
+  String giftSent(String name) {
+    return '$name님에게 선물을 보냈어요. 받기를 기다리는 중이에요.';
+  }
+
+  @override
+  String get giftReturnedOff => '상대가 선물 받기를 꺼 두어서 선물이 돌아왔어요';
+
+  @override
+  String get giftReturnedBlocked => '이 사람에게는 보낼 수 없어서 선물이 돌아왔어요';
+
+  @override
+  String get giftReturnedOwned => '상대가 이미 이 광구를 갖고 있어서 돌아왔어요. 다른 걸 보낼 수 있어요';
+
+  @override
+  String get giftReturnedPaired => '상대에게 이미 얽힘 커플이 있어서 돌아왔어요';
+
+  @override
+  String get giftReturnedYouPaired => '이미 얽힘 커플이 있어서 선물이 돌아왔어요';
+
+  @override
+  String get giftReturnedGeneric => '선물이 돌아왔어요. 다른 사람에게 줄 수 있어요';
+
+  @override
+  String get giftStoreUnavailable => '지금은 스토어를 이용할 수 없어요';
+
+  @override
+  String get giftFailed => '선물을 보내지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name님의 빛의 꽃다발';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name님이 \"$style\" 광구를 선물했어요';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name님이 얽힘 커플이 되고 싶어 해요';
+  }
+
+  @override
+  String get giftInboxTitle => '받은 선물';
+
+  @override
+  String get giftInboxEmpty => '지금은 선물이 없어요';
+
+  @override
+  String get giftInboxNote => '거절한 선물은 보낸 사람에게 돌아가고, 7일간 답이 없어도 돌아가요.';
+
+  @override
+  String get giftAccept => '받기';
+
+  @override
+  String get giftDecline => '거절';
+
+  @override
+  String get giftDeclined => '거절했어요. 선물은 보낸 사람에게 돌아가요.';
+
+  @override
+  String get giftAcceptedOrb => '받았어요! 퀀텀 아바타에서 바꿀 수 있어요';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return '$name님과 얽힘 커플이 됐어요';
+  }
+
+  @override
+  String get giftAcceptedBouquet => '꽃다발을 받았어요. 24시간 동안 광구 주위에 꽃잎 빛이 돌아요.';
+
+  @override
+  String get giftAlreadyOwned => '이미 이 광구가 있어서 선물이 보낸 사람에게 돌아갔어요';
+
+  @override
+  String get giftAlreadyPaired => '이미 얽힘 커플이 있어서 선물이 돌아갔어요';
+
+  @override
+  String get giftSettingsTitle => '선물';
+
+  @override
+  String get giftReceiveToggle => '선물 받기';
+
+  @override
+  String get giftReceiveToggleSub => '끄면 선물이 바로 보낸 사람에게 돌아가요';
+
+  @override
+  String get giftVouchersHint => '상대 메뉴의 \"선물하기\"에서 다시 보낼 수 있어요';
+
+  @override
+  String get giftUnpair => '얽힘 커플 해제';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return '$name님과의 얽힘 커플을 해제할까요? 광구는 둘 다 남지만 빛의 끈은 사라져요.';
+  }
+
+  @override
+  String get orbStylePair => '얽힘';
+
+  @override
+  String giftPairedWith(String name) {
+    return '얽힘 커플: $name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return '받은 선물 ($count)';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '돌아온 선물 $count개';
+  }
+
+  @override
+  String get giftBlockedOff => '상대가 선물 받기를 꺼 두었어요. 결제되지 않았어요.';
+
+  @override
+  String get giftBlockedBlocked => '이 사람에게는 선물을 보낼 수 없어요. 결제되지 않았어요.';
+
+  @override
+  String get giftBlockedOwned => '상대가 이미 이 광구를 갖고 있어요. 다른 걸 골라 주세요(결제되지 않았어요).';
+
+  @override
+  String get giftBlockedPaired => '상대에게 이미 얽힘 커플이 있어요. 결제되지 않았어요.';
 }

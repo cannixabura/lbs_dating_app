@@ -4,6 +4,7 @@
 //   收據標成 'refunded' 之後就不能再拿來兌換，同一筆退款處理第二次也不會重複扣。
 const aiya = require('./aiya');
 const orbs = require('./orbs');
+const gifts = require('./gifts');
 
 const REFUNDED = 'refunded';
 const REFUND_TYPES = new Set(['REFUND', 'REVOKE']);
@@ -16,6 +17,7 @@ function appleRefundTarget(notificationType, tx, bundleId) {
         const qty = Number(tx.quantity) > 1 ? Number(tx.quantity) : 1;
         return { kind: 'pack', receipt: `a_${tx.transactionId}`, credits: packCredits * qty };
     }
+    if (gifts.kindOfProduct(tx.productId) && tx.transactionId) return { kind: 'gift', receipt: `a_${tx.transactionId}` };
     const style = orbs.styleOfProduct(tx.productId);
     const id = tx.originalTransactionId || tx.transactionId;
     if (style && id) return { kind: 'orb', receipt: orbs.receiptKey('apple', id), style };

@@ -51,6 +51,16 @@ const TABLE = [
     ['還沒到時間，再等等。', '还没到时间，再等等。', "It's not time yet. Wait a little longer.", 'まだその時ではありません。もう少し待ってください。', '아직 때가 아니에요. 조금만 더 기다려 주세요.', 'Belum tiba masanya. Tunggu sedikit lagi.', 'Belum waktunya. Tunggu sebentar lagi.', 'Chưa đến lúc. Hãy chờ thêm chút nữa.', 'ยังไม่ถึงเวลา รออีกสักหน่อย'],
     ['回到那裡 {m} 公尺內就能打開。', '回到那里 {m} 米内就能打开。', 'Go back within {m} m of the spot to open it.', 'その場所の {m} m 以内に戻ると開けられます。', '그곳 {m}m 안으로 돌아가면 열 수 있어요.', 'Kembali dalam lingkungan {m} m dari tempat itu untuk membukanya.', 'Kembali dalam radius {m} m dari tempat itu untuk membukanya.', 'Quay lại trong bán kính {m} m của nơi đó để mở.', 'กลับไปที่จุดนั้นภายใน {m} เมตรเพื่อเปิดอ่าน'],
 
+    // ---- 送禮（推播） ----
+    ['收到一份禮物', '收到一份礼物', 'You got a gift', 'ギフトが届きました', '선물이 도착했어요', 'Anda menerima hadiah', 'Kamu dapat hadiah', 'Bạn nhận được một món quà', 'คุณได้รับของขวัญ'],
+    ['{name} 送你一束光之花束', '{name} 送你一束光之花束', '{name} sent you a light bouquet', '{name} から光の花束が届きました', '{name}님이 빛의 꽃다발을 보냈어요', '{name} menghantar sejambak bunga cahaya kepada anda', '{name} mengirimimu buket cahaya', '{name} gửi bạn một bó hoa ánh sáng', '{name} ส่งช่อดอกไม้แห่งแสงให้คุณ'],
+    ['{name} 送你一款光球', '{name} 送你一款光球', '{name} sent you an orb style', '{name} から光球が届きました', '{name}님이 광구를 선물했어요', '{name} menghadiahkan gaya orb kepada anda', '{name} menghadiahimu gaya orb', '{name} tặng bạn một kiểu quả cầu', '{name} ส่งลูกแก้วแสงให้คุณ'],
+    ['{name} 想和你配成糾纏款', '{name} 想和你配成纠缠款', '{name} wants to pair up with you (Entangled orbs)', '{name} があなたとペアの量子もつれ光球になりたいようです', '{name}님이 얽힘 커플 광구를 함께하고 싶어 해요', '{name} mahu berpasangan dengan anda (orb terjalin)', '{name} ingin berpasangan denganmu (orb terjerat)', '{name} muốn ghép đôi với bạn (quả cầu vướng víu)', '{name} อยากจับคู่ลูกแก้วพัวพันกับคุณ'],
+    ['禮物送到了', '礼物送到了', 'Gift received', 'ギフトが受け取られました', '선물을 받았어요', 'Hadiah diterima', 'Hadiah diterima', 'Quà đã được nhận', 'ของขวัญถูกรับแล้ว'],
+    ['{name} 收下了你的禮物', '{name} 收下了你的礼物', '{name} accepted your gift', '{name} がギフトを受け取りました', '{name}님이 선물을 받았어요', '{name} menerima hadiah anda', '{name} menerima hadiahmu', '{name} đã nhận quà của bạn', '{name} รับของขวัญของคุณแล้ว'],
+    ['禮物退回了', '礼物退回了', 'Gift returned', 'ギフトが戻ってきました', '선물이 돌아왔어요', 'Hadiah dikembalikan', 'Hadiah dikembalikan', 'Quà đã được trả lại', 'ของขวัญถูกส่งคืน'],
+    ['這份禮物已經退回給你，可以再送給別人。', '这份礼物已经退回给你，可以再送给别人。', 'This gift came back to you. You can give it to someone else.', 'このギフトはあなたに戻りました。ほかの人に贈れます。', '이 선물이 돌아왔어요. 다른 사람에게 줄 수 있어요.', 'Hadiah ini dikembalikan kepada anda. Anda boleh memberikannya kepada orang lain.', 'Hadiah ini kembali padamu. Kamu bisa memberikannya ke orang lain.', 'Món quà đã quay về với bạn. Bạn có thể tặng cho người khác.', 'ของขวัญนี้กลับมาหาคุณแล้ว ส่งให้คนอื่นได้'],
+
     // ---- 低語團（推播） ----
     ['{n} 分鐘後到「{place}」集合', '{n} 分钟后到“{place}”集合', 'Meet at "{place}" in {n} min', '{n} 分後に「{place}」に集合', '{n}분 뒤 "{place}"에서 모여요', 'Berkumpul di "{place}" dalam {n} minit', 'Kumpul di "{place}" dalam {n} menit', 'Tập trung tại "{place}" sau {n} phút', 'รวมตัวที่ "{place}" ในอีก {n} นาที'],
     ['現在到「{place}」集合', '现在到“{place}”集合', 'Meet at "{place}" now', '今すぐ「{place}」に集合', '지금 "{place}"에서 모여요', 'Berkumpul di "{place}" sekarang', 'Kumpul di "{place}" sekarang', 'Tập trung tại "{place}" ngay bây giờ', 'รวมตัวที่ "{place}" ตอนนี้'],

@@ -47,6 +47,7 @@ import 'parallel_universe.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
+import 'gifts/gifts.dart';
 import 'quantum_orb.dart';
 import 'quantum_world.dart';
 import 'aiya/aiya_cameo.dart';
@@ -232,6 +233,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   late final AnimationController _quantumGlow = AnimationController(vsync: this, duration: const Duration(seconds: 3));
   // 第二期：讓世界活起來
   List<QuantumPartner> _quantumPartners = []; // 糾纏中的人：不管多遠都畫一道光線
+  QuantumPartner? _quantumPair; // 糾纏款配對的對方（也在量子世界時）：金、粉兩股的光繩
   bool _quantumTunneled = false; // 這次入場已經穿隧過
   bool _quantumReform = false; // 穿隧：在新席位重組
   final Set<String> _quantumChatted = {}; // 這次入場聊過天的人，才能邀請糾纏
@@ -441,6 +443,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     // 量子化身：聽商店的購買結果（包含上次沒完成的交易），讀自己買過的款式
     OrbStore.init();
     AiyaStore.init();
+    GiftStore.init(); // 送禮：聽禮物的購買結果（包含上次沒送完的交易）
+    // 送禮選單已經關掉才完成的購買：結果在主畫面提示（選單開著時由選單自己顯示）
+    GiftStore.notice.addListener(() => WidgetsBinding.instance.addPostFrameCallback((_) {
+          final n = GiftStore.notice.value;
+          if (n == null || !mounted) return;
+          GiftStore.notice.value = null;
+          showGlassToast(context, n, icon: Icons.card_giftcard);
+        }));
+    GiftState.refresh().then((_) => _maybeShowGiftInbox());
     AiyaPrefs.load();
     MapConsent.load();
     // 低語團：讀自己目前所在的團（不在團裡就不顯示地圖按鈕）、聽購買結果、聽分享連結／QR code
@@ -646,6 +657,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             return;
           }
         }
+        // 送禮：收到禮物直接打開收禮清單；被收下、退回只更新狀態（提示照常顯示）
+        if ('${message.data['type']}'.startsWith('gift')) {
+          GiftState.refresh().then((_) => _maybeShowGiftInbox());
+          if (message.data['type'] == 'gift') return;
+        }
         // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
         if (message.data['type'] == 'chat_message' && message.data['roomId'] == ChatScreen.activeRoomId) return;
         if (message.notification != null && mounted) {
@@ -671,7 +687,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _linkSub = links.uriLinkStream.listen(handle, onError: (_) {});
   }
 
+  /// 收到的禮物：這次開 App 還沒看過的就打開收禮清單
+  final _shownGiftIds = <String>{};
+  void _maybeShowGiftInbox({bool force = false}) {
+    final inbox = GiftState.inbox.value;
+    if (!mounted || inbox.isEmpty) return;
+    if (!force && inbox.every((g) => _shownGiftIds.contains(g.id))) return;
+    _shownGiftIds.addAll(inbox.map((g) => g.id));
+    showGiftInbox(context);
+  }
+
   void _openFromPush(Map<String, dynamic> data) {
+    if (data['type'] == 'gift') { GiftState.refresh().then((_) => _maybeShowGiftInbox(force: true)); return; }
     if (!'${data['type']}'.startsWith('wgroup_')) return;
     WhisperGroup.refresh().then((_) { if (mounted && WhisperGroup.current.value != null) showWhisperGroupPanel(context); });
   }
@@ -1418,6 +1445,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   /// 心跳帶回的第二期資料：糾纏、邀請、剛塌縮的糾纏、整點報時
   void _applyQuantumLive(Map<String, dynamic> data) {
     _quantumPartners = [for (final e in (data['ent'] as List? ?? const [])) if (QuantumPartner.fromJson(e) case final p?) if (!_blockedUids.contains(p.uid)) p];
+    final pair = QuantumPartner.fromJson(data['pair']);
+    _quantumPair = pair != null && !_blockedUids.contains(pair.uid) ? pair : null;
     final me = data['me'];
     if (me is Map && me['tunneled'] == true) _quantumTunneled = true;
     for (final name in (data['entGone'] as List? ?? const [])) {
@@ -1663,6 +1692,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (!mounted) return;
     final me = Map<String, dynamic>.from(data['me'] as Map);
     OrbGrowth.apply(data['growth']);
+    OrbGrowth.myBouquet.value = data['bouquet'] == true;
     final base = (east: (me['east'] as num?)?.toDouble() ?? 0, north: (me['north'] as num?)?.toDouble() ?? 0);
     void arrive() {
       _quantumWalk = QuantumWalk(pos.latitude, pos.longitude, baseEast: base.east, baseNorth: base.north);
@@ -1719,6 +1749,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (status != 200 || data['success'] != true) return;
     _quantumLastSent = raw;
     OrbGrowth.apply(data['growth']);
+    OrbGrowth.myBouquet.value = data['bouquet'] == true;
     final online = data['online'] is Map ? Map<String, dynamic>.from(data['online'] as Map) : const <String, dynamic>{};
     quantumSession.value = quantumSession.value!.copyWith(
       me: Map<String, dynamic>.from(data['me'] as Map),
@@ -1763,7 +1794,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   void _resetQuantum() {
     _quantumWalk = null; _quantumLastSent = null; _quantumFix = null; _quantumDots = []; _quantumBursts = [];
     // 第二期的公開內容離場即消失：糾纏、訊號、共振都不留
-    _quantumPartners = []; _quantumTunneled = false; _quantumReform = false; _quantumChatted.clear(); _shownInvites.clear();
+    _quantumPartners = []; _quantumPair = null; _quantumTunneled = false; _quantumReform = false; _quantumChatted.clear(); _shownInvites.clear();
     _newYearCount = 0; _nyTogetherShown = false; _nyZoneShown = null;
     _quantumFlights.clear(); _seenChimeFx.clear(); _resonanceUntil.clear(); _signalFloats.clear();
     _chimeBell?.dispose(); _chimeBell = null; _chimeHour = -1;
@@ -1835,6 +1866,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'quantumOrb': user['quantum'] != null ? orbStyleOf(user['orb']) : null,
         // 會長大的光球：星軌的星星數、年輪的圈數
         'quantumGrow': OrbGrowth.parse(user['grow']),
+        // 光之花束：收到花束的 24 小時內
+        'quantumBouquet': user['bouquet'] == true,
         'quiet': user['quiet'] == true,
         // 第二期：晝夜色調、當地時間（對方同意才有）、量子同頻主題
         'day': user['day'],
@@ -2413,6 +2446,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     item(Icons.groups_2_outlined, tr.wgSettingCreate, subtitle: tr.wgSettingCreateSub, onTap: () => go(() => showCreateWhisperGroup(context))),
                     item(Icons.qr_code_2, tr.wgSettingJoin, subtitle: tr.wgSettingJoinSub, onTap: () => go(() => showJoinByCode(context))),
                   ],
+                  // 禮物：收到的禮物、接收開關、退回的禮券、糾纏款配對
+                  section(tr.giftSettingsTitle),
+                  if (GiftState.inbox.value.isNotEmpty)
+                    item(Icons.card_giftcard, tr.giftInboxCount(GiftState.inbox.value.length), color: Night.cityAmber, onTap: () => go(() => showGiftInbox(context))),
+                  switchRow(Icons.card_giftcard_outlined, tr.giftReceiveToggle, tr.giftReceiveToggleSub, () => !GiftState.off.value, GiftState.setReceive),
+                  if (GiftState.vouchers.value.isNotEmpty)
+                    item(Icons.redeem, tr.giftVouchersCount(GiftState.vouchers.value.length), subtitle: tr.giftVouchersHint, onTap: () => go(() => showGiftVouchers(context))),
+                  if (GiftState.pair.value case final pair?)
+                    item(Icons.all_inclusive, tr.giftUnpair, subtitle: tr.giftPairedWith(pair.nickname), color: Night.knockPink, onTap: () => go(() => _confirmUnpair(pair.nickname))),
                   section(tr.settingsSectionShare),
                   item(Icons.ios_share, tr.shareMoodCard, subtitle: tr.shareMoodCardSubtitle, onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, tr.inviteFriends, subtitle: tr.inviteFriendsSubtitle, onTap: () => go(() => shareInvite(context))),
@@ -2429,6 +2471,28 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           ),
         );
       },
+    );
+  }
+
+  void _confirmUnpair(String name) {
+    showDialog(
+      context: context, barrierColor: const Color(0x99070B1F),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent, insetPadding: const EdgeInsets.all(Night.space6),
+        child: GlassCard(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Icon(Icons.all_inclusive, color: Night.knockPink, size: 36),
+            const SizedBox(height: Night.space3),
+            Text(tr.giftUnpairConfirm(name), style: Night.body, textAlign: TextAlign.center),
+            const SizedBox(height: Night.space4),
+            Row(children: [
+              Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(dialogContext), child: Text(tr.cancel))),
+              const SizedBox(width: Night.space2),
+              Expanded(child: FilledButton(onPressed: () { Navigator.pop(dialogContext); GiftState.unpair(); }, child: Text(tr.giftUnpair))),
+            ]),
+          ]),
+        ),
+      ),
     );
   }
 
@@ -2878,6 +2942,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
               orb: user['quantumOrb'] as String?,
               orbGrow: user['quantumGrow'] as ({int stars, int rings})?,
+              orbBouquet: user['quantumBouquet'] == true,
             ),
           ),
         ),
@@ -3089,6 +3154,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
+              // 送禮物：不用先加好友；示範對象、殘影不能送
+              if (!isShadow && !isDemo)
+                item(Icons.card_giftcard, Night.cityAmber, tr.giftAction, () { Navigator.pop(dialogContext); showGiftSheet(context, toUid: targetUid, toName: displayName); }),
               if (!isShadow) ...[
                 item(Icons.waving_hand_outlined, quiet ? Night.inkFaint : Night.knockPink, tr.knock, () {
                   Navigator.pop(dialogContext);
@@ -3351,6 +3419,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       // 從系統設定回來：重新檢查定位權限與精確位置
       if (_locationIssue != _LocationIssue.none) _checkLocation();
       WhisperGroup.refresh();
+      GiftState.refresh().then((_) => _maybeShowGiftInbox());
       // 回到前景：立刻回報為活躍，並馬上刷新雷達
       if (_isInForeground) return;
       _isInForeground = true;
@@ -3609,12 +3678,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
                                     scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
                                 final screen = (Offset.zero & Size(screenWidth, screenHeight)).deflate(24);
-                                final ends = <(Offset, String)>[], offscreen = <bool>[];
-                                for (final partner in _quantumPartners) {
+                                final ends = <(Offset, String)>[], offscreen = <bool>[], ropeColors = <List<Color>?>[];
+                                final pair = _quantumPair;
+                                for (final partner in [..._quantumPartners.where((p) => p.uid != pair?.uid), if (pair != null) pair]) {
                                   final o = quantumLocal(partner.lat, partner.lng);
                                   if (_entangleEnd(proj, screen, o.east, o.north) case (final at, final out)?) {
                                     ends.add((at, out || currentScale < _quantumWorldScale ? partner.nickname : ''));
                                     offscreen.add(out);
+                                    ropeColors.add(partner.uid == pair?.uid ? const [Color(0xFFFFD166), Color(0xFFFF8AD8)] : null);
                                   }
                                 }
                                 final chiming = QuantumChime.active(now);
@@ -3626,7 +3697,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                     ))),
                                   if (ends.isNotEmpty && !_quantumSelfCollapse)
                                     Positioned.fill(child: CustomPaint(painter: QuantumEntanglePainter(
-                                      me: Offset(centerX, centerY), ends: ends, offscreen: offscreen, phase: (now.millisecondsSinceEpoch % 2400) / 2400,
+                                      me: Offset(centerX, centerY), ends: ends, offscreen: offscreen, phase: (now.millisecondsSinceEpoch % 2400) / 2400, colors: ropeColors,
                                     ))),
                                 ]);
                               },
@@ -3638,9 +3709,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         Positioned(
                           left: centerX - 28, top: centerY - 28,
                           child: IgnorePointer(child: AnimatedBuilder(
-                            animation: Listenable.merge([OrbPrefs.style, OrbGrowth.mine]),
+                            animation: Listenable.merge([OrbPrefs.style, OrbGrowth.mine, OrbGrowth.myBouquet]),
                             builder: (context, _) => QuantumOrb(style: OrbPrefs.style.value, color: _getMoodColor(_myMood), size: 56, image: orbImage(_myAvatarUrl),
-                                stars: OrbGrowth.mine.value.stars, rings: OrbGrowth.mine.value.rings),
+                                stars: OrbGrowth.mine.value.stars, rings: OrbGrowth.mine.value.rings, bouquet: OrbGrowth.myBouquet.value),
                           )),
                         ),
 
@@ -3923,6 +3994,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool newYear; // 量子跨年：主人的時區已經跨年，頭像外一圈金色光環
   final String? orb; // 量子化身：量子世界裡用光球取代大頭貼
   final ({int stars, int rings})? orbGrow; // 會長大的光球
+  final bool orbBouquet; // 光之花束
   final double shadowOpacity; 
 
   const _AnimatedBubbleUI({
@@ -3943,6 +4015,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.newYear = false,
     this.orb,
     this.orbGrow,
+    this.orbBouquet = false,
     this.shadowOpacity = 1.0
   });
 
@@ -4107,7 +4180,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                       if (widget.orb case final orb?)
                         // 量子化身：大頭貼合成的球型頭像，球緣和光暈是心情色；敲門中、殘影的顏色規則和大頭貼一樣
                         QuantumOrb(style: orb, color: accent, size: 56, glow: glowValue, image: orbImage(peerAvatarUrl),
-                            stars: widget.orbGrow?.stars ?? 0, rings: widget.orbGrow?.rings ?? 0,
+                            stars: widget.orbGrow?.stars ?? 0, rings: widget.orbGrow?.rings ?? 0, bouquet: widget.orbBouquet,
                             dim: widget.isShadow || (widget.isInactive && !isPending))
                       else
                       Container(

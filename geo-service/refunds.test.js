@@ -29,3 +29,7 @@ test('stylesWithReceipt／googleVoidedReceipts', () => {
     assert.strictEqual(keys.length, 1);
     assert.match(keys[0], /^g_[0-9a-f]{40}$/);
 });
+
+test('appleRefundTarget：禮物（消耗性）用交易編號對收據', () => {
+    assert.deepStrictEqual(r.appleRefundTarget('REFUND', { bundleId: B, productId: 'gift_pair', transactionId: '42' }, B), { kind: 'gift', receipt: 'a_42' });
+});

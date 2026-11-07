@@ -1881,5 +1881,135 @@
         "type": "int"
       }
     }
-  }
+  },
+  "giftAction": "送禮物",
+  "giftSheetTitle": "送禮物給 {name}",
+  "@giftSheetTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftPickStyle": "挑一款光球送給 {name}",
+  "@giftPickStyle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftBouquetName": "光之花束",
+  "giftBouquetDesc": "對方收下時畫面綻開一束光，之後 24 小時光球旁有一圈花瓣光點",
+  "giftOrbName": "送一款光球",
+  "giftOrbDesc": "你挑一款，對方收下後永久擁有",
+  "giftPairName": "糾纏款",
+  "giftPairDesc": "你和對方各一顆，配成一對；兩人都在量子世界時有光繩相連",
+  "giftPairYouHave": "你已經有糾纏款配對了",
+  "giftNote": "對方可以收下或婉拒；婉拒或 7 天沒回應會退回給你，可以再送給別人。",
+  "giftVouchersTitle": "退回的禮物（不用再付錢）",
+  "giftSendVoucher": "送出",
+  "giftSent": "禮物已送給 {name}，等對方收下",
+  "@giftSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftReturnedOff": "對方關掉了接收禮物，禮物已退回給你",
+  "giftReturnedBlocked": "無法送給這個人，禮物已退回給你",
+  "giftReturnedOwned": "對方已經有這款光球，禮物已退回給你，可以改送別款",
+  "giftReturnedPaired": "對方已經有糾纏款配對，禮物已退回給你",
+  "giftReturnedYouPaired": "你已經有糾纏款配對，禮物已退回給你",
+  "giftReturnedGeneric": "禮物已退回給你，可以再送給別人",
+  "giftStoreUnavailable": "商店暫時無法使用",
+  "giftFailed": "送禮沒有完成，請稍後再試",
+  "giftFromBouquet": "{name} 送你一束光之花束",
+  "@giftFromBouquet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftFromOrb": "{name} 送你一款光球「{style}」",
+  "@giftFromOrb": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "giftFromPair": "{name} 想和你配成糾纏款",
+  "@giftFromPair": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftInboxTitle": "收到的禮物",
+  "giftInboxEmpty": "目前沒有禮物",
+  "giftInboxNote": "婉拒的禮物會退回給對方；7 天沒回覆也會自動退回。",
+  "giftAccept": "收下",
+  "giftDecline": "婉拒",
+  "giftDeclined": "已婉拒，禮物會退回給對方",
+  "giftAcceptedOrb": "收下了！到量子化身就能換上",
+  "giftAcceptedPair": "你和 {name} 配成糾纏款了",
+  "@giftAcceptedPair": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftAcceptedBouquet": "收下了光之花束，24 小時內你的光球旁會有花瓣光點",
+  "giftAlreadyOwned": "你已經有這款光球了，禮物退回給對方",
+  "giftAlreadyPaired": "已經有糾纏款配對了，禮物退回給對方",
+  "giftSettingsTitle": "禮物",
+  "giftReceiveToggle": "接收禮物",
+  "giftReceiveToggleSub": "關掉後，別人送的禮物會直接退回給對方",
+  "giftVouchersHint": "在對方的選單裡點「送禮物」就能再送出",
+  "giftUnpair": "解除糾纏款配對",
+  "giftUnpairConfirm": "確定要解除和 {name} 的糾纏款配對嗎？兩人都會保留糾纏款光球，但不再有光繩相連。",
+  "@giftUnpairConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orbStylePair": "糾纏款",
+  "giftPairedWith": "糾纏款配對：{name}",
+  "@giftPairedWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftInboxCount": "收到的禮物（{count}）",
+  "@giftInboxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "giftVouchersCount": "退回的禮物 {count} 份",
+  "@giftVouchersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "giftBlockedOff": "對方關掉了接收禮物，這次不會扣款",
+  "giftBlockedBlocked": "無法送禮物給這個人，這次不會扣款",
+  "giftBlockedOwned": "對方已經有這款光球了，換一款送吧（這次不會扣款）",
+  "giftBlockedPaired": "對方已經有糾纏款配對了，這次不會扣款"
 }

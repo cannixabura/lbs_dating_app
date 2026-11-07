@@ -3152,4 +3152,195 @@ class AppLocalizationsMs extends AppLocalizations {
   String orbGrowRings(int count) {
     return '$count gelang setakat ini';
   }
+
+  @override
+  String get giftAction => 'Hantar hadiah';
+
+  @override
+  String giftSheetTitle(String name) {
+    return 'Hantar hadiah kepada $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return 'Pilih gaya orb untuk $name';
+  }
+
+  @override
+  String get giftBouquetName => 'Jambangan cahaya';
+
+  @override
+  String get giftBouquetDesc =>
+      'Cahaya mekar apabila diterima, kemudian kelopak cahaya mengelilingi orb mereka selama 24 jam';
+
+  @override
+  String get giftOrbName => 'Hadiahkan gaya orb';
+
+  @override
+  String get giftOrbDesc =>
+      'Anda pilih; ia kekal milik mereka selepas diterima';
+
+  @override
+  String get giftPairName => 'Pasangan terjalin';
+
+  @override
+  String get giftPairDesc =>
+      'Satu orb untuk setiap seorang, berpasangan; tali cahaya menghubungkan anda di Dunia Kuantum';
+
+  @override
+  String get giftPairYouHave => 'Anda sudah ada pasangan terjalin';
+
+  @override
+  String get giftNote =>
+      'Mereka boleh terima atau tolak. Jika ditolak atau tiada jawapan dalam 7 hari, hadiah kembali kepada anda.';
+
+  @override
+  String get giftVouchersTitle => 'Hadiah dikembalikan (tiada caj tambahan)';
+
+  @override
+  String get giftSendVoucher => 'Hantar';
+
+  @override
+  String giftSent(String name) {
+    return 'Hadiah dihantar kepada $name. Menunggu diterima.';
+  }
+
+  @override
+  String get giftReturnedOff =>
+      'Mereka menutup terima hadiah; hadiah dikembalikan kepada anda';
+
+  @override
+  String get giftReturnedBlocked =>
+      'Hadiah tidak boleh dihantar kepada orang ini; ia dikembalikan';
+
+  @override
+  String get giftReturnedOwned =>
+      'Mereka sudah ada orb ini; hadiah dikembalikan, anda boleh beri gaya lain';
+
+  @override
+  String get giftReturnedPaired =>
+      'Mereka sudah berpasangan; hadiah dikembalikan';
+
+  @override
+  String get giftReturnedYouPaired =>
+      'Anda sudah berpasangan; hadiah dikembalikan';
+
+  @override
+  String get giftReturnedGeneric =>
+      'Hadiah dikembalikan; anda boleh beri kepada orang lain';
+
+  @override
+  String get giftStoreUnavailable => 'Kedai tidak tersedia sekarang';
+
+  @override
+  String get giftFailed => 'Hadiah tidak berjaya. Sila cuba lagi nanti.';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name menghantar jambangan cahaya';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name menghadiahkan orb \"$style\"';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name mahu menjadi pasangan terjalin anda';
+  }
+
+  @override
+  String get giftInboxTitle => 'Hadiah untuk anda';
+
+  @override
+  String get giftInboxEmpty => 'Tiada hadiah buat masa ini';
+
+  @override
+  String get giftInboxNote =>
+      'Hadiah yang ditolak dikembalikan kepada pengirim; tiada jawapan 7 hari juga dikembalikan.';
+
+  @override
+  String get giftAccept => 'Terima';
+
+  @override
+  String get giftDecline => 'Tolak';
+
+  @override
+  String get giftDeclined => 'Ditolak. Hadiah dikembalikan kepada pengirim.';
+
+  @override
+  String get giftAcceptedOrb => 'Diterima! Tukar di avatar kuantum.';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return 'Anda dan $name kini pasangan terjalin';
+  }
+
+  @override
+  String get giftAcceptedBouquet =>
+      'Jambangan diterima. Kelopak cahaya mengelilingi orb anda selama 24 jam.';
+
+  @override
+  String get giftAlreadyOwned =>
+      'Anda sudah ada orb ini; hadiah dikembalikan kepada pengirim';
+
+  @override
+  String get giftAlreadyPaired =>
+      'Salah seorang sudah berpasangan; hadiah dikembalikan';
+
+  @override
+  String get giftSettingsTitle => 'Hadiah';
+
+  @override
+  String get giftReceiveToggle => 'Terima hadiah';
+
+  @override
+  String get giftReceiveToggleSub =>
+      'Jika ditutup, hadiah terus dikembalikan kepada pengirim';
+
+  @override
+  String get giftVouchersHint =>
+      'Ketik \"Hantar hadiah\" pada seseorang untuk memberi semula';
+
+  @override
+  String get giftUnpair => 'Tamatkan pasangan terjalin';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return 'Tamatkan pasangan dengan $name? Kedua-dua kekalkan orb, tetapi tali cahaya hilang.';
+  }
+
+  @override
+  String get orbStylePair => 'Terjalin';
+
+  @override
+  String giftPairedWith(String name) {
+    return 'Berpasangan dengan $name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return 'Hadiah untuk anda ($count)';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '$count hadiah dikembalikan';
+  }
+
+  @override
+  String get giftBlockedOff =>
+      'Mereka menutup terima hadiah. Anda tidak dicaj.';
+
+  @override
+  String get giftBlockedBlocked =>
+      'Anda tidak boleh menghantar hadiah kepada orang ini. Anda tidak dicaj.';
+
+  @override
+  String get giftBlockedOwned =>
+      'Mereka sudah ada orb ini. Pilih yang lain (anda tidak dicaj).';
+
+  @override
+  String get giftBlockedPaired => 'Mereka sudah berpasangan. Anda tidak dicaj.';
 }

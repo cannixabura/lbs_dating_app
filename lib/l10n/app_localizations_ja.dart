@@ -2998,4 +2998,176 @@ class AppLocalizationsJa extends AppLocalizations {
   String orbGrowRings(int count) {
     return 'いま $count 本の年輪';
   }
+
+  @override
+  String get giftAction => 'ギフトを贈る';
+
+  @override
+  String giftSheetTitle(String name) {
+    return '$name にギフトを贈る';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return '$name に贈る光球を選ぶ';
+  }
+
+  @override
+  String get giftBouquetName => '光の花束';
+
+  @override
+  String get giftBouquetDesc => '受け取ると光の花が咲き、24 時間光球のまわりに花びらの光が舞います';
+
+  @override
+  String get giftOrbName => '光球を贈る';
+
+  @override
+  String get giftOrbDesc => 'あなたが選び、受け取った相手がずっと使えます';
+
+  @override
+  String get giftPairName => '量子もつれペア';
+
+  @override
+  String get giftPairDesc => 'あなたと相手に1つずつのペア。2人とも量子世界にいると光の縄でつながります';
+
+  @override
+  String get giftPairYouHave => 'すでにペアがいます';
+
+  @override
+  String get giftNote => '相手は受け取るか断れます。断られたり 7 日間返事がなければあなたに戻り、ほかの人に贈れます。';
+
+  @override
+  String get giftVouchersTitle => '戻ってきたギフト（追加料金なし）';
+
+  @override
+  String get giftSendVoucher => '贈る';
+
+  @override
+  String giftSent(String name) {
+    return '$name にギフトを贈りました。受け取りを待っています。';
+  }
+
+  @override
+  String get giftReturnedOff => '相手はギフトの受け取りをオフにしています。ギフトはあなたに戻りました';
+
+  @override
+  String get giftReturnedBlocked => 'この人には贈れません。ギフトはあなたに戻りました';
+
+  @override
+  String get giftReturnedOwned => '相手はこの光球を持っています。ギフトは戻りました。別のものを贈れます';
+
+  @override
+  String get giftReturnedPaired => '相手にはすでにペアがいます。ギフトはあなたに戻りました';
+
+  @override
+  String get giftReturnedYouPaired => 'あなたにはすでにペアがいます。ギフトは戻りました';
+
+  @override
+  String get giftReturnedGeneric => 'ギフトはあなたに戻りました。ほかの人に贈れます';
+
+  @override
+  String get giftStoreUnavailable => 'ストアは現在使えません';
+
+  @override
+  String get giftFailed => 'ギフトを贈れませんでした。しばらくしてからお試しください。';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name から光の花束';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name から光球「$style」';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name があなたとペアになりたいようです';
+  }
+
+  @override
+  String get giftInboxTitle => '届いたギフト';
+
+  @override
+  String get giftInboxEmpty => 'いまはギフトはありません';
+
+  @override
+  String get giftInboxNote => '断ったギフトは贈り主に戻ります。7 日間返事がなくても戻ります。';
+
+  @override
+  String get giftAccept => '受け取る';
+
+  @override
+  String get giftDecline => '断る';
+
+  @override
+  String get giftDeclined => '断りました。ギフトは贈り主に戻ります。';
+
+  @override
+  String get giftAcceptedOrb => '受け取りました！量子アバターで切り替えられます';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return '$name とペアになりました';
+  }
+
+  @override
+  String get giftAcceptedBouquet => '光の花束を受け取りました。24 時間光球のまわりに花びらが舞います。';
+
+  @override
+  String get giftAlreadyOwned => 'この光球はすでに持っています。ギフトは贈り主に戻りました';
+
+  @override
+  String get giftAlreadyPaired => 'どちらかがすでにペアです。ギフトは贈り主に戻りました';
+
+  @override
+  String get giftSettingsTitle => 'ギフト';
+
+  @override
+  String get giftReceiveToggle => 'ギフトを受け取る';
+
+  @override
+  String get giftReceiveToggleSub => 'オフにすると、ギフトはそのまま贈り主に戻ります';
+
+  @override
+  String get giftVouchersHint => '相手のメニューで「ギフトを贈る」から贈れます';
+
+  @override
+  String get giftUnpair => 'ペアを解除';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return '$name とのペアを解除しますか？光球は2人とも残りますが、光の縄は消えます。';
+  }
+
+  @override
+  String get orbStylePair => '量子もつれ';
+
+  @override
+  String giftPairedWith(String name) {
+    return 'ペア：$name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return '届いたギフト（$count）';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '戻ってきたギフト $count 件';
+  }
+
+  @override
+  String get giftBlockedOff => '相手はギフトの受け取りをオフにしています。課金はされていません。';
+
+  @override
+  String get giftBlockedBlocked => 'この人にはギフトを贈れません。課金はされていません。';
+
+  @override
+  String get giftBlockedOwned => '相手はこの光球を持っています。別のものを選んでください（課金はされていません）。';
+
+  @override
+  String get giftBlockedPaired => '相手にはすでにペアがいます。課金はされていません。';
 }

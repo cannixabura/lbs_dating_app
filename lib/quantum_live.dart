@@ -467,8 +467,9 @@ class QuantumEntanglePainter extends CustomPainter {
   final List<(Offset, String)> ends; // 繩子的另一端與暱稱（對方在畫面外時才標名字）
   final List<bool> offscreen;
   final double phase; // 0～1，繩子轉一圈
+  final List<List<Color>?>? colors; // 每條繩子兩股的顏色；沒給就是粉、藍（糾纏款配對用金、粉）
 
-  QuantumEntanglePainter({required this.me, required this.ends, required this.offscreen, required this.phase});
+  QuantumEntanglePainter({required this.me, required this.ends, required this.offscreen, required this.phase, this.colors});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -483,7 +484,7 @@ class QuantumEntanglePainter extends CustomPainter {
 
       // 底下一層柔光（整條只模糊一次）
       canvas.drawLine(me, end, Paint()
-        ..shader = LinearGradient(colors: [Night.knockPink.withOpacity(0.35), Night.auroraBlue.withOpacity(0.35 * far)]).createShader(rect)
+        ..shader = LinearGradient(colors: [((colors != null && i < colors!.length ? colors![i] : null)?[0] ?? Night.knockPink).withOpacity(0.35), ((colors != null && i < colors!.length ? colors![i] : null)?[1] ?? Night.auroraBlue).withOpacity(0.35 * far)]).createShader(rect)
         ..strokeWidth = 12
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
 
@@ -491,7 +492,7 @@ class QuantumEntanglePainter extends CustomPainter {
       final steps = (len / 3).round().clamp(24, 260);
       final spin = phase * 2 * pi + i * 1.3;
       const amp = 5.5;
-      final strands = [Night.knockPink, Night.auroraBlue];
+      final strands = (colors != null && i < colors!.length ? colors![i] : null) ?? const [Night.knockPink, Night.auroraBlue];
       final backs = [Path(), Path()], fronts = [Path(), Path()];
       for (var k = 0; k < 2; k++) {
         bool? wasFront;

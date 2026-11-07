@@ -3154,4 +3154,186 @@ class AppLocalizationsTh extends AppLocalizations {
   String orbGrowRings(int count) {
     return 'สะสมแล้ว $count วง';
   }
+
+  @override
+  String get giftAction => 'ส่งของขวัญ';
+
+  @override
+  String giftSheetTitle(String name) {
+    return 'ส่งของขวัญให้ $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return 'เลือกลูกแก้วแสงให้ $name';
+  }
+
+  @override
+  String get giftBouquetName => 'ช่อดอกไม้แห่งแสง';
+
+  @override
+  String get giftBouquetDesc =>
+      'เมื่อรับจะมีแสงบานขึ้น แล้วกลีบดอกแสงจะวนรอบลูกแก้ว 24 ชั่วโมง';
+
+  @override
+  String get giftOrbName => 'ส่งลูกแก้วแสง';
+
+  @override
+  String get giftOrbDesc => 'คุณเลือก เมื่อรับแล้วเป็นของเขาตลอดไป';
+
+  @override
+  String get giftPairName => 'คู่พัวพัน';
+
+  @override
+  String get giftPairDesc =>
+      'ลูกแก้วคู่คนละลูก เมื่ออยู่ในโลกควอนตัมพร้อมกันจะมีเชือกแสงเชื่อมกัน';
+
+  @override
+  String get giftPairYouHave => 'คุณมีคู่พัวพันแล้ว';
+
+  @override
+  String get giftNote =>
+      'เขารับหรือปฏิเสธได้ ถ้าปฏิเสธหรือไม่ตอบใน 7 วัน ของขวัญจะกลับมาหาคุณ';
+
+  @override
+  String get giftVouchersTitle => 'ของขวัญที่ถูกส่งคืน (ไม่ต้องจ่ายเพิ่ม)';
+
+  @override
+  String get giftSendVoucher => 'ส่ง';
+
+  @override
+  String giftSent(String name) {
+    return 'ส่งของขวัญให้ $name แล้ว รอเขารับ';
+  }
+
+  @override
+  String get giftReturnedOff => 'เขาปิดรับของขวัญ ของขวัญกลับมาหาคุณแล้ว';
+
+  @override
+  String get giftReturnedBlocked => 'ส่งให้คนนี้ไม่ได้ ของขวัญกลับมาหาคุณแล้ว';
+
+  @override
+  String get giftReturnedOwned =>
+      'เขามีลูกแก้วนี้แล้ว ของขวัญกลับมา ส่งแบบอื่นได้';
+
+  @override
+  String get giftReturnedPaired => 'เขามีคู่พัวพันแล้ว ของขวัญกลับมาหาคุณ';
+
+  @override
+  String get giftReturnedYouPaired => 'คุณมีคู่พัวพันแล้ว ของขวัญกลับมา';
+
+  @override
+  String get giftReturnedGeneric => 'ของขวัญกลับมาแล้ว ส่งให้คนอื่นได้';
+
+  @override
+  String get giftStoreUnavailable => 'ตอนนี้ร้านค้าใช้ไม่ได้';
+
+  @override
+  String get giftFailed => 'ส่งของขวัญไม่สำเร็จ ลองใหม่ภายหลัง';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name ส่งช่อดอกไม้แห่งแสงให้คุณ';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name ส่งลูกแก้ว \"$style\" ให้คุณ';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name อยากเป็นคู่พัวพันกับคุณ';
+  }
+
+  @override
+  String get giftInboxTitle => 'ของขวัญที่ได้รับ';
+
+  @override
+  String get giftInboxEmpty => 'ยังไม่มีของขวัญ';
+
+  @override
+  String get giftInboxNote =>
+      'ของขวัญที่ปฏิเสธจะกลับไปหาผู้ส่ง ไม่ตอบใน 7 วันก็จะกลับไปเอง';
+
+  @override
+  String get giftAccept => 'รับ';
+
+  @override
+  String get giftDecline => 'ปฏิเสธ';
+
+  @override
+  String get giftDeclined => 'ปฏิเสธแล้ว ของขวัญจะกลับไปหาผู้ส่ง';
+
+  @override
+  String get giftAcceptedOrb => 'รับแล้ว! เปลี่ยนได้ที่อวาตาร์ควอนตัม';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return 'คุณกับ $name เป็นคู่พัวพันแล้ว';
+  }
+
+  @override
+  String get giftAcceptedBouquet =>
+      'รับช่อดอกไม้แล้ว กลีบดอกแสงจะวนรอบลูกแก้วของคุณ 24 ชั่วโมง';
+
+  @override
+  String get giftAlreadyOwned => 'คุณมีลูกแก้วนี้แล้ว ของขวัญกลับไปหาผู้ส่ง';
+
+  @override
+  String get giftAlreadyPaired => 'มีคนหนึ่งมีคู่แล้ว ของขวัญกลับไปหาผู้ส่ง';
+
+  @override
+  String get giftSettingsTitle => 'ของขวัญ';
+
+  @override
+  String get giftReceiveToggle => 'รับของขวัญ';
+
+  @override
+  String get giftReceiveToggleSub => 'ถ้าปิด ของขวัญจะกลับไปหาผู้ส่งทันที';
+
+  @override
+  String get giftVouchersHint =>
+      'แตะ \"ส่งของขวัญ\" ที่เมนูของใครสักคนเพื่อส่งอีกครั้ง';
+
+  @override
+  String get giftUnpair => 'ยกเลิกคู่พัวพัน';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return 'ยกเลิกคู่กับ $name ไหม ทั้งสองยังมีลูกแก้ว แต่เชือกแสงจะหายไป';
+  }
+
+  @override
+  String get orbStylePair => 'พัวพัน';
+
+  @override
+  String giftPairedWith(String name) {
+    return 'คู่กับ $name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return 'ของขวัญที่ได้รับ ($count)';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return 'ของขวัญที่ส่งคืน $count ชิ้น';
+  }
+
+  @override
+  String get giftBlockedOff => 'เขาปิดรับของขวัญ คุณยังไม่ถูกเรียกเก็บเงิน';
+
+  @override
+  String get giftBlockedBlocked =>
+      'ส่งของขวัญให้คนนี้ไม่ได้ คุณยังไม่ถูกเรียกเก็บเงิน';
+
+  @override
+  String get giftBlockedOwned =>
+      'เขามีลูกแก้วนี้แล้ว เลือกแบบอื่นนะ (ยังไม่ถูกเรียกเก็บเงิน)';
+
+  @override
+  String get giftBlockedPaired =>
+      'เขามีคู่พัวพันแล้ว คุณยังไม่ถูกเรียกเก็บเงิน';
 }

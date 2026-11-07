@@ -24,6 +24,7 @@ function run([cmd, ...a]) {
         case 'HMGET': return a.slice(1).map((f) => (db.has(a[0]) ? (hash(a[0]).get(f) ?? null) : null));
         case 'HGETALL': return db.has(a[0]) ? [...hash(a[0]).entries()].flat() : [];
         case 'GET': return db.has(a[0]) ? db.get(a[0]) : null;
+        case 'EXISTS': return a.filter((k) => db.has(k)).length;
         case 'EXPIRE': return db.has(a[0]) ? 1 : 0;
         case 'HDEL': { if (!db.has(a[0])) return 0; let n = 0; a.slice(1).forEach((f) => { if (hash(a[0]).delete(f)) n++; }); return n; }
         case 'SADD': { const h = hash(a[0]); a.slice(1).forEach((m) => h.set(m, 1)); return 1; }

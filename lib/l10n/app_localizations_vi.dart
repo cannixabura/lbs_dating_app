@@ -3134,4 +3134,189 @@ class AppLocalizationsVi extends AppLocalizations {
   String orbGrowRings(int count) {
     return 'Đã có $count vòng';
   }
+
+  @override
+  String get giftAction => 'Tặng quà';
+
+  @override
+  String giftSheetTitle(String name) {
+    return 'Tặng quà cho $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return 'Chọn kiểu quả cầu tặng $name';
+  }
+
+  @override
+  String get giftBouquetName => 'Bó hoa ánh sáng';
+
+  @override
+  String get giftBouquetDesc =>
+      'Khi nhận, một bó ánh sáng nở ra, rồi cánh hoa ánh sáng quanh quả cầu suốt 24 giờ';
+
+  @override
+  String get giftOrbName => 'Tặng một kiểu quả cầu';
+
+  @override
+  String get giftOrbDesc => 'Bạn chọn; người nhận giữ mãi sau khi nhận';
+
+  @override
+  String get giftPairName => 'Cặp vướng víu';
+
+  @override
+  String get giftPairDesc =>
+      'Mỗi người một quả, ghép đôi; dây ánh sáng nối hai bạn khi cùng ở Thế giới lượng tử';
+
+  @override
+  String get giftPairYouHave => 'Bạn đã có cặp vướng víu';
+
+  @override
+  String get giftNote =>
+      'Người nhận có thể nhận hoặc từ chối. Nếu từ chối hoặc 7 ngày không trả lời, quà sẽ quay về với bạn.';
+
+  @override
+  String get giftVouchersTitle => 'Quà bị trả lại (không tốn thêm)';
+
+  @override
+  String get giftSendVoucher => 'Gửi';
+
+  @override
+  String giftSent(String name) {
+    return 'Đã gửi quà cho $name. Đang chờ nhận.';
+  }
+
+  @override
+  String get giftReturnedOff => 'Họ đã tắt nhận quà nên quà quay về với bạn';
+
+  @override
+  String get giftReturnedBlocked =>
+      'Không thể tặng người này nên quà quay về với bạn';
+
+  @override
+  String get giftReturnedOwned =>
+      'Họ đã có quả cầu này nên quà quay về; bạn có thể tặng kiểu khác';
+
+  @override
+  String get giftReturnedPaired => 'Họ đã có cặp vướng víu nên quà quay về';
+
+  @override
+  String get giftReturnedYouPaired => 'Bạn đã có cặp vướng víu nên quà quay về';
+
+  @override
+  String get giftReturnedGeneric =>
+      'Quà đã quay về; bạn có thể tặng người khác';
+
+  @override
+  String get giftStoreUnavailable => 'Cửa hàng tạm thời không khả dụng';
+
+  @override
+  String get giftFailed => 'Tặng quà chưa thành công. Vui lòng thử lại sau.';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name gửi bạn bó hoa ánh sáng';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name tặng bạn quả cầu \"$style\"';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name muốn ghép cặp vướng víu với bạn';
+  }
+
+  @override
+  String get giftInboxTitle => 'Quà của bạn';
+
+  @override
+  String get giftInboxEmpty => 'Hiện chưa có quà';
+
+  @override
+  String get giftInboxNote =>
+      'Quà từ chối sẽ trả lại người gửi; 7 ngày không trả lời cũng tự trả lại.';
+
+  @override
+  String get giftAccept => 'Nhận';
+
+  @override
+  String get giftDecline => 'Từ chối';
+
+  @override
+  String get giftDeclined => 'Đã từ chối. Quà sẽ trả lại người gửi.';
+
+  @override
+  String get giftAcceptedOrb => 'Đã nhận! Đổi trong Ảnh đại diện lượng tử.';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return 'Bạn và $name đã thành cặp vướng víu';
+  }
+
+  @override
+  String get giftAcceptedBouquet =>
+      'Đã nhận bó hoa. Cánh hoa ánh sáng sẽ quanh quả cầu của bạn 24 giờ.';
+
+  @override
+  String get giftAlreadyOwned => 'Bạn đã có quả cầu này; quà trả lại người gửi';
+
+  @override
+  String get giftAlreadyPaired =>
+      'Một trong hai đã có cặp; quà trả lại người gửi';
+
+  @override
+  String get giftSettingsTitle => 'Quà';
+
+  @override
+  String get giftReceiveToggle => 'Nhận quà';
+
+  @override
+  String get giftReceiveToggleSub => 'Khi tắt, quà sẽ trả ngay về người gửi';
+
+  @override
+  String get giftVouchersHint =>
+      'Chạm \"Tặng quà\" ở menu của ai đó để tặng lại';
+
+  @override
+  String get giftUnpair => 'Hủy cặp vướng víu';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return 'Hủy cặp với $name? Cả hai vẫn giữ quả cầu nhưng dây ánh sáng sẽ mất.';
+  }
+
+  @override
+  String get orbStylePair => 'Vướng víu';
+
+  @override
+  String giftPairedWith(String name) {
+    return 'Cặp với $name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return 'Quà của bạn ($count)';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '$count món quà bị trả lại';
+  }
+
+  @override
+  String get giftBlockedOff => 'Họ đã tắt nhận quà. Bạn chưa bị trừ tiền.';
+
+  @override
+  String get giftBlockedBlocked =>
+      'Bạn không thể tặng quà cho người này. Bạn chưa bị trừ tiền.';
+
+  @override
+  String get giftBlockedOwned =>
+      'Họ đã có quả cầu này. Hãy chọn kiểu khác (bạn chưa bị trừ tiền).';
+
+  @override
+  String get giftBlockedPaired =>
+      'Họ đã có cặp vướng víu. Bạn chưa bị trừ tiền.';
 }

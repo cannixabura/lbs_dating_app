@@ -1,3 +1,4 @@
+import 'gifts/gifts.dart';
 import 'l10n/l10n.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -351,6 +352,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           ])),
                         ]),
                       ),
+                      // 送禮物（示範對象不行）
+                      if (!widget.targetUid.startsWith('demo-'))
+                        IconButton(
+                          tooltip: tr.giftAction,
+                          icon: const Icon(Icons.card_giftcard, color: Night.cityAmber),
+                          onPressed: _isClosing ? null : () => showGiftSheet(context, toUid: widget.targetUid, toName: widget.targetName),
+                        ),
                       IconButton(
                         tooltip: tr.report,
                         icon: const Icon(Icons.flag_outlined, color: Night.inkMuted),

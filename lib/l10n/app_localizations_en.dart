@@ -3219,4 +3219,197 @@ class AppLocalizationsEn extends AppLocalizations {
   String orbGrowRings(int count) {
     return '$count rings so far';
   }
+
+  @override
+  String get giftAction => 'Send a gift';
+
+  @override
+  String giftSheetTitle(String name) {
+    return 'Send a gift to $name';
+  }
+
+  @override
+  String giftPickStyle(String name) {
+    return 'Pick an orb style for $name';
+  }
+
+  @override
+  String get giftBouquetName => 'Light bouquet';
+
+  @override
+  String get giftBouquetDesc =>
+      'A burst of light blooms when they accept, then petals of light circle their orb for 24 hours';
+
+  @override
+  String get giftOrbName => 'Give an orb style';
+
+  @override
+  String get giftOrbDesc =>
+      'You pick one; it is theirs to keep once they accept';
+
+  @override
+  String get giftPairName => 'Entangled pair';
+
+  @override
+  String get giftPairDesc =>
+      'One orb for each of you, paired; a rope of light links you when you are both in the Quantum World';
+
+  @override
+  String get giftPairYouHave => 'You already have an entangled pair';
+
+  @override
+  String get giftNote =>
+      'They can accept or decline. If they decline or do not answer in 7 days, the gift comes back to you to give to someone else.';
+
+  @override
+  String get giftVouchersTitle => 'Returned gifts (no extra charge)';
+
+  @override
+  String get giftSendVoucher => 'Send';
+
+  @override
+  String giftSent(String name) {
+    return 'Gift sent to $name. Waiting for them to accept.';
+  }
+
+  @override
+  String get giftReturnedOff =>
+      'They have turned off gifts, so it came back to you';
+
+  @override
+  String get giftReturnedBlocked =>
+      'This person cannot receive your gift, so it came back to you';
+
+  @override
+  String get giftReturnedOwned =>
+      'They already have this orb, so it came back to you; you can give another style';
+
+  @override
+  String get giftReturnedPaired =>
+      'They already have an entangled pair, so it came back to you';
+
+  @override
+  String get giftReturnedYouPaired =>
+      'You already have an entangled pair, so it came back to you';
+
+  @override
+  String get giftReturnedGeneric =>
+      'The gift came back to you; you can give it to someone else';
+
+  @override
+  String get giftStoreUnavailable => 'The store is not available right now';
+
+  @override
+  String get giftFailed =>
+      'The gift did not go through. Please try again later.';
+
+  @override
+  String giftFromBouquet(String name) {
+    return '$name sent you a light bouquet';
+  }
+
+  @override
+  String giftFromOrb(String name, String style) {
+    return '$name gave you the \"$style\" orb';
+  }
+
+  @override
+  String giftFromPair(String name) {
+    return '$name wants to be your entangled pair';
+  }
+
+  @override
+  String get giftInboxTitle => 'Gifts for you';
+
+  @override
+  String get giftInboxEmpty => 'No gifts right now';
+
+  @override
+  String get giftInboxNote =>
+      'Declined gifts go back to the sender; unanswered gifts go back after 7 days.';
+
+  @override
+  String get giftAccept => 'Accept';
+
+  @override
+  String get giftDecline => 'Decline';
+
+  @override
+  String get giftDeclined => 'Declined. The gift goes back to the sender.';
+
+  @override
+  String get giftAcceptedOrb => 'Accepted! Switch to it in Quantum avatar.';
+
+  @override
+  String giftAcceptedPair(String name) {
+    return 'You and $name are now an entangled pair';
+  }
+
+  @override
+  String get giftAcceptedBouquet =>
+      'Bouquet accepted. Petals of light will circle your orb for 24 hours.';
+
+  @override
+  String get giftAlreadyOwned =>
+      'You already have this orb; the gift went back to the sender';
+
+  @override
+  String get giftAlreadyPaired =>
+      'One of you is already paired; the gift went back to the sender';
+
+  @override
+  String get giftSettingsTitle => 'Gifts';
+
+  @override
+  String get giftReceiveToggle => 'Receive gifts';
+
+  @override
+  String get giftReceiveToggleSub =>
+      'When off, gifts go straight back to the sender';
+
+  @override
+  String get giftVouchersHint =>
+      'Tap \"Send a gift\" on someone to give these again';
+
+  @override
+  String get giftUnpair => 'End entangled pair';
+
+  @override
+  String giftUnpairConfirm(String name) {
+    return 'End your entangled pair with $name? You both keep the orb, but the rope of light goes away.';
+  }
+
+  @override
+  String get orbStylePair => 'Entangled';
+
+  @override
+  String giftPairedWith(String name) {
+    return 'Entangled with $name';
+  }
+
+  @override
+  String giftInboxCount(int count) {
+    return 'Gifts for you ($count)';
+  }
+
+  @override
+  String giftVouchersCount(int count) {
+    return '$count returned gifts';
+  }
+
+  @override
+  String get giftBlockedOff =>
+      'They have turned off gifts. You were not charged.';
+
+  @override
+  String get giftBlockedBlocked =>
+      'You cannot send gifts to this person. You were not charged.';
+
+  @override
+  String get giftBlockedOwned =>
+      'They already have this orb. Pick another one (you were not charged).';
+
+  @override
+  String get giftBlockedPaired =>
+      'They already have an entangled pair. You were not charged.';
 }

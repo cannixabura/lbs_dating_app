@@ -26,6 +26,7 @@ const quantum = require("./quantum");
 const orbs = require("./orbs");
 const aiya = require("./aiya");
 const refunds = require("./refunds");
+const gifts = require("./gifts");
 const wgroup = require("./whispergroup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
@@ -451,13 +452,14 @@ async function quantumExtras(uid, now) {
     const chiming = quantum.inChime(now);
     const nyAt = quantum.newYearAt(now);
     const together = quantum.newYearTogether(now);
-    const [partners, invitesRaw, gone, chimeCount, chimeFx, nyCount] = await sendUpstashPipeline([
+    const [partners, invitesRaw, gone, chimeCount, chimeFx, nyCount, pairUid] = await sendUpstashPipeline([
         ["SMEMBERS", quantum.KEY.ent(uid)],
         ["HGETALL", quantum.KEY.invites(uid)],
         ["LRANGE", quantum.KEY.entGone(uid), "0", "-1"],
         chiming ? ["ZCARD", quantum.KEY.chime(hour)] : ["ECHO", ""],
         chiming ? ["ZRANGE", quantum.KEY.chimeFx(hour), String(-quantum.CHIME_FX_MAX), "-1"] : ["ECHO", ""],
         together ? ["ZCARD", quantum.KEY.newYear(nyAt)] : ["ECHO", ""],
+        ["GET", gifts.pairKey(uid)],
     ]);
     const partnerList = Array.isArray(partners) ? partners : [];
     const invites = Object.entries(hashToObject(invitesRaw)).filter(([, at]) => now - parseInt(at, 10) <= quantum.INVITE_MS).map(([from]) => from);
@@ -479,6 +481,14 @@ async function quantumExtras(uid, now) {
     if (goneList.length > 0) cleanup.push(["DEL", quantum.KEY.entGone(uid)]);
     if (cleanup.length > 0) await sendUpstashPipeline(cleanup);
     const out = { ent, invites: invitesOut, entGone: goneList };
+    // 糾纏款：配對的對方也在量子世界時，回傳他的位置畫光繩（不管多遠）
+    if (typeof pairUid === "string" && pairUid) {
+        const [ord, east, north, nickname, beat] = (await sendUpstashCommand(["HMGET", quantum.KEY.seat(pairUid), "ord", "east", "north", "nickname", "beat"])) || [];
+        if (ord != null && now - parseInt(beat || "0", 10) <= quantum.VISIBLE_MS) {
+            const st = quantumState({ ord, east, north });
+            out.pair = { uid: pairUid, nickname: nickname || "", code: st.s.code, lat: st.pos.lat, lng: st.pos.lng };
+        }
+    }
     if (chiming) {
         out.chime = {
             at: quantum.nearestHour(now), strikes: quantum.chimeStrikes(now), count: Number(chimeCount) || 0,
@@ -549,10 +559,10 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
 
     const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
-    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb", "grow"]));
+    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb", "grow", "bq"]));
     const users = [];
     members.forEach((m, i) => {
-        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb, growRaw] = profiles[i] || [];
+        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb, growRaw, bq] = profiles[i] || [];
         const grow = orbs.isGrowing(orb) ? orbs.parseGrowthField(growRaw) : null;
         if (ord == null || hidden === "1" || !nickname) return;
         const tz = tzRaw == null ? NaN : parseInt(tzRaw, 10);
@@ -563,6 +573,8 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
             ...(topics ? { topics: parseTopics(topics) } : {}),
             // 會長大的光球：星軌的星星數、年輪的圈數
             ...(grow ? { grow: [grow.stars, grow.rings] } : {}),
+            // 光之花束：收到花束 24 小時內，光球旁邊有一圈花瓣光點
+            ...(bq === "1" ? { bouquet: true } : {}),
             // 量子跨年：這個人的時區已經跨年
             ...(nyWave && quantum.validTz(tz) && quantum.crossedNewYear(tz, now) ? { ny: true } : {}) });
     });
@@ -614,7 +626,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const reviewCode = demo.isReviewCode(req.body.mood);
         const mood = reviewCode ? demo.REVIEW_MOOD : maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
         const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
-        const [existing, hidden, growRaw] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"]]);
+        const [existing, hidden, growRaw, bouquet] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"], ["EXISTS", gifts.bouquetKey(uid)]]);
         const prev = hashToObject(existing);
         const growth = orbs.growthView(...(growRaw || []));
         let resumed = false;
@@ -639,7 +651,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 "homeAccEast", resumed ? String(st.east) : "0", "homeAccNorth", resumed ? String(st.north) : "0",
                 ...quantumProfileFields(req.body),
                 ...(await quantumOrbFields(uid, req.body.orb, resumed ? prev.orb : undefined)),
-                "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth)],
+                "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth), "bq", bouquet === 1 ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ...quantumTzCommands(uid, req.body),
             ["ZADD", quantum.KEY.region(region), String(now), uid],
@@ -650,11 +662,11 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)],
             ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : []),
         ]);
-        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth });
+        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth, bouquet: bouquet === 1 });
       }
 
       if (action === "beat") {
-        const [existing, hidden, growRaw] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"]]);
+        const [existing, hidden, growRaw, bouquet] = await sendUpstashPipeline([["HGETALL", quantum.KEY.seat(uid)], ["HGET", `user_data:${uid}`, "hidden"], ["HMGET", orbs.growthKey(uid), "sec", "stars"], ["EXISTS", gifts.bouquetKey(uid)]]);
         const h = hashToObject(existing);
         if (h.ord == null) return res.status(410).json({ success: false, code: "expired" }); // 席位已釋放，要重新入場
         // 年輪：累積在量子世界待的秒數（跟著帳號，不管現在用哪一款）
@@ -670,7 +682,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 homeAccEast: h.homeAccEast == null ? undefined : parseFloat(h.homeAccEast), homeAccNorth: h.homeAccNorth == null ? undefined : parseFloat(h.homeAccNorth) }, raw, now);
         }
         const st = quantumState({ ...h, east: acc.east, north: acc.north });
-        const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth)];
+        const fields = ["east", String(acc.east), "north", String(acc.north), "beat", String(now), "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth), "bq", bouquet === 1 ? "1" : "0"];
         if (raw) fields.push("rawEast", String(raw.east), "rawNorth", String(raw.north), "rawAt", String(now));
         if (typeof req.body.quiet === "boolean") fields.push("quiet", req.body.quiet ? "1" : "0");
         fields.push(...quantumProfileFields(req.body), ...(await quantumOrbFields(uid, req.body.orb, h.orb)));
@@ -694,7 +706,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const radiusKM = quantum.clampRadius(req.body.radiusKM);
         const [scan, online, extras] = await Promise.all([quantumScan(uid, st.pos, radiusKM, lang, now), quantumOnlineCounts(now), quantumExtras(uid, now)]);
         if (Math.random() < 0.1) sweepQuantumSeats(now).catch((e) => console.error('quantum sweep failed:', e));
-        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online, growth });
+        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online, growth, bouquet: bouquet === 1 });
       }
 
       if (action === "leave") {
@@ -1071,6 +1083,199 @@ exports.orbs = onRequest({ region: "asia-southeast1" }, (req, res) => {
 });
 
 // ============================================================================
+// API：送禮與糾纏款 —— action: status / send / accept / decline / prefs / unpair（規格 docs/gifting-spec.md，規則在 gifts.js）
+// ============================================================================
+const giftableStyle = (s) => orbs.isStyle(s) && !orbs.isFree(s) && !orbs.STYLES[s].granted && orbs.onSale(s);
+
+async function giftNickname(uid) {
+    return (await sendUpstashCommand(["HGET", `user_data:${uid}`, "nickname"])) || "";
+}
+
+/** 把一份禮物退回給送的人（變成禮券），通知對方 */
+async function returnGift(id, g, { notify = true } = {}) {
+    const db = admin.database();
+    await db.ref().update({
+        [`gifts/${id}/status`]: "returned",
+        [`giftInbox/${g.to}/${id}`]: null,
+        [`giftPending/${id}`]: null,
+        [`giftVouchers/${g.from}/${id}`]: { kind: g.kind, ...(g.style ? { style: g.style } : {}), at: admin.database.ServerValue.TIMESTAMP },
+    });
+    if (notify) await sendPush(g.from, "禮物退回了", "這份禮物已經退回給你，可以再送給別人。", { type: "gift_returned", giftId: id });
+}
+
+/** 收禮的人現在的狀態：用來判斷這份禮物能不能送 */
+async function giftContext(from, to, kind, style) {
+    const db = admin.database();
+    const [blocked, prefs, owned, toPair, fromPair] = await Promise.all([
+        eitherBlocked(from, to),
+        db.ref(`giftPrefs/${to}`).once("value"),
+        kind === "orb" ? db.ref(`orbOwned/${to}`).once("value") : null,
+        kind === "pair" ? db.ref(`orbPair/${to}`).once("value") : null,
+        kind === "pair" ? db.ref(`orbPair/${from}`).once("value") : null,
+    ]);
+    return {
+        from, to, kind, style, blocked, giftableStyle,
+        recipientOff: !!(prefs.val() && prefs.val().off),
+        recipientOwned: owned ? owned.val() : null,
+        recipientPaired: !!(toPair && toPair.val()),
+        senderPaired: !!(fromPair && fromPair.val()),
+    };
+}
+
+/** 建立一份禮物並送出；收不了就直接變成送的人的禮券 */
+async function deliverGift(from, to, kind, style, receipt) {
+    const db = admin.database();
+    const id = db.ref("gifts").push().key;
+    const fromName = await giftNickname(from);
+    const g = { from, to: to || "", kind, ...(kind === "orb" && style ? { style } : {}), status: "pending", at: Date.now(), receipt, fromName };
+    await db.ref(`gifts/${id}`).set(g);
+    const check = to ? gifts.canSend(await giftContext(from, to, kind, style)) : { ok: false, code: "self" };
+    if (!check.ok) {
+        await returnGift(id, g, { notify: false });
+        return { id, delivered: false, code: check.code };
+    }
+    await db.ref().update({ [`giftInbox/${to}/${id}`]: g.at, [`giftPending/${id}`]: g.at });
+    const body = kind === "bouquet" ? `${fromName} 送你一束光之花束` : kind === "orb" ? `${fromName} 送你一款光球` : `${fromName} 想和你配成糾纏款`;
+    await sendPush(to, "收到一份禮物", body, { type: "gift", giftId: id });
+    return { id, delivered: true };
+}
+
+exports.gifts = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
+    const db = admin.database();
+    const action = req.body.action, now = Date.now();
+    try {
+      if (action === "status") {
+        // 收到的禮物（過了 7 天的先退回）、自己的禮券、接收開關、配對對象、花束
+        const [inboxSnap, vouchersSnap, prefsSnap, pairSnap, bouquetSnap] = await Promise.all([
+          db.ref(`giftInbox/${uid}`).once("value"), db.ref(`giftVouchers/${uid}`).once("value"), db.ref(`giftPrefs/${uid}`).once("value"),
+          db.ref(`orbPair/${uid}`).once("value"), db.ref(`giftBouquet/${uid}`).once("value"),
+        ]);
+        const inbox = [];
+        for (const id of Object.keys(inboxSnap.val() || {})) {
+          const g = (await db.ref(`gifts/${id}`).once("value")).val();
+          if (!g || g.status !== "pending") { await db.ref(`giftInbox/${uid}/${id}`).remove(); continue; }
+          if (gifts.expired(g, now)) { await returnGift(id, g); continue; }
+          inbox.push(gifts.giftView(id, g));
+        }
+        const vouchers = Object.entries(vouchersSnap.val() || {}).map(([id, v]) => ({ id, kind: v.kind, ...(v.style ? { style: v.style } : {}) }));
+        const partner = pairSnap.val();
+        return res.status(200).json({
+          success: true, inbox, vouchers, off: !!(prefsSnap.val() && prefsSnap.val().off),
+          pair: partner ? { uid: partner, nickname: await giftNickname(partner) } : null,
+          bouquetUntil: gifts.bouquetActive(bouquetSnap.val(), now) ? Number(bouquetSnap.val()) : 0,
+        });
+      }
+
+      if (action === "check") {
+        // 付款前先檢查：對方收不收得到這份禮物（已經有這款光球、關掉接收、已經配對⋯⋯就先不讓付款）
+        const to = typeof req.body.to === "string" && req.body.to ? req.body.to : null;
+        const kind = String(req.body.kind || "");
+        const style = typeof req.body.style === "string" ? req.body.style : undefined;
+        const check = gifts.canSend(await giftContext(uid, to, kind, style));
+        return res.status(200).json({ success: true, ok: check.ok, ...(check.ok ? {} : { code: check.code }) });
+      }
+
+      if (action === "send") {
+        // 用剛買的禮物（purchase）或一張退回的禮券（voucherId）送給 to
+        const to = typeof req.body.to === "string" && req.body.to ? req.body.to : null;
+        const style = typeof req.body.style === "string" ? req.body.style : undefined;
+        if (typeof req.body.voucherId === "string") {
+          const v = (await db.ref(`giftVouchers/${uid}/${req.body.voucherId}`).once("value")).val();
+          if (!v) return res.status(200).json({ success: false, code: "no_voucher" });
+          const old = (await db.ref(`gifts/${req.body.voucherId}`).once("value")).val();
+          const kind = v.kind, useStyle = kind === "orb" ? (style || v.style) : undefined;
+          const check = gifts.canSend(await giftContext(uid, to, kind, useStyle));
+          if (!check.ok) return res.status(200).json({ success: false, code: check.code });
+          await db.ref(`giftVouchers/${uid}/${req.body.voucherId}`).remove();
+          const r = await deliverGift(uid, to, kind, useStyle, old ? old.receipt : `voucher_${req.body.voucherId}`);
+          if (old && old.receipt) await db.ref(`giftReceipts/${old.receipt}`).set(r.id);
+          return res.status(200).json({ success: true, ...r });
+        }
+        const p = req.body.purchase || {};
+        let grant;
+        if (p.platform === "apple") grant = gifts.appleGift(orbs.verifyAppleJws(p.data), orbs.BUNDLE_ID);
+        else if (p.platform === "google" && typeof p.token === "string" && typeof p.productId === "string") grant = gifts.googleGift(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
+        else return res.status(400).json({ success: false, code: "bad_request" });
+        // 同一筆購買只算一份禮物（App 重送、恢復購買時不會變兩份）
+        const claim = await db.ref(`giftReceipts/${grant.receipt}`).transaction((cur) => (cur == null ? "claiming" : cur));
+        if (claim.snapshot.val() !== "claiming") return res.status(200).json({ success: true, already: true });
+        const r = await deliverGift(uid, to, grant.kind, style, grant.receipt);
+        await db.ref(`giftReceipts/${grant.receipt}`).set(r.id);
+        return res.status(200).json({ success: true, ...r });
+      }
+
+      if (action === "accept" || action === "decline") {
+        const id = String(req.body.id || "");
+        const g = (await db.ref(`gifts/${id}`).once("value")).val();
+        if (!g || g.to !== uid || g.status !== "pending") return res.status(200).json({ success: false, code: "gone" });
+        if (action === "decline" || gifts.expired(g, now)) {
+          await returnGift(id, g);
+          return res.status(200).json({ success: true, returned: true });
+        }
+        const updates = { [`gifts/${id}/status`]: "accepted", [`giftInbox/${uid}/${id}`]: null, [`giftPending/${id}`]: null };
+        if (g.kind === "bouquet") {
+          const cur = Number((await db.ref(`giftBouquet/${uid}`).once("value")).val()) || 0;
+          const until = Math.max(cur, now) + gifts.BOUQUET_MS;
+          updates[`giftBouquet/${uid}`] = until;
+          await sendUpstashCommand(["SET", gifts.bouquetKey(uid), "1", "PX", String(until - now)]);
+        } else if (g.kind === "orb") {
+          const owned = (await db.ref(`orbOwned/${uid}/${g.style}`).once("value")).val();
+          if (owned) { await returnGift(id, g); return res.status(200).json({ success: false, code: "owned" }); }
+          updates[`orbOwned/${uid}/${g.style}`] = { at: now, src: "gift", receipt: `gift_${id}` };
+        } else if (g.kind === "pair") {
+          const [a, b] = await Promise.all([db.ref(`orbPair/${uid}`).once("value"), db.ref(`orbPair/${g.from}`).once("value")]);
+          if (a.val() || b.val()) { await returnGift(id, g); return res.status(200).json({ success: false, code: "paired" }); }
+          updates[`orbOwned/${uid}/pair`] = { at: now, src: "gift", receipt: `gift_${id}` };
+          updates[`orbOwned/${g.from}/pair`] = { at: now, src: "gift", receipt: `gift_${id}` };
+          updates[`orbPair/${uid}`] = g.from;
+          updates[`orbPair/${g.from}`] = uid;
+          await sendUpstashPipeline([["SET", gifts.pairKey(uid), g.from], ["SET", gifts.pairKey(g.from), uid]]);
+        }
+        await db.ref().update(updates);
+        await sendPush(g.from, "禮物送到了", `${await giftNickname(uid)} 收下了你的禮物`, { type: "gift_accepted", giftId: id });
+        return res.status(200).json({ success: true, kind: g.kind, ...(g.style ? { style: g.style } : {}) });
+      }
+
+      if (action === "prefs") {
+        await db.ref(`giftPrefs/${uid}`).set(req.body.off === true ? { off: true } : null);
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "unpair") {
+        // 解除糾纏款配對：兩人都保留糾纏款光球，只是不再有光繩相連
+        const partner = (await db.ref(`orbPair/${uid}`).once("value")).val();
+        if (partner) {
+          await db.ref().update({ [`orbPair/${uid}`]: null, [`orbPair/${partner}`]: null });
+          await sendUpstashPipeline([["DEL", gifts.pairKey(uid)], ["DEL", gifts.pairKey(partner)]]);
+        }
+        return res.status(200).json({ success: true });
+      }
+
+      return res.status(400).json({ success: false, error: "unknown action" });
+    } catch (error) {
+      console.error("gifts failed:", error);
+      return res.status(500).json({ success: false, code: "busy" });
+    }
+  });
+});
+
+/** 每天把超過 7 天沒回應的禮物退回給送的人 */
+exports.expireGifts = onSchedule({ schedule: "every day 05:00", timeZone: "Asia/Taipei", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+  const db = admin.database();
+  const snap = await db.ref("giftPending").orderByValue().endAt(Date.now() - gifts.PENDING_MS).limitToFirst(500).once("value");
+  let n = 0;
+  for (const id of Object.keys(snap.val() || {})) {
+    const g = (await db.ref(`gifts/${id}`).once("value")).val();
+    if (g && g.status === "pending") { await returnGift(id, g); n++; } else await db.ref(`giftPending/${id}`).remove();
+  }
+  console.log("expireGifts: returned", n);
+});
+
+// ============================================================================
 // API：艾婭 A.I.Y.A（量子世界中心光柱裡的 AI）—— action: status / consent / open / say / close / report / verify
 //   規格 docs/aiya-spec.md；純函式在 aiya.js
 //   送給 Claude 的只有：使用者打的字、App 語言、匿名的聚合統計。不送 uid、暱稱、座位、位置。
@@ -1187,6 +1392,20 @@ async function applyRefund(receipt, credits) {
         const mark = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur === packOwner ? refunds.REFUNDED : undefined));
         if (mark.committed && n > 0) await db.ref(`aiyaCredits/${packOwner}`).transaction((cur) => refunds.deduct(cur, n));
         if (mark.committed) done.push(`pack-${n}`);
+    }
+    // 禮物：還沒收下的取消、變成禮券的刪掉、已經收下的光球從對方帳號拿掉（花束、配對不追回）
+    const giftId = (await db.ref(`giftReceipts/${receipt}`).once("value")).val();
+    if (typeof giftId === "string" && giftId !== refunds.REFUNDED && giftId !== "claiming") {
+        const g = (await db.ref(`gifts/${giftId}`).once("value")).val();
+        const updates = { [`giftReceipts/${receipt}`]: refunds.REFUNDED, [`gifts/${giftId}/status`]: "refunded" };
+        if (g) {
+            updates[`giftInbox/${g.to}/${giftId}`] = null;
+            updates[`giftPending/${giftId}`] = null;
+            updates[`giftVouchers/${g.from}/${giftId}`] = null;
+            if (g.status === "accepted" && g.kind === "orb" && g.style) updates[`orbOwned/${g.to}/${g.style}`] = null;
+        }
+        await db.ref().update(updates);
+        done.push(`gift-${g ? g.kind : "?"}`);
     }
     const orbOwner = (await db.ref(`orbReceipts/${receipt}`).once("value")).val();
     if (typeof orbOwner === "string" && orbOwner !== refunds.REFUNDED) {
@@ -1851,6 +2070,29 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       }
       updates[`aiyaCredits/${uid}`] = null;
       updates[`aiyaConsent/${uid}`] = null;
+      // 送禮：收到還沒回覆的禮物退回給送的人；自己的禮券、接收設定、花束刪掉；糾纏款配對解除
+      for (const id of Object.keys((await db.ref(`giftInbox/${uid}`).once("value")).val() || {})) {
+        const g = (await db.ref(`gifts/${id}`).once("value")).val();
+        if (g && g.status === "pending") await returnGift(id, g);
+      }
+      // 送禮紀錄：自己送出或收到的都刪掉（隱私權政策：保存到任一方刪除帳號為止）
+      for (const field of ["from", "to"]) {
+        const mine = (await db.ref("gifts").orderByChild(field).equalTo(uid).once("value")).val() || {};
+        for (const [id, g] of Object.entries(mine)) {
+          updates[`gifts/${id}`] = null;
+          updates[`giftPending/${id}`] = null;
+          if (g && g.to && g.to !== uid) updates[`giftInbox/${g.to}/${id}`] = null; // 我送出、對方還沒回覆的禮物一起收回
+          if (g && g.receipt) updates[`giftReceipts/${g.receipt}`] = refunds.REFUNDED; // 同一筆購買不能再兌換
+        }
+      }
+      updates[`giftInbox/${uid}`] = null;
+      updates[`giftVouchers/${uid}`] = null;
+      updates[`giftPrefs/${uid}`] = null;
+      updates[`giftBouquet/${uid}`] = null;
+      const myPartner = (await db.ref(`orbPair/${uid}`).once("value")).val();
+      updates[`orbPair/${uid}`] = null;
+      if (myPartner) { updates[`orbPair/${myPartner}`] = null; await sendUpstashCommand(["DEL", gifts.pairKey(myPartner)]); }
+      await sendUpstashCommand(["DEL", gifts.pairKey(uid)]);
       // 艾婭之友：刪掉訂閱紀錄並釋放收據，之後用新帳號可以恢復購買（訂閱本身要到 Apple／Google 取消）
       const myFriend = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
       updates[`aiyaFriend/${uid}`] = null;

@@ -28,6 +28,9 @@
 
     // 低語穿越：內容與精確位置只由 Cloud Function 讀寫（作者透過 timeWhisper 端點取得）
     "timeWhispers": { ".read": false, ".write": false },
+    // 送禮：只有伺服器讀寫；刪除帳號時用 from／to 找出自己的送禮紀錄，每天用 giftPending 找出 7 天沒回應的禮物
+    "gifts": { ".indexOn": ["from", "to"], ".read": false, ".write": false },
+    "giftPending": { ".indexOn": [".value"], ".read": false, ".write": false },
     "timeWhisperQueue": { ".indexOn": ["unlockAt", "uid"], ".read": false, ".write": false },
     // 城市燈塔的回報：只由 Cloud Function（geo-service 的 beacon）寫入
     "beaconReports": { ".read": false, ".write": false },

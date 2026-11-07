@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "地名が見つかりませんでした。あとでもう一度お試しください",
   "parallelCardTitle": "いま、パラレルユニバースの{city}にいます",
   "parallelCardShareText": "いま、パラレルユニバースの{city}にいます。Mood Whisper を開けば、あなたも別の街へ。",
-  "parallelCoordsShare": "カードをシェア"
+  "parallelCoordsShare": "カードをシェア",
+  "orbStylePassport": "パスポート",
+  "passportTitle": "パラレルパスポート",
+  "passportCount": "{count} 都市を集めました",
+  "passportRewardProgress": "あと {count} 都市で「パスポート」光球がもらえます",
+  "passportRewardDone": "「パスポート」光球を手に入れました。量子アバターで着けられます",
+  "passportRewardToast": "5 都市達成！「パスポート」光球を手に入れました",
+  "passportEmpty": "パラレルユニバースで別の街の人とチャットし、お互いに一言でも話すと、その街のスタンプが押されます。記録するのは街と日付だけで、相手が誰かは残りません。",
+  "passportNewStamp": "新しいスタンプ：{city}",
+  "passportShare": "パスポートをシェア",
+  "passportCardTitle": "わたしのパラレルパスポート\n{count} 都市",
+  "passportCardShareText": "わたしのパラレルパスポートには {count} 都市のスタンプがあります。Mood Whisper を開いて、パラレルユニバースへ。"
 }

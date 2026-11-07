@@ -3366,4 +3366,50 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'Chia sẻ thẻ';
+
+  @override
+  String get orbStylePassport => 'Hộ chiếu';
+
+  @override
+  String get passportTitle => 'Hộ chiếu song song';
+
+  @override
+  String passportCount(int count) {
+    return 'Đã sưu tầm $count thành phố';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'Sưu tầm thêm $count thành phố để nhận quả cầu Hộ chiếu';
+  }
+
+  @override
+  String get passportRewardDone =>
+      'Bạn đã có quả cầu Hộ chiếu. Hãy dùng trong Hóa thân lượng tử.';
+
+  @override
+  String get passportRewardToast =>
+      '5 thành phố! Bạn nhận được quả cầu Hộ chiếu';
+
+  @override
+  String get passportEmpty =>
+      'Trò chuyện với người ở thành phố khác trong Vũ trụ song song. Khi cả hai đã nói ít nhất một câu, thành phố đó được đóng dấu vào hộ chiếu. Chỉ lưu thành phố và ngày, không lưu bạn đã nói chuyện với ai.';
+
+  @override
+  String passportNewStamp(String city) {
+    return 'Dấu mới: $city';
+  }
+
+  @override
+  String get passportShare => 'Chia sẻ hộ chiếu';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'Hộ chiếu song song của tôi\n$count thành phố';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'Hộ chiếu song song của tôi đã có dấu của $count thành phố. Mở Mood Whisper và bước vào Vũ trụ song song nhé.';
+  }
 }

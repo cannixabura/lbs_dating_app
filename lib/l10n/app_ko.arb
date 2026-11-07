@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "지금은 지명을 찾을 수 없어요. 잠시 후 다시 시도해 주세요",
   "parallelCardTitle": "지금 나는 평행 우주의 {city}에 있어요",
   "parallelCardShareText": "지금 나는 평행 우주의 {city}에 있어요. Mood Whisper를 열면 당신도 다른 도시로 갈 수 있어요.",
-  "parallelCoordsShare": "카드 공유"
+  "parallelCoordsShare": "카드 공유",
+  "orbStylePassport": "여권",
+  "passportTitle": "평행 여권",
+  "passportCount": "{count}개 도시 수집",
+  "passportRewardProgress": "{count}개 도시를 더 모으면 「여권」 광구를 받아요",
+  "passportRewardDone": "「여권」 광구를 받았어요. 퀀텀 아바타에서 바꿀 수 있어요",
+  "passportRewardToast": "5개 도시 달성! 「여권」 광구를 받았어요",
+  "passportEmpty": "평행 우주에서 다른 도시 사람과 채팅하고 서로 한마디씩 나누면 그 도시 도장이 찍혀요. 도시와 날짜만 기록하고, 상대가 누구인지는 남기지 않아요.",
+  "passportNewStamp": "새 도장: {city}",
+  "passportShare": "여권 공유",
+  "passportCardTitle": "나의 평행 여권\n{count}개 도시",
+  "passportCardShareText": "나의 평행 여권에 {count}개 도시의 도장이 찍혔어요. Mood Whisper를 열고 평행 우주로 함께 가요."
 }

@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "Couldn't find a place name right now. Try again later.",
   "parallelCardTitle": "Right now, I'm in parallel {city}",
   "parallelCardShareText": "Right now, I'm in parallel {city}. Open Mood Whisper and step into another city too.",
-  "parallelCoordsShare": "Share card"
+  "parallelCoordsShare": "Share card",
+  "orbStylePassport": "Passport",
+  "passportTitle": "Parallel Passport",
+  "passportCount": "{count} cities collected",
+  "passportRewardProgress": "Collect {count} more cities to get the Passport orb",
+  "passportRewardDone": "You have the Passport orb. Put it on in Quantum Avatar.",
+  "passportRewardToast": "5 cities! You got the Passport orb",
+  "passportEmpty": "Chat with someone from another city in Parallel Universe. Once you have both said something, that city is stamped in your passport. Only the city and the date are kept, never who you talked to.",
+  "passportNewStamp": "New stamp: {city}",
+  "passportShare": "Share passport",
+  "passportCardTitle": "My Parallel Passport\n{count} cities",
+  "passportCardShareText": "My Parallel Passport has stamps from {count} cities. Open Mood Whisper and step into Parallel Universe."
 }

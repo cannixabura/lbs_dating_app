@@ -75,6 +75,20 @@ Future<void> showMoodCard(BuildContext context, {required String mood, required 
   );
 }
 
+/// 程式畫出來的單張分享卡（例如平行護照）：沒有插畫、不能換一張，分享時輸出 1080×1920 圖片
+Future<void> showDrawnShareCard(BuildContext context, {required String fileName, required String shareLabel, required Widget Function() build, required String shareText, required String ref}) {
+  return _showShareCard(
+    context,
+    random: Random(),
+    count: 1,
+    image: (_) => '',
+    shareLabel: shareLabel,
+    fileName: fileName,
+    build: (_) => build(),
+    shareText: (_) => '$shareText\n$_landingUrl?ref=$ref',
+  );
+}
+
 /// 平行宇宙卡：「此刻，我在平行宇宙的大阪」。只寫城市、不寫地名，從卡片推不回真實位置
 Future<void> showParallelCityCard(BuildContext context, {required String city}) {
   return _showShareCard(
@@ -175,7 +189,7 @@ Future<void> _showShareCard(
             ),
           ),
           const SizedBox(height: Night.space2),
-          TextButton.icon(
+          if (count > 1) TextButton.icon(
             onPressed: sharing ? null : next,
             icon: const Icon(Icons.shuffle, size: 18, color: Night.inkMuted),
             label: Text(tr.shuffleCard(index + 1, count), style: const TextStyle(color: Night.inkMuted, fontSize: 14, letterSpacing: 1)),
@@ -216,6 +230,30 @@ String _partOfDay(DateTime t) {
 }
 
 enum ShareCardKind { mood, invite, parallel }
+
+/// 分享卡底部的品牌列：App 名稱＋網址（英文等較長的名稱會縮小，不會溢出）
+class ShareCardBrand extends StatelessWidget {
+  const ShareCardBrand({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+      Flexible(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: ShaderMask(
+            shaderCallback: (rect) => Night.brightGradient.createShader(rect),
+            child: Text(tr.appName, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
+          ),
+        ),
+      ),
+      const SizedBox(width: 8),
+      const Text('mood-whisper-f7de9.web.app', style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5,
+          shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
+    ]);
+  }
+}
 
 /// 分享卡本體（360×640 邏輯尺寸）：夜景插畫為底，上方文字，下方品牌。不放任何位置資訊。
 class ShareCard extends StatelessWidget {

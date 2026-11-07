@@ -3216,4 +3216,48 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'カードをシェア';
+
+  @override
+  String get orbStylePassport => 'パスポート';
+
+  @override
+  String get passportTitle => 'パラレルパスポート';
+
+  @override
+  String passportCount(int count) {
+    return '$count 都市を集めました';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'あと $count 都市で「パスポート」光球がもらえます';
+  }
+
+  @override
+  String get passportRewardDone => '「パスポート」光球を手に入れました。量子アバターで着けられます';
+
+  @override
+  String get passportRewardToast => '5 都市達成！「パスポート」光球を手に入れました';
+
+  @override
+  String get passportEmpty =>
+      'パラレルユニバースで別の街の人とチャットし、お互いに一言でも話すと、その街のスタンプが押されます。記録するのは街と日付だけで、相手が誰かは残りません。';
+
+  @override
+  String passportNewStamp(String city) {
+    return '新しいスタンプ：$city';
+  }
+
+  @override
+  String get passportShare => 'パスポートをシェア';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'わたしのパラレルパスポート\n$count 都市';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'わたしのパラレルパスポートには $count 都市のスタンプがあります。Mood Whisper を開いて、パラレルユニバースへ。';
+  }
 }

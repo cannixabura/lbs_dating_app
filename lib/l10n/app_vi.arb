@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "Chưa tìm được tên địa điểm. Hãy thử lại sau.",
   "parallelCardTitle": "Lúc này, tôi đang ở {city} song song",
   "parallelCardShareText": "Lúc này, tôi đang ở {city} song song. Mở Mood Whisper để bước vào một thành phố khác nhé.",
-  "parallelCoordsShare": "Chia sẻ thẻ"
+  "parallelCoordsShare": "Chia sẻ thẻ",
+  "orbStylePassport": "Hộ chiếu",
+  "passportTitle": "Hộ chiếu song song",
+  "passportCount": "Đã sưu tầm {count} thành phố",
+  "passportRewardProgress": "Sưu tầm thêm {count} thành phố để nhận quả cầu Hộ chiếu",
+  "passportRewardDone": "Bạn đã có quả cầu Hộ chiếu. Hãy dùng trong Hóa thân lượng tử.",
+  "passportRewardToast": "5 thành phố! Bạn nhận được quả cầu Hộ chiếu",
+  "passportEmpty": "Trò chuyện với người ở thành phố khác trong Vũ trụ song song. Khi cả hai đã nói ít nhất một câu, thành phố đó được đóng dấu vào hộ chiếu. Chỉ lưu thành phố và ngày, không lưu bạn đã nói chuyện với ai.",
+  "passportNewStamp": "Dấu mới: {city}",
+  "passportShare": "Chia sẻ hộ chiếu",
+  "passportCardTitle": "Hộ chiếu song song của tôi\n{count} thành phố",
+  "passportCardShareText": "Hộ chiếu song song của tôi đã có dấu của {count} thành phố. Mở Mood Whisper và bước vào Vũ trụ song song nhé."
 }

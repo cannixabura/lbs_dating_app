@@ -3390,4 +3390,49 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'Kongsi kad';
+
+  @override
+  String get orbStylePassport => 'Pasport';
+
+  @override
+  String get passportTitle => 'Pasport Selari';
+
+  @override
+  String passportCount(int count) {
+    return '$count bandar dikumpul';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'Kumpul $count bandar lagi untuk dapatkan orb Pasport';
+  }
+
+  @override
+  String get passportRewardDone =>
+      'Anda sudah dapat orb Pasport. Pakai di Avatar Kuantum.';
+
+  @override
+  String get passportRewardToast => '5 bandar! Anda dapat orb Pasport';
+
+  @override
+  String get passportEmpty =>
+      'Berbual dengan orang dari bandar lain di Alam Selari. Apabila kedua-dua pihak sudah bercakap, bandar itu dicop dalam pasport anda. Hanya bandar dan tarikh disimpan, bukan siapa yang anda bualkan.';
+
+  @override
+  String passportNewStamp(String city) {
+    return 'Cop baharu: $city';
+  }
+
+  @override
+  String get passportShare => 'Kongsi pasport';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'Pasport Selari saya\n$count bandar';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'Pasport Selari saya ada cop dari $count bandar. Buka Mood Whisper dan masuk ke Alam Selari.';
+  }
 }

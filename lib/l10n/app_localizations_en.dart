@@ -3459,4 +3459,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'Share card';
+
+  @override
+  String get orbStylePassport => 'Passport';
+
+  @override
+  String get passportTitle => 'Parallel Passport';
+
+  @override
+  String passportCount(int count) {
+    return '$count cities collected';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'Collect $count more cities to get the Passport orb';
+  }
+
+  @override
+  String get passportRewardDone =>
+      'You have the Passport orb. Put it on in Quantum Avatar.';
+
+  @override
+  String get passportRewardToast => '5 cities! You got the Passport orb';
+
+  @override
+  String get passportEmpty =>
+      'Chat with someone from another city in Parallel Universe. Once you have both said something, that city is stamped in your passport. Only the city and the date are kept, never who you talked to.';
+
+  @override
+  String passportNewStamp(String city) {
+    return 'New stamp: $city';
+  }
+
+  @override
+  String get passportShare => 'Share passport';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'My Parallel Passport\n$count cities';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'My Parallel Passport has stamps from $count cities. Open Mood Whisper and step into Parallel Universe.';
+  }
 }

@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "暂时查不到地名，稍后再试",
   "parallelCardTitle": "此刻，我在平行宇宙的{city}",
   "parallelCardShareText": "此刻，我在平行宇宙的{city}。打开城市低语，你也能走进另一座城市。",
-  "parallelCoordsShare": "分享卡片"
+  "parallelCoordsShare": "分享卡片",
+  "orbStylePassport": "护照款",
+  "passportTitle": "平行护照",
+  "passportCount": "已收集 {count} 座城市",
+  "passportRewardProgress": "再收集 {count} 座城市，就能得到“护照款”光球",
+  "passportRewardDone": "你已经得到“护照款”光球，可以在量子化身里换上",
+  "passportRewardToast": "集满 5 座城市！你得到了“护照款”光球",
+  "passportEmpty": "跟平行宇宙里其他城市的人聊天，双方都说过话，就会在那座城市盖一个章。只记城市和日期，不记对方是谁。",
+  "passportNewStamp": "新的印章：{city}",
+  "passportShare": "分享护照",
+  "passportCardTitle": "我的平行护照\n{count} 座城市",
+  "passportCardShareText": "我的平行护照已经盖了 {count} 座城市的章。打开城市低语，一起走进平行宇宙。"
 }

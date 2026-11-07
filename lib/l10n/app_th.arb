@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "ยังหาชื่อสถานที่ไม่เจอ ลองใหม่ภายหลัง",
   "parallelCardTitle": "ตอนนี้ ฉันอยู่ที่{city}ในจักรวาลคู่ขนาน",
   "parallelCardShareText": "ตอนนี้ ฉันอยู่ที่{city}ในจักรวาลคู่ขนาน เปิด Mood Whisper แล้วไปอีกเมืองด้วยกัน",
-  "parallelCoordsShare": "แชร์การ์ด"
+  "parallelCoordsShare": "แชร์การ์ด",
+  "orbStylePassport": "พาสปอร์ต",
+  "passportTitle": "พาสปอร์ตคู่ขนาน",
+  "passportCount": "สะสมแล้ว {count} เมือง",
+  "passportRewardProgress": "สะสมอีก {count} เมือง เพื่อรับลูกแก้วพาสปอร์ต",
+  "passportRewardDone": "คุณได้ลูกแก้วพาสปอร์ตแล้ว ใส่ได้ในอวตารควอนตัม",
+  "passportRewardToast": "ครบ 5 เมือง! คุณได้ลูกแก้วพาสปอร์ต",
+  "passportEmpty": "แชตกับคนจากเมืองอื่นในจักรวาลคู่ขนาน เมื่อทั้งสองฝ่ายได้พูดกันแล้ว เมืองนั้นจะถูกประทับตราในพาสปอร์ต เก็บแค่เมืองกับวันที่ ไม่เก็บว่าคุยกับใคร",
+  "passportNewStamp": "ตราใหม่: {city}",
+  "passportShare": "แชร์พาสปอร์ต",
+  "passportCardTitle": "พาสปอร์ตคู่ขนานของฉัน\n{count} เมือง",
+  "passportCardShareText": "พาสปอร์ตคู่ขนานของฉันมีตราจาก {count} เมืองแล้ว เปิด Mood Whisper แล้วไปจักรวาลคู่ขนานด้วยกัน"
 }

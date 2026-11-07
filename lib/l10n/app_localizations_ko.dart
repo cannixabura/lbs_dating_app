@@ -3236,4 +3236,48 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => '카드 공유';
+
+  @override
+  String get orbStylePassport => '여권';
+
+  @override
+  String get passportTitle => '평행 여권';
+
+  @override
+  String passportCount(int count) {
+    return '$count개 도시 수집';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return '$count개 도시를 더 모으면 「여권」 광구를 받아요';
+  }
+
+  @override
+  String get passportRewardDone => '「여권」 광구를 받았어요. 퀀텀 아바타에서 바꿀 수 있어요';
+
+  @override
+  String get passportRewardToast => '5개 도시 달성! 「여권」 광구를 받았어요';
+
+  @override
+  String get passportEmpty =>
+      '평행 우주에서 다른 도시 사람과 채팅하고 서로 한마디씩 나누면 그 도시 도장이 찍혀요. 도시와 날짜만 기록하고, 상대가 누구인지는 남기지 않아요.';
+
+  @override
+  String passportNewStamp(String city) {
+    return '새 도장: $city';
+  }
+
+  @override
+  String get passportShare => '여권 공유';
+
+  @override
+  String passportCardTitle(int count) {
+    return '나의 평행 여권\n$count개 도시';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return '나의 평행 여권에 $count개 도시의 도장이 찍혔어요. Mood Whisper를 열고 평행 우주로 함께 가요.';
+  }
 }

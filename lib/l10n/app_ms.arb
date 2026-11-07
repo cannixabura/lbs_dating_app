@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "Nama tempat tidak dijumpai buat masa ini. Cuba lagi nanti.",
   "parallelCardTitle": "Sekarang, saya di {city} alam selari",
   "parallelCardShareText": "Sekarang, saya di {city} alam selari. Buka Mood Whisper dan masuk ke bandar lain juga.",
-  "parallelCoordsShare": "Kongsi kad"
+  "parallelCoordsShare": "Kongsi kad",
+  "orbStylePassport": "Pasport",
+  "passportTitle": "Pasport Selari",
+  "passportCount": "{count} bandar dikumpul",
+  "passportRewardProgress": "Kumpul {count} bandar lagi untuk dapatkan orb Pasport",
+  "passportRewardDone": "Anda sudah dapat orb Pasport. Pakai di Avatar Kuantum.",
+  "passportRewardToast": "5 bandar! Anda dapat orb Pasport",
+  "passportEmpty": "Berbual dengan orang dari bandar lain di Alam Selari. Apabila kedua-dua pihak sudah bercakap, bandar itu dicop dalam pasport anda. Hanya bandar dan tarikh disimpan, bukan siapa yang anda bualkan.",
+  "passportNewStamp": "Cop baharu: {city}",
+  "passportShare": "Kongsi pasport",
+  "passportCardTitle": "Pasport Selari saya\n{count} bandar",
+  "passportCardShareText": "Pasport Selari saya ada cop dari {count} bandar. Buka Mood Whisper dan masuk ke Alam Selari."
 }

@@ -27,6 +27,7 @@ const orbs = require("./orbs");
 const aiya = require("./aiya");
 const refunds = require("./refunds");
 const gifts = require("./gifts");
+const passport = require("./passport");
 const wgroup = require("./whispergroup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
@@ -278,7 +279,7 @@ async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM,
         if (!lastSeen) return;
         const { status } = classifyPresence(state || null, parseInt(stateAt || "0", 10), lastSeen, now);
         if (status !== 'active') return; // 只顯示正開著 App 的人：休息中、殘影都不跨城市
-        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id, parallelName: parallel.nameOf(home.id, lang) });
+        visitors.push({ uid: memberUid, lat: shown.lat, lng: shown.lng, mood: mood || "", nickname, status, shadowAge: 0, timestamp: lastSeen, parallel: home.id, parallelName: parallel.nameOf(home.id, lang), parallelTz: parallel.utcOffsetMinutes(home.id, now) });
     });
     // 最近活動的優先，避免把雷達塞滿
     return visitors.sort((a, b) => b.timestamp - a.timestamp).slice(0, parallel.MAX_RESULTS);
@@ -357,7 +358,7 @@ exports.getNearby = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECR
           // 審核示範對象（只有輸入過通關碼的帳號看得到）有一部分扮演對應城市來的訪客
           for (const bot of demoBots) {
               const from = demo.parallelDemoCity(bot.uid, viewerCity.country === parallel.TAIWAN);
-              if (from) Object.assign(bot, demo.parallelDemoPosition(bot.uid, { lat, lng }), { nickname: demo.PARALLEL_DEMO_NAMES[from], parallel: from, parallelName: parallel.nameOf(from, langOf(req)) });
+              if (from) Object.assign(bot, demo.parallelDemoPosition(bot.uid, { lat, lng }), { nickname: demo.PARALLEL_DEMO_NAMES[from], parallel: from, parallelName: parallel.nameOf(from, langOf(req)), parallelTz: parallel.utcOffsetMinutes(from) });
           }
       }
       if (viewerCity) {
@@ -904,6 +905,54 @@ exports.notifyOnKnock = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databa
 // ============================================================================
 // API 4: 聊天推播通知
 // ============================================================================
+// ============================================================================
+// 平行護照（規則在 passport.js）
+// ============================================================================
+/** 蓋一個章；集滿 5 座城市送護照款光球。回傳是不是新的章 */
+async function addStamp(uid, cityId, now) {
+    const db = admin.database();
+    const ref = db.ref(`passport/${uid}`);
+    const stamps = (await ref.once("value")).val() || {};
+    if (stamps[cityId]) return false;
+    const updates = { [`passport/${uid}/${cityId}`]: passport.stampRecord(cityId, now) };
+    if (passport.earnsReward(Object.keys(stamps).length + 1)) {
+        const owned = (await db.ref(`orbOwned/${uid}/${passport.REWARD_STYLE}`).once("value")).val();
+        if (!owned) updates[`orbOwned/${uid}/${passport.REWARD_STYLE}`] = { at: now, src: "passport", receipt: `passport_${uid}` };
+    }
+    await db.ref().update(updates);
+    return true;
+}
+
+/** 聊天室裡有人說話：記下他當時所在的城市；兩人都說過話、城市互相配對，就各蓋一個章（每個聊天室只蓋一次） */
+async function stampPassport(roomId, senderUid) {
+    if (!passport.roomMembers(roomId)) return;
+    const key = passport.roomKey(roomId);
+    const [pos] = await sendUpstashPipeline([["GEOPOS", "city_users", senderUid]]);
+    const p = Array.isArray(pos) && Array.isArray(pos[0]) ? { lng: parseFloat(pos[0][0]), lat: parseFloat(pos[0][1]) } : null;
+    const [, , all] = await sendUpstashPipeline([
+        ["HSETNX", key, senderUid, passport.cityField(p)],
+        ["EXPIRE", key, String(passport.ROOM_TTL_SEC)],
+        ["HGETALL", key],
+    ]);
+    const room = {};
+    for (let i = 0; Array.isArray(all) && i < all.length; i += 2) room[all[i]] = all[i + 1];
+    const stamps = passport.stampsFor(roomId, room);
+    if (stamps.length === 0) return;
+    if ((await sendUpstashCommand(["HSETNX", key, passport.DONE, "1"])) !== 1) return; // 另一則訊息已經蓋過了
+    const now = Date.now();
+    for (const { uid, city } of stamps) await addStamp(uid, city, now);
+}
+
+/** 審核示範：跟扮演平行宇宙訪客的示範對象聊天，示範對象會自動回覆，所以直接替使用者蓋章 */
+async function stampFromDemo(senderUid, botUid) {
+    const [pos] = await sendUpstashPipeline([["GEOPOS", "city_users", senderUid]]);
+    const p = Array.isArray(pos) && Array.isArray(pos[0]) ? { lng: parseFloat(pos[0][0]), lat: parseFloat(pos[0][1]) } : null;
+    const here = p && parallel.cityOf(p.lat, p.lng);
+    if (!here) return;
+    const from = demo.parallelDemoCity(botUid, here.country === parallel.TAIWAN);
+    if (from && parallel.paired(here, parallel.CITY_BY_ID[from])) await addStamp(senderUid, from, Date.now());
+}
+
 exports.notifyOnChat = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).database.ref('/chats/{roomId}/messages/{msgId}')
   .onCreate(async (snapshot, context) => {
     const msg = snapshot.val(); if (!msg) return null;
@@ -919,9 +968,12 @@ exports.notifyOnChat = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).databas
 
     // 示範對象：輸入中一下，再依序回覆說明；示範對象沒有推播權杖，不需要推播
     if (demo.isDemoUid(targetUid)) {
+        await stampFromDemo(senderUid, targetUid).catch((e) => console.warn("passport (demo) failed:", e.message));
         await replyAsDemoBot(roomId, targetUid);
         return null;
     }
+    // 平行護照：跨城市的聊天，雙方都說過話就各蓋一個章（失敗不影響推播）
+    if (!demo.isDemoUid(senderUid)) await stampPassport(roomId, senderUid).catch((e) => console.warn("passport failed:", e.message));
     if (demo.isDemoUid(senderUid)) return null; // 使用者正在聊天室裡，訊息已在畫面上
 
     // 第一防線：抓取訊息夾帶的名字
@@ -2087,6 +2139,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       // 量子化身：刪掉擁有紀錄，並釋放購買憑證，之後用新帳號可以恢復購買
       const myOrbs = (await db.ref(`orbOwned/${uid}`).once("value")).val() || {};
       updates[`orbOwned/${uid}`] = null;
+      updates[`passport/${uid}`] = null; // 平行護照的印章
       for (const owned of Object.values(myOrbs)) if (owned && typeof owned.receipt === "string") updates[`orbReceipts/${owned.receipt}`] = null;
       // 艾婭：剩下的時光包次數與同意紀錄一起刪除（消耗型無法恢復，條款已說明）；收據紀錄保留，避免同一筆購買重複加次數
       // 低語團：團主就整團解散，團員就退出

@@ -3382,4 +3382,49 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'แชร์การ์ด';
+
+  @override
+  String get orbStylePassport => 'พาสปอร์ต';
+
+  @override
+  String get passportTitle => 'พาสปอร์ตคู่ขนาน';
+
+  @override
+  String passportCount(int count) {
+    return 'สะสมแล้ว $count เมือง';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'สะสมอีก $count เมือง เพื่อรับลูกแก้วพาสปอร์ต';
+  }
+
+  @override
+  String get passportRewardDone =>
+      'คุณได้ลูกแก้วพาสปอร์ตแล้ว ใส่ได้ในอวตารควอนตัม';
+
+  @override
+  String get passportRewardToast => 'ครบ 5 เมือง! คุณได้ลูกแก้วพาสปอร์ต';
+
+  @override
+  String get passportEmpty =>
+      'แชตกับคนจากเมืองอื่นในจักรวาลคู่ขนาน เมื่อทั้งสองฝ่ายได้พูดกันแล้ว เมืองนั้นจะถูกประทับตราในพาสปอร์ต เก็บแค่เมืองกับวันที่ ไม่เก็บว่าคุยกับใคร';
+
+  @override
+  String passportNewStamp(String city) {
+    return 'ตราใหม่: $city';
+  }
+
+  @override
+  String get passportShare => 'แชร์พาสปอร์ต';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'พาสปอร์ตคู่ขนานของฉัน\n$count เมือง';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'พาสปอร์ตคู่ขนานของฉันมีตราจาก $count เมืองแล้ว เปิด Mood Whisper แล้วไปจักรวาลคู่ขนานด้วยกัน';
+  }
 }

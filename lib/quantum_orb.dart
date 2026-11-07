@@ -20,7 +20,7 @@ import 'ui/night.dart';
 const _orbsUrl = String.fromEnvironment('ORBS_URL', defaultValue: 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/orbs');
 
 /// 所有款式，依面板上的順序；和 geo-service/orbs.js 的 STYLES 相同
-const orbStyles = ['glow', 'ring', 'rainbow', 'startrail', 'rings', 'pair', 'xmas', 'newyear', 'valentine', 'sakura'];
+const orbStyles = ['glow', 'ring', 'rainbow', 'startrail', 'rings', 'pair', 'passport', 'xmas', 'newyear', 'valentine', 'sakura'];
 const orbDefaultStyle = 'glow';
 
 /// 特殊款的商店商品代號（App Store Connect 與 Play Console 都用同一個代號）
@@ -43,7 +43,7 @@ final orbLimitedUntil = {
 final _newYearBloom = DateTime.utc(2026, 12, 31, 16);
 
 /// 只能透過禮物取得的款式（糾纏款）：不是免費款，面板上只有擁有的人看得到
-const orbGrantedStyles = {'pair'};
+const orbGrantedStyles = {'pair', 'passport'};
 bool orbIsFree(String style) => !orbProducts.containsKey(style) && !orbGrantedStyles.contains(style);
 bool orbIsLimited(String style) => orbLimitedUntil.containsKey(style);
 bool orbOnSale(String style, [DateTime? now]) {
@@ -88,6 +88,7 @@ String orbStyleName(String style) => switch (style) {
       'startrail' => tr.orbStyleStarTrail,
       'rings' => tr.orbStyleRings,
       'pair' => tr.orbStylePair,
+      'passport' => tr.orbStylePassport,
       'xmas' => tr.orbStyleXmas,
       'newyear' => tr.orbStyleNewYear,
       'valentine' => tr.orbStyleValentine,
@@ -119,14 +120,14 @@ class QuantumOrb extends StatelessWidget {
   /// 球的直徑佔畫布的比例：光暈和環都畫在畫布裡面（超出的部分在某些容器裡會被切成方形）。
   /// 付費的彩虹款球比較大（地圖上約 31，免費款約 26），畫布一樣大，換款式不會讓版面跳動。
   /// 限定款外面有花圈、煙火，球稍微小一點讓裝飾畫得下。
-  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' || 'startrail' || 'rings' || 'pair' || 'valentine' || 'sakura' => 0.5, _ => 0.465 };
+  static double sphereRatio(String style) => switch (style) { 'rainbow' => 0.56, 'xmas' || 'newyear' || 'startrail' || 'rings' || 'pair' || 'passport' || 'valentine' || 'sakura' => 0.5, _ => 0.465 };
 
   @override
   Widget build(BuildContext context) {
     // 彩虹光環會轉、雪花會飄、煙火會綻開：用時間算，跟著氣泡的呼吸動畫一起重畫
     final ms = DateTime.now().millisecondsSinceEpoch;
     final spin = style == 'rainbow' ? (ms % 6000) / 6000 * 2 * pi : 0.0;
-    final t = style == 'xmas' || style == 'newyear' || style == 'startrail' || style == 'pair' || style == 'valentine' || style == 'sakura' || bouquet ? (ms % 600000) / 1000.0 : 0.0;
+    final t = style == 'xmas' || style == 'newyear' || style == 'startrail' || style == 'pair' || style == 'passport' || style == 'valentine' || style == 'sakura' || bouquet ? (ms % 600000) / 1000.0 : 0.0;
     final bloom = style == 'newyear' && ms >= _newYearBloom.millisecondsSinceEpoch && ms < _newYearBloom.millisecondsSinceEpoch + 5 * 60 * 1000;
     final d = size * sphereRatio(style);
     final photo = image;
@@ -351,6 +352,46 @@ class QuantumOrbPainter extends CustomPainter {
     }
   }
 
+  /// 護照款（平行護照集滿 5 座城市）：外圈是郵票齒孔般的一圈光點慢慢轉，
+  /// 球面上有兩條經線像地球儀，一顆金色光點沿著傾斜的航線繞球飛（後半圈在球後面）
+  void _passport(Canvas canvas, Offset c, double r, {required bool back}) {
+    final k = dim ? 0.4 : 1.0;
+    const violet = Color(0xFFB79CFF), gold = Color(0xFFFFD27A);
+    if (back) {
+      // 郵票齒孔：24 顆光點，每隔一顆亮一點
+      for (var i = 0; i < 24; i++) {
+        final a = i / 24 * 2 * pi + t * 0.15;
+        final p = c + Offset(cos(a), sin(a)) * r * 1.42;
+        final big = i.isEven;
+        if (!dim && big) canvas.drawCircle(p, r * 0.11, Paint()..color = violet.withOpacity(0.3)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.06));
+        canvas.drawCircle(p, r * (big ? 0.06 : 0.04), Paint()..color = (big ? Colors.white : violet).withOpacity(0.85 * k));
+      }
+    } else {
+      // 經線：兩條窄橢圓，像地球儀
+      final line = Paint()..style = PaintingStyle.stroke..strokeWidth = max(0.8, r * 0.035)..color = Colors.white.withOpacity(0.35 * k);
+      canvas.drawOval(Rect.fromCenter(center: c, width: r * 0.9, height: r * 2), line);
+      canvas.drawLine(c + Offset(-r, 0), c + Offset(r, 0), line);
+    }
+    // 航線上的金色光點
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.rotate(-0.4);
+    final rect = Rect.fromCenter(center: Offset.zero, width: r * 2.6, height: r * 0.8);
+    final a = t * 1.1;
+    final behind = sin(a) < 0;
+    if (!back) {
+      canvas.drawArc(rect, 0, pi, false, Paint()..style = PaintingStyle.stroke..strokeWidth = max(0.8, r * 0.03)..color = gold.withOpacity(0.5 * k));
+    } else {
+      canvas.drawArc(rect, pi, pi, false, Paint()..style = PaintingStyle.stroke..strokeWidth = max(0.8, r * 0.03)..color = gold.withOpacity(0.3 * k));
+    }
+    if (behind == back) {
+      final p = Offset(cos(a) * rect.width / 2, sin(a) * rect.height / 2);
+      if (!dim) canvas.drawCircle(p, r * 0.18, Paint()..color = gold.withOpacity(0.45)..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.08));
+      canvas.drawCircle(p, r * 0.07, Paint()..color = Colors.white.withOpacity((behind ? 0.6 : 1.0) * k));
+    }
+    canvas.restore();
+  }
+
   /// 光之花束：光球外一圈慢慢轉的花瓣光點（五瓣一朵、粉白色），中間散著金色小光點
   void _petals(Canvas canvas, Offset c, double r) {
     if (dim) return;
@@ -523,6 +564,7 @@ class QuantumOrbPainter extends CustomPainter {
       if (style == 'rings') _rings(canvas, c, r, base);
       if (style == 'startrail') _starTrail(canvas, c, r, base, back: true);
       if (style == 'pair') _pair(canvas, c, r, back: true);
+      if (style == 'passport') _passport(canvas, c, r, back: true);
       if (style == 'valentine') _valentine(canvas, size, c, r, back: true);
       // 球的底色：沒有大頭貼時就是一顆心情色的光球
       canvas.drawCircle(c, r, Paint()
@@ -581,6 +623,7 @@ class QuantumOrbPainter extends CustomPainter {
     ring(false);
     if (style == 'startrail') _starTrail(canvas, c, r, base, back: false);
     if (style == 'pair') _pair(canvas, c, r, back: false);
+    if (style == 'passport') _passport(canvas, c, r, back: false);
     if (style == 'valentine') _valentine(canvas, size, c, r, back: false);
     if (style == 'sakura') _sakura(canvas, size, c, r);
     if (bouquet) _petals(canvas, c, r);

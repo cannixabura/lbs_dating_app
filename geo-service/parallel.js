@@ -202,6 +202,28 @@ const CITIES = [
     { id: 'perth', country: 'au', lat: -31.9512, lng: 115.8604, names: ['伯斯', '珀斯', 'Perth', 'パース', '퍼스', 'Perth', 'Perth', 'Perth', 'เพิร์ท'] }, // Perth Station
 ];
 const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
+
+// 時區：每國一個，印尼與澳洲依城市分（給「時差與天色」用：只用城市的時區，不需要對方的位置）
+const COUNTRY_TZ = {
+    tw: 'Asia/Taipei', jp: 'Asia/Tokyo', kr: 'Asia/Seoul', hk: 'Asia/Hong_Kong', mo: 'Asia/Macau', sg: 'Asia/Singapore',
+    my: 'Asia/Kuala_Lumpur', id: 'Asia/Jakarta', vn: 'Asia/Ho_Chi_Minh', th: 'Asia/Bangkok', ph: 'Asia/Manila', au: 'Australia/Sydney',
+};
+const CITY_TZ = {
+    bali: 'Asia/Makassar', makassar: 'Asia/Makassar',
+    brisbane: 'Australia/Brisbane', goldcoast: 'Australia/Brisbane', adelaide: 'Australia/Adelaide', perth: 'Australia/Perth',
+};
+const tzOf = (city) => CITY_TZ[city.id] || COUNTRY_TZ[city.country];
+
+/** 這座城市此刻和 UTC 差幾分鐘（含夏令時間） */
+function utcOffsetMinutes(cityId, now = Date.now()) {
+    const city = CITY_BY_ID[cityId];
+    if (!city) return null;
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+        timeZone: tzOf(city), hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+    }).formatToParts(new Date(now)).map((x) => [x.type, x.value]));
+    const local = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute);
+    return Math.round((local - Math.floor(now / 60000) * 60000) / 60000);
+}
 const LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th'];
 
 /** 城市名稱（使用者的語言；不認得的語言用繁中） */
@@ -384,7 +406,7 @@ function liveCities(results) {
 }
 
 module.exports = {
-    mirrors, liveCheckCommands, liveCities, reachKm,
+    utcOffsetMinutes, tzOf, mirrors, liveCheckCommands, liveCities, reachKm,
     GEO_KEY, ALL_KEY, CELL_METERS, MAX_RESULTS, CITIES, CITY_BY_ID, TAIWAN,
     LANGS, cityOf, nameOf, paired, isMainlandBorderArea, project, searchArea, distanceKm, searchCommands, snapshotCommand, toLocalKm, COVER,
 };

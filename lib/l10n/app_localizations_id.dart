@@ -3376,4 +3376,49 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => 'Bagikan kartu';
+
+  @override
+  String get orbStylePassport => 'Paspor';
+
+  @override
+  String get passportTitle => 'Paspor Paralel';
+
+  @override
+  String passportCount(int count) {
+    return '$count kota terkumpul';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return 'Kumpulkan $count kota lagi untuk dapat orb Paspor';
+  }
+
+  @override
+  String get passportRewardDone =>
+      'Kamu sudah dapat orb Paspor. Pakai di Avatar Kuantum.';
+
+  @override
+  String get passportRewardToast => '5 kota! Kamu dapat orb Paspor';
+
+  @override
+  String get passportEmpty =>
+      'Mengobrollah dengan orang dari kota lain di Semesta Paralel. Setelah kalian berdua bicara, kota itu dicap di paspormu. Hanya kota dan tanggal yang disimpan, bukan dengan siapa kamu mengobrol.';
+
+  @override
+  String passportNewStamp(String city) {
+    return 'Cap baru: $city';
+  }
+
+  @override
+  String get passportShare => 'Bagikan paspor';
+
+  @override
+  String passportCardTitle(int count) {
+    return 'Paspor Paralelku\n$count kota';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return 'Paspor Paralelku sudah punya cap dari $count kota. Buka Mood Whisper dan masuki Semesta Paralel.';
+  }
 }

@@ -3162,6 +3162,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get parallelCoordsShare => '分享卡片';
+
+  @override
+  String get orbStylePassport => '護照款';
+
+  @override
+  String get passportTitle => '平行護照';
+
+  @override
+  String passportCount(int count) {
+    return '已收集 $count 座城市';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return '再收集 $count 座城市，就能得到「護照款」光球';
+  }
+
+  @override
+  String get passportRewardDone => '你已經得到「護照款」光球，可以在量子化身裡換上';
+
+  @override
+  String get passportRewardToast => '集滿 5 座城市！你得到了「護照款」光球';
+
+  @override
+  String get passportEmpty =>
+      '跟平行宇宙裡其他城市的人聊天，雙方都說過話，就會在那座城市蓋一個章。只記城市和日期，不記對方是誰。';
+
+  @override
+  String passportNewStamp(String city) {
+    return '新的印章：$city';
+  }
+
+  @override
+  String get passportShare => '分享護照';
+
+  @override
+  String passportCardTitle(int count) {
+    return '我的平行護照\n$count 座城市';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return '我的平行護照已經蓋了 $count 座城市的章。打開城市低語，一起走進平行宇宙。';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6321,4 +6365,48 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get parallelCoordsShare => '分享卡片';
+
+  @override
+  String get orbStylePassport => '护照款';
+
+  @override
+  String get passportTitle => '平行护照';
+
+  @override
+  String passportCount(int count) {
+    return '已收集 $count 座城市';
+  }
+
+  @override
+  String passportRewardProgress(int count) {
+    return '再收集 $count 座城市，就能得到“护照款”光球';
+  }
+
+  @override
+  String get passportRewardDone => '你已经得到“护照款”光球，可以在量子化身里换上';
+
+  @override
+  String get passportRewardToast => '集满 5 座城市！你得到了“护照款”光球';
+
+  @override
+  String get passportEmpty =>
+      '跟平行宇宙里其他城市的人聊天，双方都说过话，就会在那座城市盖一个章。只记城市和日期，不记对方是谁。';
+
+  @override
+  String passportNewStamp(String city) {
+    return '新的印章：$city';
+  }
+
+  @override
+  String get passportShare => '分享护照';
+
+  @override
+  String passportCardTitle(int count) {
+    return '我的平行护照\n$count 座城市';
+  }
+
+  @override
+  String passportCardShareText(int count) {
+    return '我的平行护照已经盖了 $count 座城市的章。打开城市低语，一起走进平行宇宙。';
+  }
 }

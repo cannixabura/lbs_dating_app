@@ -931,5 +931,16 @@
   "parallelCoordsFailed": "Nama tempat belum ditemukan. Coba lagi nanti.",
   "parallelCardTitle": "Saat ini, aku ada di {city} semesta paralel",
   "parallelCardShareText": "Saat ini, aku ada di {city} semesta paralel. Buka Mood Whisper dan masuki kota lain juga.",
-  "parallelCoordsShare": "Bagikan kartu"
+  "parallelCoordsShare": "Bagikan kartu",
+  "orbStylePassport": "Paspor",
+  "passportTitle": "Paspor Paralel",
+  "passportCount": "{count} kota terkumpul",
+  "passportRewardProgress": "Kumpulkan {count} kota lagi untuk dapat orb Paspor",
+  "passportRewardDone": "Kamu sudah dapat orb Paspor. Pakai di Avatar Kuantum.",
+  "passportRewardToast": "5 kota! Kamu dapat orb Paspor",
+  "passportEmpty": "Mengobrollah dengan orang dari kota lain di Semesta Paralel. Setelah kalian berdua bicara, kota itu dicap di paspormu. Hanya kota dan tanggal yang disimpan, bukan dengan siapa kamu mengobrol.",
+  "passportNewStamp": "Cap baru: {city}",
+  "passportShare": "Bagikan paspor",
+  "passportCardTitle": "Paspor Paralelku\n{count} kota",
+  "passportCardShareText": "Paspor Paralelku sudah punya cap dari {count} kota. Buka Mood Whisper dan masuki Semesta Paralel."
 }

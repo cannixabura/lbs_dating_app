@@ -2061,5 +2061,51 @@
         "type": "String"
       }
     }
+  },
+  "orbStylePassport": "護照款",
+  "passportTitle": "平行護照",
+  "passportCount": "已收集 {count} 座城市",
+  "@passportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passportRewardProgress": "再收集 {count} 座城市，就能得到「護照款」光球",
+  "@passportRewardProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passportRewardDone": "你已經得到「護照款」光球，可以在量子化身裡換上",
+  "passportRewardToast": "集滿 5 座城市！你得到了「護照款」光球",
+  "passportEmpty": "跟平行宇宙裡其他城市的人聊天，雙方都說過話，就會在那座城市蓋一個章。只記城市和日期，不記對方是誰。",
+  "passportNewStamp": "新的印章：{city}",
+  "@passportNewStamp": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "passportShare": "分享護照",
+  "passportCardTitle": "我的平行護照\n{count} 座城市",
+  "@passportCardTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passportCardShareText": "我的平行護照已經蓋了 {count} 座城市的章。打開城市低語，一起走進平行宇宙。",
+  "@passportCardShareText": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

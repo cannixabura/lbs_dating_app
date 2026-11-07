@@ -43,6 +43,14 @@ String parallelCityName(String id) => switch (id) {
       _ => id,
     };
 
+/// 時差與天色：對方城市此刻的當地時間，前面加上天色（白天 ☀️、日出 🌅、黃昏 🌇、夜晚 🌙）
+String parallelLocalTime(int utcOffsetMinutes, {DateTime? now}) {
+  final t = (now ?? DateTime.now()).toUtc().add(Duration(minutes: utcOffsetMinutes));
+  final h = t.hour;
+  final sky = h >= 6 && h < 17 ? '☀️' : (h == 5 ? '🌅' : (h >= 17 && h < 19 ? '🌇' : '🌙'));
+  return '$sky ${h.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+}
+
 /// 開啟前先說明會發生什麼事；按「進入」才開啟
 Future<bool> confirmParallelUniverse(BuildContext context) async {
   final ok = await showDialog<bool>(

@@ -5702,6 +5702,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'分享卡片'**
   String get parallelCoordsShare;
+
+  /// No description provided for @orbStylePassport.
+  ///
+  /// In zh, this message translates to:
+  /// **'護照款'**
+  String get orbStylePassport;
+
+  /// No description provided for @passportTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行護照'**
+  String get passportTitle;
+
+  /// No description provided for @passportCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'已收集 {count} 座城市'**
+  String passportCount(int count);
+
+  /// No description provided for @passportRewardProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'再收集 {count} 座城市，就能得到「護照款」光球'**
+  String passportRewardProgress(int count);
+
+  /// No description provided for @passportRewardDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經得到「護照款」光球，可以在量子化身裡換上'**
+  String get passportRewardDone;
+
+  /// No description provided for @passportRewardToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'集滿 5 座城市！你得到了「護照款」光球'**
+  String get passportRewardToast;
+
+  /// No description provided for @passportEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟平行宇宙裡其他城市的人聊天，雙方都說過話，就會在那座城市蓋一個章。只記城市和日期，不記對方是誰。'**
+  String get passportEmpty;
+
+  /// No description provided for @passportNewStamp.
+  ///
+  /// In zh, this message translates to:
+  /// **'新的印章：{city}'**
+  String passportNewStamp(String city);
+
+  /// No description provided for @passportShare.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享護照'**
+  String get passportShare;
+
+  /// No description provided for @passportCardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的平行護照\n{count} 座城市'**
+  String passportCardTitle(int count);
+
+  /// No description provided for @passportCardShareText.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的平行護照已經蓋了 {count} 座城市的章。打開城市低語，一起走進平行宇宙。'**
+  String passportCardShareText(int count);
 }
 
 class _AppLocalizationsDelegate

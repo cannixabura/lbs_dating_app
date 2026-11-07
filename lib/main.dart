@@ -45,6 +45,7 @@ import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
 import 'parallel_coords.dart';
+import 'passport.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
@@ -453,6 +454,14 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           showGlassToast(context, n, icon: Icons.card_giftcard);
         }));
     GiftState.refresh().then((_) => _maybeShowGiftInbox());
+    // 平行護照：聽自己的印章，新蓋的章在主畫面提示；集滿 5 座城市重新讀擁有的光球（護照款）
+    PassportState.listen(onReward: OrbStore.loadOwned);
+    PassportState.notice.addListener(() => WidgetsBinding.instance.addPostFrameCallback((_) {
+          final n = PassportState.notice.value;
+          if (n == null || !mounted) return;
+          PassportState.notice.value = null;
+          showGlassToast(context, n, icon: Icons.verified_outlined);
+        }));
     AiyaPrefs.load();
     MapConsent.load();
     // 低語團：讀自己目前所在的團（不在團裡就不顯示地圖按鈕）、聽購買結果、聽分享連結／QR code
@@ -661,6 +670,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         // 送禮：收到禮物直接打開收禮清單；被收下、退回只更新狀態（提示照常顯示）
         if ('${message.data['type']}'.startsWith('gift')) {
           GiftState.refresh().then((_) => _maybeShowGiftInbox());
+      PassportState.listen(onReward: OrbStore.loadOwned);
+          PassportState.listen(onReward: OrbStore.loadOwned);
           if (message.data['type'] == 'gift') return;
         }
         // 正在和這個人聊天時，訊息已經出現在聊天室裡，不再重複跳出提示
@@ -1861,6 +1872,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'hostEmoji': user['hostEmoji'],
         // 平行宇宙：其他城市投影過來的人，值是對方所在的城市代碼
         'parallelCity': user['parallelName'] ?? user['parallel'], // 伺服器給的城市名稱（使用者的語言）
+        'parallelTz': (user['parallelTz'] as num?)?.toInt(), // 對方城市此刻和 UTC 差幾分鐘（時差與天色）
         // 量子世界：席位代號，以及對方是否開啟量子寧靜（不能敲門）
         'quantumSeat': user['quantum'],
         // 量子化身：光球款式（主色仍然是心情色）
@@ -2456,6 +2468,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                     item(Icons.redeem, tr.giftVouchersCount(GiftState.vouchers.value.length), subtitle: tr.giftVouchersHint, onTap: () => go(() => showGiftVouchers(context))),
                   if (GiftState.pair.value case final pair?)
                     item(Icons.all_inclusive, tr.giftUnpair, subtitle: tr.giftPairedWith(pair.nickname), color: Night.knockPink, onTap: () => go(() => _confirmUnpair(pair.nickname))),
+                  // 平行護照：跟平行城市的人聊天蓋的章
+                  section(tr.parallelUniverse),
+                  item(Icons.verified_outlined, tr.passportTitle, subtitle: tr.passportCount(PassportState.stamps.value.length), onTap: () => go(() => showPassport(context))),
                   section(tr.settingsSectionShare),
                   item(Icons.ios_share, tr.shareMoodCard, subtitle: tr.shareMoodCardSubtitle, onTap: () => go(() => showMoodCard(context, mood: _myMood, moodColor: _getMoodColor(_myMood)))),
                   item(Icons.group_add_outlined, tr.inviteFriends, subtitle: tr.inviteFriendsSubtitle, onTap: () => go(() => shareInvite(context))),
@@ -2940,6 +2955,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               isDemo: user['isDemo'] ?? false,
               hostEmoji: user['hostEmoji'] as String?,
               parallelCity: user['parallelCity'] as String?,
+              parallelTz: user['parallelTz'] as int?,
               shadowOpacity: user['shadowOpacity'] ?? 1.0,
               orb: user['quantumOrb'] as String?,
               orbGrow: user['quantumGrow'] as ({int stars, int rings})?,
@@ -3421,6 +3437,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       if (_locationIssue != _LocationIssue.none) _checkLocation();
       WhisperGroup.refresh();
       GiftState.refresh().then((_) => _maybeShowGiftInbox());
+      PassportState.listen(onReward: OrbStore.loadOwned);
       // 回到前景：立刻回報為活躍，並馬上刷新雷達
       if (_isInForeground) return;
       _isInForeground = true;
@@ -3994,6 +4011,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
   final bool isDemo; // 示範對象：名字前面加上「示範」
   final String? hostEmoji; // 正在主持集會：「主持」光環，名字前面加上「主持 🌈」
   final String? parallelCity; // 平行宇宙的人：虛線光環，用城市取代距離
+  final int? parallelTz; // 平行宇宙的人：對方城市和 UTC 差幾分鐘，名字下面顯示當地時間與天色
   final Color? dayTint; // 量子世界的晝夜色調：依主人的當地時間
   final bool newYear; // 量子跨年：主人的時區已經跨年，頭像外一圈金色光環
   final String? orb; // 量子化身：量子世界裡用光球取代大頭貼
@@ -4015,6 +4033,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
     this.isDemo = false,
     this.hostEmoji,
     this.parallelCity,
+    this.parallelTz,
     this.dayTint,
     this.newYear = false,
     this.orb,
@@ -4222,7 +4241,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
                 ].join(' · '), style: Night.caption.copyWith(shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
                 // 平行宇宙的位置是投影的，不顯示距離；對方的城市獨立一行，名字長也不會被截掉
                 if (widget.parallelCity != null)
-                  Text('🪐 ${parallelCityName(widget.parallelCity!)}', style: Night.caption.copyWith(color: Night.auroraViolet, shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
+                  Text('🪐 ${parallelCityName(widget.parallelCity!)}${widget.parallelTz == null ? '' : ' · ${parallelLocalTime(widget.parallelTz!)}'}', style: Night.caption.copyWith(color: Night.auroraViolet, shadows: const [Shadow(color: Night.night900, blurRadius: 6)]), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

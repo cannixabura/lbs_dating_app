@@ -24,6 +24,7 @@ const STYLES = {
     rainbow: { product: 'orb_rainbow' }, // 彩虹（長期販售）
     startrail: { product: 'orb_startrail', grows: true }, // 星軌：每完成一張量子相遇卡多一顆星（長期販售）
     rings: { product: 'orb_rings', grows: true }, // 年輪：在量子世界累積待滿 3 小時多一圈（長期販售）
+    passport: { granted: true }, // 護照款：平行護照集滿 5 座城市自動取得（不能買），光球外圈是郵戳般的光粒子環
     pair: { granted: true }, // 糾纏款：只能透過「糾纏款」禮物取得（一人買、送給對方，對方接受後兩人都有），兩人都在量子世界時有一條光繩相連
     xmas: { product: 'orb_xmas', until: Date.parse('2026-12-25T23:59:59+08:00') }, // 聖誕限定
     newyear: { product: 'orb_newyear', until: Date.parse('2027-01-01T23:59:59+08:00') }, // 量子跨年 2026→2027 限定

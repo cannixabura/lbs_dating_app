@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'l10n/l10n.dart';
 import 'mood_card.dart';
 import 'parallel_universe.dart';
+import 'passport.dart';
 import 'ui/night.dart';
 
 const _coordsUrl = 'https://asia-southeast1-mood-whisper-f7de9.cloudfunctions.net/parallelCoords';
@@ -235,7 +236,18 @@ class _ParallelCoordsSheetState extends State<_ParallelCoordsSheet> {
             const SizedBox(height: Night.space3),
             Center(child: NightButton(tr.parallelCoordsShare, icon: Icons.ios_share, onPressed: () => showParallelCityCard(context, city: _city!.name))),
           ],
-          const SizedBox(height: Night.space4),
+          // 平行護照的入口
+          Center(
+            child: TextButton.icon(
+              onPressed: () => showPassport(context),
+              icon: const Icon(Icons.verified_outlined, size: 18, color: Night.auroraViolet),
+              label: ValueListenableBuilder<List<PassportStamp>>(
+                valueListenable: PassportState.stamps,
+                builder: (context, stamps, _) => Text('${tr.passportTitle} · ${tr.passportCount(stamps.length)}', style: const TextStyle(color: Night.auroraViolet)),
+              ),
+            ),
+          ),
+          const SizedBox(height: Night.space2),
           SizedBox(
             height: 40,
             child: ListView(scrollDirection: Axis.horizontal, children: [

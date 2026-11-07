@@ -204,3 +204,19 @@ test('parallel coordinates never point into mainland China or outside the city',
     assert.ok(macau.outside);
     assert.ok(!m.list.find((c) => c.id === 'tokyo').outside);
 });
+
+test('local time of each city, with daylight saving', () => {
+    const jan = Date.parse('2027-01-15T12:00:00Z'), jul = Date.parse('2026-07-15T12:00:00Z');
+    assert.strictEqual(p.utcOffsetMinutes('taipei', jan), 480);
+    assert.strictEqual(p.utcOffsetMinutes('tokyo', jan), 540);
+    assert.strictEqual(p.utcOffsetMinutes('bangkok', jan), 420);
+    assert.strictEqual(p.utcOffsetMinutes('bali', jan), 480);
+    assert.strictEqual(p.utcOffsetMinutes('jakarta', jan), 420);
+    assert.strictEqual(p.utcOffsetMinutes('sydney', jan), 660); // 夏令
+    assert.strictEqual(p.utcOffsetMinutes('sydney', jul), 600);
+    assert.strictEqual(p.utcOffsetMinutes('brisbane', jan), 600); // 昆士蘭沒有夏令
+    assert.strictEqual(p.utcOffsetMinutes('adelaide', jan), 630);
+    assert.strictEqual(p.utcOffsetMinutes('perth', jan), 480);
+    for (const c of p.CITIES) assert.ok(Number.isInteger(p.utcOffsetMinutes(c.id, jan)), c.id);
+    assert.strictEqual(p.utcOffsetMinutes('nowhere'), null);
+});

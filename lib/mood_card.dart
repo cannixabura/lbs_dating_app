@@ -75,6 +75,21 @@ Future<void> showMoodCard(BuildContext context, {required String mood, required 
   );
 }
 
+/// 平行宇宙卡：「此刻，我在平行宇宙的大阪」。只寫城市、不寫地名，從卡片推不回真實位置
+Future<void> showParallelCityCard(BuildContext context, {required String city}) {
+  return _showShareCard(
+    context,
+    random: Random(),
+    count: _scenes.length,
+    image: (i) => _scenes[i],
+    shareLabel: tr.parallelCoordsShare,
+    fileName: 'city_whisper_parallel',
+    build: (i) => ShareCard(image: _scenes[i], accent: Night.auroraViolet, at: DateTime.now(), kind: ShareCardKind.parallel, city: city),
+    shareText: (_) => '${tr.parallelCardShareText(city)}\n$_landingUrl?ref=parallel',
+    linkText: (i) => '${tr.parallelCardShareText(city)}\n${_landingUrl}m/${_sceneNumber(_scenes[i])}.html',
+  );
+}
+
 /// 量子相遇卡：雙方同意後各自打開，三種配色可以換，分享時輸出 1080×1920 圖片
 Future<void> showQuantumMeetCard(BuildContext context, {required QuantumMeetPerson me, required QuantumMeetPerson them}) {
   final at = DateTime.now();
@@ -200,7 +215,7 @@ String _partOfDay(DateTime t) {
   return tr.partNight;
 }
 
-enum ShareCardKind { mood, invite }
+enum ShareCardKind { mood, invite, parallel }
 
 /// 分享卡本體（360×640 邏輯尺寸）：夜景插畫為底，上方文字，下方品牌。不放任何位置資訊。
 class ShareCard extends StatelessWidget {
@@ -209,12 +224,14 @@ class ShareCard extends StatelessWidget {
   final DateTime at;
   final ShareCardKind kind;
   final String mood;
-  const ShareCard({super.key, required this.image, required this.accent, required this.at, this.kind = ShareCardKind.mood, this.mood = ''});
+  final String city; // 平行宇宙卡：只寫城市，不寫地名（不透露位置）
+  const ShareCard({super.key, required this.image, required this.accent, required this.at, this.kind = ShareCardKind.mood, this.mood = '', this.city = ''});
 
   @override
   Widget build(BuildContext context) {
     final date = '${at.year}.${at.month.toString().padLeft(2, '0')}.${at.day.toString().padLeft(2, '0')}';
     final invite = kind == ShareCardKind.invite;
+    final parallel = kind == ShareCardKind.parallel;
     return SizedBox(
       width: 360,
       height: 640,
@@ -244,11 +261,11 @@ class ShareCard extends StatelessWidget {
           Positioned(
               left: 28, right: 28, top: 52,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(invite ? tr.cardInviteEyebrow : tr.cardMoodEyebrow, style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,
+                Text(invite ? tr.cardInviteEyebrow : (parallel ? tr.parallelUniverse : tr.cardMoodEyebrow), style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,
                     shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
                 const SizedBox(height: 12),
                 Text(
-                  invite ? tr.cardInviteTitle : mood,
+                  invite ? tr.cardInviteTitle : (parallel ? tr.parallelCardTitle(city) : mood),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

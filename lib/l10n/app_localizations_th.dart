@@ -1792,7 +1792,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'เมื่อเปิด ทุกคนที่เปิดแอปอยู่ในเมืองที่จับคู่กับคุณจะปรากฏบนเรดาร์ของคุณ และพวกเขาทุกคนก็เห็นคุณ เมืองในไต้หวันจับคู่กับเมืองในต่างประเทศ (เช่น โตเกียว โซล และกรุงเทพฯ) และเมืองในต่างประเทศจับคู่กับไต้หวัน\n\nสองเมืองจะเรียงกันที่สถานีกลาง: คุณอยู่ห่างจากสถานีของคุณไกลแค่ไหนและไปทางไหน คุณก็จะปรากฏในเมืองของเขาที่ตำแหน่งเดียวกัน โดยเบลอไว้ราว 500 ม. ไม่มีใครเห็นตำแหน่งหรือระยะห่างจริงของคุณ คุณยังส่งประกายแสง เคาะประตู และแชตได้ และปิดได้ทุกเมื่อ เสียงกระซิบและกิจกรรมจะอยู่แค่ในพื้นที่ของตัวเอง';
+      'เมื่อเปิด ทุกคนที่เปิดแอปอยู่ในเมืองที่จับคู่กับคุณจะปรากฏบนเรดาร์ของคุณ และพวกเขาทุกคนก็เห็นคุณ เมืองในไต้หวันจับคู่กับเมืองในต่างประเทศ (เช่น โตเกียว โซล และกรุงเทพฯ) และเมืองในต่างประเทศจับคู่กับไต้หวัน\n\nสองเมืองจะเรียงกันที่ใจกลางเมือง (สถานีกลาง หรือศาลาว่าการเมืองถ้าไม่มีสถานี): คุณอยู่ห่างจากใจกลางเมืองของคุณไกลแค่ไหนและไปทางไหน คุณก็จะปรากฏในเมืองของเขาที่ตำแหน่งเดียวกัน โดยเบลอไว้ราว 500 ม. ไม่มีใครเห็นตำแหน่งหรือระยะห่างจริงของคุณ คุณยังส่งประกายแสง เคาะประตู และแชตได้ และปิดได้ทุกเมื่อ เสียงกระซิบและกิจกรรมจะอยู่แค่ในพื้นที่ของตัวเอง';
 
   @override
   String get parallelUniverseEnter => 'เข้าสู่';
@@ -3342,4 +3342,44 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get orbStyleSakura => 'ซากุระ';
+
+  @override
+  String get parallelCoords => 'พิกัดคู่ขนาน';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return 'ห่างจากใจกลาง$city $km กม.';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return 'ใน$city คุณยืนอยู่แถว';
+  }
+
+  @override
+  String get parallelCoordsSea => 'กลางทะเล หรือที่ที่ไม่มีชื่อ';
+
+  @override
+  String get parallelCoordsOutside => 'นอกเขตเมืองนี้';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return 'เมื่อคนใน$cityเปิดจักรวาลคู่ขนาน พวกเขาจะเห็นคุณแถวนี้ (เบลอประมาณ 500 ม.)';
+  }
+
+  @override
+  String get parallelCoordsFailed => 'ยังหาชื่อสถานที่ไม่เจอ ลองใหม่ภายหลัง';
+
+  @override
+  String parallelCardTitle(String city) {
+    return 'ตอนนี้ ฉันอยู่ที่$cityในจักรวาลคู่ขนาน';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return 'ตอนนี้ ฉันอยู่ที่$cityในจักรวาลคู่ขนาน เปิด Mood Whisper แล้วไปอีกเมืองด้วยกัน';
+  }
+
+  @override
+  String get parallelCoordsShare => 'แชร์การ์ด';
 }

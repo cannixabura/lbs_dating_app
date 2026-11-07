@@ -44,6 +44,7 @@ import 'nightly_reminder.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
+import 'parallel_coords.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
@@ -3903,6 +3904,9 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 平行宇宙開關（右上角，只有圖標）；進入量子世界時暫時離開平行宇宙
                       if (!quantumOn)
                         Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4, child: ParallelUniverseButton(onToggle: _toggleParallelUniverse)),
+                      // 平行座標：開啟平行宇宙、而且在支援的城市時，在開關左邊多一顆小按鈕
+                      if (!quantumOn && _checkInPosition != null)
+                        Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4 + 52, child: ParallelCoordsButton(position: _checkInPosition!)),
                       // 量子世界開關：打卡後才能進入（平行宇宙開關下方；在場時移到最上面）
                       if (_locationServicesStarted)
                         Positioned(top: MediaQuery.of(context).padding.top + (quantumOn ? 10 : 62), right: Night.space4, child: QuantumWorldButton(onTap: _toggleQuantum)),

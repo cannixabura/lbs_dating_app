@@ -487,7 +487,7 @@
   "parallelUniverse": "Vũ trụ song song",
   "parallelUniverseSubtitle": "Xem tâm trạng các thành phố khác lúc này, và để họ thấy bạn",
   "parallelUniverseIntroTitle": "Bước vào Vũ trụ song song",
-  "parallelUniverseIntroBody": "Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo nhà ga trung tâm của mỗi bên: bạn cách nhà ga bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.",
+  "parallelUniverseIntroBody": "Khi bật, mọi người đang mở ứng dụng ở các thành phố được ghép với bạn sẽ hiện lên radar của bạn, và tất cả họ đều thấy bạn. Các thành phố ở Đài Loan được ghép với các thành phố nước ngoài (như Tokyo, Seoul, Kuala Lumpur), và các thành phố nước ngoài được ghép với Đài Loan.\n\nHai thành phố được canh theo trung tâm của mỗi bên (nhà ga trung tâm, hoặc tòa thị chính nếu không có ga): bạn cách trung tâm bao xa, theo hướng nào thì sẽ xuất hiện ở đúng chỗ đó trong thành phố của họ, được làm mờ khoảng 500 m, nên không ai thấy được vị trí hay khoảng cách thật của bạn. Bạn vẫn có thể gửi ánh sáng, gõ cửa và trò chuyện, và tắt bất cứ lúc nào. Lời thì thầm và buổi tụ họp chỉ ở lại nơi đó.",
   "parallelUniverseEnter": "Bước vào",
   "parallelUniverseNoCity": "Nơi bạn ở chưa có Vũ trụ song song",
   "parallelFrom": "Song song · {city}",
@@ -921,5 +921,15 @@
   "giftBlockedOwned": "Họ đã có quả cầu này. Hãy chọn kiểu khác (bạn chưa bị trừ tiền).",
   "giftBlockedPaired": "Họ đã có cặp vướng víu. Bạn chưa bị trừ tiền.",
   "orbStyleValentine": "Valentine",
-  "orbStyleSakura": "Hoa anh đào"
+  "orbStyleSakura": "Hoa anh đào",
+  "parallelCoords": "Tọa độ song song",
+  "parallelCoordsHome": "Cách trung tâm {city} {km} km",
+  "parallelCoordsIn": "Ở {city}, bạn đang đứng quanh",
+  "parallelCoordsSea": "Trên biển, hoặc nơi không có tên",
+  "parallelCoordsOutside": "Ngoài phạm vi thành phố này",
+  "parallelCoordsNote": "Khi người ở {city} bật Vũ trụ song song, họ sẽ thấy bạn quanh khu vực này (làm mờ khoảng 500 m).",
+  "parallelCoordsFailed": "Chưa tìm được tên địa điểm. Hãy thử lại sau.",
+  "parallelCardTitle": "Lúc này, tôi đang ở {city} song song",
+  "parallelCardShareText": "Lúc này, tôi đang ở {city} song song. Mở Mood Whisper để bước vào một thành phố khác nhé.",
+  "parallelCoordsShare": "Chia sẻ thẻ"
 }

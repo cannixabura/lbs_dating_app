@@ -1683,7 +1683,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '켜면 짝지어진 도시에서 지금 앱을 켜 둔 사람들이 모두 내 레이더에 겹쳐 보이고, 그들 모두 나를 볼 수 있습니다. 대만의 도시는 해외 도시(도쿄, 서울, 쿠알라룸푸르 등)와, 해외 도시는 대만과 짝지어집니다.\n\n두 도시는 각자의 중앙역을 기준으로 겹칩니다. 내가 역에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시에서의 위치가 정해지고, 약 500m로 흐려져서 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다. 속삭임과 모임은 그 도시에만 남습니다.';
+      '켜면 짝지어진 도시에서 지금 앱을 켜 둔 사람들이 모두 내 레이더에 겹쳐 보이고, 그들 모두 나를 볼 수 있습니다. 대만의 도시는 해외 도시(도쿄, 서울, 쿠알라룸푸르 등)와, 해외 도시는 대만과 짝지어집니다.\n\n두 도시는 각자의 중심(중앙역, 없으면 시청)을 기준으로 겹칩니다. 내가 중심에서 어느 방향으로 얼마나 떨어져 있는지에 따라 상대 도시에서의 위치가 정해지고, 약 500m로 흐려져서 누구도 실제 위치나 거리를 알 수 없습니다. 빛 보내기, 노크, 채팅도 할 수 있고 언제든 끌 수 있습니다. 속삭임과 모임은 그 도시에만 남습니다.';
 
   @override
   String get parallelUniverseEnter => '들어가기';
@@ -3196,4 +3196,44 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get orbStyleSakura => '벚꽃';
+
+  @override
+  String get parallelCoords => '평행 좌표';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '$city 중심에서 $km km';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return '$city에서 당신이 서 있는 곳은 이쯤';
+  }
+
+  @override
+  String get parallelCoordsSea => '바다 위 또는 지명이 없는 곳';
+
+  @override
+  String get parallelCoordsOutside => '이 도시의 범위 밖';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return '$city 사람들이 평행 우주를 켜면 이 근처에서 당신을 보게 돼요(약 500m 흐리게).';
+  }
+
+  @override
+  String get parallelCoordsFailed => '지금은 지명을 찾을 수 없어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String parallelCardTitle(String city) {
+    return '지금 나는 평행 우주의 $city에 있어요';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return '지금 나는 평행 우주의 $city에 있어요. Mood Whisper를 열면 당신도 다른 도시로 갈 수 있어요.';
+  }
+
+  @override
+  String get parallelCoordsShare => '카드 공유';
 }

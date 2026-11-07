@@ -1831,7 +1831,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'When it\'s on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their central stations: however far and in whichever direction you are from your station, that\'s where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Whispers and gatherings stay local.';
+      'When it\'s on, everyone with the app open in your matched cities appears on your radar, and they can all see you. Cities in Taiwan are matched with cities abroad (such as Tokyo, Seoul and Kuala Lumpur), and cities abroad are matched with Taiwan.\n\nThe two cities line up at their centres (the central station, or the city hall where there isn\'t one): however far and in whichever direction you are from your centre, that\'s where you appear in theirs, blurred to about 500 m, so no one can see your real location or distance. You can still send glimmers, knock and chat, and turn it off at any time. Whispers and gatherings stay local.';
 
   @override
   String get parallelUniverseEnter => 'Enter';
@@ -3418,4 +3418,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orbStyleSakura => 'Sakura';
+
+  @override
+  String get parallelCoords => 'Parallel coordinates';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '$km km from the centre of $city';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return 'In $city, you\'re standing around';
+  }
+
+  @override
+  String get parallelCoordsSea => 'Out at sea, or somewhere without a name';
+
+  @override
+  String get parallelCoordsOutside => 'Outside this city';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return 'When people in $city turn on Parallel Universe, this is roughly where they see you (blurred to about 500 m).';
+  }
+
+  @override
+  String get parallelCoordsFailed =>
+      'Couldn\'t find a place name right now. Try again later.';
+
+  @override
+  String parallelCardTitle(String city) {
+    return 'Right now, I\'m in parallel $city';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return 'Right now, I\'m in parallel $city. Open Mood Whisper and step into another city too.';
+  }
+
+  @override
+  String get parallelCoordsShare => 'Share card';
 }

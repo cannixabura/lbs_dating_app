@@ -1667,7 +1667,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'オンにすると、対応する街でいまアプリを開いている人がみんなあなたのレーダーに重なり、みんなもあなたを見ることができます。台湾の街は海外の街（東京、ソウル、クアラルンプールなど）と、海外の街は台湾と対応しています。\n\n2つの街はそれぞれの中央駅で重ね合わせます。あなたが駅からどの方向にどれだけ離れているかで、相手の街での位置が決まり、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。ささやきと集いはその街だけのものです。';
+      'オンにすると、対応する街でいまアプリを開いている人がみんなあなたのレーダーに重なり、みんなもあなたを見ることができます。台湾の街は海外の街（東京、ソウル、クアラルンプールなど）と、海外の街は台湾と対応しています。\n\n2つの街はそれぞれの中心（中央駅、なければ市役所）で重ね合わせます。あなたが中心からどの方向にどれだけ離れているかで、相手の街での位置が決まり、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。ささやきと集いはその街だけのものです。';
 
   @override
   String get parallelUniverseEnter => '入る';
@@ -3176,4 +3176,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get orbStyleSakura => '桜';
+
+  @override
+  String get parallelCoords => 'パラレル座標';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '$cityの中心から $km km';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return '$cityで、あなたが立っているのはこのあたり';
+  }
+
+  @override
+  String get parallelCoordsSea => '海の上、または地名のない場所';
+
+  @override
+  String get parallelCoordsOutside => 'この都市の範囲外';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return '$cityの人がパラレルユニバースをオンにすると、このあたりにあなたが見えます（約 500 m ぼかし）。';
+  }
+
+  @override
+  String get parallelCoordsFailed => '地名が見つかりませんでした。あとでもう一度お試しください';
+
+  @override
+  String parallelCardTitle(String city) {
+    return 'いま、パラレルユニバースの$cityにいます';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return 'いま、パラレルユニバースの$cityにいます。Mood Whisper を開けば、あなたも別の街へ。';
+  }
+
+  @override
+  String get parallelCoordsShare => 'カードをシェア';
 }

@@ -487,7 +487,7 @@
   "parallelUniverse": "平行宇宙",
   "parallelUniverseSubtitle": "看见其他城市此刻的心情，也让他们看见你",
   "parallelUniverseIntroTitle": "进入平行宇宙",
-  "parallelUniverseIntroBody": "开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。低语和集会只留在当地。",
+  "parallelUniverseIntroBody": "开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中心点（中央车站，没有的话是市政府）对齐：你离中心点多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。低语和集会只留在当地。",
   "parallelUniverseEnter": "进入",
   "parallelUniverseNoCity": "你所在的地方还没有平行宇宙",
   "parallelFrom": "平行宇宙 · {city}",
@@ -921,5 +921,15 @@
   "giftBlockedOwned": "对方已经有这款光球了，换一款送吧（这次不会扣款）",
   "giftBlockedPaired": "对方已经有纠缠款配对了，这次不会扣款",
   "orbStyleValentine": "情人节",
-  "orbStyleSakura": "樱花季"
+  "orbStyleSakura": "樱花季",
+  "parallelCoords": "平行坐标",
+  "parallelCoordsHome": "离{city}的中心 {km} 公里",
+  "parallelCoordsIn": "在{city}，你大约站在",
+  "parallelCoordsSea": "海上或没有地名的地方",
+  "parallelCoordsOutside": "这座城市的范围之外",
+  "parallelCoordsNote": "{city}的人开启平行宇宙时，会在这一带看到你（模糊到约 500 米）。",
+  "parallelCoordsFailed": "暂时查不到地名，稍后再试",
+  "parallelCardTitle": "此刻，我在平行宇宙的{city}",
+  "parallelCardShareText": "此刻，我在平行宇宙的{city}。打开城市低语，你也能走进另一座城市。",
+  "parallelCoordsShare": "分享卡片"
 }

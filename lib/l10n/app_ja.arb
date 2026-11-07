@@ -487,7 +487,7 @@
   "parallelUniverse": "パラレルユニバース",
   "parallelUniverseSubtitle": "ほかの街の今の気持ちを見て、あなたも見てもらう",
   "parallelUniverseIntroTitle": "パラレルユニバースへ",
-  "parallelUniverseIntroBody": "オンにすると、対応する街でいまアプリを開いている人がみんなあなたのレーダーに重なり、みんなもあなたを見ることができます。台湾の街は海外の街（東京、ソウル、クアラルンプールなど）と、海外の街は台湾と対応しています。\n\n2つの街はそれぞれの中央駅で重ね合わせます。あなたが駅からどの方向にどれだけ離れているかで、相手の街での位置が決まり、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。ささやきと集いはその街だけのものです。",
+  "parallelUniverseIntroBody": "オンにすると、対応する街でいまアプリを開いている人がみんなあなたのレーダーに重なり、みんなもあなたを見ることができます。台湾の街は海外の街（東京、ソウル、クアラルンプールなど）と、海外の街は台湾と対応しています。\n\n2つの街はそれぞれの中心（中央駅、なければ市役所）で重ね合わせます。あなたが中心からどの方向にどれだけ離れているかで、相手の街での位置が決まり、約500mぼかされるので、本当の位置や距離は誰にもわかりません。光を送る・ノック・チャットもでき、いつでもオフにできます。ささやきと集いはその街だけのものです。",
   "parallelUniverseEnter": "入る",
   "parallelUniverseNoCity": "今いる場所にはまだパラレルユニバースがありません",
   "parallelFrom": "パラレル · {city}",
@@ -921,5 +921,15 @@
   "giftBlockedOwned": "相手はこの光球を持っています。別のものを選んでください（課金はされていません）。",
   "giftBlockedPaired": "相手にはすでにペアがいます。課金はされていません。",
   "orbStyleValentine": "バレンタイン",
-  "orbStyleSakura": "桜"
+  "orbStyleSakura": "桜",
+  "parallelCoords": "パラレル座標",
+  "parallelCoordsHome": "{city}の中心から {km} km",
+  "parallelCoordsIn": "{city}で、あなたが立っているのはこのあたり",
+  "parallelCoordsSea": "海の上、または地名のない場所",
+  "parallelCoordsOutside": "この都市の範囲外",
+  "parallelCoordsNote": "{city}の人がパラレルユニバースをオンにすると、このあたりにあなたが見えます（約 500 m ぼかし）。",
+  "parallelCoordsFailed": "地名が見つかりませんでした。あとでもう一度お試しください",
+  "parallelCardTitle": "いま、パラレルユニバースの{city}にいます",
+  "parallelCardShareText": "いま、パラレルユニバースの{city}にいます。Mood Whisper を開けば、あなたも別の街へ。",
+  "parallelCoordsShare": "カードをシェア"
 }

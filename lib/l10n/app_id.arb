@@ -487,7 +487,7 @@
   "parallelUniverse": "Semesta Paralel",
   "parallelUniverseSubtitle": "Lihat perasaan kota lain saat ini, dan biarkan mereka melihatmu",
   "parallelUniverseIntroTitle": "Masuk ke Semesta Paralel",
-  "parallelUniverseIntroBody": "Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Bisikan dan acara tetap di tempat asalnya.",
+  "parallelUniverseIntroBody": "Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di pusat masing-masing (stasiun pusat, atau balai kota jika tidak ada): seberapa jauh dan ke arah mana kamu dari pusatmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Bisikan dan acara tetap di tempat asalnya.",
   "parallelUniverseEnter": "Masuk",
   "parallelUniverseNoCity": "Belum ada Semesta Paralel di tempatmu",
   "parallelFrom": "Paralel · {city}",
@@ -921,5 +921,15 @@
   "giftBlockedOwned": "Mereka sudah punya orb ini. Pilih yang lain (kamu tidak dikenai biaya).",
   "giftBlockedPaired": "Mereka sudah berpasangan. Kamu tidak dikenai biaya.",
   "orbStyleValentine": "Valentine",
-  "orbStyleSakura": "Sakura"
+  "orbStyleSakura": "Sakura",
+  "parallelCoords": "Koordinat paralel",
+  "parallelCoordsHome": "{km} km dari pusat {city}",
+  "parallelCoordsIn": "Di {city}, kamu berdiri di sekitar",
+  "parallelCoordsSea": "Di laut, atau tempat tanpa nama",
+  "parallelCoordsOutside": "Di luar kota ini",
+  "parallelCoordsNote": "Saat orang di {city} menyalakan Semesta Paralel, kira-kira di sinilah mereka melihatmu (dikaburkan sekitar 500 m).",
+  "parallelCoordsFailed": "Nama tempat belum ditemukan. Coba lagi nanti.",
+  "parallelCardTitle": "Saat ini, aku ada di {city} semesta paralel",
+  "parallelCardShareText": "Saat ini, aku ada di {city} semesta paralel. Buka Mood Whisper dan masuki kota lain juga.",
+  "parallelCoordsShare": "Bagikan kartu"
 }

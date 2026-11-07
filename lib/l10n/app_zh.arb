@@ -967,7 +967,7 @@
   "parallelUniverse": "平行宇宙",
   "parallelUniverseSubtitle": "看見其他城市此刻的心情，也讓他們看見你",
   "parallelUniverseIntroTitle": "進入平行宇宙",
-  "parallelUniverseIntroBody": "開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。",
+  "parallelUniverseIntroBody": "開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中心點（中央車站，沒有的話是市政府）對齊：你離中心點多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。",
   "parallelUniverseEnter": "進入",
   "parallelUniverseNoCity": "你所在的地方還沒有平行宇宙",
   "parallelFrom": "平行宇宙 · {city}",
@@ -2013,5 +2013,53 @@
   "giftBlockedOwned": "對方已經有這款光球了，換一款送吧（這次不會扣款）",
   "giftBlockedPaired": "對方已經有糾纏款配對了，這次不會扣款",
   "orbStyleValentine": "情人節",
-  "orbStyleSakura": "櫻花季"
+  "orbStyleSakura": "櫻花季",
+  "parallelCoords": "平行座標",
+  "parallelCoordsHome": "離{city}的中心 {km} 公里",
+  "@parallelCoordsHome": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "parallelCoordsIn": "在{city}，你大約站在",
+  "@parallelCoordsIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "parallelCoordsSea": "海上或沒有地名的地方",
+  "parallelCoordsOutside": "這座城市的範圍之外",
+  "parallelCoordsNote": "{city}的人開啟平行宇宙時，會在這一帶看到你（模糊到約 500 公尺）。",
+  "@parallelCoordsNote": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "parallelCoordsFailed": "暫時查不到地名，稍後再試",
+  "parallelCardTitle": "此刻，我在平行宇宙的{city}",
+  "parallelCardShareText": "此刻，我在平行宇宙的{city}。打開城市低語，你也能走進另一座城市。",
+  "parallelCoordsShare": "分享卡片",
+  "@parallelCardTitle": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "@parallelCardShareText": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  }
 }

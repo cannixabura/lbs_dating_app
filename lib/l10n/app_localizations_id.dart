@@ -1760,7 +1760,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di stasiun pusat masing-masing: seberapa jauh dan ke arah mana kamu dari stasiunmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Bisikan dan acara tetap di tempat asalnya.';
+      'Saat aktif, semua orang yang sedang membuka aplikasi di kota pasanganmu muncul di radarmu, dan mereka semua bisa melihatmu. Kota di Taiwan dipasangkan dengan kota di luar negeri (seperti Tokyo, Seoul, dan Kuala Lumpur), dan kota di luar negeri dipasangkan dengan Taiwan.\n\nKedua kota disejajarkan di pusat masing-masing (stasiun pusat, atau balai kota jika tidak ada): seberapa jauh dan ke arah mana kamu dari pusatmu, di situlah kamu muncul di kota mereka, dikaburkan sekitar 500 m, jadi tidak ada yang bisa melihat lokasi atau jarak aslimu. Kamu tetap bisa mengirim cahaya, mengetuk, dan mengobrol, dan bisa mematikannya kapan saja. Bisikan dan acara tetap di tempat asalnya.';
 
   @override
   String get parallelUniverseEnter => 'Masuk';
@@ -3335,4 +3335,45 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get orbStyleSakura => 'Sakura';
+
+  @override
+  String get parallelCoords => 'Koordinat paralel';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '$km km dari pusat $city';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return 'Di $city, kamu berdiri di sekitar';
+  }
+
+  @override
+  String get parallelCoordsSea => 'Di laut, atau tempat tanpa nama';
+
+  @override
+  String get parallelCoordsOutside => 'Di luar kota ini';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return 'Saat orang di $city menyalakan Semesta Paralel, kira-kira di sinilah mereka melihatmu (dikaburkan sekitar 500 m).';
+  }
+
+  @override
+  String get parallelCoordsFailed =>
+      'Nama tempat belum ditemukan. Coba lagi nanti.';
+
+  @override
+  String parallelCardTitle(String city) {
+    return 'Saat ini, aku ada di $city semesta paralel';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return 'Saat ini, aku ada di $city semesta paralel. Buka Mood Whisper dan masuki kota lain juga.';
+  }
+
+  @override
+  String get parallelCoordsShare => 'Bagikan kartu';
 }

@@ -3036,7 +3036,7 @@ abstract class AppLocalizations {
   /// No description provided for @parallelUniverseIntroBody.
   ///
   /// In zh, this message translates to:
-  /// **'開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。'**
+  /// **'開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中心點（中央車站，沒有的話是市政府）對齊：你離中心點多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。'**
   String get parallelUniverseIntroBody;
 
   /// No description provided for @parallelUniverseEnter.
@@ -5642,6 +5642,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'櫻花季'**
   String get orbStyleSakura;
+
+  /// No description provided for @parallelCoords.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行座標'**
+  String get parallelCoords;
+
+  /// No description provided for @parallelCoordsHome.
+  ///
+  /// In zh, this message translates to:
+  /// **'離{city}的中心 {km} 公里'**
+  String parallelCoordsHome(String city, String km);
+
+  /// No description provided for @parallelCoordsIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'在{city}，你大約站在'**
+  String parallelCoordsIn(String city);
+
+  /// No description provided for @parallelCoordsSea.
+  ///
+  /// In zh, this message translates to:
+  /// **'海上或沒有地名的地方'**
+  String get parallelCoordsSea;
+
+  /// No description provided for @parallelCoordsOutside.
+  ///
+  /// In zh, this message translates to:
+  /// **'這座城市的範圍之外'**
+  String get parallelCoordsOutside;
+
+  /// No description provided for @parallelCoordsNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'{city}的人開啟平行宇宙時，會在這一帶看到你（模糊到約 500 公尺）。'**
+  String parallelCoordsNote(String city);
+
+  /// No description provided for @parallelCoordsFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'暫時查不到地名，稍後再試'**
+  String get parallelCoordsFailed;
+
+  /// No description provided for @parallelCardTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'此刻，我在平行宇宙的{city}'**
+  String parallelCardTitle(String city);
+
+  /// No description provided for @parallelCardShareText.
+  ///
+  /// In zh, this message translates to:
+  /// **'此刻，我在平行宇宙的{city}。打開城市低語，你也能走進另一座城市。'**
+  String parallelCardShareText(String city);
+
+  /// No description provided for @parallelCoordsShare.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享卡片'**
+  String get parallelCoordsShare;
 }
 
 class _AppLocalizationsDelegate

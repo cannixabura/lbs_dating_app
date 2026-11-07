@@ -487,7 +487,7 @@
   "parallelUniverse": "Alam Selari",
   "parallelUniverseSubtitle": "Lihat perasaan bandar lain sekarang, dan biar mereka lihat anda",
   "parallelUniverseIntroTitle": "Masuk ke Alam Selari",
-  "parallelUniverseIntroBody": "Apabila dihidupkan, semua orang yang sedang membuka aplikasi di bandar padanan anda muncul di radar anda, dan mereka semua dapat melihat anda. Bandar di Taiwan dipadankan dengan bandar di luar negara (seperti Tokyo, Seoul dan Kuala Lumpur), dan bandar di luar negara dipadankan dengan Taiwan.\n\nKedua-dua bandar diselaraskan pada stesen pusat masing-masing: sejauh mana dan ke arah mana anda dari stesen anda, di situlah anda muncul di bandar mereka, dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa. Bisikan dan perhimpunan kekal di tempat asal.",
+  "parallelUniverseIntroBody": "Apabila dihidupkan, semua orang yang sedang membuka aplikasi di bandar padanan anda muncul di radar anda, dan mereka semua dapat melihat anda. Bandar di Taiwan dipadankan dengan bandar di luar negara (seperti Tokyo, Seoul dan Kuala Lumpur), dan bandar di luar negara dipadankan dengan Taiwan.\n\nKedua-dua bandar diselaraskan pada pusat masing-masing (stesen pusat, atau dewan bandaraya jika tiada): sejauh mana dan ke arah mana anda dari pusat anda, di situlah anda muncul di bandar mereka, dikaburkan kira-kira 500 m, jadi tiada siapa dapat melihat lokasi atau jarak sebenar anda. Anda masih boleh menghantar cahaya, mengetuk dan berbual, dan boleh mematikannya bila-bila masa. Bisikan dan perhimpunan kekal di tempat asal.",
   "parallelUniverseEnter": "Masuk",
   "parallelUniverseNoCity": "Belum ada Alam Selari di tempat anda",
   "parallelFrom": "Selari · {city}",
@@ -921,5 +921,15 @@
   "giftBlockedOwned": "Mereka sudah ada orb ini. Pilih yang lain (anda tidak dicaj).",
   "giftBlockedPaired": "Mereka sudah berpasangan. Anda tidak dicaj.",
   "orbStyleValentine": "Valentine",
-  "orbStyleSakura": "Sakura"
+  "orbStyleSakura": "Sakura",
+  "parallelCoords": "Koordinat selari",
+  "parallelCoordsHome": "{km} km dari pusat {city}",
+  "parallelCoordsIn": "Di {city}, anda berdiri di sekitar",
+  "parallelCoordsSea": "Di laut, atau tempat tanpa nama",
+  "parallelCoordsOutside": "Di luar bandar ini",
+  "parallelCoordsNote": "Apabila orang di {city} menghidupkan Alam Selari, di sinilah lebih kurang mereka nampak anda (dikaburkan kira-kira 500 m).",
+  "parallelCoordsFailed": "Nama tempat tidak dijumpai buat masa ini. Cuba lagi nanti.",
+  "parallelCardTitle": "Sekarang, saya di {city} alam selari",
+  "parallelCardShareText": "Sekarang, saya di {city} alam selari. Buka Mood Whisper dan masuk ke bandar lain juga.",
+  "parallelCoordsShare": "Kongsi kad"
 }

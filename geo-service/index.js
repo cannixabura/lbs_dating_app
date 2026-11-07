@@ -223,6 +223,19 @@ async function parallelMembers(now) {
     return members;
 }
 
+// 現在有人的城市（每個伺服器執行個體每分鐘檢查一次）；檢查失敗就不過濾，照舊搜所有城市
+let liveCityCache = { at: 0, live: null };
+async function liveParallelCities(now) {
+    if (now - liveCityCache.at < 60000) return liveCityCache.live;
+    liveCityCache.at = now;
+    try {
+        liveCityCache.live = parallel.liveCities(await sendUpstashPipeline(parallel.liveCheckCommands()));
+    } catch (e) {
+        liveCityCache.live = null;
+    }
+    return liveCityCache.live;
+}
+
 /**
  * 平行宇宙的訪客：對應國家的城市裡、正開著 App（活躍）的人，以中心車站對齊疊到觀看者的城市。
  * 只要一方開啟就看得到：觀看者開啟 → 其他城市所有人；沒開 → 只有開啟的人。
@@ -238,7 +251,7 @@ async function parallelVisitors(viewerUid, viewerCity, viewerOn, here, radiusKM,
         found.push([memberUid, home, pos]);
     };
     if (viewerOn) {
-        const { others, commands } = parallel.searchCommands(viewerCity, here.lat, here.lng, radiusKM, parallel.ALL_KEY);
+        const { others, commands } = parallel.searchCommands(viewerCity, here.lat, here.lng, radiusKM, parallel.ALL_KEY, await liveParallelCities(now));
         (await sendUpstashPipeline(commands)).forEach((list, i) => {
             for (const m of Array.isArray(list) ? list : []) {
                 if (Array.isArray(m)) consider(m[0], { lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) }, others[i].id);
@@ -1079,6 +1092,21 @@ exports.orbs = onRequest({ region: "asia-southeast1" }, (req, res) => {
       console.error("orbs failed:", error);
       return res.status(500).json({ success: false });
     }
+  });
+});
+
+// ============================================================================
+// API：平行座標 —— 你現在的位置對到每座平行城市的哪一點（只算給自己看，不儲存）
+// ============================================================================
+exports.parallelCoords = onRequest({ region: "asia-southeast1" }, (req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const uid = await verifyCaller(req);
+    if (!uid) return res.status(401).json({ success: false, error: localize(langOf(req), "未授權") });
+    const lat = Number(req.body.lat), lng = Number(req.body.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return res.status(400).json({ success: false });
+    const out = parallel.mirrors(lat, lng, uid, Date.now(), langOf(req));
+    return res.status(200).json(out ? { success: true, ...out } : { success: true, home: null, list: [] });
   });
 });
 

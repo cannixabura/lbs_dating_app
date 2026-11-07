@@ -1621,7 +1621,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get parallelUniverseIntroBody =>
-      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中央車站對齊：你離車站多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。';
+      '開啟後，對應城市裡此刻開著 App 的人都會疊到你的雷達上，他們也都看得到你。台灣的城市對應到國外的城市（例如東京、首爾、吉隆坡），國外的城市對應到台灣。\n\n兩邊以各自的中心點（中央車站，沒有的話是市政府）對齊：你離中心點多遠、往哪個方向，在對方的城市就出現在同樣的地方，而且模糊到約 500 公尺，沒有人看得到你的真實位置或距離。一樣可以送微光、敲門和聊天，隨時可以關閉。低語和集會只留在當地。';
 
   @override
   String get parallelUniverseEnter => '進入';
@@ -3122,6 +3122,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get orbStyleSakura => '櫻花季';
+
+  @override
+  String get parallelCoords => '平行座標';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '離$city的中心 $km 公里';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return '在$city，你大約站在';
+  }
+
+  @override
+  String get parallelCoordsSea => '海上或沒有地名的地方';
+
+  @override
+  String get parallelCoordsOutside => '這座城市的範圍之外';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return '$city的人開啟平行宇宙時，會在這一帶看到你（模糊到約 500 公尺）。';
+  }
+
+  @override
+  String get parallelCoordsFailed => '暫時查不到地名，稍後再試';
+
+  @override
+  String parallelCardTitle(String city) {
+    return '此刻，我在平行宇宙的$city';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return '此刻，我在平行宇宙的$city。打開城市低語，你也能走進另一座城市。';
+  }
+
+  @override
+  String get parallelCoordsShare => '分享卡片';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4740,7 +4780,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get parallelUniverseIntroBody =>
-      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中央车站对齐：你离车站多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。低语和集会只留在当地。';
+      '开启后，对应城市里此刻开着 App 的人都会叠到你的雷达上，他们也都看得到你。台湾的城市对应到国外的城市（例如东京、首尔、吉隆坡），国外的城市对应到台湾。\n\n两边以各自的中心点（中央车站，没有的话是市政府）对齐：你离中心点多远、往哪个方向，在对方的城市就出现在同样的地方，而且模糊到约 500 米，没有人看得到你的真实位置或距离。一样可以送微光、敲门和聊天，随时可以关闭。低语和集会只留在当地。';
 
   @override
   String get parallelUniverseEnter => '进入';
@@ -6241,4 +6281,44 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get orbStyleSakura => '樱花季';
+
+  @override
+  String get parallelCoords => '平行坐标';
+
+  @override
+  String parallelCoordsHome(String city, String km) {
+    return '离$city的中心 $km 公里';
+  }
+
+  @override
+  String parallelCoordsIn(String city) {
+    return '在$city，你大约站在';
+  }
+
+  @override
+  String get parallelCoordsSea => '海上或没有地名的地方';
+
+  @override
+  String get parallelCoordsOutside => '这座城市的范围之外';
+
+  @override
+  String parallelCoordsNote(String city) {
+    return '$city的人开启平行宇宙时，会在这一带看到你（模糊到约 500 米）。';
+  }
+
+  @override
+  String get parallelCoordsFailed => '暂时查不到地名，稍后再试';
+
+  @override
+  String parallelCardTitle(String city) {
+    return '此刻，我在平行宇宙的$city';
+  }
+
+  @override
+  String parallelCardShareText(String city) {
+    return '此刻，我在平行宇宙的$city。打开城市低语，你也能走进另一座城市。';
+  }
+
+  @override
+  String get parallelCoordsShare => '分享卡片';
 }

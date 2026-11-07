@@ -32,7 +32,7 @@ test('foreign cities belong to their central station, e.g. Yokohama is not Tokyo
     assert.strictEqual(at(-6.1754, 106.8272), 'jakarta'); // 獨立紀念碑
     assert.strictEqual(at(22.2783, 114.1747), 'hongkong');
     assert.strictEqual(at(1.3048, 103.8318), 'singapore'); // 烏節路
-    assert.strictEqual(at(1.4927, 103.7414), null); // 新山市區（馬來西亞，不算新加坡）
+    assert.strictEqual(at(1.4927, 103.7414), 'johorbahru'); // 新山市區（馬來西亞，不算新加坡）
     assert.strictEqual(at(40.7128, -74.006), null); // 沒有的城市
 });
 
@@ -42,6 +42,7 @@ test('no city in mainland China', () => {
         [22.2707, 113.5767], [22.1300, 113.5300], // 珠海、橫琴
         [24.4798, 118.0894], [24.4900, 118.1800], [24.5600, 118.3300], // 廈門、廈門島東岸、大嶝
         [26.0745, 119.2965], [26.3200, 119.8000], [25.5000, 119.7900], // 福州、黃岐、平潭
+        [21.547, 107.972], [22.094, 106.755], [22.817, 108.366], [22.507, 103.95], [20.044, 110.199], [18.253, 109.512], // 東興、憑祥、南寧、河口、海口、三亞（越南邊境與海南）
     ]) assert.strictEqual(at(lat, lng), null, `${lat},${lng}`);
     assert.strictEqual(at(22.4950, 114.1380), 'hongkong'); // 上水
     assert.strictEqual(at(22.1940, 113.5420), 'macau');
@@ -136,4 +137,70 @@ test('Bangkok, Manila and Sydney pair with Taiwan', () => {
     }
     assert.strictEqual(p.nameOf('bangkok', 'th'), 'กรุงเทพฯ');
     assert.strictEqual(p.nameOf('sydney', 'zh-Hant'), '雪梨');
+});
+
+test('new cities: each place goes to its own centre', () => {
+    for (const [id, lat, lng] of [
+        ['kanazawa', 36.5613, 136.6562], ['kumamoto', 32.8031, 130.7079], ['kagoshima', 31.5966, 130.5571], ['hakodate', 41.7687, 140.7288],
+        ['saitama', 35.8617, 139.6455], ['kawasaki', 35.5308, 139.7029], ['nara', 34.6851, 135.8048], ['matsuyama', 33.8392, 132.7657],
+        ['incheon', 37.4602, 126.4407], ['jeju', 33.4890, 126.4983],
+        ['haiphong', 20.8449, 106.6881], ['hue', 16.4637, 107.5909], ['nhatrang', 12.2388, 109.1967], ['dalat', 11.9404, 108.4583], ['cantho', 10.0452, 105.7469],
+        ['johorbahru', 1.4655, 103.7578], ['melaka', 2.1896, 102.2501], ['ipoh', 4.5975, 101.0901], ['kuching', 1.5533, 110.3592], ['kotakinabalu', 5.9788, 116.0753],
+        ['chiangmai', 18.7883, 98.9853], ['cebu', 10.3157, 123.8854], ['makati', 14.5547, 121.0244],
+        ['melbourne', -37.8136, 144.9631], ['perth', -31.9523, 115.8613],
+    ]) assert.strictEqual(at(lat, lng), id, id);
+});
+
+test('Singapore, Johor Bahru and Batam do not swallow each other', () => {
+    assert.strictEqual(at(1.4360, 103.7860), 'singapore'); // 兀蘭（新加坡）
+    assert.strictEqual(at(1.2494, 103.8303), 'singapore'); // 聖淘沙
+    assert.strictEqual(at(1.3644, 103.9915), 'singapore'); // 樟宜
+    assert.strictEqual(at(1.4927, 103.7414), 'johorbahru'); // 新山市區
+    assert.strictEqual(at(1.1301, 104.0529), 'batam');
+});
+
+test('every new city has nine names and a unique id', () => {
+    const ids = new Set();
+    for (const c of p.CITIES) {
+        assert.ok(!ids.has(c.id), c.id); ids.add(c.id);
+        assert.ok(c.names.every((n) => typeof n === 'string' && n.length > 0), c.id);
+        assert.ok(p.reachKm(c) > 0 && (c.country === p.TAIWAN || p.reachKm(c) < 80), c.id);
+    }
+});
+
+test('radar searches only cities that have someone right now', () => {
+    const results = p.CITIES.map((c) => (c.id === 'tokyo' || c.id === 'cebu' ? [['u1']] : []));
+    const live = p.liveCities(results);
+    assert.deepStrictEqual([...live].sort(), ['cebu', 'tokyo']);
+    assert.strictEqual(p.liveCheckCommands().length, p.CITIES.length);
+    const { others, commands } = p.searchCommands(C.taipei, C.taipei.lat, C.taipei.lng, 5, p.ALL_KEY, live);
+    assert.deepStrictEqual(others.map((c) => c.id).sort(), ['cebu', 'tokyo']);
+    assert.strictEqual(commands.length, 2);
+    assert.ok(p.searchCommands(C.taipei, C.taipei.lat, C.taipei.lng, 5, p.ALL_KEY).others.length > 100);
+});
+
+test('parallel coordinates: your spot mirrored into every paired city, blurred like everyone else sees it', () => {
+    const a = offset(C.taipei, 3, 1);
+    const m = p.mirrors(a.lat, a.lng, 'u9', NOW, 'zh-Hant');
+    assert.strictEqual(m.home.id, 'taipei');
+    assert.strictEqual(m.home.name, '台北');
+    assert.ok(Math.abs(m.east - 3) < 0.6 && Math.abs(m.north - 1) < 0.6);
+    assert.ok(m.list.length > 100 && m.list.every((c) => c.country !== p.TAIWAN));
+    const tokyo = m.list.find((c) => c.id === 'tokyo');
+    const seen = p.project(C.taipei, C.tokyo, a.lat, a.lng, 'u9', NOW);
+    assert.ok(p.distanceKm(tokyo, seen) < 0.01); // 跟東京的人看到你的位置一樣
+    assert.strictEqual(tokyo.name, '東京');
+    assert.strictEqual(p.mirrors(40.7128, -74.006, 'u9', NOW, 'en'), null);
+    const back = p.mirrors(C.tokyo.lat, C.tokyo.lng, 'u9', NOW, 'ja');
+    assert.ok(back.list.every((c) => c.country === p.TAIWAN) && back.list.find((c) => c.id === 'taipei').name === '台北');
+});
+
+test('parallel coordinates never point into mainland China or outside the city', () => {
+    const north = offset(C.taipei, 0, 25); // 台北車站北邊 25 公里 → 香港站北邊 25 公里已是深圳
+    const m = p.mirrors(north.lat, north.lng, 'u9', NOW, 'en');
+    const hk = m.list.find((c) => c.id === 'hongkong');
+    assert.ok(hk.outside && hk.lat === undefined);
+    const macau = m.list.find((c) => c.id === 'macau');
+    assert.ok(macau.outside);
+    assert.ok(!m.list.find((c) => c.id === 'tokyo').outside);
 });

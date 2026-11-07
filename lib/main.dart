@@ -3154,8 +3154,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
               ],
               const SizedBox(height: Night.space3),
               item(Icons.auto_awesome, moodColor, tr.sendGlimmer, () { Navigator.pop(dialogContext); _sendResonance(targetUid, moodColor); }),
-              // 送禮物：不用先加好友；示範對象、殘影不能送
-              if (!isShadow && !isDemo)
+              // 送禮物：不用先加好友；殘影不能送（示範對象可以，審查人員才找得到購買入口）
+              if (!isShadow)
                 item(Icons.card_giftcard, Night.cityAmber, tr.giftAction, () { Navigator.pop(dialogContext); showGiftSheet(context, toUid: targetUid, toName: displayName); }),
               if (!isShadow) ...[
                 item(Icons.waving_hand_outlined, quiet ? Night.inkFaint : Night.knockPink, tr.knock, () {

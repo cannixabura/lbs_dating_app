@@ -352,8 +352,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           ])),
                         ]),
                       ),
-                      // 送禮物（示範對象不行）
-                      if (!widget.targetUid.startsWith('demo-'))
+                      // 送禮物（示範對象也可以，審查人員才找得到購買入口）
                         IconButton(
                           tooltip: tr.giftAction,
                           icon: const Icon(Icons.card_giftcard, color: Night.cityAmber),

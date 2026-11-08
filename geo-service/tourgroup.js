@@ -45,6 +45,11 @@ const MAX_ANN = 20;
 const MAX_ANN_LEN = 200;
 const MAX_STOPS = 60;
 const MAX_NICK = 10;
+const MAX_BUBBLE = 20;
+const MAX_MSG = 200;
+const MAX_MSGS = 300; // 每團最多留幾則私訊（舊的刪掉）
+const MSG_RATE = 20; // 每人每分鐘最多傳幾則
+const POS_FRESH_MS = 10 * 60 * 1000; // 超過 10 分鐘沒更新的位置不再顯示
 const COLORS = ['violet', 'pink', 'blue', 'teal', 'green', 'gold', 'orange', 'red'];
 const REMIND_EVERY_MS = 60 * 1000;
 const REMIND_MAX = 3;
@@ -69,6 +74,13 @@ const KEY = {
     activeCalls: 'tgroup_active_calls',
     lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
     profile: 'tgroup_profile', // 每位使用者的暱稱與頭像 JSON（旅行團自己的，不讀城市低語的 user_data）
+    share: 'tgroup_share', // 每位使用者：{ on, consent, at }（分享位置的開關、年齡／家長同意）
+    pos: (code) => `tgroup_pos:${code}`, // 團員的位置（同團的人在 3D 地圖上互相看得到）
+    bubble: (code) => `tgroup_bubble:${code}`, // 團員的氣泡
+    msgs: (code) => `tgroup_msgs:${code}`, // 團裡的私訊（解散就刪除）
+    blocks: (code) => `tgroup_blocks:${code}`, // 每個人封鎖的對象（JSON 陣列）
+    msgRate: (uid) => `tgroup_msgrate:${uid}`,
+    reports: 'tgroup_reports',
     voucher: (v) => `tvoucher:${v}`,
     vouchersOf: (uid) => `tvouchers_of:${uid}`,
 };
@@ -395,6 +407,57 @@ function cleanProfile(input, uid) {
     return name || avatar ? { name, avatar } : null;
 }
 
+// ---------- 同團互相看得到：位置、氣泡、私訊 ----------
+// 位置只在團員同意（已滿 18 歲或家長／監護人同意）而且開著分享時才收；只在 App 開著時更新；
+// 退團、被移出、解散就刪除。沒入團的人看不到任何人。
+
+const parseJson = (raw, fallback) => { try { return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } };
+
+/** 分享狀態：沒設定過 → 還沒同意（不分享）；同意之後預設分享 */
+function shareState(raw) {
+    const s = parseJson(raw, {});
+    return { consent: !!s.consent, on: !!s.consent && s.on !== false };
+}
+
+function validPos(lat, lng) {
+    return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+}
+
+/** 3D 地圖上的人：同團、有同意並開著分享、10 分鐘內有位置；自己不算（自己的位置在手機上） */
+function peopleView({ g, list, me, posHash, bubbleHash, shareHash, profOf, blockedByMe, now }) {
+    const out = [];
+    for (const m of list) {
+        if (m.uid === me) continue;
+        const share = shareState(shareHash[m.uid]);
+        if (!share.on) continue;
+        const p = parseJson(posHash[m.uid], null);
+        if (!p || !validPos(p.lat, p.lng) || now - (p.at || 0) > POS_FRESH_MS) continue;
+        const b = parseJson(bubbleHash[m.uid], null);
+        const prof = profOf(m.uid);
+        out.push({
+            uid: m.uid, no: m.no, role: roleOf(g, m.uid), name: prof.name || '', avatar: prof.avatar || '',
+            lat: p.lat, lng: p.lng, at: p.at,
+            bubble: b && b.text && !blockedByMe.includes(m.uid) ? b.text : '',
+        });
+    }
+    return out;
+}
+
+function makeMessage({ from, to, text }, now) {
+    const t = clip(text, MAX_MSG);
+    if (!t) return { ok: false, code: 'empty' };
+    if (!from || !to || from === to) return { ok: false, code: 'bad_request' };
+    return { ok: true, msg: { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, from, to, text: t, at: now } };
+}
+
+/** 跟我有關的私訊（我傳的、傳給我的），不含我封鎖的人傳來的；最新的 50 則，舊到新 */
+function messagesFor(rawList, uid, blockedByMe) {
+    return (rawList || []).map((r) => parseJson(r, null))
+        .filter((m) => m && (m.to === uid || m.from === uid) && !(m.to === uid && blockedByMe.includes(m.from)))
+        .sort((a, b) => a.at - b.at)
+        .slice(-50);
+}
+
 /** 集合呼叫推播的文字（繁中原文，送出時翻成收件人的語言） */
 function callText(call, now) {
     const mins = Math.max(0, Math.round((call.at - now) / 60000));
@@ -405,7 +468,7 @@ function callText(call, now) {
 
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, PASS_PRODUCT, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
-    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, COLORS,
+    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, COLORS,
     REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
@@ -415,4 +478,5 @@ module.exports = {
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
     makeStop, upsertStop, removeStop,
     applePass, googlePass, makeVoucher, canRedeem, groupLink, voucherLink, callText, cleanProfile,
+    shareState, validPos, peopleView, makeMessage, messagesFor,
 };

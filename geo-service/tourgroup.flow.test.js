@@ -202,3 +202,55 @@ test('個人資料：暱稱與頭像存在 tgroup_profile，團主名單看得�
     assert.equal(run(['HGET', tg.KEY.profile, 'fan1']), null);
     await call('lead4', 'dissolve');
 });
+
+test('同團互相看得到：同意後分享位置、氣泡、私訊、封鎖；沒入團看不到；退團就刪除', async () => {
+    let r = await call('lead5', 'create', { name: '互看測試', color: 'blue', days: 1, tz: 'Asia/Taipei' });
+    const code = r.group.code, v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('a1', 'join', { code, v });
+    await call('b1', 'join', { code, v });
+    // 還沒同意：不能傳位置、不能傳訊息
+    assert.equal((await call('a1', 'pos', { lat: 25.04, lng: 121.51 })).code, 'not_sharing');
+    assert.equal((await call('a1', 'msg', { to: 'b1', text: '嗨' })).code, 'need_consent');
+    for (const u of ['lead5', 'a1', 'b1']) await call(u, 'share', { consent: true, on: true });
+    await call('a1', 'pos', { lat: 25.04, lng: 121.51 });
+    await call('lead5', 'pos', { lat: 25.05, lng: 121.52 });
+    await call('a1', 'bubble', { text: '在找廁所' });
+    r = await call('b1', 'status');
+    assert.deepEqual(r.group.people.map((p) => [p.uid, p.bubble]).sort(), [['a1', '在找廁所'], ['lead5', '']]);
+    assert.equal(r.group.people.find((p) => p.uid === 'lead5').role, 'host');
+    // 自己不在 people 裡
+    assert.ok(!(await call('a1', 'status')).group.people.some((p) => p.uid === 'a1'));
+    // 私訊：對方收到推播，雙方都看得到
+    pushes.length = 0;
+    r = await call('b1', 'msg', { to: 'a1', text: '我在大廳' });
+    assert.equal(r.success, true);
+    assert.deepEqual(pushes[0].uids, ['a1']);
+    assert.equal(pushes[0].data.type, 'tgroup_msg');
+    assert.equal(pushes[0].body, `${(await call('b1', 'status')).group.myNo} 號：我在大廳`);
+    assert.equal((await call('a1', 'status')).group.messages[0].text, '我在大廳');
+    assert.equal((await call('b1', 'status')).group.messages[0].mine, true);
+    assert.equal((await call('b1', 'msg', { to: 'a1', text: '髒話' })).code, 'filtered');
+    // 封鎖：對方的訊息不再送達、氣泡也看不到
+    await call('b1', 'block', { uid: 'a1' });
+    pushes.length = 0;
+    assert.equal((await call('a1', 'msg', { to: 'b1', text: '還在嗎' })).success, true);
+    assert.equal(pushes.length, 0);
+    r = await call('b1', 'status');
+    assert.equal(r.group.people.find((p) => p.uid === 'a1').bubble, '');
+    assert.ok(!r.group.messages.some((m) => m.text === '還在嗎'));
+    // 關掉分享：位置立刻刪除
+    await call('a1', 'share', { on: false });
+    assert.ok(!(await call('b1', 'status')).group.people.some((p) => p.uid === 'a1'));
+    // 沒入團的人看不到任何人
+    assert.equal((await call('stranger', 'status')).group, null);
+    // 退團：位置、氣泡刪除
+    await call('a1', 'share', { on: true });
+    await call('a1', 'pos', { lat: 25.04, lng: 121.51 });
+    await call('a1', 'leave');
+    assert.equal(run(['HGET', tg.KEY.pos(code), 'a1']), null);
+    assert.equal(run(['HGET', tg.KEY.bubble(code), 'a1']), null);
+    // 解散：全部刪除
+    await call('lead5', 'dissolve');
+    assert.equal(run(['LRANGE', tg.KEY.msgs(code), '0', '-1']).length, 0);
+    assert.equal(run(['HGETALL', tg.KEY.pos(code)]).length, 0);
+});

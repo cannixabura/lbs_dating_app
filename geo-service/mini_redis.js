@@ -34,6 +34,13 @@ function run([cmd, ...a]) {
         case 'SCARD': return db.has(a[0]) ? hash(a[0]).size : 0;
         case 'RPUSH': { if (!db.has(a[0])) db.set(a[0], []); db.get(a[0]).push(...a.slice(1).map(String)); return db.get(a[0]).length; }
         case 'LRANGE': { const l = db.get(a[0]) || []; const end = Number(a[2]) < 0 ? l.length + Number(a[2]) + 1 : Number(a[2]) + 1; return l.slice(Number(a[1]), end); }
+        case 'LPUSH': { if (!db.has(a[0])) db.set(a[0], []); for (const v of a.slice(1)) db.get(a[0]).unshift(String(v)); return db.get(a[0]).length; }
+        case 'LTRIM': {
+            const l = db.get(a[0]) || []; const n = l.length;
+            const s0 = Number(a[1]) < 0 ? Math.max(0, n + Number(a[1])) : Number(a[1]);
+            const e0 = Number(a[2]) < 0 ? n + Number(a[2]) : Math.min(n - 1, Number(a[2]));
+            db.set(a[0], s0 > e0 ? [] : l.slice(s0, e0 + 1)); return 'OK';
+        }
         case 'SISMEMBER': return db.has(a[0]) && hash(a[0]).has(a[1]) ? 1 : 0;
         case 'ZADD': {
             if (a[1] === 'NX') { if (zset(a[0]).has(a[3])) return 0; zset(a[0]).set(a[3], Number(a[2])); return 1; }

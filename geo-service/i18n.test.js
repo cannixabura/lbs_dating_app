@@ -52,3 +52,8 @@ test('旅行團推播：英文都有翻譯', () => {
     for (const [zh, en] of cases) assert.equal(L('en', zh), en);
     assert.equal(L('en', `再提醒一次：${cases[0][0]}`), `Reminder: ${cases[0][1]}`);
 });
+
+test('旅行團私訊推播的前綴', () => {
+    const { localize: L } = require('./i18n');
+    assert.equal(L('en', '12 號：我在大廳'), 'No. 12: 我在大廳');
+});

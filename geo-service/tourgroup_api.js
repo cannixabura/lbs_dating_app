@@ -41,6 +41,7 @@ function create(d) {
         const raw = await d.cmd(['GET', key]);
         try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
     };
+    const parseProfile = (raw) => { try { return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; } };
     const hashOf = (flat) => { const o = {}; for (let i = 0; i < (flat || []).length; i += 2) o[flat[i]] = flat[i + 1]; return o; };
     const ttlFor = (g, now) => String(Math.max(60, Math.ceil((g.endsAt + 86400000 - now) / 1000)));
 
@@ -70,7 +71,8 @@ function create(d) {
 
     async function destroy(code, list) {
         await d.pipe([
-            ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code)],
+            ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
+                tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code)],
             ['SREM', tg.KEY.activeCalls, code],
             ...list.map((m) => ['DEL', tg.KEY.of(m.uid)]),
         ]);
@@ -107,10 +109,12 @@ function create(d) {
             else await d.cmd(['DEL', tg.KEY.of(uid)]);
             return { group: null };
         }
-        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops] = await Promise.all([
+        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops, posFlat, bubbleFlat, msgList, myBlocks] = await Promise.all([
             members(code), json(tg.KEY.call(code)), json(tg.KEY.roll(code)),
             d.cmd(['HGETALL', tg.KEY.acks(code)]), d.cmd(['HGETALL', tg.KEY.answers(code)]), d.cmd(['HGETALL', tg.KEY.lost(code)]),
             json(tg.KEY.ann(code)), json(tg.KEY.stops(code)),
+            d.cmd(['HGETALL', tg.KEY.pos(code)]), d.cmd(['HGETALL', tg.KEY.bubble(code)]), d.cmd(['LRANGE', tg.KEY.msgs(code), '0', '-1']),
+            d.cmd(['HGET', tg.KEY.blocks(code), uid]),
         ]);
         const acks = hashOf(acksFlat), answers = hashOf(answersFlat), lostHash = hashOf(lostFlat);
         const me = list.find((m) => m.uid === uid);
@@ -121,6 +125,13 @@ function create(d) {
         const profOf = (u) => profs[list.findIndex((m) => m.uid === u)] || {};
         const nameOf = (u) => profOf(u).name || '';
         const avatarOf = (u) => profOf(u).avatar || '';
+        const shareFlat = await d.pipe(list.map((m) => ['HGET', tg.KEY.share, m.uid])).catch(() => []);
+        const shareHash = Object.fromEntries(list.map((m, i) => [m.uid, shareFlat[i]]));
+        let blockedByMe = [];
+        try { blockedByMe = myBlocks ? JSON.parse(myBlocks) : []; } catch (e) { blockedByMe = []; }
+        const bubbleHash = hashOf(bubbleFlat);
+        let myBubble = '';
+        try { myBubble = bubbleHash[uid] ? JSON.parse(bubbleHash[uid]).text || '' : ''; } catch (e) { myBubble = ''; }
         const mySub = me ? me.sub ?? null : null;
         const forMe = (x) => staff || !x || x.sub === null || x.sub === undefined || x.sub === mySub;
         const view = {
@@ -133,6 +144,12 @@ function create(d) {
             announcements: tg.visibleAnnouncements(ann || [], mySub, staff),
             stops: (stops || []).filter((s) => forMe(s)),
             lostSent: tg.lostRoster(list.filter((m) => m.uid === uid), lostHash, now).length > 0,
+            // 同團互相看得到：地圖上的人、氣泡、私訊
+            share: tg.shareState(shareHash[uid]),
+            people: tg.peopleView({ g, list, me: uid, posHash: hashOf(posFlat), bubbleHash, shareHash, profOf: (u) => ({ name: nameOf(u), avatar: avatarOf(u) }), blockedByMe, now }),
+            myBubble, blocked: blockedByMe,
+            messages: tg.messagesFor(msgList, uid, blockedByMe).map((m) => ({ ...m, mine: m.from === uid })),
+            names: Object.fromEntries(list.map((m) => [m.uid, { no: m.no, name: nameOf(m.uid), avatar: avatarOf(m.uid), role: tg.roleOf(g, m.uid) }])),
         };
         if (staff) {
             view.qr = tg.groupLink(code, g.qrVer);
@@ -178,6 +195,19 @@ function create(d) {
                 if (prof && prof.name && d.isDisallowed(prof.name)) return fail('filtered');
                 await d.cmd(prof ? ['HSET', tg.KEY.profile, uid, JSON.stringify(prof)] : ['HDEL', tg.KEY.profile, uid]);
                 return ok({ profile: prof || { name: '', avatar: '' } });
+            }
+
+            // ---------- 分享位置的開關與同意（不必在團裡） ----------
+            if (action === 'share') {
+                const cur = tg.shareState(await d.cmd(['HGET', tg.KEY.share, uid]));
+                const consent = cur.consent || body.consent === true;
+                const on = consent && body.on !== false;
+                await d.cmd(['HSET', tg.KEY.share, uid, JSON.stringify({ consent, on, at: now })]);
+                if (!on) {
+                    const c = await d.cmd(['GET', tg.KEY.of(uid)]);
+                    if (c) await d.cmd(['HDEL', tg.KEY.pos(c), uid]);
+                }
+                return ok();
             }
 
             // ---------- 團購券：不必在團裡（旅行社的人買來發給領隊） ----------
@@ -250,6 +280,75 @@ function create(d) {
             const role = tg.roleOf(g, uid);
             if (HOST_ONLY.includes(action) && role !== 'host') return fail('not_host', 403);
             if (STAFF_ONLY.includes(action) && role === 'member') return fail('not_host', 403);
+
+            // ---------- 同團互相看得到：位置、氣泡、私訊、封鎖、檢舉 ----------
+            const shareMe = async () => tg.shareState(await d.cmd(['HGET', tg.KEY.share, uid]));
+            const keep = (key) => ['EXPIRE', key, ttlFor(g, now)];
+
+            if (action === 'pos') {
+                const lat = Number(body.lat), lng = Number(body.lng);
+                if (!tg.validPos(lat, lng)) return fail('bad_request');
+                if (!(await shareMe()).on) return fail('not_sharing');
+                await d.pipe([['HSET', tg.KEY.pos(code), uid, JSON.stringify({ lat, lng, at: now })], keep(tg.KEY.pos(code))]);
+                return res.status(200).json({ success: true });
+            }
+
+            if (action === 'bubble') {
+                if (!(await shareMe()).consent) return fail('need_consent');
+                const text = tg.clip(body.text, tg.MAX_BUBBLE);
+                if (text && d.isDisallowed(text)) return fail('filtered');
+                await d.pipe(text
+                    ? [['HSET', tg.KEY.bubble(code), uid, JSON.stringify({ text, at: now })], keep(tg.KEY.bubble(code))]
+                    : [['HDEL', tg.KEY.bubble(code), uid]]);
+                return ok();
+            }
+
+            if (action === 'msg') {
+                if (!(await shareMe()).consent) return fail('need_consent');
+                const to = String(body.to || '');
+                const list = await members(code);
+                const target = list.find((m) => m.uid === to);
+                if (!target) return fail('bad_request');
+                const made = tg.makeMessage({ from: uid, to, text: body.text }, now);
+                if (!made.ok) return fail(made.code);
+                if (d.isDisallowed(made.msg.text)) return fail('filtered');
+                const rate = await d.cmd(['INCR', tg.KEY.msgRate(uid)]);
+                if (rate === 1) await d.cmd(['EXPIRE', tg.KEY.msgRate(uid), '60']);
+                if (rate > tg.MSG_RATE) return fail('too_fast');
+                let theirBlocks = [];
+                try { theirBlocks = JSON.parse((await d.cmd(['HGET', tg.KEY.blocks(code), to])) || '[]'); } catch (e) { theirBlocks = []; }
+                // 被對方封鎖：照樣回成功（不讓對方知道被封鎖），但不存、不推播
+                if (theirBlocks.includes(uid)) return ok({ sent: made.msg.id });
+                await d.pipe([
+                    ['RPUSH', tg.KEY.msgs(code), JSON.stringify(made.msg)],
+                    ['LTRIM', tg.KEY.msgs(code), String(-tg.MAX_MSGS), '-1'],
+                    keep(tg.KEY.msgs(code)),
+                ]);
+                const me = list.find((m) => m.uid === uid);
+                const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
+                const who = prof.name ? `${prof.name}：` : `${me ? me.no : '?'} 號：`;
+                await push([to], title(g), `${who}${made.msg.text}`, { type: 'tgroup_msg', code, from: uid });
+                return ok({ sent: made.msg.id });
+            }
+
+            if (action === 'block') {
+                const target = String(body.uid || '');
+                if (!target || target === uid) return fail('bad_request');
+                let mine = [];
+                try { mine = JSON.parse((await d.cmd(['HGET', tg.KEY.blocks(code), uid])) || '[]'); } catch (e) { mine = []; }
+                mine = body.on === false ? mine.filter((u) => u !== target) : [...new Set([...mine, target])];
+                await d.pipe([['HSET', tg.KEY.blocks(code), uid, JSON.stringify(mine)], keep(tg.KEY.blocks(code))]);
+                return ok();
+            }
+
+            if (action === 'report') {
+                const target = String(body.uid || '');
+                if (!target || target === uid) return fail('bad_request');
+                const report = { code, from: uid, target, reason: tg.clip(body.reason, 200), at: now };
+                await d.pipe([['LPUSH', tg.KEY.reports, JSON.stringify(report)], ['LTRIM', tg.KEY.reports, '0', '999']]);
+                console.warn('tour report:', JSON.stringify(report));
+                return res.status(200).json({ success: true });
+            }
 
             if (action === 'call') {
                 if (!tg.validSub(g, body.sub)) return fail('bad_request');
@@ -363,6 +462,7 @@ function create(d) {
                     await d.pipe([
                         ['HDEL', tg.KEY.members(code), target], ['DEL', tg.KEY.of(target)], ['HDEL', tg.KEY.acks(code), target],
                         ['HDEL', tg.KEY.answers(code), target], ['HDEL', tg.KEY.lost(code), target],
+                        ['HDEL', tg.KEY.pos(code), target], ['HDEL', tg.KEY.bubble(code), target],
                     ]);
                 } else if (action === 'cohost_add') {
                     const r = tg.addCohost(g, target, list);
@@ -433,6 +533,7 @@ function create(d) {
                 await d.pipe([
                     ['HDEL', tg.KEY.members(code), uid], ['DEL', tg.KEY.of(uid)], ['HDEL', tg.KEY.acks(code), uid],
                     ['HDEL', tg.KEY.answers(code), uid], ['HDEL', tg.KEY.lost(code), uid],
+                    ['HDEL', tg.KEY.pos(code), uid], ['HDEL', tg.KEY.bubble(code), uid],
                 ]);
                 return res.status(200).json({ success: true, group: null });
             }

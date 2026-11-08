@@ -21,8 +21,8 @@ const tour = api.create({
     pipe: async (cs) => cs.map((c) => run(c)),
     verifyCaller: async (req) => req.uid,
     isDisallowed: (t) => String(t).includes('髒話'),
-    push: async (uids, title, body, data, opts) => { pushes.push({ uids, body, data, urgent: !!(opts && opts.urgent) }); return uids.length; },
-    langOf: () => 'zh-Hant',
+    push: async (uids, title, body, data, opts) => { pushes.push({ uids, body, data, urgent: !!(opts && opts.urgent), langs: opts && opts.langs }); return uids.length; },
+    langOf: (req) => req.lang || 'zh-Hant',
     localize: (l, t) => t,
     db: () => ({ ref }),
     verifyAppleJws: (jws) => JSON.parse(jws),
@@ -31,10 +31,10 @@ const tour = api.create({
     clock: () => now,
 });
 
-async function call(uid, action, body = {}) {
+async function call(uid, action, body = {}, lang) {
     let out;
     const res = { status: () => res, json: (x) => { out = x; return res; }, send: (x) => { out = x; return res; } };
-    await tour.handle({ method: 'POST', uid, body: { action, ...body } }, res);
+    await tour.handle({ method: 'POST', uid, lang, body: { action, ...body } }, res);
     return out;
 }
 
@@ -169,4 +169,17 @@ test('單獨呼叫：只推給那一個人；沒有集合或點名時不送', as
     assert.deepEqual(pushes[0].uids, ['p1']);
     assert.equal((await call('p2', 'ping', { uid: 'p1' })).code, 'not_host');
     await call('lead2', 'dissolve');
+});
+
+test('推播用收件人自己的語言：記在 tgroup_lang，不讀城市低語的 user_data', async () => {
+    let r = await call('lead3', 'create', { name: '語言測試', color: 'blue', days: 1, tz: 'Asia/Taipei' }, 'zh-Hant');
+    const code = r.group.code, v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('en1', 'join', { code, v }, 'en');
+    await call('zh1', 'join', { code, v }, 'zh-Hant');
+    pushes.length = 0;
+    await call('lead3', 'call', { at: now + 10 * 60000, tz: 'Asia/Taipei', place: '大廳', lat: 25, lng: 121 }, 'zh-Hant');
+    const p = pushes.find((x) => x.data.type === 'tgroup_call');
+    assert.deepEqual(Object.fromEntries(p.uids.map((u, i) => [u, p.langs[i]])), { en1: 'en', zh1: 'zh-Hant' });
+    assert.equal(run(['HGET', tg.KEY.lang, 'en1']), 'en');
+    await call('lead3', 'dissolve');
 });

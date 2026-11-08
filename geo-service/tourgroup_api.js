@@ -25,7 +25,7 @@ const STAFF_ONLY = ['call', 'ping', 'call_done', 'rollcall', 'roll_done', 'annou
  * @param {(cmds: any[][]) => Promise<any[]>} d.pipe          Redis pipeline
  * @param {(req) => Promise<string|null>} d.verifyCaller       Firebase ID token → uid
  * @param {(text: string) => boolean} d.isDisallowed           內容過濾
- * @param {(uids, title, body, data, opts) => Promise<number>} d.push  推播（opts.urgent：時效性通知與專屬音效）
+ * @param {(uids, title, body, data, opts) => Promise<number>} d.push  推播（opts.urgent：時效性通知與專屬音效；opts.langs：每位收件人的語言）
  * @param {(req) => string} d.langOf
  * @param {(lang, text) => string} d.localize
  * @param {() => object} d.db                                  admin.database()
@@ -43,6 +43,12 @@ function create(d) {
     };
     const hashOf = (flat) => { const o = {}; for (let i = 0; i < (flat || []).length; i += 2) o[flat[i]] = flat[i + 1]; return o; };
     const ttlFor = (g, now) => String(Math.max(60, Math.ceil((g.endsAt + 86400000 - now) / 1000)));
+
+    // 推播用收件人自己的語言（記在 tgroup_lang；不讀城市低語的 user_data）
+    const push = async (uids, title, body, data, opts = {}) => {
+        const langs = uids.length ? await d.pipe(uids.map((u) => ['HGET', tg.KEY.lang, u])).catch(() => []) : [];
+        return d.push(uids, title, body, data, { ...opts, langs });
+    };
 
     async function load(code) {
         if (!tg.isCode(code)) return null;
@@ -142,6 +148,7 @@ function create(d) {
         const lang = d.langOf(req);
         const uid = await d.verifyCaller(req);
         if (!uid) return res.status(401).json({ success: false, error: d.localize(lang, '未授權') });
+        await d.cmd(['HSET', tg.KEY.lang, uid, lang]).catch(() => 0);
         const body = req.body || {};
         const action = body.action, now = clock();
         const fail = (code, status = 200) => res.status(status).json({ success: false, code });
@@ -209,7 +216,7 @@ function create(d) {
                 if (!check.ok) {
                     if (check.code === 'already') return ok();
                     // 第 21 位：通知團主買方案或用團購券
-                    if (check.code === 'full') await d.push([g.host], title(g), '第 21 位團員正在等待入團，升級 7 天方案或使用團購券後就能加入。', { type: 'tgroup_full', code }).catch(() => 0);
+                    if (check.code === 'full') await push([g.host], title(g), '第 21 位團員正在等待入團，升級 7 天方案或使用團購券後就能加入。', { type: 'tgroup_full', code }).catch(() => 0);
                     return fail(check.code);
                 }
                 const no = tg.nextNumber(list);
@@ -240,7 +247,7 @@ function create(d) {
                     ['DEL', tg.KEY.acks(code)],
                     ['SADD', tg.KEY.activeCalls, code],
                 ]);
-                await d.push(targets, title(g), tg.callText(made.call, now), { type: 'tgroup_call', code, callId: made.call.id }, { urgent: true });
+                await push(targets, title(g), tg.callText(made.call, now), { type: 'tgroup_call', code, callId: made.call.id }, { urgent: true });
                 return ok();
             }
 
@@ -251,9 +258,9 @@ function create(d) {
                 if (!list.some((m) => m.uid === target) || tg.isStaff(g, target)) return fail('bad_request');
                 const [call, roll] = await Promise.all([json(tg.KEY.call(code)), json(tg.KEY.roll(code))]);
                 if (call && tg.callLive(call, now)) {
-                    await d.push([target], title(g), tg.callText(call, now), { type: 'tgroup_call', code, callId: call.id }, { urgent: true });
+                    await push([target], title(g), tg.callText(call, now), { type: 'tgroup_call', code, callId: call.id }, { urgent: true });
                 } else if (roll) {
-                    await d.push([target], title(g), '點名：到了請按「我到了」', { type: 'tgroup_roll', code, rollId: roll.id }, { urgent: true });
+                    await push([target], title(g), '點名：到了請按「我到了」', { type: 'tgroup_roll', code, rollId: roll.id }, { urgent: true });
                 } else return fail('ended');
                 return ok();
             }
@@ -276,7 +283,7 @@ function create(d) {
                 const targets = tg.targetUids(g, await members(code), body.sub);
                 const roll = { id: now.toString(36), sentAt: now, sub: tg.normSub(body.sub), targets };
                 await d.pipe([['SET', tg.KEY.roll(code), JSON.stringify(roll), 'EX', ttlFor(g, now)], ['DEL', tg.KEY.answers(code)]]);
-                await d.push(targets, title(g), '點名：到了請按「我到了」', { type: 'tgroup_roll', code, rollId: roll.id }, { urgent: true });
+                await push(targets, title(g), '點名：到了請按「我到了」', { type: 'tgroup_roll', code, rollId: roll.id }, { urgent: true });
                 return ok();
             }
 
@@ -292,7 +299,7 @@ function create(d) {
                 await d.cmd(['HSET', tg.KEY.answers(code), uid, body.answer]);
                 if (body.answer === 'help') {
                     const me = (await members(code)).find((m) => m.uid === uid);
-                    await d.push([g.host, ...(g.cohosts || [])], title(g), `${me ? me.no : '?'} 號需要幫忙`, { type: 'tgroup_help', code }, { urgent: true });
+                    await push([g.host, ...(g.cohosts || [])], title(g), `${me ? me.no : '?'} 號需要幫忙`, { type: 'tgroup_help', code }, { urgent: true });
                 }
                 return ok();
             }
@@ -305,7 +312,7 @@ function create(d) {
                 const list = tg.pushAnnouncement(await json(tg.KEY.ann(code)), made.ann);
                 await d.cmd(['SET', tg.KEY.ann(code), JSON.stringify(list), 'EX', ttlFor(g, now)]);
                 const targets = tg.targetUids(g, await members(code), body.sub);
-                await d.push(targets, title(g), made.ann.text, { type: 'tgroup_ann', code });
+                await push(targets, title(g), made.ann.text, { type: 'tgroup_ann', code });
                 return ok();
             }
 
@@ -346,7 +353,7 @@ function create(d) {
                     if (!r.ok) return fail(r.code);
                     await save(code, r.group, now);
                     await d.pipe([['HDEL', tg.KEY.acks(code), target], ['HDEL', tg.KEY.answers(code), target]]);
-                    await d.push([target], title(g), '你成為這一團的共同團主了，可以發集合、點名和公告。', { type: 'tgroup_role', code });
+                    await push([target], title(g), '你成為這一團的共同團主了，可以發集合、點名和公告。', { type: 'tgroup_role', code });
                 } else if (action === 'cohost_remove') {
                     await save(code, tg.removeCohost(g, target), now);
                 } else {
@@ -356,7 +363,7 @@ function create(d) {
                     if (cohosts.length < tg.MAX_COHOSTS) cohosts = [...cohosts, g.host];
                     await save(code, { ...g, host: target, cohosts }, now);
                     await d.pipe([putMember(code, target, { ...m, no: 0 }), putMember(code, g.host, { ...hostRow, no: m.no || tg.nextNumber(list) })]);
-                    await d.push([target], title(g), '你成為這一團的團主了。', { type: 'tgroup_role', code });
+                    await push([target], title(g), '你成為這一團的團主了。', { type: 'tgroup_role', code });
                 }
                 return ok();
             }
@@ -388,7 +395,7 @@ function create(d) {
                     ['EXPIRE', tg.KEY.lost(code), String(Math.ceil(tg.LOST_TTL_MS / 1000))],
                 ]);
                 const me = (await members(code)).find((m) => m.uid === uid);
-                await d.push([g.host, ...(g.cohosts || [])], title(g), `${me ? me.no : '?'} 號迷路了，傳來了目前的位置`, { type: 'tgroup_lost', code }, { urgent: true });
+                await push([g.host, ...(g.cohosts || [])], title(g), `${me ? me.no : '?'} 號迷路了，傳來了目前的位置`, { type: 'tgroup_lost', code }, { urgent: true });
                 return ok();
             }
 
@@ -417,7 +424,7 @@ function create(d) {
             if (action === 'dissolve') {
                 const list = await members(code);
                 await destroy(code, list);
-                await d.push(list.filter((m) => m.uid !== uid).map((m) => m.uid), title(g), '這一團已經解散，謝謝這幾天一起同行。', { type: 'tgroup_end', code });
+                await push(list.filter((m) => m.uid !== uid).map((m) => m.uid), title(g), '這一團已經解散，謝謝這幾天一起同行。', { type: 'tgroup_end', code });
                 return res.status(200).json({ success: true, group: null });
             }
 
@@ -464,7 +471,7 @@ function create(d) {
                 const acks = hashOf(await d.cmd(['HGETALL', tg.KEY.acks(code)]));
                 const due = tg.dueReminders(call, list, acks, now);
                 if (!due.length) continue;
-                await d.push(due, title(g), `再提醒一次：${tg.callText(call, now)}`, { type: 'tgroup_call', code, callId: call.id }, { urgent: true });
+                await push(due, title(g), `再提醒一次：${tg.callText(call, now)}`, { type: 'tgroup_call', code, callId: call.id }, { urgent: true });
                 for (const u of due) call.remind[u] = (call.remind[u] || 0) + 1;
                 call.lastRemindAt = now;
                 await d.cmd(['SET', tg.KEY.call(code), JSON.stringify(call), 'EX', String(Math.max(60, Math.ceil((call.at + tg.CALL_LINGER_MS - now) / 1000)))]);

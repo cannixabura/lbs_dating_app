@@ -66,6 +66,7 @@ const KEY = {
     ann: (code) => `tgroup_ann:${code}`,
     stops: (code) => `tgroup_stops:${code}`,
     activeCalls: 'tgroup_active_calls',
+    lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
     voucher: (v) => `tvoucher:${v}`,
     vouchersOf: (uid) => `tvouchers_of:${uid}`,
 };

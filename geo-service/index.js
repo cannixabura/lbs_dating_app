@@ -2064,11 +2064,12 @@ async function wgJson(key) {
 }
 
 /** 推給團員：集合呼叫用時效性通知（iOS 穿透專注模式）與專屬音效／震動頻道 */
-async function wgPush(uids, title, body, data, { urgent = false } = {}) {
+async function wgPush(uids, title, body, data, { urgent = false, langs: given = null } = {}) {
   if (!uids.length) return 0;
+  // given：呼叫端已知每位收件人的語言（旅行團記在 tgroup_lang）；沒給就讀城市低語的 user_data
   const [snaps, langs] = await Promise.all([
     Promise.all(uids.map((u) => admin.database().ref(`tokens/${u}`).once("value"))),
-    sendUpstashPipeline(uids.map((u) => ["HGET", `user_data:${u}`, "lang"])).catch(() => []),
+    given ? Promise.resolve(given) : sendUpstashPipeline(uids.map((u) => ["HGET", `user_data:${u}`, "lang"])).catch(() => []),
   ]);
   const messages = [];
   snaps.forEach((snap, i) => {

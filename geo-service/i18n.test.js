@@ -31,3 +31,24 @@ test('翻譯範本與變數', () => {
     assert.strictEqual(localize('en', '使用者自己寫的公告'), '使用者自己寫的公告');
     assert.strictEqual(localize('zh-Hant', '未授權'), '未授權');
 });
+
+test('旅行團推播：英文都有翻譯', () => {
+    const { localize: L } = require('./i18n');
+    const tg = require('./tourgroup');
+    const at = Date.UTC(2026, 10, 17, 0, 30);
+    const cases = [
+        [tg.callText({ at, tz: 'Asia/Taipei', place: '台北車站' }, at - 5 * 60000), 'Meet at "台北車站" at 08:30 (5 min left)'],
+        [tg.callText({ at, tz: 'Asia/Taipei' }, at - 5 * 60000), 'Meet at 08:30 (5 min left). Open the app to see the meeting point.'],
+        [tg.callText({ at, tz: 'Asia/Taipei', place: '台北車站' }, at), 'Meet at "台北車站" now'],
+        [tg.callText({ at, tz: 'Asia/Taipei' }, at), 'Meet now. Open the app to see the meeting point.'],
+        ['第 21 位團員正在等待入團，升級 7 天方案或使用團購券後就能加入。', 'Member 21 is waiting to join. Upgrade to the 7-day pass or use a voucher to let them in.'],
+        ['你成為這一團的共同團主了，可以發集合、點名和公告。', "You're now a co-leader of this group. You can call meetups, take roll calls and post notices."],
+        ['你成為這一團的團主了。', "You're now the leader of this group."],
+        ['這一團已經解散，謝謝這幾天一起同行。', 'This group has ended. Thanks for traveling together.'],
+        ['點名：到了請按「我到了」', 'Roll call: tap "I\'m here" when you arrive'],
+        ['12 號需要幫忙', 'No. 12 needs help'],
+        ['12 號迷路了，傳來了目前的位置', 'No. 12 is lost and shared their location'],
+    ];
+    for (const [zh, en] of cases) assert.equal(L('en', zh), en);
+    assert.equal(L('en', `再提醒一次：${cases[0][0]}`), `Reminder: ${cases[0][1]}`);
+});

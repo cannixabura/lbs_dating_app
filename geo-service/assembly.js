@@ -26,7 +26,6 @@ const COUNTDOWNS = [0, 3, 5, 10];
 const CHEER_GAP_MS = 10 * 1000;
 const ANNOUNCE_GAP_MS = 30 * 1000;
 const CHEER_LEAD_MS = 1500; // 立即應援也留 1.5 秒，讓大家的手機收到
-const HOST_GONE_MS = quantum.GRACE_MS; // 主持人離開量子世界超過 3 分鐘就結束
 const REGION_MIN = 3; // 少於 3 人的大區併入「其他」，避免找出特定的人
 const KEY = {
     asm: (id) => `qasm:${id}`,
@@ -35,6 +34,8 @@ const KEY = {
     regions: (id) => `qasm_regions:${id}`,
     joined: (id) => `qasm_joined:${id}`, // set：曾經加入過的人（紀念卡的參加人數，重複加入只算一次）
     free: (uid, month) => `qasm_free:${uid}:${month}`,
+    memo: (uid) => `qasm_memo:${uid}`, // 主持人不在量子世界時結束的集會：下次入場顯示紀念卡
+    host: (uid) => `qasm_host:${uid}`, // 主持中的集會 id（主持人離開量子世界也留著，回來時坐回主持席）
     seats: 'qasm_seats', // hash：主持席序號（0～17）→ 集會 id
     active: 'qasm_active', // sorted set：集會 id → 結束時間
 };
@@ -99,14 +100,35 @@ function regionSummary(raw) {
     return out;
 }
 
-/** 這場該不該結束（時間到、或主持人離開太久） */
-function shouldEnd({ endAt, hostBeat }, now) {
+/** 這場該不該結束：只看時間到（主持人離開量子世界、App 在背景或關掉都不會結束） */
+function shouldEnd({ endAt }, now) {
     if (now >= endAt) return 'time';
-    if (!hostBeat || now - hostBeat > HOST_GONE_MS) return 'host_gone';
     return null;
 }
 
+/** 主持中集會對照的保存秒數：結束時間後再留 1 天 */
+function hostKeyTtl(endAt, now) {
+    return String(Math.max(60, Math.ceil((endAt - now) / 1000) + 86400));
+}
+
+/** 一場集會最長 12 小時（含延長） */
+const MAX_TOTAL_MS = 12 * 60 * 60 * 1000;
+
+/**
+ * 主持人用主辦券延長：結束時間往後加那張券的時數，人數上限取比較大的。
+ * 已經結束、或延長後超過 12 小時就不行。
+ */
+function extend({ startAt, endAt, cap, status }, plan, now) {
+    const p = PLANS[plan];
+    if (!p || plan === 'free') return { ok: false, code: 'bad_plan' };
+    if (status !== 'active' || now >= endAt) return { ok: false, code: 'ended' };
+    const newEnd = endAt + p.minutes * 60 * 1000;
+    if (newEnd - startAt > MAX_TOTAL_MS) return { ok: false, code: 'too_long' };
+    return { ok: true, endAt: newEnd, cap: Math.max(cap, p.cap) };
+}
+
 module.exports = {
-    PLANS, HOST_RING, RING_SEATS, COLORS, EMOJIS, MAX_TITLE, MAX_ANNOUNCE, COUNTDOWNS, CHEER_GAP_MS, ANNOUNCE_GAP_MS, HOST_GONE_MS, REGION_MIN, KEY,
+    MAX_TOTAL_MS, extend,
+    PLANS, HOST_RING, RING_SEATS, COLORS, EMOJIS, MAX_TITLE, MAX_ANNOUNCE, COUNTDOWNS, CHEER_GAP_MS, ANNOUNCE_GAP_MS, REGION_MIN, KEY, hostKeyTtl,
     planOfProduct, hostSeat, freeHostSeat, monthKey, cleanTitle, cleanAnnounce, validColor, validEmoji, validCountdown, cheerFireAt, canJoin, regionSummary, shouldEnd,
 };

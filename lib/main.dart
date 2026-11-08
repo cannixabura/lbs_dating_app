@@ -1733,6 +1733,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       quantumSession.value = QuantumSession.fromMe(me, quiet: data['quiet'] == true);
       AssemblyState.start();
       AssemblyState.setMe(me);
+      AssemblyState.showMissedMemorial(data['asmMemorial'] as String?);
       _jumpCamera(quantumSession.value!.lat, quantumSession.value!.lng);
       _fetchNearbyUsers();
     }
@@ -2616,7 +2617,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 if (mounted) showGlassToast(context, tr.profileSyncFailed, icon: Icons.error_outline, danger: true);
               }
 
-              if (_currentPosition != null) _updateMyLocationToServer(_currentPosition!);
+              // 送出新心情後馬上刷新雷達（例如 #review 改掉後，示範對象立刻消失）
+              if (_currentPosition != null) {
+                _updateMyLocationToServer(_currentPosition!).then((_) { if (mounted && !quantumOn) _fetchNearbyUsers(); });
+              }
               
               if (dialogContext.mounted) Navigator.pop(dialogContext);
               if (mounted) showGlassToast(context, tr.profileUpdated, icon: Icons.auto_awesome_outlined);

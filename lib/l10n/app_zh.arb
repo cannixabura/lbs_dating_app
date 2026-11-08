@@ -2127,7 +2127,16 @@
       }
     }
   },
-  "asmRules": "主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。",
+  "asmExtendTitle": "延長集會",
+  "asmExtendHint": "用一張主辦券往後延，一場最長 12 小時",
+  "asmExtendPlan": "+{hours} 小時 · {price}",
+  "@asmExtendPlan": {"placeholders": {"hours": {"type": "int"}, "price": {"type": "String"}}},
+  "asmExtended": "集會已延長",
+  "asmEndingSoon": "你的集會剩不到 10 分鐘，可以在集會卡延長",
+  "asmErrTooLong": "一場集會最長 12 小時",
+  "asmBuyMore": "多買主辦券",
+  "asmBuyMoreHint": "先買起來，開場或延長時直接用",
+  "asmRules": "一張主辦券可以開一場，或延長進行中的集會；沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。",
   "asmStart": "開始集會",
   "asmStarted": "集會開始了！",
   "asmVoucherReady": "主辦券到了，可以開集會",

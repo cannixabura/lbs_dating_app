@@ -136,7 +136,9 @@ exports.updateLocation = onRequest({ region: "asia-southeast1", secrets: UPSTASH
     const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
     const timestamp = Date.now();
     try {
+      // 改成別的心情就關掉審核示範對象（沒帶心情的更新不動）
       if (reviewCode) await sendUpstashCommand(["SADD", demo.REVIEWERS_KEY, uid]);
+      else if (typeof req.body.mood === "string") await sendUpstashCommand(["SREM", demo.REVIEWERS_KEY, uid]);
       // 🔒 先算出對外公開的模糊位置（100m 網格，含遲滯）；精確座標只進地理索引，不會回傳給任何人
       const fuzzFields = [];
       if (FUZZ_LOCATION) {
@@ -665,12 +667,18 @@ async function endAssembly(id, reason) {
     await sendUpstashPipeline([
         ["HSET", assembly.KEY.asm(id), "endedAt", String(now), "reason", reason],
         ["HDEL", quantum.KEY.seat(h.host), "hs", "hostAsm"],
+        ["DEL", assembly.KEY.host(h.host)],
         ...(Array.isArray(members) ? members : []).map((m) => ["HDEL", quantum.KEY.seat(m), "asm"]),
         ["HDEL", assembly.KEY.seats, String(h.seat)],
         ["ZREM", assembly.KEY.active, id],
         ...["asm", "members", "removed", "regions", "joined"].map((k) => ["EXPIRE", assembly.KEY[k](id), ttl]),
     ]);
     const summary = { count: Number(joined) || 0, regions: assembly.regionSummary(hashToObject(regionsRaw)) };
+    // 主持人這時不在量子世界（或 App 在背景沒有心跳）：記下來，下次入場時給紀念卡
+    const hostBeat = await sendUpstashCommand(["ZSCORE", quantum.KEY.beats, h.host]);
+    if (reason !== "host_deleted" && (hostBeat == null || now - parseFloat(hostBeat) > 60 * 1000)) {
+        await sendUpstashCommand(["SET", assembly.KEY.memo(h.host), id, "EX", String(7 * 86400)]);
+    }
     await admin.database().ref().update({
         [`qAssemblies/${id}/status`]: "ended",
         [`qAssemblies/${id}/endedAt`]: now,
@@ -729,7 +737,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
     if (seatH.ord == null) return fail("not_in_world");
 
     if (action === "asmCreate") {
-        if (seatH.hostAsm) return fail("already_hosting");
+        if (seatH.hostAsm || (await sendUpstashCommand(["EXISTS", assembly.KEY.host(uid)])) === 1) return fail("already_hosting");
         const hidden = await sendUpstashCommand(["HGET", `user_data:${uid}`, "hidden"]);
         if (hidden === "1" || seatH.hidden === "1") return fail("hidden");
         const plan = assembly.PLANS[req.body.plan] ? req.body.plan : null;
@@ -767,6 +775,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
             ["HSET", assembly.KEY.asm(id), "host", uid, "seat", String(seatIdx), "plan", plan, "cap", String(p.cap), "startAt", String(now), "endAt", String(endAt), "status", "active", "cheerAt", "0", "annAt", "0", "voucher", voucherKey || ""],
             ["ZADD", assembly.KEY.active, String(endAt), id],
             ["HSET", quantum.KEY.seat(uid), "hs", String(seatIdx), "hostAsm", id],
+            ["SET", assembly.KEY.host(uid), id, "EX", assembly.hostKeyTtl(endAt, now)],
             ["HDEL", quantum.KEY.seat(uid), "asm"],
             ["GEOADD", quantum.KEY.geo, String(pos.lng), String(pos.lat), uid],
         ]);
@@ -830,6 +839,24 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         return res.status(200).json({ success: true, fireAt });
     }
 
+    if (action === "asmExtend") {
+        // 臨時續購：用一張主辦券把這場往後延，人數上限取比較大的
+        const plan = String(req.body.plan || "");
+        const check = assembly.extend({ startAt: parseInt(a.startAt, 10), endAt: parseInt(a.endAt, 10), cap: parseInt(a.cap, 10), status: a.status }, plan, now);
+        if (!check.ok) return fail(check.code);
+        const vouchers = (await db.ref(`qAssemblyVouchers/${uid}`).once("value")).val() || {};
+        const voucherKey = Object.keys(vouchers).find((k) => vouchers[k] && vouchers[k].plan === plan) || null;
+        if (!voucherKey) return fail("no_voucher");
+        await db.ref(`qAssemblyVouchers/${uid}/${voucherKey}`).remove();
+        await sendUpstashPipeline([
+            ["HSET", assembly.KEY.asm(id), "endAt", String(check.endAt), "cap", String(check.cap)],
+            ["ZADD", assembly.KEY.active, String(check.endAt), id],
+            ["EXPIRE", assembly.KEY.host(uid), assembly.hostKeyTtl(check.endAt, now)],
+        ]);
+        await asmPublic(id).update({ endAt: check.endAt, cap: check.cap });
+        return res.status(200).json({ success: true, endAt: check.endAt, cap: check.cap, ...(await assemblyOptions(uid, now)) });
+    }
+
     if (action === "asmRemove") {
         const target = String(req.body.uid || "");
         if (!target || target === uid) return fail("bad_uid", 400);
@@ -847,7 +874,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
     return fail("unknown_action", 400);
 }
 
-/** 每分鐘：時間到、或主持人離開量子世界超過 3 分鐘的集會自動結束 */
+/** 每分鐘：時間到的集會自動結束（主持人不在量子世界也照常進行） */
 exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
     const now = Date.now();
     const ids = await sendUpstashCommand(["ZRANGE", assembly.KEY.active, "0", "-1"]);
@@ -855,8 +882,7 @@ exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-
         try {
             const [host, endAt] = await sendUpstashCommand(["HMGET", assembly.KEY.asm(id), "host", "endAt"]);
             if (!host) { await sendUpstashCommand(["ZREM", assembly.KEY.active, id]); continue; }
-            const beat = await sendUpstashCommand(["ZSCORE", quantum.KEY.beats, host]);
-            const reason = assembly.shouldEnd({ endAt: parseInt(endAt || "0", 10), hostBeat: beat == null ? 0 : parseFloat(beat) }, now);
+            const reason = assembly.shouldEnd({ endAt: parseInt(endAt || "0", 10) }, now);
             if (reason) await endAssembly(id, reason);
         } catch (e) {
             console.error("endAssemblies failed:", id, e);
@@ -897,6 +923,14 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             Object.keys(prev).forEach((k) => delete prev[k]);
             Object.assign(prev, { ord: String(ordinal), enteredAt: String(now), east: "0", north: "0", rawEast: "0", rawNorth: "0", region: quantum.regionOf(lat, lng), quiet: "0" });
         }
+        // 主持中的集會（離開量子世界期間還在進行）：坐回主持席
+        if (!prev.hostAsm) {
+            const hostAsm = await sendUpstashCommand(["GET", assembly.KEY.host(uid)]);
+            if (hostAsm) {
+                const [status, seat] = await sendUpstashCommand(["HMGET", assembly.KEY.asm(hostAsm), "status", "seat"]);
+                if (status === "active" && seat != null) Object.assign(prev, { hostAsm, hs: seat });
+            }
+        }
         const region = prev.region || 'other';
         const st = quantumState(prev);
         await sendUpstashPipeline([
@@ -908,6 +942,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
                 "homeAccEast", resumed ? String(st.east) : "0", "homeAccNorth", resumed ? String(st.north) : "0",
                 ...quantumProfileFields(req.body),
                 ...(await quantumOrbFields(uid, req.body.orb, resumed ? prev.orb : undefined)),
+                ...(prev.hostAsm ? ["hostAsm", prev.hostAsm, "hs", String(prev.hs)] : []),
                 "region", region, "quiet", prev.quiet || "0", "beat", String(now), "mood", mood, "nickname", nickname, "hidden", hidden === "1" ? "1" : "0", "grow", orbs.growthField(growth), "bq", bouquet === 1 ? "1" : "0"],
             ["ZADD", quantum.KEY.beats, String(now), uid],
             ...quantumTzCommands(uid, req.body),
@@ -917,9 +952,11 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["ZREM", "city_users", uid],
             ["ZREM", parallel.GEO_KEY, uid],
             ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)],
-            ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : []),
+            ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : typeof req.body.mood === "string" ? [["SREM", demo.REVIEWERS_KEY, uid]] : []),
         ]);
-        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st, prev), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth, bouquet: bouquet === 1 });
+        // 主持人不在時結束的集會：入場時補給紀念卡（只給一次）
+        const [memo] = await sendUpstashPipeline([["GET", assembly.KEY.memo(uid)], ["DEL", assembly.KEY.memo(uid)]]);
+        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st, prev), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth, bouquet: bouquet === 1, ...(memo ? { asmMemorial: memo } : {}) });
       }
 
       if (action === "beat") {
@@ -945,9 +982,12 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         fields.push(...quantumProfileFields(req.body), ...(await quantumOrbFields(uid, req.body.orb, h.orb)));
         const profile = [];
         if (typeof req.body.mood === "string" || typeof req.body.nickname === "string") {
-            const mood = maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
+            const review = demo.isReviewCode(req.body.mood);
+            const mood = review ? demo.REVIEW_MOOD : maskBlockedTerms(truncateVisible(req.body.mood, MAX_MOOD_LENGTH));
             const nickname = maskBlockedTerms(truncateVisible(req.body.nickname, MAX_NICKNAME_LENGTH));
             fields.push("mood", mood, "nickname", nickname);
+            // 審核示範對象跟著心情開關：輸入通關碼開啟，改成別的心情就關掉
+            if (typeof req.body.mood === "string") profile.push(review ? ["SADD", demo.REVIEWERS_KEY, uid] : ["SREM", demo.REVIEWERS_KEY, uid]);
             profile.push(["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)]);
         }
         await sendUpstashPipeline([
@@ -970,9 +1010,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const h = hashToObject(await sendUpstashCommand(["HGETALL", quantum.KEY.seat(uid)]));
         if (h.ord == null) return res.status(200).json({ success: true });
         const st = quantumState(h);
-        // 離開量子世界：退出加入中的集會；主持人離開就結束集會
-        if (h.hostAsm) await endAssembly(h.hostAsm, "host_left").catch((e) => console.error("assembly end failed:", e));
-        else if (h.asm) await leaveAssembly(uid, h.asm).catch((e) => console.error("assembly leave failed:", e));
+        // 離開量子世界：參加者退出集會；主持人的集會照常進行，回來時坐回主持席
+        if (!h.hostAsm && h.asm) await leaveAssembly(uid, h.asm).catch((e) => console.error("assembly leave failed:", e));
         await sendUpstashPipeline([
             ...(await quantumReleaseCommands([{ uid, ord: h.ord, region: h.region }])),
             // 塌縮離場：旁邊的人在接下來幾秒的掃描裡會看到光點散掉
@@ -2398,6 +2437,10 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       if (allWhispers.length > 0) {
           await sendUpstashPipeline(allWhispers.map((id) => ["SREM", `whisper_readers:${id}`, uid]));
       }
+
+      // 量子集會：主持中的集會直接結束（主持人離開量子世界時集會會繼續，刪除帳號才結束）
+      const hostingAsm = await sendUpstashCommand(["GET", assembly.KEY.host(uid)]);
+      if (hostingAsm) await endAssembly(hostingAsm, "host_deleted").catch((e) => console.error("assembly end failed:", e));
 
       const updates = {};
       for (const path of ["presence", "profiles", "user_avatars", "tokens", "blocks", "blockedBy", "consents", "requests", "resonance", "resonancePush", "gatheringHandoffs", "timeWhispers", "beaconReportsByUser"]) {

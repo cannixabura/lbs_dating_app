@@ -3246,7 +3246,33 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get asmRules => '主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。';
+  String get asmExtendTitle => '延長集會';
+
+  @override
+  String get asmExtendHint => '用一張主辦券往後延，一場最長 12 小時';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours 小時 · $price';
+  }
+
+  @override
+  String get asmExtended => '集會已延長';
+
+  @override
+  String get asmEndingSoon => '你的集會剩不到 10 分鐘，可以在集會卡延長';
+
+  @override
+  String get asmErrTooLong => '一場集會最長 12 小時';
+
+  @override
+  String get asmBuyMore => '多買主辦券';
+
+  @override
+  String get asmBuyMoreHint => '先買起來，開場或延長時直接用';
+
+  @override
+  String get asmRules => '一張主辦券可以開一場，或延長進行中的集會；沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。';
 
   @override
   String get asmStart => '開始集會';
@@ -6620,7 +6646,33 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get asmRules => '主办券买了就是一场，没用完的时间不退。主题与公告会过滤不当内容，违规会被停权。';
+  String get asmExtendTitle => '延长集会';
+
+  @override
+  String get asmExtendHint => '用一张主办券往后延，一场最长 12 小时';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours 小时 · $price';
+  }
+
+  @override
+  String get asmExtended => '集会已延长';
+
+  @override
+  String get asmEndingSoon => '你的集会剩不到 10 分钟，可以在集会卡延长';
+
+  @override
+  String get asmErrTooLong => '一场集会最长 12 小时';
+
+  @override
+  String get asmBuyMore => '多买主办券';
+
+  @override
+  String get asmBuyMoreHint => '先买起来，开场或延长时直接用';
+
+  @override
+  String get asmRules => '一张主办券可以开一场，或延长进行中的集会；没用完的时间不退。主题与公告会过滤不当内容，违规会被停权。';
 
   @override
   String get asmStart => '开始集会';

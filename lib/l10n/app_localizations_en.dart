@@ -3545,8 +3545,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => 'Extend assembly';
+
+  @override
+  String get asmExtendHint =>
+      'Use a host pass to add time. Up to 12 hours per assembly.';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours h · $price';
+  }
+
+  @override
+  String get asmExtended => 'Assembly extended';
+
+  @override
+  String get asmEndingSoon =>
+      'Your assembly ends in under 10 minutes. You can extend it from the assembly card.';
+
+  @override
+  String get asmErrTooLong => 'An assembly can last up to 12 hours';
+
+  @override
+  String get asmBuyMore => 'Buy more passes';
+
+  @override
+  String get asmBuyMoreHint => 'Buy ahead and use them to host or extend';
+
+  @override
   String get asmRules =>
-      'A host pass is good for one assembly; unused time is not refunded. Themes and announcements are filtered, and breaking the rules can get you suspended.';
+      'A host pass starts one assembly or extends one in progress. Unused time is not refunded. Titles and announcements are filtered, and violations lead to suspension.';
 
   @override
   String get asmStart => 'Start assembly';

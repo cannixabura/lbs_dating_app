@@ -3301,8 +3301,34 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => '集会を延長';
+
+  @override
+  String get asmExtendHint => '主催券で時間を延ばせます（1回最長12時間）';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours時間 · $price';
+  }
+
+  @override
+  String get asmExtended => '集会を延長しました';
+
+  @override
+  String get asmEndingSoon => '集会の残りが10分を切りました。集会カードから延長できます';
+
+  @override
+  String get asmErrTooLong => '集会は最長12時間です';
+
+  @override
+  String get asmBuyMore => '主催券をまとめ買い';
+
+  @override
+  String get asmBuyMoreHint => '先に買っておけば開催や延長にすぐ使えます';
+
+  @override
   String get asmRules =>
-      'ホストチケットは 1 回分です。使わなかった時間は返金されません。テーマとお知らせは不適切な内容をフィルタし、違反すると利用停止になります。';
+      '主催券1枚で集会を1回開催、または開催中の集会を延長できます。使わなかった時間は返金されません。タイトルとお知らせはフィルタされ、違反すると利用停止になります。';
 
   @override
   String get asmStart => '集会を始める';

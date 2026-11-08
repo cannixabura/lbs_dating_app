@@ -3453,8 +3453,36 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => 'Gia hạn buổi tụ họp';
+
+  @override
+  String get asmExtendHint =>
+      'Dùng vé chủ trì để thêm giờ. Tối đa 12 giờ mỗi buổi.';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours giờ · $price';
+  }
+
+  @override
+  String get asmExtended => 'Đã gia hạn buổi tụ họp';
+
+  @override
+  String get asmEndingSoon =>
+      'Buổi tụ họp của bạn còn chưa tới 10 phút. Có thể gia hạn trong thẻ buổi tụ họp.';
+
+  @override
+  String get asmErrTooLong => 'Mỗi buổi tụ họp tối đa 12 giờ';
+
+  @override
+  String get asmBuyMore => 'Mua thêm vé';
+
+  @override
+  String get asmBuyMoreHint => 'Mua trước, dùng khi mở hoặc gia hạn';
+
+  @override
   String get asmRules =>
-      'Một vé chủ trì dùng cho một buổi; thời gian không dùng hết sẽ không được hoàn. Chủ đề và thông báo được lọc, vi phạm có thể bị khóa tài khoản.';
+      'Một vé chủ trì mở một buổi tụ họp hoặc gia hạn buổi đang diễn ra. Thời gian không dùng hết không được hoàn tiền. Tiêu đề và thông báo được lọc; vi phạm sẽ bị đình chỉ.';
 
   @override
   String get asmStart => 'Bắt đầu';

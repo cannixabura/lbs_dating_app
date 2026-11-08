@@ -3468,8 +3468,36 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => 'ต่อเวลาการชุมนุม';
+
+  @override
+  String get asmExtendHint =>
+      'ใช้บัตรผู้จัดเพื่อต่อเวลา สูงสุด 12 ชั่วโมงต่อครั้ง';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours ชม. · $price';
+  }
+
+  @override
+  String get asmExtended => 'ต่อเวลาการชุมนุมแล้ว';
+
+  @override
+  String get asmEndingSoon =>
+      'การชุมนุมของคุณเหลือไม่ถึง 10 นาที ต่อเวลาได้ที่การ์ดการชุมนุม';
+
+  @override
+  String get asmErrTooLong => 'การชุมนุมยาวได้สูงสุด 12 ชั่วโมง';
+
+  @override
+  String get asmBuyMore => 'ซื้อบัตรเพิ่ม';
+
+  @override
+  String get asmBuyMoreHint => 'ซื้อไว้ก่อน ใช้เปิดหรือต่อเวลาได้ทันที';
+
+  @override
   String get asmRules =>
-      'บัตรผู้จัดใช้ได้หนึ่งครั้ง เวลาที่ไม่ได้ใช้จะไม่คืนเงิน หัวข้อและประกาศจะถูกกรอง หากผิดกฎอาจถูกระงับบัญชี';
+      'บัตรผู้จัด 1 ใบใช้เปิดการชุมนุม 1 ครั้ง หรือต่อเวลาการชุมนุมที่กำลังดำเนินอยู่ เวลาที่ไม่ได้ใช้ไม่คืนเงิน หัวข้อและประกาศจะถูกกรอง การละเมิดจะถูกระงับการใช้งาน';
 
   @override
   String get asmStart => 'เริ่มการรวมตัว';

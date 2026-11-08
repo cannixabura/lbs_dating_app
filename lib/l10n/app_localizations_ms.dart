@@ -3477,8 +3477,37 @@ class AppLocalizationsMs extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => 'Lanjutkan perhimpunan';
+
+  @override
+  String get asmExtendHint =>
+      'Guna pas hos untuk tambah masa. Maksimum 12 jam.';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours jam · $price';
+  }
+
+  @override
+  String get asmExtended => 'Perhimpunan dilanjutkan';
+
+  @override
+  String get asmEndingSoon =>
+      'Perhimpunan anda tamat dalam kurang 10 minit. Lanjutkan dari kad perhimpunan.';
+
+  @override
+  String get asmErrTooLong => 'Satu perhimpunan maksimum 12 jam';
+
+  @override
+  String get asmBuyMore => 'Beli lebih banyak pas';
+
+  @override
+  String get asmBuyMoreHint =>
+      'Beli dahulu, guna semasa membuka atau melanjutkan';
+
+  @override
   String get asmRules =>
-      'Satu pas hos untuk satu perhimpunan; masa yang tidak digunakan tidak dipulangkan. Tema dan pengumuman ditapis, dan melanggar peraturan boleh menyebabkan akaun digantung.';
+      'Satu pas hos untuk membuka satu perhimpunan atau melanjutkan yang sedang berlangsung. Masa yang tidak digunakan tidak dikembalikan. Tajuk dan pengumuman ditapis; pelanggaran membawa kepada penggantungan.';
 
   @override
   String get asmStart => 'Mula perhimpunan';

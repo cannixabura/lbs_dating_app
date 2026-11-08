@@ -3321,8 +3321,34 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => '집회 연장';
+
+  @override
+  String get asmExtendHint => '주최권으로 시간을 늘려요. 한 번에 최대 12시간';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours시간 · $price';
+  }
+
+  @override
+  String get asmExtended => '집회를 연장했어요';
+
+  @override
+  String get asmEndingSoon => '집회가 10분 안에 끝나요. 집회 카드에서 연장할 수 있어요';
+
+  @override
+  String get asmErrTooLong => '집회는 최대 12시간이에요';
+
+  @override
+  String get asmBuyMore => '주최권 더 사기';
+
+  @override
+  String get asmBuyMoreHint => '미리 사 두고 개최나 연장에 바로 써요';
+
+  @override
   String get asmRules =>
-      '호스트 이용권은 한 번의 집회용이며, 남은 시간은 환불되지 않아요. 주제와 공지는 필터링되며, 규칙을 어기면 이용이 정지될 수 있어요.';
+      '주최권 1장으로 집회 1회를 열거나 진행 중인 집회를 연장할 수 있어요. 남은 시간은 환불되지 않아요. 제목과 공지는 필터링되며 위반 시 이용이 정지돼요.';
 
   @override
   String get asmStart => '집회 시작';

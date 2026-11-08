@@ -3462,8 +3462,37 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get asmExtendTitle => 'Perpanjang pertemuan';
+
+  @override
+  String get asmExtendHint =>
+      'Pakai tiket tuan rumah untuk menambah waktu. Maksimal 12 jam.';
+
+  @override
+  String asmExtendPlan(int hours, String price) {
+    return '+$hours jam · $price';
+  }
+
+  @override
+  String get asmExtended => 'Pertemuan diperpanjang';
+
+  @override
+  String get asmEndingSoon =>
+      'Pertemuanmu berakhir kurang dari 10 menit lagi. Perpanjang dari kartu pertemuan.';
+
+  @override
+  String get asmErrTooLong => 'Satu pertemuan maksimal 12 jam';
+
+  @override
+  String get asmBuyMore => 'Beli tiket lagi';
+
+  @override
+  String get asmBuyMoreHint =>
+      'Beli dulu, pakai saat membuka atau memperpanjang';
+
+  @override
   String get asmRules =>
-      'Satu tiket tuan rumah untuk satu pertemuan; waktu yang tidak terpakai tidak dikembalikan. Tema dan pengumuman difilter, dan melanggar aturan bisa membuat akun ditangguhkan.';
+      'Satu tiket tuan rumah untuk membuka satu pertemuan atau memperpanjang yang sedang berjalan. Waktu yang tidak terpakai tidak dikembalikan. Judul dan pengumuman disaring; pelanggaran berujung penangguhan.';
 
   @override
   String get asmStart => 'Mulai pertemuan';

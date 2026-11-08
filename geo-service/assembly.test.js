@@ -66,9 +66,23 @@ test('memorial card merges small regions into other', () => {
     assert.deepStrictEqual(a.regionSummary({}), {});
 });
 
-test('ends when time is up or the host has been gone 3 minutes', () => {
+test('ends only when time is up', () => {
     assert.strictEqual(a.shouldEnd({ endAt: 100, hostBeat: 99 }, 100), 'time');
-    assert.strictEqual(a.shouldEnd({ endAt: 10 ** 9, hostBeat: 0 }, 1000), 'host_gone');
-    assert.strictEqual(a.shouldEnd({ endAt: 10 ** 9, hostBeat: 1000 }, 1000 + a.HOST_GONE_MS + 1), 'host_gone');
+    // 主持人不在量子世界也不結束，只看時間
+    assert.strictEqual(a.shouldEnd({ endAt: 10 ** 9 }, 10 ** 8), null);
     assert.strictEqual(a.shouldEnd({ endAt: 10 ** 9, hostBeat: 1000 }, 2000), null);
+});
+
+test('extend with a pass: later end, bigger cap, 12-hour limit', () => {
+    const H = 3600 * 1000;
+    const base = { startAt: 0, endAt: 30 * 60 * 1000, cap: 50, status: 'active' };
+    assert.deepStrictEqual(a.extend(base, '1h', 1000), { ok: true, endAt: 90 * 60 * 1000, cap: 200 });
+    assert.deepStrictEqual(a.extend({ ...base, cap: 1000 }, '1h', 1000), { ok: true, endAt: 90 * 60 * 1000, cap: 1000 });
+    assert.deepStrictEqual(a.extend(base, '2h', 1000), { ok: true, endAt: 150 * 60 * 1000, cap: 1000 });
+    assert.strictEqual(a.extend(base, 'free', 1000).code, 'bad_plan');
+    assert.strictEqual(a.extend(base, 'x', 1000).code, 'bad_plan');
+    assert.strictEqual(a.extend({ ...base, status: 'ended' }, '1h', 1000).code, 'ended');
+    assert.strictEqual(a.extend(base, '1h', base.endAt).code, 'ended');
+    assert.strictEqual(a.extend({ ...base, endAt: 11 * H }, '2h', 1000).code, 'too_long');
+    assert.strictEqual(a.extend({ ...base, endAt: 11 * H }, '1h', 1000).ok, true);
 });

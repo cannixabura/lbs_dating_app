@@ -90,11 +90,39 @@ class AssemblyState {
   static final Map<String, int> _seenCheer = {};
   static final Set<String> _involved = {}; // 這次入場參加或主持過的集會（結束時要不要顯示紀念卡）
 
+  static final Set<String> _shownMemorials = {}; // 這次開 App 已經顯示過的紀念卡（不重複跳）
+
+  /// 主持人不在量子世界時結束的集會：入場時伺服器補給的紀念卡
+  static Future<void> showMissedMemorial(String? id) async {
+    if (id == null || id.isEmpty || _shownMemorials.contains(id)) return;
+    try {
+      final snap = await FirebaseDatabase.instance.ref('qAssemblies/$id').get();
+      final a = QAssembly.parse(id, snap.value);
+      if (a != null && a.summary != null && _shownMemorials.add(id)) memorial.value = a;
+    } catch (_) {}
+  }
+
   static int get serverNow => DateTime.now().millisecondsSinceEpoch + _offset;
+
+  static Timer? _soonTimer;
+  static final Map<String, int> _soonWarned = {}; // 集會 id → 已提醒過的結束時間（延長後會再提醒）
+
+  /// 主持人：集會剩不到 10 分鐘時提醒一次可以延長
+  static void _checkEndingSoon() {
+    final id = hostAsm.value;
+    final a = id == null ? null : active.value[id];
+    if (a == null || !a.active) return;
+    final left = a.endAt - serverNow;
+    if (left > 0 && left <= 10 * 60 * 1000 && _soonWarned[a.id] != a.endAt) {
+      _soonWarned[a.id] = a.endAt;
+      AssemblyStore.notice.value = tr.asmEndingSoon;
+    }
+  }
 
   /// 進入量子世界時開始聽；離開時停止
   static void start() {
     if (_addSub != null) return;
+    _soonTimer ??= Timer.periodic(const Duration(seconds: 20), (_) => _checkEndingSoon());
     final db = FirebaseDatabase.instance;
     _offsetSub = db.ref('.info/serverTimeOffset').onValue.listen((e) => _offset = (e.snapshot.value as num?)?.toInt() ?? 0, onError: (_) {});
     _addSub = db.ref('qAssemblyActive').onChildAdded.listen((e) => _watch(e.snapshot.key), onError: (_) {});
@@ -106,7 +134,7 @@ class AssemblyState {
         try {
           final snap = await db.ref('qAssemblies/$id').get();
           final a = QAssembly.parse(id, snap.value);
-          if (a != null && a.summary != null && _involved.contains(id)) memorial.value = a;
+          if (a != null && a.summary != null && _involved.contains(id) && _shownMemorials.add(id)) memorial.value = a;
         } catch (_) {}
         _involved.remove(id);
         if (myAsm.value == id) myAsm.value = null;
@@ -126,6 +154,8 @@ class AssemblyState {
     _removeSub?.cancel();
     _offsetSub?.cancel();
     _addSub = _removeSub = _offsetSub = null;
+    _soonTimer?.cancel();
+    _soonTimer = null;
     active.value = const {};
     myAsm.value = null;
     hostAsm.value = null;
@@ -192,7 +222,9 @@ class AssemblyStore {
   static final busy = ValueNotifier<bool>(false);
   static final notice = ValueNotifier<String?>(null);
   static StreamSubscription<List<PurchaseDetails>>? _sub;
-  static Map<String, dynamic>? _pending; // 買完要開的集會
+  /// 買完要做的事（開集會或延長），回傳錯誤代碼或 null；沒有就只是多買一張券
+  static Future<String?> Function()? _after;
+  static String? _afterOk;
 
   static void init() {
     _sub ??= InAppPurchase.instance.purchaseStream.listen(_onPurchases, onError: (_) => busy.value = false);
@@ -208,10 +240,11 @@ class AssemblyStore {
 
   static String? price(String plan) => details.value[products[plan]]?.price;
 
-  static Future<bool> buy(String plan, Map<String, dynamic> create) async {
+  static Future<bool> buy(String plan, {Future<String?> Function()? after, String? ok}) async {
     final product = details.value[products[plan]];
     if (product == null) return false;
-    _pending = create;
+    _after = after;
+    _afterOk = ok;
     busy.value = true;
     try {
       final started = await InAppPurchase.instance.buyConsumable(purchaseParam: PurchaseParam(productDetails: product), autoConsume: true);
@@ -231,7 +264,7 @@ class AssemblyStore {
           busy.value = true;
         case PurchaseStatus.canceled || PurchaseStatus.error:
           busy.value = false;
-          _pending = null;
+          _after = null;
           if (p.status == PurchaseStatus.error) notice.value = tr.asmBuyFailed;
           if (p.pendingCompletePurchase) await InAppPurchase.instance.completePurchase(p);
         case PurchaseStatus.purchased || PurchaseStatus.restored:
@@ -249,17 +282,45 @@ class AssemblyStore {
           }
           if (p.pendingCompletePurchase) await InAppPurchase.instance.completePurchase(p);
           AssemblyState._setOptions(data);
-          final create = _pending;
-          _pending = null;
-          if (create != null) {
-            final err = await createAssembly(create);
-            notice.value = err == null ? tr.asmStarted : asmErrorText(err);
+          final after = _after, ok = _afterOk;
+          _after = _afterOk = null;
+          if (after != null) {
+            final err = await after();
+            notice.value = err == null ? (ok ?? tr.asmStarted) : asmErrorText(err);
           } else {
             notice.value = tr.asmVoucherReady;
           }
           busy.value = false;
       }
     }
+  }
+}
+
+/// 多買主辦券：只買不用，之後開場或延長時直接扣
+class AssemblyBuyMore extends StatelessWidget {
+  const AssemblyBuyMore({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([AssemblyStore.details, AssemblyStore.busy]),
+      builder: (context, _) {
+        final buying = AssemblyStore.busy.value;
+        Widget chip(String plan, String label) {
+          final price = AssemblyStore.price(plan);
+          return ActionChip(
+            avatar: const Icon(Icons.add_shopping_cart, size: 16, color: Night.inkMuted),
+            label: Text('$label · ${price ?? '—'}', style: const TextStyle(fontSize: 12)),
+            onPressed: buying || price == null ? null : () => AssemblyStore.buy(plan),
+          );
+        }
+        return Column(children: [
+          Text('${tr.asmBuyMore} · ${tr.asmBuyMoreHint}', style: Night.caption, textAlign: TextAlign.center),
+          const SizedBox(height: 4),
+          Wrap(alignment: WrapAlignment.center, spacing: Night.space2, children: [chip('1h', tr.asmPlan1h), chip('2h', tr.asmPlan2h)]),
+        ]);
+      },
+    );
   }
 }
 
@@ -275,7 +336,27 @@ Future<String?> createAssembly(Map<String, dynamic> body) async {
   return data['code'] as String? ?? 'error';
 }
 
+/// 主持人用主辦券延長集會；成功回傳 null
+Future<String?> extendAssembly(String id, String plan) async {
+  final (status, data) = await QuantumApi.assembly('asmExtend', {'id': id, 'plan': plan});
+  if (status == 200 && data['success'] == true) {
+    AssemblyState._setOptions(data);
+    return null;
+  }
+  return data['code'] as String? ?? 'error';
+}
+
+/// 有券就直接用，沒有就先買再用（買完由購買流程接著做）。回傳 null＝已完成或已開始購買
+Future<String?> useOrBuyPass(String plan, Future<String?> Function() use, {String? ok}) async {
+  final o = AssemblyState.options.value;
+  final have = plan == '1h' ? (o?.v1h ?? 0) : (o?.v2h ?? 0);
+  if (have > 0) return use();
+  final started = await AssemblyStore.buy(plan, after: use, ok: ok);
+  return started ? 'buying' : 'error';
+}
+
 String asmErrorText(String? code) => switch (code) {
+      'too_long' => tr.asmErrTooLong,
       'free_used' => tr.asmErrFreeUsed,
       'seats_full' => tr.asmErrSeatsFull,
       'blocked_words' => tr.asmErrBlocked,
@@ -338,7 +419,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     final hasVoucher = plan == '1h' ? (o?.v1h ?? 0) > 0 : plan == '2h' ? (o?.v2h ?? 0) > 0 : true;
     setState(() => _sending = true);
     if (plan != 'free' && !hasVoucher) {
-      final started = await AssemblyStore.buy(plan, body);
+      final started = await AssemblyStore.buy(plan, after: () => createAssembly(body));
       if (!mounted) return;
       setState(() => _sending = false);
       if (started) Navigator.pop(context); // 買完會自動開場，結果在主畫面提示
@@ -426,6 +507,8 @@ class _CreateSheetState extends State<_CreateSheet> {
             _planTile('1h', '${tr.asmPlan1h} · ${paid('1h', o?.v1h ?? 0)}', tr.asmPlan1hSub),
             _planTile('2h', '${tr.asmPlan2h} · ${paid('2h', o?.v2h ?? 0)}', tr.asmPlan2hSub),
             const SizedBox(height: Night.space2),
+            const AssemblyBuyMore(),
+            const SizedBox(height: Night.space2),
             Text(tr.asmRules, style: Night.caption, textAlign: TextAlign.center),
             const SizedBox(height: Night.space3),
             NightButton(
@@ -445,6 +528,11 @@ class _CreateSheetState extends State<_CreateSheet> {
 // ============================================================================
 
 Future<void> showAssemblyCard(BuildContext context, String id) {
+  if (AssemblyState.hostAsm.value == id) {
+    // 主持人：準備延長用的價格與主辦券張數
+    AssemblyStore.loadProducts();
+    AssemblyState.refreshOptions();
+  }
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -523,7 +611,8 @@ class _AssemblyCardState extends State<_AssemblyCard> {
         final isHost = AssemblyState.hostAsm.value == a.id;
         final joined = AssemblyState.myAsm.value == a.id;
         final left = max(0, a.endAt - AssemblyState.serverNow) ~/ 1000;
-        final timeLeft = '${left ~/ 60}:${(left % 60).toString().padLeft(2, '0')}';
+        String two(int n) => n.toString().padLeft(2, '0');
+        final timeLeft = left >= 3600 ? '${left ~/ 3600}:${two(left % 3600 ~/ 60)}:${two(left % 60)}' : '${left ~/ 60}:${two(left % 60)}';
         final ann = a.announce;
         final cheerColor = _cheerColor ?? a.color;
         return SingleChildScrollView(
@@ -621,6 +710,35 @@ class _AssemblyCardState extends State<_AssemblyCard> {
                 if (err == null && context.mounted) Navigator.pop(context);
                 return err;
               })),
+              const SizedBox(height: Night.space4),
+              // 臨時續購：有券直接延長，沒有就先買再延長
+              Text(tr.asmExtendTitle, style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(tr.asmExtendHint, style: Night.caption),
+              const SizedBox(height: Night.space2),
+              AnimatedBuilder(
+                animation: Listenable.merge([AssemblyState.options, AssemblyStore.details, AssemblyStore.busy]),
+                builder: (context, _) {
+                  final o = AssemblyState.options.value;
+                  final buying = AssemblyStore.busy.value;
+                  Widget btn(String plan, int hours, int owned) => Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(foregroundColor: a.color, side: BorderSide(color: a.color.withOpacity(0.7)),
+                              padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                          onPressed: _busy || buying ? null : () => _run(() async {
+                            final err = await useOrBuyPass(plan, () => extendAssembly(a.id, plan), ok: tr.asmExtended);
+                            if (err == 'buying') return null; // 買完會自動延長，結果在主畫面提示
+                            return err;
+                          }, ok: owned > 0 ? tr.asmExtended : null),
+                          child: Text(tr.asmExtendPlan(hours, owned > 0 ? tr.asmVoucherCount(owned) : (AssemblyStore.price(plan) ?? '—')),
+                              textAlign: TextAlign.center, style: const TextStyle(fontSize: 13)),
+                        ),
+                      );
+                  return Row(children: [btn('1h', 1, o?.v1h ?? 0), const SizedBox(width: Night.space2), btn('2h', 2, o?.v2h ?? 0)]);
+                },
+              ),
+              const SizedBox(height: Night.space2),
+              const AssemblyBuyMore(),
               const SizedBox(height: Night.space2),
               Text(tr.asmRemoveHint, style: Night.caption, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),

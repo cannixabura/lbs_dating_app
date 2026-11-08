@@ -5841,10 +5841,58 @@ abstract class AppLocalizations {
   /// **'已有 {count} 張主辦券'**
   String asmVoucherCount(int count);
 
+  /// No description provided for @asmExtendTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'延長集會'**
+  String get asmExtendTitle;
+
+  /// No description provided for @asmExtendHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'用一張主辦券往後延，一場最長 12 小時'**
+  String get asmExtendHint;
+
+  /// No description provided for @asmExtendPlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'+{hours} 小時 · {price}'**
+  String asmExtendPlan(int hours, String price);
+
+  /// No description provided for @asmExtended.
+  ///
+  /// In zh, this message translates to:
+  /// **'集會已延長'**
+  String get asmExtended;
+
+  /// No description provided for @asmEndingSoon.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的集會剩不到 10 分鐘，可以在集會卡延長'**
+  String get asmEndingSoon;
+
+  /// No description provided for @asmErrTooLong.
+  ///
+  /// In zh, this message translates to:
+  /// **'一場集會最長 12 小時'**
+  String get asmErrTooLong;
+
+  /// No description provided for @asmBuyMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'多買主辦券'**
+  String get asmBuyMore;
+
+  /// No description provided for @asmBuyMoreHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'先買起來，開場或延長時直接用'**
+  String get asmBuyMoreHint;
+
   /// No description provided for @asmRules.
   ///
   /// In zh, this message translates to:
-  /// **'主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。'**
+  /// **'一張主辦券可以開一場，或延長進行中的集會；沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。'**
   String get asmRules;
 
   /// No description provided for @asmStart.

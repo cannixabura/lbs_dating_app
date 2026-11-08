@@ -137,17 +137,54 @@ test('paid plan uses a voucher; host leaving the world ends it; the scheduler en
     assert.strictEqual(r.code, 'Q3-1'); // 剛才的主持席空出來了
     assert.strictEqual(getAt(`qAssemblies/${r.id}/cap`), 200);
     assert.strictEqual(getAt('qAssemblyVouchers/cat/a_1'), null);
+    // 主持人離開量子世界（或 App 在背景很久）：集會照常進行
     await call('cat', { action: 'leave' });
+    assert.strictEqual(getAt(`qAssemblies/${r.id}/status`), 'active');
+    clock += 10 * 60 * 1000;
+    await index.endAssemblies.run({});
+    assert.strictEqual(getAt(`qAssemblies/${r.id}/status`), 'active');
+    // 回到量子世界：坐回主持席，控制台還在；不能再開第二場
+    const back = await enter('cat');
+    assert.strictEqual(back.me.code, 'Q3-1');
+    assert.strictEqual(back.me.hostAsm, r.id);
+    assert.strictEqual((await call('cat', { action: 'asmCreate', plan: 'free', title: '再一場' })).code, 'already_hosting');
+    assert.ok((await call('cat', { action: 'asmAnnounce', id: r.id, text: '我回來了' })).success);
+    await call('cat', { action: 'leave' });
+    // 主持人不在時也能由主持人回來後結束
+    await enter('cat');
+    assert.ok((await call('cat', { action: 'asmEnd', id: r.id })).success);
     assert.strictEqual(getAt(`qAssemblies/${r.id}/status`), 'ended');
+    assert.strictEqual(run(['GET', a.KEY.host('cat')]), null);
     // 時間到：排程結束
     await enter('dan');
     setAt('qAssemblyVouchers/dan/a_2', { plan: '2h', at: clock });
     const d = await call('dan', { action: 'asmCreate', plan: '2h', title: '跨年前夜', emoji: '✨', color: '#B79CFF' });
     assert.strictEqual(getAt(`qAssemblies/${d.id}/cap`), 1000);
+    // 臨時續購：沒有券不能延；有一張 1 小時券就延 1 小時，上限維持 1000
+    assert.strictEqual((await call('dan', { action: 'asmExtend', id: d.id, plan: '1h' })).code, 'no_voucher');
+    setAt('qAssemblyVouchers/dan/a_3', { plan: '1h', at: clock });
+    setAt('qAssemblyVouchers/dan/a_4', { plan: '1h', at: clock });
+    const endBefore = getAt(`qAssemblies/${d.id}/endAt`);
+    const ex = await call('dan', { action: 'asmExtend', id: d.id, plan: '1h' });
+    assert.ok(ex.success, JSON.stringify(ex));
+    assert.strictEqual(ex.endAt, endBefore + 60 * 60 * 1000);
+    assert.strictEqual(getAt(`qAssemblies/${d.id}/endAt`), ex.endAt);
+    assert.strictEqual(getAt(`qAssemblies/${d.id}/cap`), 1000);
+    assert.strictEqual(ex.vouchers['1h'], 1); // 多買的那張還在
+    await enter('eve');
+    assert.strictEqual((await call('eve', { action: 'asmExtend', id: d.id, plan: '1h' })).code, 'not_host');
+    // 原本 2 小時到了不會結束（已延到 3 小時）
     clock += 121 * 60 * 1000;
     run(['ZADD', q.KEY.beats, String(clock), 'dan']);
     await index.endAssemblies.run({});
+    assert.strictEqual(getAt(`qAssemblies/${d.id}/status`), 'active');
+    // 主持人先離開量子世界，時間到才結束：下次入場補給紀念卡（只給一次）
+    await call('dan', { action: 'leave' });
+    clock += 60 * 60 * 1000;
+    await index.endAssemblies.run({});
     assert.strictEqual(getAt(`qAssemblies/${d.id}/status`), 'ended');
+    assert.strictEqual((await enter('dan')).asmMemorial, d.id);
+    assert.strictEqual((await enter('dan')).asmMemorial, undefined);
 });
 
 test('blocked words in the title are refused, and seats run out after 18', async () => {

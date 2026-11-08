@@ -44,6 +44,7 @@ const MAX_SUB_NAME = 10;
 const MAX_ANN = 20;
 const MAX_ANN_LEN = 200;
 const MAX_STOPS = 60;
+const MAX_NICK = 10;
 const COLORS = ['violet', 'pink', 'blue', 'teal', 'green', 'gold', 'orange', 'red'];
 const REMIND_EVERY_MS = 60 * 1000;
 const REMIND_MAX = 3;
@@ -67,6 +68,7 @@ const KEY = {
     stops: (code) => `tgroup_stops:${code}`,
     activeCalls: 'tgroup_active_calls',
     lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
+    profile: 'tgroup_profile', // 每位使用者的暱稱與頭像 JSON（旅行團自己的，不讀城市低語的 user_data）
     voucher: (v) => `tvoucher:${v}`,
     vouchersOf: (uid) => `tvouchers_of:${uid}`,
 };
@@ -379,6 +381,20 @@ function canRedeem(v, g, now) {
 const groupLink = (code, qrVer) => `${LINK_BASE}/g/${code}?v=${qrVer}`;
 const voucherLink = (v) => `${LINK_BASE}/v/${v}`;
 
+// ---------- 個人資料（暱稱、頭像） ----------
+
+/**
+ * 暱稱最多 10 字；頭像只接受自己上傳到 Firebase Storage avatars/<uid>.jpg 的下載網址（沿用城市低語的 Storage 規則）。
+ * 兩個都空 → null（刪除）
+ */
+function cleanProfile(input, uid) {
+    const name = clip((input || {}).name, MAX_NICK);
+    const raw = String((input || {}).avatar || '');
+    const ok = raw.startsWith('https://firebasestorage.googleapis.com/') && raw.includes(`/o/avatars%2F${encodeURIComponent(uid)}.jpg`) && raw.length < 600;
+    const avatar = ok ? raw : '';
+    return name || avatar ? { name, avatar } : null;
+}
+
 /** 集合呼叫推播的文字（繁中原文，送出時翻成收件人的語言） */
 function callText(call, now) {
     const mins = Math.max(0, Math.round((call.at - now) / 60000));
@@ -389,7 +405,7 @@ function callText(call, now) {
 
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, PASS_PRODUCT, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
-    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, COLORS,
+    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, COLORS,
     REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
@@ -398,5 +414,5 @@ module.exports = {
     makeCall, callLive, dueReminders, callRoster, rollRoster, makeLost, lostRoster,
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
     makeStop, upsertStop, removeStop,
-    applePass, googlePass, makeVoucher, canRedeem, groupLink, voucherLink, callText,
+    applePass, googlePass, makeVoucher, canRedeem, groupLink, voucherLink, callText, cleanProfile,
 };

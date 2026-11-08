@@ -116,15 +116,18 @@ function create(d) {
         const me = list.find((m) => m.uid === uid);
         const role = tg.roleOf(g, uid);
         const staff = role !== 'member';
-        const nicks = await d.pipe(list.map((m) => ['HGET', `user_data:${m.uid}`, 'nickname'])).catch(() => []);
-        const nameOf = (u) => nicks[list.findIndex((m) => m.uid === u)] || '';
+        // 暱稱與頭像：旅行團自己的 tgroup_profile（不讀城市低語的 user_data）
+        const profs = (await d.pipe(list.map((m) => ['HGET', tg.KEY.profile, m.uid])).catch(() => [])).map((raw) => { try { return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; } });
+        const profOf = (u) => profs[list.findIndex((m) => m.uid === u)] || {};
+        const nameOf = (u) => profOf(u).name || '';
+        const avatarOf = (u) => profOf(u).avatar || '';
         const mySub = me ? me.sub ?? null : null;
         const forMe = (x) => staff || !x || x.sub === null || x.sub === undefined || x.sub === mySub;
         const view = {
             code, name: g.name, color: g.color, tz: g.tz, startDate: g.startDate, endDate: g.endDate, endsAt: g.endsAt,
             paid: !!g.paid, limit: tg.memberLimit(g), count: list.length, subs: g.subs || [],
             role, myNo: me ? me.no : null, mySub, hostName: nameOf(g.host),
-            staff: [g.host, ...(g.cohosts || [])].map((u) => ({ uid: u, no: (list.find((m) => m.uid === u) || {}).no ?? 0, name: nameOf(u), role: u === g.host ? 'host' : 'cohost' })),
+            staff: [g.host, ...(g.cohosts || [])].map((u) => ({ uid: u, no: (list.find((m) => m.uid === u) || {}).no ?? 0, name: nameOf(u), avatar: avatarOf(u), role: u === g.host ? 'host' : 'cohost' })),
             call: tg.callLive(call, now) && forMe(call) ? { id: call.id, at: call.at, tz: call.tz, place: call.place, lat: call.lat, lng: call.lng, sub: call.sub, mine: acks[uid] || null } : null,
             roll: roll && forMe(roll) ? { id: roll.id, sentAt: roll.sentAt, sub: roll.sub, mine: answers[uid] || null } : null,
             announcements: tg.visibleAnnouncements(ann || [], mySub, staff),
@@ -133,7 +136,7 @@ function create(d) {
         };
         if (staff) {
             view.qr = tg.groupLink(code, g.qrVer);
-            const others = list.filter((m) => !tg.isStaff(g, m.uid)).map((m) => ({ uid: m.uid, no: m.no, note: m.note || '', sub: m.sub ?? null, name: nameOf(m.uid) }));
+            const others = list.filter((m) => !tg.isStaff(g, m.uid)).map((m) => ({ uid: m.uid, no: m.no, note: m.note || '', sub: m.sub ?? null, name: nameOf(m.uid), avatar: avatarOf(m.uid) }));
             view.members = others;
             const inCall = (rows, x) => (x && x.targets && x.targets.length ? rows.filter((m) => x.targets.includes(m.uid)) : rows);
             if (view.call) view.callRoster = tg.callRoster(inCall(others, call), acks);
@@ -162,7 +165,20 @@ function create(d) {
         }
 
         try {
-            if (action === 'status') return ok();
+            if (action === 'status') {
+                const raw = await d.cmd(['HGET', tg.KEY.profile, uid]).catch(() => null);
+                let profile = { name: '', avatar: '' };
+                try { if (raw) profile = { ...profile, ...JSON.parse(raw) }; } catch (e) { /* 壞掉的資料當成沒有 */ }
+                return ok({ profile });
+            }
+
+            // ---------- 個人資料：暱稱、頭像（設定頁；不必在團裡） ----------
+            if (action === 'profile') {
+                const prof = tg.cleanProfile(body, uid);
+                if (prof && prof.name && d.isDisallowed(prof.name)) return fail('filtered');
+                await d.cmd(prof ? ['HSET', tg.KEY.profile, uid, JSON.stringify(prof)] : ['HDEL', tg.KEY.profile, uid]);
+                return ok({ profile: prof || { name: '', avatar: '' } });
+            }
 
             // ---------- 團購券：不必在團裡（旅行社的人買來發給領隊） ----------
             if (action === 'vouchers') return res.status(200).json({ success: true, vouchers: await vouchersOf(uid) });

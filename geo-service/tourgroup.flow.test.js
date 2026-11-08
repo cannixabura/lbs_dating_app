@@ -183,3 +183,22 @@ test('推播用收件人自己的語言：記在 tgroup_lang，不讀城市低�
     assert.equal(run(['HGET', tg.KEY.lang, 'en1']), 'en');
     await call('lead3', 'dissolve');
 });
+
+test('個人資料：暱稱與頭像存在 tgroup_profile，團主名單看得到；髒話擋下', async () => {
+    const av = (u) => `https://firebasestorage.googleapis.com/v0/b/x/o/avatars%2F${u}.jpg?alt=media`;
+    let r = await call('lead4', 'profile', { name: '阿導', avatar: av('lead4') });
+    assert.deepEqual(r.profile, { name: '阿導', avatar: av('lead4') });
+    assert.equal((await call('lead4', 'status')).profile.name, '阿導');
+    r = await call('lead4', 'create', { name: '暱稱測試', color: 'blue', days: 1, tz: 'Asia/Taipei' });
+    const code = r.group.code, v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('fan1', 'profile', { name: '小美', avatar: av('fan1') });
+    await call('fan1', 'join', { code, v });
+    r = await call('lead4', 'status');
+    assert.equal(r.group.hostName, '阿導');
+    assert.equal(r.group.staff[0].avatar, av('lead4'));
+    assert.deepEqual(r.group.members.map((m) => [m.name, m.avatar]), [['小美', av('fan1')]]);
+    assert.equal((await call('fan1', 'profile', { name: '髒話' })).code, 'filtered');
+    await call('fan1', 'profile', { name: '', avatar: '' });
+    assert.equal(run(['HGET', tg.KEY.profile, 'fan1']), null);
+    await call('lead4', 'dissolve');
+});

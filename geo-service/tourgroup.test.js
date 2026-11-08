@@ -131,3 +131,12 @@ test('內購驗證：只接受旅行團自己的商品與 App', () => {
   assert.throws(() => t.applePass({ ...tx, productId: 'group_pass_7d' }), /unknown_product/);
   assert.equal(t.googlePass('tour_pass_7d', 'g_abc', { purchaseState: 0 }).receipt, 'tg_abc');
 });
+
+test('cleanProfile：暱稱 10 字、頭像只收自己的 Storage 網址、都空就刪除', () => {
+    const mine = 'https://firebasestorage.googleapis.com/v0/b/x.appspot.com/o/avatars%2Fu1.jpg?alt=media&token=abc';
+    assert.deepEqual(t.cleanProfile({ name: '  大貓  ', avatar: mine }, 'u1'), { name: '大貓', avatar: mine });
+    assert.equal(t.cleanProfile({ name: '一二三四五六七八九十十一' }, 'u1').name, '一二三四五六七八九十');
+    assert.equal(t.cleanProfile({ name: 'a', avatar: mine }, 'u2').avatar, '');
+    assert.equal(t.cleanProfile({ name: 'a', avatar: 'https://evil.example/avatars%2Fu1.jpg' }, 'u1').avatar, '');
+    assert.equal(t.cleanProfile({ name: '', avatar: '' }, 'u1'), null);
+});

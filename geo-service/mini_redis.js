@@ -16,7 +16,7 @@ function run([cmd, ...a]) {
     switch (cmd.toUpperCase()) {
         case 'ECHO': return a[0];
         case 'DEL': return a.filter((k) => db.delete(k) || geo.delete(k)).length;
-        case 'SET': db.set(a[0], String(a[1])); return 'OK';
+        case 'SET': { if (a.slice(2).map((x) => String(x).toUpperCase()).includes('NX') && db.has(a[0])) return null; db.set(a[0], String(a[1])); return 'OK'; }
         case 'INCR': { const v = Number(db.get(a[0]) || 0) + 1; db.set(a[0], String(v)); return v; }
         case 'HSET': { const h = hash(a[0]); for (let i = 1; i < a.length; i += 2) h.set(a[i], String(a[i + 1])); return 1; }
         case 'HINCRBY': { const h = hash(a[0]); const v = (parseInt(h.get(a[1]) || '0', 10) || 0) + parseInt(a[2], 10); h.set(a[1], String(v)); return v; }
@@ -27,7 +27,8 @@ function run([cmd, ...a]) {
         case 'EXISTS': return a.filter((k) => db.has(k)).length;
         case 'EXPIRE': return db.has(a[0]) ? 1 : 0;
         case 'HDEL': { if (!db.has(a[0])) return 0; let n = 0; a.slice(1).forEach((f) => { if (hash(a[0]).delete(f)) n++; }); return n; }
-        case 'SADD': { const h = hash(a[0]); a.slice(1).forEach((m) => h.set(m, 1)); return 1; }
+        case 'SADD': { const h = hash(a[0]); let n = 0; a.slice(1).forEach((m) => { if (!h.has(m)) n++; h.set(m, 1); }); return n; }
+        case 'HSETNX': { const h = hash(a[0]); if (h.has(a[1])) return 0; h.set(a[1], String(a[2])); return 1; }
         case 'SREM': { if (!db.has(a[0])) return 0; let n = 0; a.slice(1).forEach((m) => { if (hash(a[0]).delete(m)) n++; }); return n; }
         case 'SMEMBERS': return db.has(a[0]) ? [...hash(a[0]).keys()] : [];
         case 'SCARD': return db.has(a[0]) ? hash(a[0]).size : 0;
@@ -38,6 +39,7 @@ function run([cmd, ...a]) {
             if (a[1] === 'NX') { if (zset(a[0]).has(a[3])) return 0; zset(a[0]).set(a[3], Number(a[2])); return 1; }
             zset(a[0]).set(a[2], Number(a[1])); return 1;
         }
+        case 'ZSCORE': { if (!db.has(a[0])) return null; const v = zset(a[0]).get(a[1]); return v == null ? null : String(v); }
         case 'ZCARD': return db.has(a[0]) ? zset(a[0]).size : 0;
         case 'ZRANDMEMBER': { const all = sorted(a[0]); return all.length ? all[Math.floor(Math.random() * all.length)][0] : null; }
         case 'ZRANGE': {

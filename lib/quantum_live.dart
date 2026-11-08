@@ -714,7 +714,8 @@ class QuantumSheetExtras extends StatelessWidget {
   final VoidCallback onPrefsChanged;
   final Color moodColor; // 量子化身的預覽用自己現在的心情色
   final String avatarUrl; // 和自己的大頭貼合成球型頭像
-  const QuantumSheetExtras({super.key, required this.tunneled, required this.partners, required this.onTunnel, required this.onCut, required this.onPrefsChanged,
+  final VoidCallback? onAssembly; // 量子集會：開集會（主持中就打開自己的集會卡）
+  const QuantumSheetExtras({super.key, this.onAssembly, required this.tunneled, required this.partners, required this.onTunnel, required this.onCut, required this.onPrefsChanged,
       required this.moodColor, this.avatarUrl = ''});
 
   Widget _switchRow(IconData icon, String title, String subtitle, bool value, ValueChanged<bool> onChanged) => Row(children: [
@@ -734,6 +735,25 @@ class QuantumSheetExtras extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const QuantumNewYearTeaser(),
+      if (onAssembly != null) ...[
+        InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onAssembly,
+          child: Row(children: [
+            const Icon(Icons.celebration_outlined, color: Night.auroraViolet, size: 22),
+            const SizedBox(width: Night.space4),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr.asmOpenEntry, style: const TextStyle(color: Night.ink, fontSize: 15)),
+                const SizedBox(height: 2),
+                Text(tr.asmOpenEntrySub, style: Night.caption),
+              ]),
+            ),
+            const Icon(Icons.chevron_right, color: Night.inkFaint),
+          ]),
+        ),
+        const SizedBox(height: Night.space4),
+      ],
       if (partners.isNotEmpty) ...[
         Text(tr.quantumEntangledTitle, style: const TextStyle(color: Night.ink, fontSize: 15)),
         const SizedBox(height: Night.space1),

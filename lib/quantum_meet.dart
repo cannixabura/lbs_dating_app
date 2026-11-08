@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'l10n/l10n.dart';
+import 'mood_card.dart';
 import 'quantum_live.dart';
 import 'ui/night.dart';
 
@@ -175,20 +176,12 @@ class QuantumMeetCard extends StatelessWidget {
             ]),
           ),
           Positioned(
-            left: 28, right: 28, bottom: 70,
+            left: 28, right: 28, bottom: 86,
             child: Text(tr.quantumMeetFooter, textAlign: TextAlign.center, style: const TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: 2)),
           ),
           Positioned(
             left: 24, right: 24, bottom: 22,
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              ShaderMask(
-                shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                child: Text(tr.appName, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(child: Text('mood-whisper-f7de9.web.app', textAlign: TextAlign.right, maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5))),
-            ]),
+            child: const ShareCardBrand(),
           ),
         ]),
       ),

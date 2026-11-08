@@ -232,25 +232,23 @@ String _partOfDay(DateTime t) {
 enum ShareCardKind { mood, invite, parallel }
 
 /// 分享卡底部的品牌列：App 名稱＋網址（英文等較長的名稱會縮小，不會溢出）
+/// 分享卡底部的「去哪裡下載」：iPhone 寫 App Store，Android 寫 Google Play。
+String shareCardFindUsText() => Platform.isAndroid ? tr.shareCardFindUsPlay(tr.appName) : tr.shareCardFindUs(tr.appName);
+
 class ShareCardBrand extends StatelessWidget {
   const ShareCardBrand({super.key});
 
+  // App 名稱在上（固定大小），下載提示在下：各語言長度不同也不必縮小名稱
   @override
   Widget build(BuildContext context) {
-    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      Flexible(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: ShaderMask(
-            shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-            child: Text(tr.appName, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
-          ),
-        ),
+    return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+      ShaderMask(
+        shaderCallback: (rect) => Night.brightGradient.createShader(rect),
+        child: Text(tr.appName, maxLines: 1, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
       ),
-      const SizedBox(width: 8),
-      const Text('mood-whisper-f7de9.web.app', style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5,
-          shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
+      const SizedBox(height: 2),
+      Text(shareCardFindUsText(), maxLines: 1, overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Night.ink, fontSize: 11, letterSpacing: 0.5, shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
     ]);
   }
 }
@@ -322,22 +320,7 @@ class ShareCard extends StatelessWidget {
             ),
           Positioned(
             left: 24, right: 24, bottom: 22,
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              // 英文等較長的 App 名稱：名稱縮小以放下網址，不會溢出
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: ShaderMask(
-                    shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                    child: Text(tr.appName, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text('mood-whisper-f7de9.web.app', style: TextStyle(color: Night.ink, fontSize: 10, letterSpacing: 0.5,
-                  shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
-            ]),
+            child: const ShareCardBrand(),
           ),
         ]),
       ),

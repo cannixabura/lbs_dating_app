@@ -3260,4 +3260,177 @@ class AppLocalizationsJa extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'わたしのパラレルパスポートには $count 都市のスタンプがあります。Mood Whisper を開いて、パラレルユニバースへ。';
   }
+
+  @override
+  String get asmTitle => '量子集会';
+
+  @override
+  String get asmCreateTitle => '量子集会を開く';
+
+  @override
+  String get asmCreateIntro =>
+      '101 のそば、第 3 環のホスト席に座ります。量子世界のみんなに集会の光の輪が見え、自由に参加できます。';
+
+  @override
+  String get asmTitleHint => '集会のテーマ（例：一緒に流星群を見よう）';
+
+  @override
+  String get asmPlanFree => '今月の無料枠';
+
+  @override
+  String get asmPlanFreeSub => '30 分・最大 50 人・月 1 回';
+
+  @override
+  String get asmPlanFreeUsed => '今月の無料枠はもう使いました';
+
+  @override
+  String get asmPlan1h => '1 時間';
+
+  @override
+  String get asmPlan1hSub => '最大 200 人';
+
+  @override
+  String get asmPlan2h => '2 時間';
+
+  @override
+  String get asmPlan2hSub => '最大 1000 人';
+
+  @override
+  String asmVoucherCount(int count) {
+    return 'ホストチケット $count 枚';
+  }
+
+  @override
+  String get asmRules =>
+      'ホストチケットは 1 回分です。使わなかった時間は返金されません。テーマとお知らせは不適切な内容をフィルタし、違反すると利用停止になります。';
+
+  @override
+  String get asmStart => '集会を始める';
+
+  @override
+  String get asmStarted => '集会が始まりました！';
+
+  @override
+  String get asmVoucherReady => 'ホストチケットが届きました';
+
+  @override
+  String get asmBuyFailed => '購入は完了しませんでした。請求されないか、あとで反映されます';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'ホスト $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => '参加する';
+
+  @override
+  String get asmJoined => '集会に参加しました';
+
+  @override
+  String get asmLeave => '退出する';
+
+  @override
+  String get asmHostPanel => 'ホストのコントロール';
+
+  @override
+  String get asmAnnounceHint => 'お知らせを送る（100 文字まで）';
+
+  @override
+  String get asmAnnounceSend => '送信';
+
+  @override
+  String get asmAnnounced => 'お知らせを送りました';
+
+  @override
+  String get asmCheerTitle => '量子応援：色とカウントダウンを選ぶと、参加者全員の光球が同じ瞬間に光ります';
+
+  @override
+  String get asmCheerNow => '今すぐ';
+
+  @override
+  String asmCheerIn(int n) {
+    return '$n 秒後';
+  }
+
+  @override
+  String get asmCheer => '応援！';
+
+  @override
+  String get asmRemoveHint => '誰かを外すには、地図でその人をタップ →「集会から外す」';
+
+  @override
+  String get asmEnd => '集会を終える';
+
+  @override
+  String get asmReport => 'この集会を通報';
+
+  @override
+  String get asmErrFreeUsed => '今月の無料枠はもう使いました';
+
+  @override
+  String get asmErrSeatsFull => '第 3 環のホスト席が満席です。あとでもう一度';
+
+  @override
+  String get asmErrBlocked => 'テーマかお知らせに不適切な内容があります';
+
+  @override
+  String get asmErrFull => '集会は満員です';
+
+  @override
+  String get asmErrRemoved => 'この集会から外されました';
+
+  @override
+  String get asmErrEnded => 'この集会は終了しました';
+
+  @override
+  String get asmErrTooSoon => '少し待ってからもう一度お試しください';
+
+  @override
+  String get asmErrHidden => 'このアカウントは今は集会を開けません';
+
+  @override
+  String get asmErrHosting => '別の集会をホスト中です';
+
+  @override
+  String get asmErrGeneric => 'エラーが起きました。あとでもう一度お試しください';
+
+  @override
+  String get asmMemorialEyebrow => '量子集会のメモリアルカード';
+
+  @override
+  String get asmMemorialUnit => '人';
+
+  @override
+  String get asmMemorialTogether => '量子世界に集まりました';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'App Store で「$name」を検索';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Google Play で「$name」を検索';
+  }
+
+  @override
+  String get asmShareCard => 'カードをシェア';
+
+  @override
+  String asmShareText(String title, int count) {
+    return '量子世界で「$title」を開き、$count 人が参加しました。Mood Whisper を開いて、次は一緒に。';
+  }
+
+  @override
+  String get asmOpenEntry => '量子集会を開く';
+
+  @override
+  String get asmOpenEntrySub => '101 のそばのホスト席に座って、世界中の誰でも参加できる集会を';
+
+  @override
+  String get asmRemoveMember => '集会から外す';
+
+  @override
+  String get asmRemovedDone => '集会から外しました';
 }

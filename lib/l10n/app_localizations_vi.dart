@@ -3412,4 +3412,181 @@ class AppLocalizationsVi extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'Hộ chiếu song song của tôi đã có dấu của $count thành phố. Mở Mood Whisper và bước vào Vũ trụ song song nhé.';
   }
+
+  @override
+  String get asmTitle => 'Buổi tụ họp lượng tử';
+
+  @override
+  String get asmCreateTitle => 'Tổ chức buổi tụ họp lượng tử';
+
+  @override
+  String get asmCreateIntro =>
+      'Bạn ngồi vào ghế chủ trì ở vòng 3 cạnh 101. Mọi người trong Thế giới lượng tử đều thấy vầng sáng của buổi tụ họp và có thể tự nguyện tham gia.';
+
+  @override
+  String get asmTitleHint => 'Chủ đề (ví dụ: Cùng ngắm mưa sao băng)';
+
+  @override
+  String get asmPlanFree => 'Miễn phí tháng này';
+
+  @override
+  String get asmPlanFreeSub => '30 phút · tối đa 50 người · mỗi tháng một lần';
+
+  @override
+  String get asmPlanFreeUsed => 'Bạn đã dùng buổi miễn phí của tháng này';
+
+  @override
+  String get asmPlan1h => '1 giờ';
+
+  @override
+  String get asmPlan1hSub => 'Tối đa 200 người';
+
+  @override
+  String get asmPlan2h => '2 giờ';
+
+  @override
+  String get asmPlan2hSub => 'Tối đa 1.000 người';
+
+  @override
+  String asmVoucherCount(int count) {
+    return 'Có $count vé chủ trì';
+  }
+
+  @override
+  String get asmRules =>
+      'Một vé chủ trì dùng cho một buổi; thời gian không dùng hết sẽ không được hoàn. Chủ đề và thông báo được lọc, vi phạm có thể bị khóa tài khoản.';
+
+  @override
+  String get asmStart => 'Bắt đầu';
+
+  @override
+  String get asmStarted => 'Buổi tụ họp đã bắt đầu!';
+
+  @override
+  String get asmVoucherReady => 'Vé chủ trì đã sẵn sàng';
+
+  @override
+  String get asmBuyFailed =>
+      'Giao dịch chưa hoàn tất. Bạn không bị trừ tiền, hoặc sẽ được cộng sau.';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'Chủ trì $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => 'Tham gia';
+
+  @override
+  String get asmJoined => 'Bạn đã tham gia';
+
+  @override
+  String get asmLeave => 'Rời đi';
+
+  @override
+  String get asmHostPanel => 'Bảng điều khiển chủ trì';
+
+  @override
+  String get asmAnnounceHint => 'Đăng thông báo (tối đa 100 ký tự)';
+
+  @override
+  String get asmAnnounceSend => 'Đăng';
+
+  @override
+  String get asmAnnounced => 'Đã đăng thông báo';
+
+  @override
+  String get asmCheerTitle =>
+      'Cổ vũ lượng tử: chọn màu và đếm ngược, quả cầu của mọi người tham gia sẽ cùng sáng một lúc';
+
+  @override
+  String get asmCheerNow => 'Ngay';
+
+  @override
+  String asmCheerIn(int n) {
+    return 'Sau $n giây';
+  }
+
+  @override
+  String get asmCheer => 'Cổ vũ!';
+
+  @override
+  String get asmRemoveHint =>
+      'Để mời ai đó ra, chạm vào người đó trên bản đồ → Mời ra khỏi buổi tụ họp';
+
+  @override
+  String get asmEnd => 'Kết thúc';
+
+  @override
+  String get asmReport => 'Báo cáo buổi tụ họp này';
+
+  @override
+  String get asmErrFreeUsed => 'Bạn đã dùng buổi miễn phí của tháng này';
+
+  @override
+  String get asmErrSeatsFull => 'Ghế chủ trì ở vòng 3 đã kín. Hãy thử lại sau.';
+
+  @override
+  String get asmErrBlocked => 'Chủ đề hoặc thông báo có nội dung không phù hợp';
+
+  @override
+  String get asmErrFull => 'Buổi tụ họp đã đủ người';
+
+  @override
+  String get asmErrRemoved => 'Bạn đã bị mời ra khỏi buổi tụ họp này';
+
+  @override
+  String get asmErrEnded => 'Buổi tụ họp đã kết thúc';
+
+  @override
+  String get asmErrTooSoon => 'Nhanh quá. Đợi một chút rồi thử lại.';
+
+  @override
+  String get asmErrHidden => 'Tài khoản của bạn hiện chưa thể tổ chức';
+
+  @override
+  String get asmErrHosting => 'Bạn đang chủ trì một buổi khác';
+
+  @override
+  String get asmErrGeneric => 'Đã xảy ra lỗi. Hãy thử lại sau.';
+
+  @override
+  String get asmMemorialEyebrow => 'Thẻ kỷ niệm buổi tụ họp lượng tử';
+
+  @override
+  String get asmMemorialUnit => 'người';
+
+  @override
+  String get asmMemorialTogether => 'cùng ở Thế giới lượng tử';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'Tìm “$name” trên App Store';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Tìm “$name” trên Google Play';
+  }
+
+  @override
+  String get asmShareCard => 'Chia sẻ thẻ kỷ niệm';
+
+  @override
+  String asmShareText(String title, int count) {
+    return 'Chúng tôi đã tổ chức \"$title\" trong Thế giới lượng tử với $count người. Mở Mood Whisper để cùng tham gia lần sau.';
+  }
+
+  @override
+  String get asmOpenEntry => 'Tổ chức buổi tụ họp lượng tử';
+
+  @override
+  String get asmOpenEntrySub =>
+      'Ngồi ghế chủ trì cạnh 101 và tổ chức buổi tụ họp mà ai trên thế giới cũng có thể tham gia';
+
+  @override
+  String get asmRemoveMember => 'Mời ra khỏi buổi tụ họp';
+
+  @override
+  String get asmRemovedDone => 'Đã mời ra khỏi buổi tụ họp';
 }

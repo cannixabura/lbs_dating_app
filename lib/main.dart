@@ -46,6 +46,7 @@ import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
 import 'parallel_coords.dart';
 import 'passport.dart';
+import 'quantum_assembly.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
@@ -454,6 +455,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           showGlassToast(context, n, icon: Icons.card_giftcard);
         }));
     GiftState.refresh().then((_) => _maybeShowGiftInbox());
+    // 量子集會：聽主辦券的購買結果（買完自動開場）；結束時顯示紀念卡
+    AssemblyStore.init();
+    AssemblyStore.notice.addListener(() => WidgetsBinding.instance.addPostFrameCallback((_) {
+          final n = AssemblyStore.notice.value;
+          if (n == null || !mounted) return;
+          AssemblyStore.notice.value = null;
+          showGlassToast(context, n, icon: Icons.celebration_outlined);
+        }));
+    AssemblyState.memorial.addListener(() => WidgetsBinding.instance.addPostFrameCallback((_) {
+          final a = AssemblyState.memorial.value;
+          if (a == null || !mounted) return;
+          AssemblyState.memorial.value = null;
+          showAssemblyMemorial(context, a);
+        }));
     // 平行護照：聽自己的印章，新蓋的章在主畫面提示；集滿 5 座城市重新讀擁有的光球（護照款）
     PassportState.listen(onReward: OrbStore.loadOwned);
     PassportState.notice.addListener(() => WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1716,6 +1731,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       _scaleNotifier.value = 1.0;
       _quantumTunneled = me['tunneled'] == true;
       quantumSession.value = QuantumSession.fromMe(me, quiet: data['quiet'] == true);
+      AssemblyState.start();
+      AssemblyState.setMe(me);
       _jumpCamera(quantumSession.value!.lat, quantumSession.value!.lng);
       _fetchNearbyUsers();
     }
@@ -1730,6 +1747,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   void _openQuantumSheet() => showQuantumSheet(context, onQuietChanged: _setQuantumQuiet, onLeave: _leaveQuantum,
       extras: (sheetContext) => QuantumSheetExtras(
+            onAssembly: () {
+              Navigator.pop(sheetContext);
+              final hosting = AssemblyState.hostAsm.value;
+              hosting != null ? showAssemblyCard(context, hosting) : showAssemblyCreate(context);
+            },
             tunneled: _quantumTunneled,
             partners: _quantumPartners,
             onTunnel: () { Navigator.pop(sheetContext); _quantumTunnel(); },
@@ -1763,6 +1785,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     OrbGrowth.apply(data['growth']);
     OrbGrowth.myBouquet.value = data['bouquet'] == true;
     final online = data['online'] is Map ? Map<String, dynamic>.from(data['online'] as Map) : const <String, dynamic>{};
+    AssemblyState.setMe(Map<String, dynamic>.from(data['me'] as Map));
     quantumSession.value = quantumSession.value!.copyWith(
       me: Map<String, dynamic>.from(data['me'] as Map),
       online: (online['total'] as num?)?.toInt(),
@@ -1818,6 +1841,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     _activeUsersNotifier.value = [];
     _scaleNotifier.value = _scaleNotifier.value.clamp(0.2, 8.0);
     quantumSession.value = null;
+    AssemblyState.stop();
   }
 
   Future<void> _fetchNearbyUsers() async {
@@ -1881,6 +1905,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
         'quantumGrow': OrbGrowth.parse(user['grow']),
         // 光之花束：收到花束的 24 小時內
         'quantumBouquet': user['bouquet'] == true,
+        // 量子集會：加入中的集會（應援時一起綻放、主持人可以移出）
+        'quantumAsm': user['asm'],
         'quiet': user['quiet'] == true,
         // 第二期：晝夜色調、當地時間（對方同意才有）、量子同頻主題
         'day': user['day'],
@@ -3189,6 +3215,15 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                 // 量子相遇卡：聊過天（或糾纏中）的人，雙方同意後各拿一張分享卡
                 if (quantumSeat != null && !isDemo && (entangled || _quantumChatted.contains(targetUid)))
                   item(Icons.style_outlined, Night.cityAmber, tr.quantumMeetAction, () { Navigator.pop(dialogContext); _askMeetCard(targetUid); }),
+                // 量子集會：主持人可以把自己集會的參加者移出
+                if (quantumSeat != null && !isDemo && AssemblyState.hostAsm.value != null && user?['quantumAsm'] == AssemblyState.hostAsm.value)
+                  item(Icons.person_remove_outlined, Night.danger, tr.asmRemoveMember, () async {
+                    Navigator.pop(dialogContext);
+                    final (status, data) = await QuantumApi.assembly('asmRemove', {'id': AssemblyState.hostAsm.value, 'uid': targetUid});
+                    if (!mounted) return;
+                    showGlassToast(context, status == 200 && data['success'] == true ? tr.asmRemovedDone : asmErrorText(data['code'] as String?),
+                        icon: Icons.person_remove_outlined);
+                  }),
                 // 我正在主持：可以把活動交給這位參加者
                 // 集會是在地的：平行宇宙的人不能接主持
                 if (!isDemo && parallelCity == null && quantumSeat == null && _hostedGathering != null)
@@ -3643,6 +3678,46 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                             ),
                           ),
                         ),
+                      // 量子集會：主持席上的光環與主題（點一下打開集會卡）；應援時參加者的光球位置一起綻放
+                      if (quantumOn)
+                        Positioned.fill(
+                          child: AnimatedBuilder(
+                            animation: Listenable.merge([_quantumGlow, AssemblyState.active]),
+                            builder: (context, _) {
+                              final list = AssemblyState.active.value.values.where((a) => a.active).toList();
+                              if (list.isEmpty) return const SizedBox.shrink();
+                              final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
+                              final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
+                                  scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY));
+                              final now = AssemblyState.serverNow;
+                              final beacons = <(Offset, Color)>[], bursts = <(Offset, Color, double)>[];
+                              for (final a in list) {
+                                final o = quantumLocal(a.lat, a.lng);
+                                final hit = proj.project(o.east, o.north);
+                                if (hit != null) {
+                                  final at = hit.$1;
+                                  if (at.dx > -60 && at.dx < screenWidth + 60 && at.dy > -60 && at.dy < screenHeight + 60) {
+                                    beacons.add((at, a.color));
+                                  }
+                                }
+                                final ch = a.cheer;
+                                final t = ch == null ? null : cheerProgress(ch.fireAt, now);
+                                if (ch != null && t != null && t >= 0) {
+                                  if (hit != null) bursts.add((hit.$1, ch.color, t));
+                                  for (final u in _activeUsersNotifier.value) {
+                                    if (u['quantumAsm'] != a.id) continue;
+                                    final uo = quantumLocal((u['lat'] as num).toDouble(), (u['lng'] as num).toDouble());
+                                    final uh = proj.project(uo.east, uo.north);
+                                    if (uh != null) bursts.add((uh.$1, ch.color, t));
+                                  }
+                                  if (AssemblyState.myAsm.value == a.id) bursts.add((Offset(centerX, centerY), ch.color, t));
+                                }
+                              }
+                              return IgnorePointer(child: CustomPaint(size: Size.infinite, painter: AssemblyHaloPainter(
+                                  beacons: beacons, bursts: bursts, phase: (DateTime.now().millisecondsSinceEpoch % 2400) / 2400)));
+                            },
+                          ),
+                        ),
                       // 低語團：集合點的團色光柱與團主看到的迷路團員圖釘（畫面外就在邊緣出現箭頭）；只在一般雷達顯示
                       if (!quantumOn && _currentPosition != null)
                         Positioned.fill(
@@ -3796,6 +3871,20 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 量子世界的世界視角（縮到超過一般雷達範圍）：每個人都只是一個光點，不顯示心情；放大回來才看得到
                       if (!quantumOn || currentScale >= _quantumWorldScale)
                         ..._buildBubbleLayer(activeUsers, centerX, centerY, screenWidth, screenHeight, smoothPitch, currentHeading, currentScale, currentRhythmScore),
+                      // 量子集會的主題標籤：浮在氣泡上面（主持人氣泡的上方），點一下打開集會卡
+                      if (quantumOn)
+                        ...[
+                          for (final a in AssemblyState.active.value.values.where((a) => a.active))
+                            if (QuantumProjector(centerEast: quantumLocal(_radarCenter.lat, _radarCenter.lng).east, centerNorth: quantumLocal(_radarCenter.lat, _radarCenter.lng).north,
+                                    heading: currentHeading, pitch: smoothPitch, scale: currentScale, screenHeight: screenHeight, center: Offset(centerX, centerY))
+                                .project(quantumLocal(a.lat, a.lng).east, quantumLocal(a.lat, a.lng).north) case (final at, _)?)
+                              if (at.dx > -80 && at.dx < screenWidth + 80 && at.dy > 0 && at.dy < screenHeight)
+                                Positioned(
+                                  key: ValueKey('asm:${a.id}'),
+                                  left: at.dx - 90, top: at.dy - 122, width: 180,
+                                  child: Center(child: AssemblyBeaconChip(a: a, onTap: () => showAssemblyCard(context, a.id))),
+                                ),
+                        ],
                       // 量子共振光環、量子訊號：浮在氣泡上面
                       if (quantumOn && (_resonanceUntil.isNotEmpty || _signalFloats.isNotEmpty))
                         Positioned.fill(
@@ -3918,6 +4007,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       // 城市心情天氣；在量子世界改成席位代號＋世界在線人數
                       Positioned(top: MediaQuery.of(context).padding.top + 10, left: Night.space4,
                           child: quantumOn ? QuantumOnlineChip(onTap: _openQuantumSheet) : _buildCityMoodChip()),
+                      // 量子集會：參加者看到的公告橫幅（60 秒），與全螢幕的應援倒數與綻放
+                      if (quantumOn)
+                        Positioned(top: MediaQuery.of(context).padding.top + 62, left: Night.space4, right: Night.space4 + 56,
+                            child: AssemblyAnnounceBanner(onOpen: (id) => showAssemblyCard(context, id))),
+                      if (quantumOn) const Positioned.fill(child: AssemblyCheerOverlay()),
                       // 平行宇宙開關（右上角，只有圖標）；進入量子世界時暫時離開平行宇宙
                       if (!quantumOn)
                         Positioned(top: MediaQuery.of(context).padding.top + 10, right: Night.space4, child: ParallelUniverseButton(onToggle: _toggleParallelUniverse)),

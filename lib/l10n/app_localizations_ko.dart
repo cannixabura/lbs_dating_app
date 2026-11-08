@@ -3280,4 +3280,177 @@ class AppLocalizationsKo extends AppLocalizations {
   String passportCardShareText(int count) {
     return '나의 평행 여권에 $count개 도시의 도장이 찍혔어요. Mood Whisper를 열고 평행 우주로 함께 가요.';
   }
+
+  @override
+  String get asmTitle => '퀀텀 집회';
+
+  @override
+  String get asmCreateTitle => '퀀텀 집회 열기';
+
+  @override
+  String get asmCreateIntro =>
+      '101 옆 3번째 링의 호스트석에 앉아요. 퀀텀 월드의 모두가 집회의 빛 고리를 보고 자유롭게 참여할 수 있어요.';
+
+  @override
+  String get asmTitleHint => '집회 주제(예: 함께 유성우 보기)';
+
+  @override
+  String get asmPlanFree => '이번 달 무료';
+
+  @override
+  String get asmPlanFreeSub => '30분 · 최대 50명 · 한 달에 한 번';
+
+  @override
+  String get asmPlanFreeUsed => '이번 달 무료 집회를 이미 사용했어요';
+
+  @override
+  String get asmPlan1h => '1시간';
+
+  @override
+  String get asmPlan1hSub => '최대 200명';
+
+  @override
+  String get asmPlan2h => '2시간';
+
+  @override
+  String get asmPlan2hSub => '최대 1000명';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '호스트 이용권 $count장';
+  }
+
+  @override
+  String get asmRules =>
+      '호스트 이용권은 한 번의 집회용이며, 남은 시간은 환불되지 않아요. 주제와 공지는 필터링되며, 규칙을 어기면 이용이 정지될 수 있어요.';
+
+  @override
+  String get asmStart => '집회 시작';
+
+  @override
+  String get asmStarted => '집회가 시작됐어요!';
+
+  @override
+  String get asmVoucherReady => '호스트 이용권이 도착했어요';
+
+  @override
+  String get asmBuyFailed => '구매가 완료되지 않았어요. 결제되지 않았거나 나중에 반영돼요';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return '호스트 $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => '참여하기';
+
+  @override
+  String get asmJoined => '집회에 참여했어요';
+
+  @override
+  String get asmLeave => '나가기';
+
+  @override
+  String get asmHostPanel => '호스트 컨트롤';
+
+  @override
+  String get asmAnnounceHint => '공지 보내기(최대 100자)';
+
+  @override
+  String get asmAnnounceSend => '보내기';
+
+  @override
+  String get asmAnnounced => '공지를 보냈어요';
+
+  @override
+  String get asmCheerTitle => '퀀텀 응원: 색과 카운트다운을 고르면 모든 참여자의 광구가 같은 순간에 빛나요';
+
+  @override
+  String get asmCheerNow => '지금';
+
+  @override
+  String asmCheerIn(int n) {
+    return '$n초 후';
+  }
+
+  @override
+  String get asmCheer => '응원!';
+
+  @override
+  String get asmRemoveHint => '누군가를 내보내려면 지도에서 그 사람을 탭 → 「집회에서 내보내기」';
+
+  @override
+  String get asmEnd => '집회 끝내기';
+
+  @override
+  String get asmReport => '이 집회 신고';
+
+  @override
+  String get asmErrFreeUsed => '이번 달 무료 집회를 이미 사용했어요';
+
+  @override
+  String get asmErrSeatsFull => '3번째 링의 호스트석이 꽉 찼어요. 나중에 다시 시도해 주세요';
+
+  @override
+  String get asmErrBlocked => '주제나 공지에 부적절한 내용이 있어요';
+
+  @override
+  String get asmErrFull => '집회 인원이 꽉 찼어요';
+
+  @override
+  String get asmErrRemoved => '이 집회에서 내보내졌어요';
+
+  @override
+  String get asmErrEnded => '이 집회는 끝났어요';
+
+  @override
+  String get asmErrTooSoon => '너무 빨라요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get asmErrHidden => '지금은 이 계정으로 집회를 열 수 없어요';
+
+  @override
+  String get asmErrHosting => '이미 다른 집회를 진행 중이에요';
+
+  @override
+  String get asmErrGeneric => '오류가 발생했어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get asmMemorialEyebrow => '퀀텀 집회 기념 카드';
+
+  @override
+  String get asmMemorialUnit => '명';
+
+  @override
+  String get asmMemorialTogether => '퀀텀 월드에 함께했어요';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'App Store에서 “$name” 검색';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Google Play에서 “$name” 검색';
+  }
+
+  @override
+  String get asmShareCard => '기념 카드 공유';
+
+  @override
+  String asmShareText(String title, int count) {
+    return '퀀텀 월드에서 「$title」을(를) 열었고 $count명이 함께했어요. Mood Whisper를 열고 다음엔 함께해요.';
+  }
+
+  @override
+  String get asmOpenEntry => '퀀텀 집회 열기';
+
+  @override
+  String get asmOpenEntrySub => '101 옆 호스트석에 앉아 전 세계 누구나 참여할 수 있는 집회를 열어요';
+
+  @override
+  String get asmRemoveMember => '집회에서 내보내기';
+
+  @override
+  String get asmRemovedDone => '집회에서 내보냈어요';
 }

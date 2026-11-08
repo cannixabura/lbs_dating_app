@@ -3427,4 +3427,181 @@ class AppLocalizationsTh extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'พาสปอร์ตคู่ขนานของฉันมีตราจาก $count เมืองแล้ว เปิด Mood Whisper แล้วไปจักรวาลคู่ขนานด้วยกัน';
   }
+
+  @override
+  String get asmTitle => 'การรวมตัวควอนตัม';
+
+  @override
+  String get asmCreateTitle => 'จัดการรวมตัวควอนตัม';
+
+  @override
+  String get asmCreateIntro =>
+      'คุณจะนั่งที่นั่งผู้จัดวงที่ 3 ข้างตึก 101 ทุกคนในโลกควอนตัมจะเห็นวงแสงของการรวมตัว และเลือกเข้าร่วมได้';
+
+  @override
+  String get asmTitleHint => 'หัวข้อ (เช่น ดูฝนดาวตกด้วยกัน)';
+
+  @override
+  String get asmPlanFree => 'ฟรีเดือนนี้';
+
+  @override
+  String get asmPlanFreeSub => '30 นาที · ไม่เกิน 50 คน · เดือนละครั้ง';
+
+  @override
+  String get asmPlanFreeUsed => 'คุณใช้สิทธิ์ฟรีของเดือนนี้ไปแล้ว';
+
+  @override
+  String get asmPlan1h => '1 ชั่วโมง';
+
+  @override
+  String get asmPlan1hSub => 'ไม่เกิน 200 คน';
+
+  @override
+  String get asmPlan2h => '2 ชั่วโมง';
+
+  @override
+  String get asmPlan2hSub => 'ไม่เกิน 1,000 คน';
+
+  @override
+  String asmVoucherCount(int count) {
+    return 'มีบัตรผู้จัด $count ใบ';
+  }
+
+  @override
+  String get asmRules =>
+      'บัตรผู้จัดใช้ได้หนึ่งครั้ง เวลาที่ไม่ได้ใช้จะไม่คืนเงิน หัวข้อและประกาศจะถูกกรอง หากผิดกฎอาจถูกระงับบัญชี';
+
+  @override
+  String get asmStart => 'เริ่มการรวมตัว';
+
+  @override
+  String get asmStarted => 'การรวมตัวเริ่มแล้ว!';
+
+  @override
+  String get asmVoucherReady => 'บัตรผู้จัดพร้อมแล้ว';
+
+  @override
+  String get asmBuyFailed =>
+      'การซื้อไม่สำเร็จ ยังไม่มีการเรียกเก็บเงิน หรือจะได้รับภายหลัง';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'ผู้จัด $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => 'เข้าร่วม';
+
+  @override
+  String get asmJoined => 'คุณเข้าร่วมแล้ว';
+
+  @override
+  String get asmLeave => 'ออก';
+
+  @override
+  String get asmHostPanel => 'แผงควบคุมผู้จัด';
+
+  @override
+  String get asmAnnounceHint => 'ส่งประกาศ (ไม่เกิน 100 ตัวอักษร)';
+
+  @override
+  String get asmAnnounceSend => 'ส่ง';
+
+  @override
+  String get asmAnnounced => 'ส่งประกาศแล้ว';
+
+  @override
+  String get asmCheerTitle =>
+      'เชียร์ควอนตัม: เลือกสีและนับถอยหลัง ลูกแก้วของผู้เข้าร่วมทุกคนจะสว่างพร้อมกัน';
+
+  @override
+  String get asmCheerNow => 'ทันที';
+
+  @override
+  String asmCheerIn(int n) {
+    return 'อีก $n วิ';
+  }
+
+  @override
+  String get asmCheer => 'เชียร์!';
+
+  @override
+  String get asmRemoveHint =>
+      'หากต้องการเชิญใครออก แตะคนนั้นบนแผนที่ → เชิญออกจากการรวมตัว';
+
+  @override
+  String get asmEnd => 'จบการรวมตัว';
+
+  @override
+  String get asmReport => 'รายงานการรวมตัวนี้';
+
+  @override
+  String get asmErrFreeUsed => 'คุณใช้สิทธิ์ฟรีของเดือนนี้ไปแล้ว';
+
+  @override
+  String get asmErrSeatsFull => 'ที่นั่งผู้จัดวงที่ 3 เต็มแล้ว ลองใหม่ภายหลัง';
+
+  @override
+  String get asmErrBlocked => 'หัวข้อหรือประกาศมีเนื้อหาไม่เหมาะสม';
+
+  @override
+  String get asmErrFull => 'การรวมตัวเต็มแล้ว';
+
+  @override
+  String get asmErrRemoved => 'คุณถูกเชิญออกจากการรวมตัวนี้';
+
+  @override
+  String get asmErrEnded => 'การรวมตัวนี้จบแล้ว';
+
+  @override
+  String get asmErrTooSoon => 'เร็วเกินไป รอสักครู่แล้วลองใหม่';
+
+  @override
+  String get asmErrHidden => 'บัญชีของคุณยังจัดการรวมตัวไม่ได้ในตอนนี้';
+
+  @override
+  String get asmErrHosting => 'คุณกำลังจัดการรวมตัวอื่นอยู่';
+
+  @override
+  String get asmErrGeneric => 'เกิดข้อผิดพลาด ลองใหม่ภายหลัง';
+
+  @override
+  String get asmMemorialEyebrow => 'การ์ดที่ระลึกการรวมตัวควอนตัม';
+
+  @override
+  String get asmMemorialUnit => 'คน';
+
+  @override
+  String get asmMemorialTogether => 'อยู่ด้วยกันในโลกควอนตัม';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'ค้นหา “$name” ใน App Store';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'ค้นหา “$name” ใน Google Play';
+  }
+
+  @override
+  String get asmShareCard => 'แชร์การ์ดที่ระลึก';
+
+  @override
+  String asmShareText(String title, int count) {
+    return 'เราจัด \"$title\" ในโลกควอนตัม มีผู้เข้าร่วม $count คน เปิด Mood Whisper แล้วมาด้วยกันครั้งหน้า';
+  }
+
+  @override
+  String get asmOpenEntry => 'จัดการรวมตัวควอนตัม';
+
+  @override
+  String get asmOpenEntrySub =>
+      'นั่งที่นั่งผู้จัดข้างตึก 101 แล้วจัดการรวมตัวที่ใครทั่วโลกก็เข้าร่วมได้';
+
+  @override
+  String get asmRemoveMember => 'เชิญออกจากการรวมตัว';
+
+  @override
+  String get asmRemovedDone => 'เชิญออกจากการรวมตัวแล้ว';
 }

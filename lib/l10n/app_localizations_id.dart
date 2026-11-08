@@ -3421,4 +3421,183 @@ class AppLocalizationsId extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'Paspor Paralelku sudah punya cap dari $count kota. Buka Mood Whisper dan masuki Semesta Paralel.';
   }
+
+  @override
+  String get asmTitle => 'Pertemuan Kuantum';
+
+  @override
+  String get asmCreateTitle => 'Adakan Pertemuan Kuantum';
+
+  @override
+  String get asmCreateIntro =>
+      'Kamu duduk di kursi tuan rumah cincin ke-3 di samping 101. Semua orang di Dunia Kuantum melihat cahaya pertemuanmu dan bisa memilih untuk bergabung.';
+
+  @override
+  String get asmTitleHint => 'Tema pertemuan (mis. Nonton hujan meteor bareng)';
+
+  @override
+  String get asmPlanFree => 'Gratis bulan ini';
+
+  @override
+  String get asmPlanFreeSub => '30 menit · hingga 50 orang · sebulan sekali';
+
+  @override
+  String get asmPlanFreeUsed => 'Kamu sudah memakai pertemuan gratis bulan ini';
+
+  @override
+  String get asmPlan1h => '1 jam';
+
+  @override
+  String get asmPlan1hSub => 'Hingga 200 orang';
+
+  @override
+  String get asmPlan2h => '2 jam';
+
+  @override
+  String get asmPlan2hSub => 'Hingga 1.000 orang';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '$count tiket tuan rumah siap';
+  }
+
+  @override
+  String get asmRules =>
+      'Satu tiket tuan rumah untuk satu pertemuan; waktu yang tidak terpakai tidak dikembalikan. Tema dan pengumuman difilter, dan melanggar aturan bisa membuat akun ditangguhkan.';
+
+  @override
+  String get asmStart => 'Mulai pertemuan';
+
+  @override
+  String get asmStarted => 'Pertemuanmu sudah dimulai!';
+
+  @override
+  String get asmVoucherReady => 'Tiket tuan rumahmu sudah siap';
+
+  @override
+  String get asmBuyFailed =>
+      'Pembelian tidak selesai. Kamu tidak ditagih, atau akan diterapkan nanti.';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'Tuan rumah $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => 'Gabung';
+
+  @override
+  String get asmJoined => 'Kamu sudah bergabung';
+
+  @override
+  String get asmLeave => 'Keluar';
+
+  @override
+  String get asmHostPanel => 'Kontrol tuan rumah';
+
+  @override
+  String get asmAnnounceHint => 'Kirim pengumuman (hingga 100 karakter)';
+
+  @override
+  String get asmAnnounceSend => 'Kirim';
+
+  @override
+  String get asmAnnounced => 'Pengumuman terkirim';
+
+  @override
+  String get asmCheerTitle =>
+      'Sorakan kuantum: pilih warna dan hitung mundur, lalu orb setiap peserta menyala di saat yang sama';
+
+  @override
+  String get asmCheerNow => 'Sekarang';
+
+  @override
+  String asmCheerIn(int n) {
+    return 'Dalam $n dtk';
+  }
+
+  @override
+  String get asmCheer => 'Sorak!';
+
+  @override
+  String get asmRemoveHint =>
+      'Untuk mengeluarkan seseorang, ketuk orangnya di peta → Keluarkan dari pertemuan';
+
+  @override
+  String get asmEnd => 'Akhiri pertemuan';
+
+  @override
+  String get asmReport => 'Laporkan pertemuan ini';
+
+  @override
+  String get asmErrFreeUsed => 'Kamu sudah memakai pertemuan gratis bulan ini';
+
+  @override
+  String get asmErrSeatsFull =>
+      'Semua kursi tuan rumah cincin ke-3 penuh. Coba lagi nanti.';
+
+  @override
+  String get asmErrBlocked =>
+      'Tema atau pengumuman berisi konten yang tidak pantas';
+
+  @override
+  String get asmErrFull => 'Pertemuan sudah penuh';
+
+  @override
+  String get asmErrRemoved => 'Kamu dikeluarkan dari pertemuan ini';
+
+  @override
+  String get asmErrEnded => 'Pertemuan ini sudah berakhir';
+
+  @override
+  String get asmErrTooSoon => 'Terlalu cepat. Tunggu sebentar lalu coba lagi.';
+
+  @override
+  String get asmErrHidden => 'Akunmu belum bisa mengadakan pertemuan sekarang';
+
+  @override
+  String get asmErrHosting => 'Kamu sedang mengadakan pertemuan lain';
+
+  @override
+  String get asmErrGeneric => 'Terjadi kesalahan. Coba lagi nanti.';
+
+  @override
+  String get asmMemorialEyebrow => 'Kenangan Pertemuan Kuantum';
+
+  @override
+  String get asmMemorialUnit => 'orang';
+
+  @override
+  String get asmMemorialTogether => 'bersama di Dunia Kuantum';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'Cari “$name” di App Store';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Cari “$name” di Google Play';
+  }
+
+  @override
+  String get asmShareCard => 'Bagikan kenangan';
+
+  @override
+  String asmShareText(String title, int count) {
+    return 'Kami mengadakan \"$title\" di Dunia Kuantum bersama $count orang. Buka Mood Whisper dan gabung lain kali.';
+  }
+
+  @override
+  String get asmOpenEntry => 'Adakan Pertemuan Kuantum';
+
+  @override
+  String get asmOpenEntrySub =>
+      'Duduk di kursi tuan rumah di samping 101 dan adakan pertemuan yang bisa diikuti siapa pun di dunia';
+
+  @override
+  String get asmRemoveMember => 'Keluarkan dari pertemuan';
+
+  @override
+  String get asmRemovedDone => 'Dikeluarkan dari pertemuan';
 }

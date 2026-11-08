@@ -28,6 +28,8 @@ const aiya = require("./aiya");
 const refunds = require("./refunds");
 const gifts = require("./gifts");
 const passport = require("./passport");
+const assembly = require("./assembly");
+const crypto = require("crypto");
 const wgroup = require("./whispergroup");
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
@@ -477,13 +479,13 @@ async function quantumExtras(uid, now) {
     ]);
     const partnerList = Array.isArray(partners) ? partners : [];
     const invites = Object.entries(hashToObject(invitesRaw)).filter(([, at]) => now - parseInt(at, 10) <= quantum.INVITE_MS).map(([from]) => from);
-    const seats = await sendUpstashPipeline([...partnerList, ...invites].map((u) => ["HMGET", quantum.KEY.seat(u), "ord", "east", "north", "nickname", "beat"]));
+    const seats = await sendUpstashPipeline([...partnerList, ...invites].map((u) => ["HMGET", quantum.KEY.seat(u), "ord", "east", "north", "nickname", "beat", "hs"]));
     const ent = [], cleanup = [];
     partnerList.forEach((p, i) => {
-        const [ord, east, north, nickname, beat] = seats[i] || [];
+        const [ord, east, north, nickname, beat, hs] = seats[i] || [];
         if (ord == null) { cleanup.push(["SREM", quantum.KEY.ent(uid), p]); return; }
         if (now - parseInt(beat || "0", 10) > quantum.VISIBLE_MS) return; // 斷線中先不畫光線
-        const st = quantumState({ ord, east, north });
+        const st = quantumState({ ord, east, north, hs });
         ent.push({ uid: p, nickname: nickname || "", code: st.s.code, lat: st.pos.lat, lng: st.pos.lng });
     });
     const invitesOut = [];
@@ -524,6 +526,11 @@ function hashToObject(list) {
 function quantumState(h) {
     const s = quantum.seat(parseInt(h.ord, 10));
     const east = parseFloat(h.east) || 0, north = parseFloat(h.north) || 0;
+    // 量子集會的主持人：集會期間坐在第 3 圈的主持席，不跟著走路位移
+    if (h.hs != null && h.hs !== "") {
+        const hs = assembly.hostSeat(parseInt(h.hs, 10));
+        return { s: { ...s, code: hs.code, ring: hs.ring }, east, north, pos: quantum.toLatLng(hs.east, hs.north), host: true };
+    }
     return { s, east, north, pos: quantum.toLatLng(s.east + east, s.north + north) };
 }
 
@@ -535,8 +542,10 @@ function collapseCommands(uid, pos, now) {
     ];
 }
 
-function quantumMe(st) {
-    return { code: st.s.code, ring: st.s.ring, lat: st.pos.lat, lng: st.pos.lng, east: st.east, north: st.north };
+function quantumMe(st, h = {}) {
+    return { code: st.s.code, ring: st.s.ring, lat: st.pos.lat, lng: st.pos.lng, east: st.east, north: st.north,
+        // 量子集會：加入中的集會、主持中的集會
+        ...(h.asm ? { asm: h.asm } : {}), ...(h.hostAsm ? { hostAsm: h.hostAsm } : {}) };
 }
 
 // 在線人數：每個伺服器執行個體快取 15 秒
@@ -573,15 +582,15 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     const coordOf = (m) => ({ lat: parseFloat(m[1][1]), lng: parseFloat(m[1][0]) });
 
     const members = (Array.isArray(nearby) ? nearby : []).filter((m) => Array.isArray(m) && m[0] !== uid && visible.has(m[0]));
-    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb", "grow", "bq"]));
+    const profiles = await sendUpstashPipeline(members.map(([u]) => ["HMGET", quantum.KEY.seat(u), "ord", "mood", "nickname", "hidden", "quiet", "beat", "tz", "showTime", "topics", "orb", "grow", "bq", "asm", "hs"]));
     const users = [];
     members.forEach((m, i) => {
-        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb, growRaw, bq] = profiles[i] || [];
+        const [ord, mood, nickname, hidden, quiet, beat, tzRaw, showTime, topics, orb, growRaw, bq, asm, hs] = profiles[i] || [];
         const grow = orbs.isGrowing(orb) ? orbs.parseGrowthField(growRaw) : null;
         if (ord == null || hidden === "1" || !nickname) return;
         const tz = tzRaw == null ? NaN : parseInt(tzRaw, 10);
         users.push({ uid: m[0], ...coordOf(m), mood: mood || "", nickname, status: 'active', shadowAge: 0, timestamp: parseInt(beat || "0", 10),
-            quantum: quantum.seat(parseInt(ord, 10)).code, orb: orbs.isStyle(orb) ? orb : orbs.DEFAULT_STYLE, ...(quiet === "1" ? { quiet: true } : {}),
+            quantum: quantumState({ ord, hs }).s.code, orb: orbs.isStyle(orb) ? orb : orbs.DEFAULT_STYLE, ...(quiet === "1" ? { quiet: true } : {}),
             // 晝夜色調一律有；當地時間只在對方同意時才給
             ...(quantum.validTz(tz) ? { day: quantum.dayPart(tz, now), ...(showTime === "1" ? { tz } : {}) } : {}),
             ...(topics ? { topics: parseTopics(topics) } : {}),
@@ -589,6 +598,9 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
             ...(grow ? { grow: [grow.stars, grow.rings] } : {}),
             // 光之花束：收到花束 24 小時內，光球旁邊有一圈花瓣光點
             ...(bq === "1" ? { bouquet: true } : {}),
+            // 量子集會：加入中的集會（應援時一起閃），主持人另外標記
+            ...(asm ? { asm } : {}),
+            ...(hs != null && hs !== "" ? { asmHost: true } : {}),
             // 量子跨年：這個人的時區已經跨年
             ...(nyWave && quantum.validTz(tz) && quantum.crossedNewYear(tz, now) ? { ny: true } : {}) });
     });
@@ -620,6 +632,237 @@ async function quantumScan(uid, me, radiusKM, lang, now) {
     }).filter((c) => c.uid !== uid && Number.isFinite(c.lat) && demo.distanceKm(me, c) <= radiusKM);
     return { data: users, dots, collapses };
 }
+
+// ============================================================================
+// 量子集會（規則在 assembly.js，規格 docs/quantum-assembly-spec.md）
+// ============================================================================
+const asmPublic = (id) => admin.database().ref(`qAssemblies/${id}`);
+
+/** 參加者離開集會（自己按離開、離開量子世界、被移除） */
+async function leaveAssembly(uid, id) {
+    const [, , count] = await sendUpstashPipeline([
+        ["SREM", assembly.KEY.members(id), uid],
+        ["HDEL", quantum.KEY.seat(uid), "asm"],
+        ["SCARD", assembly.KEY.members(id)],
+    ]);
+    const status = await sendUpstashCommand(["HGET", assembly.KEY.asm(id), "status"]);
+    if (status === "active") await asmPublic(id).update({ count: Number(count) || 0 });
+}
+
+/** 結束集會：主持人回到原本的席位、參加者退出、留下匿名的紀念卡數據 */
+async function endAssembly(id, reason) {
+    const h = hashToObject(await sendUpstashCommand(["HGETALL", assembly.KEY.asm(id)]));
+    if (!h.host) return;
+    if (h.endedAt) return; // 已經結束過
+    await sendUpstashCommand(["HSET", assembly.KEY.asm(id), "status", "ended"]);
+    const [members, regionsRaw, joined] = await sendUpstashPipeline([
+        ["SMEMBERS", assembly.KEY.members(id)],
+        ["HGETALL", assembly.KEY.regions(id)],
+        ["SCARD", assembly.KEY.joined(id)],
+    ]);
+    const now = Date.now();
+    const ttl = String(86400);
+    await sendUpstashPipeline([
+        ["HSET", assembly.KEY.asm(id), "endedAt", String(now), "reason", reason],
+        ["HDEL", quantum.KEY.seat(h.host), "hs", "hostAsm"],
+        ...(Array.isArray(members) ? members : []).map((m) => ["HDEL", quantum.KEY.seat(m), "asm"]),
+        ["HDEL", assembly.KEY.seats, String(h.seat)],
+        ["ZREM", assembly.KEY.active, id],
+        ...["asm", "members", "removed", "regions", "joined"].map((k) => ["EXPIRE", assembly.KEY[k](id), ttl]),
+    ]);
+    const summary = { count: Number(joined) || 0, regions: assembly.regionSummary(hashToObject(regionsRaw)) };
+    await admin.database().ref().update({
+        [`qAssemblies/${id}/status`]: "ended",
+        [`qAssemblies/${id}/endedAt`]: now,
+        [`qAssemblies/${id}/summary`]: summary,
+        [`qAssemblyActive/${id}`]: null,
+    });
+}
+
+/** 這個人可以用的方案：本月免費場、還沒用的主辦券 */
+async function assemblyOptions(uid, now) {
+    const [freeUsed, vouchersSnap] = await Promise.all([
+        sendUpstashCommand(["EXISTS", assembly.KEY.free(uid, assembly.monthKey(now))]),
+        admin.database().ref(`qAssemblyVouchers/${uid}`).once("value"),
+    ]);
+    const vouchers = { "1h": 0, "2h": 0 };
+    Object.values(vouchersSnap.val() || {}).forEach((v) => { if (v && vouchers[v.plan] != null) vouchers[v.plan]++; });
+    return { free: freeUsed !== 1, vouchers };
+}
+
+async function handleAssembly(req, res, uid, action, lang, now) {
+    const db = admin.database();
+    const fail = (code, status = 200) => res.status(status).json({ success: false, code });
+
+    if (action === "asmVerify") {
+        // 買主辦券：每一筆購買驗證後發一張（同一筆只發一次）
+        const items = (Array.isArray(req.body.purchases) ? req.body.purchases : []).slice(0, 10);
+        const granted = [];
+        for (const p of items) {
+            try {
+                let productId, receipt;
+                if (p.platform === "apple") {
+                    const tx = orbs.verifyAppleJws(p.data);
+                    if (!tx || tx.bundleId !== orbs.BUNDLE_ID || tx.revocationDate || !tx.transactionId) throw new Error("bad_tx");
+                    productId = tx.productId; receipt = `a_${tx.transactionId}`;
+                } else if (p.platform === "google" && typeof p.token === "string" && typeof p.productId === "string") {
+                    const purchase = await playPurchase(p.productId, p.token);
+                    if (!purchase || purchase.purchaseState !== 0) throw new Error("not_paid");
+                    productId = p.productId; receipt = orbs.receiptKey("google", p.token);
+                } else throw new Error("bad_request");
+                const plan = assembly.planOfProduct(productId);
+                if (!plan) throw new Error("unknown_product");
+                const claim = await db.ref(`qAssemblyReceipts/${receipt}`).transaction((cur) => (cur == null ? uid : undefined));
+                if (!claim.committed) continue;
+                await db.ref(`qAssemblyVouchers/${uid}/${receipt}`).set({ plan, at: now });
+                granted.push(plan);
+            } catch (e) {
+                console.warn("assembly verify failed:", e.message);
+            }
+        }
+        return res.status(200).json({ success: true, granted, ...(await assemblyOptions(uid, now)) });
+    }
+
+    if (action === "asmStatus") return res.status(200).json({ success: true, ...(await assemblyOptions(uid, now)) });
+
+    const seatH = hashToObject(await sendUpstashCommand(["HGETALL", quantum.KEY.seat(uid)]));
+    if (seatH.ord == null) return fail("not_in_world");
+
+    if (action === "asmCreate") {
+        if (seatH.hostAsm) return fail("already_hosting");
+        const hidden = await sendUpstashCommand(["HGET", `user_data:${uid}`, "hidden"]);
+        if (hidden === "1" || seatH.hidden === "1") return fail("hidden");
+        const plan = assembly.PLANS[req.body.plan] ? req.body.plan : null;
+        const title = assembly.cleanTitle(req.body.title);
+        if (!plan) return fail("bad_plan");
+        if (!title) return fail("bad_title");
+        if (isDisallowed(title)) return fail("blocked_words");
+        const emoji = assembly.validEmoji(req.body.emoji) ? req.body.emoji : assembly.EMOJIS[0];
+        const color = assembly.validColor(req.body.color) ? req.body.color : assembly.COLORS[0];
+        // 先拿主持席，再扣方案（扣不到就把席位還回去）
+        const id = crypto.randomBytes(6).toString("hex");
+        let seatIdx = -1;
+        for (let tries = 0; tries < 3 && seatIdx < 0; tries++) {
+            const taken = hashToObject(await sendUpstashCommand(["HGETALL", assembly.KEY.seats]));
+            const free = assembly.freeHostSeat(taken);
+            if (free < 0) return fail("seats_full");
+            if ((await sendUpstashCommand(["HSETNX", assembly.KEY.seats, String(free), id])) === 1) seatIdx = free;
+        }
+        if (seatIdx < 0) return fail("seats_full");
+        let voucherKey = null;
+        if (plan === "free") {
+            const ok = await sendUpstashCommand(["SET", assembly.KEY.free(uid, assembly.monthKey(now)), id, "NX", "EX", String(40 * 86400)]);
+            if (ok !== "OK") { await sendUpstashCommand(["HDEL", assembly.KEY.seats, String(seatIdx)]); return fail("free_used"); }
+        } else {
+            const vouchers = (await db.ref(`qAssemblyVouchers/${uid}`).once("value")).val() || {};
+            voucherKey = Object.keys(vouchers).find((k) => vouchers[k] && vouchers[k].plan === plan) || null;
+            if (!voucherKey) { await sendUpstashCommand(["HDEL", assembly.KEY.seats, String(seatIdx)]); return fail("no_voucher"); }
+            await db.ref(`qAssemblyVouchers/${uid}/${voucherKey}`).remove();
+        }
+        const p = assembly.PLANS[plan];
+        const endAt = now + p.minutes * 60 * 1000;
+        const hs = assembly.hostSeat(seatIdx);
+        const pos = quantum.toLatLng(hs.east, hs.north);
+        await sendUpstashPipeline([
+            ["HSET", assembly.KEY.asm(id), "host", uid, "seat", String(seatIdx), "plan", plan, "cap", String(p.cap), "startAt", String(now), "endAt", String(endAt), "status", "active", "cheerAt", "0", "annAt", "0", "voucher", voucherKey || ""],
+            ["ZADD", assembly.KEY.active, String(endAt), id],
+            ["HSET", quantum.KEY.seat(uid), "hs", String(seatIdx), "hostAsm", id],
+            ["HDEL", quantum.KEY.seat(uid), "asm"],
+            ["GEOADD", quantum.KEY.geo, String(pos.lng), String(pos.lat), uid],
+        ]);
+        if (seatH.asm) await leaveAssembly(uid, seatH.asm).catch(() => {});
+        await db.ref().update({
+            [`qAssemblies/${id}`]: { title, emoji, color, plan, host: seatH.nickname || "", code: hs.code, lat: pos.lat, lng: pos.lng, startAt: now, endAt, cap: p.cap, count: 0, status: "active" },
+            [`qAssemblyActive/${id}`]: true,
+        });
+        return res.status(200).json({ success: true, id, code: hs.code, endAt });
+    }
+
+    const id = String(req.body.id || "");
+    if (!/^[0-9a-f]{12}$/.test(id)) return fail("bad_id", 400);
+    const a = hashToObject(await sendUpstashCommand(["HGETALL", assembly.KEY.asm(id)]));
+    if (!a.host) return fail("ended");
+    const isHost = a.host === uid;
+
+    if (action === "asmJoin") {
+        if (seatH.asm === id) return res.status(200).json({ success: true });
+        const [removed, count] = await sendUpstashPipeline([["SISMEMBER", assembly.KEY.removed(id), uid], ["SCARD", assembly.KEY.members(id)]]);
+        const check = assembly.canJoin({ status: a.status, count: Number(count) || 0, cap: parseInt(a.cap, 10), removed: removed === 1, isHost });
+        if (!check.ok) return fail(check.code);
+        if (seatH.asm) await leaveAssembly(uid, seatH.asm).catch(() => {});
+        const [, first, , newCount] = await sendUpstashPipeline([
+            ["SADD", assembly.KEY.members(id), uid],
+            ["SADD", assembly.KEY.joined(id), uid],
+            ["HSET", quantum.KEY.seat(uid), "asm", id],
+            ["SCARD", assembly.KEY.members(id)],
+        ]);
+        if (first === 1) await sendUpstashCommand(["HINCRBY", assembly.KEY.regions(id), seatH.region || "other", "1"]);
+        await asmPublic(id).update({ count: Number(newCount) || 0 });
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmLeave") {
+        if (seatH.asm === id) await leaveAssembly(uid, id);
+        return res.status(200).json({ success: true });
+    }
+
+    // 以下只有主持人能做
+    if (!isHost) return fail("not_host", 403);
+    if (a.status !== "active") return fail("ended");
+
+    if (action === "asmAnnounce") {
+        if (now - parseInt(a.annAt || "0", 10) < assembly.ANNOUNCE_GAP_MS) return fail("too_soon");
+        const text = assembly.cleanAnnounce(req.body.text);
+        if (!text) return fail("bad_text");
+        if (isDisallowed(text)) return fail("blocked_words");
+        await sendUpstashCommand(["HSET", assembly.KEY.asm(id), "annAt", String(now)]);
+        await asmPublic(id).update({ announce: { text, at: now } });
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmCheer") {
+        if (now - parseInt(a.cheerAt || "0", 10) < assembly.CHEER_GAP_MS) return fail("too_soon");
+        const countdown = Number(req.body.countdown);
+        if (!assembly.validColor(req.body.color) || !assembly.validCountdown(countdown)) return fail("bad_cheer");
+        const fireAt = assembly.cheerFireAt(now, countdown);
+        await sendUpstashCommand(["HSET", assembly.KEY.asm(id), "cheerAt", String(now)]);
+        await asmPublic(id).update({ cheer: { color: req.body.color, fireAt, countdown, at: now } });
+        return res.status(200).json({ success: true, fireAt });
+    }
+
+    if (action === "asmRemove") {
+        const target = String(req.body.uid || "");
+        if (!target || target === uid) return fail("bad_uid", 400);
+        await sendUpstashCommand(["SADD", assembly.KEY.removed(id), target]);
+        const tAsm = await sendUpstashCommand(["HGET", quantum.KEY.seat(target), "asm"]);
+        if (tAsm === id) await leaveAssembly(target, id);
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmEnd") {
+        await endAssembly(id, "host");
+        return res.status(200).json({ success: true });
+    }
+
+    return fail("unknown_action", 400);
+}
+
+/** 每分鐘：時間到、或主持人離開量子世界超過 3 分鐘的集會自動結束 */
+exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+    const now = Date.now();
+    const ids = await sendUpstashCommand(["ZRANGE", assembly.KEY.active, "0", "-1"]);
+    for (const id of Array.isArray(ids) ? ids : []) {
+        try {
+            const [host, endAt] = await sendUpstashCommand(["HMGET", assembly.KEY.asm(id), "host", "endAt"]);
+            if (!host) { await sendUpstashCommand(["ZREM", assembly.KEY.active, id]); continue; }
+            const beat = await sendUpstashCommand(["ZSCORE", quantum.KEY.beats, host]);
+            const reason = assembly.shouldEnd({ endAt: parseInt(endAt || "0", 10), hostBeat: beat == null ? 0 : parseFloat(beat) }, now);
+            if (reason) await endAssembly(id, reason);
+        } catch (e) {
+            console.error("endAssemblies failed:", id, e);
+        }
+    }
+});
 
 exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {
@@ -676,7 +919,7 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
             ["HSET", `user_data:${uid}`, "mood", mood, "nickname", nickname, "lang", lang, "timestamp", String(now), "state", "active", "stateAt", String(now)],
             ...(reviewCode ? [["SADD", demo.REVIEWERS_KEY, uid]] : []),
         ]);
-        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth, bouquet: bouquet === 1 });
+        return res.status(200).json({ success: true, resumed, me: { ...quantumMe(st, prev), tunneled: prev.tunneled === "1" }, quiet: prev.quiet === "1", growth, bouquet: bouquet === 1 });
       }
 
       if (action === "beat") {
@@ -720,13 +963,16 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         const radiusKM = quantum.clampRadius(req.body.radiusKM);
         const [scan, online, extras] = await Promise.all([quantumScan(uid, st.pos, radiusKM, lang, now), quantumOnlineCounts(now), quantumExtras(uid, now)]);
         if (Math.random() < 0.1) sweepQuantumSeats(now).catch((e) => console.error('quantum sweep failed:', e));
-        return res.status(200).json({ success: true, me: { ...quantumMe(st), tunneled: h.tunneled === "1" }, ...scan, ...extras, online, growth, bouquet: bouquet === 1 });
+        return res.status(200).json({ success: true, me: { ...quantumMe(st, h), tunneled: h.tunneled === "1" }, ...scan, ...extras, online, growth, bouquet: bouquet === 1 });
       }
 
       if (action === "leave") {
         const h = hashToObject(await sendUpstashCommand(["HGETALL", quantum.KEY.seat(uid)]));
         if (h.ord == null) return res.status(200).json({ success: true });
         const st = quantumState(h);
+        // 離開量子世界：退出加入中的集會；主持人離開就結束集會
+        if (h.hostAsm) await endAssembly(h.hostAsm, "host_left").catch((e) => console.error("assembly end failed:", e));
+        else if (h.asm) await leaveAssembly(uid, h.asm).catch((e) => console.error("assembly leave failed:", e));
         await sendUpstashPipeline([
             ...(await quantumReleaseCommands([{ uid, ord: h.ord, region: h.region }])),
             // 塌縮離場：旁邊的人在接下來幾秒的掃描裡會看到光點散掉
@@ -734,6 +980,8 @@ exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRET
         ]);
         return res.status(200).json({ success: true });
       }
+
+      if (typeof action === "string" && action.startsWith("asm")) return await handleAssembly(req, res, uid, action, lang, now);
 
       if (action === "tunnel") {
         // 量子穿隧：每次入場一次，跳到蜂巢裡隨機一個空席位，換一群鄰居；原本的席位釋放
@@ -1024,6 +1272,19 @@ exports.onReportCreated = functionsV1.runWith({ secrets: UPSTASH_SECRETS, timeou
     // 集會的檢舉：一律進人工審查；達到門檻只隱藏那一則公告，活動不自動結束
     if (report.context === 'gathering') {
         try { await handleGatheringReport(target, report); } catch (e) { console.error(`[檢舉] 集會處理失敗 (${target}):`, e); }
+        return null;
+    }
+    // 量子集會的檢舉：target = "assembly:<id>"（主題、公告）；3 個不同的人檢舉就結束集會，主辦人等人工審查
+    if (report.context === 'assembly' && String(target).startsWith('assembly:')) {
+        try {
+            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+            console.log(`[檢舉] 量子集會 ${target} 被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+            if (hide) {
+                await endAssembly(target.slice(9), "reported");
+                console.warn(`[檢舉] 量子集會 ${target} 已結束，請到 Firebase 主控台審查主辦人`);
+            }
+        } catch (e) { console.error(`[檢舉] 量子集會處理失敗 (${target}):`, e); }
         return null;
     }
     // 低語的檢舉：target = "whisper:<id>"，3 個不同的人檢舉就隱藏這則低語
@@ -1486,6 +1747,12 @@ async function applyRefund(receipt, credits) {
         }
         await db.ref().update(updates);
         done.push(`gift-${g ? g.kind : "?"}`);
+    }
+    // 量子集會主辦券：還沒用的取消（已經開過的場次不追回）
+    const asmOwner = (await db.ref(`qAssemblyReceipts/${receipt}`).once("value")).val();
+    if (typeof asmOwner === "string" && asmOwner !== refunds.REFUNDED) {
+        await db.ref().update({ [`qAssemblyReceipts/${receipt}`]: refunds.REFUNDED, [`qAssemblyVouchers/${asmOwner}/${receipt}`]: null });
+        done.push("assembly");
     }
     const orbOwner = (await db.ref(`orbReceipts/${receipt}`).once("value")).val();
     if (typeof orbOwner === "string" && orbOwner !== refunds.REFUNDED) {
@@ -2140,6 +2407,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       const myOrbs = (await db.ref(`orbOwned/${uid}`).once("value")).val() || {};
       updates[`orbOwned/${uid}`] = null;
       updates[`passport/${uid}`] = null; // 平行護照的印章
+      updates[`qAssemblyVouchers/${uid}`] = null; // 量子集會還沒用的主辦券
       for (const owned of Object.values(myOrbs)) if (owned && typeof owned.receipt === "string") updates[`orbReceipts/${owned.receipt}`] = null;
       // 艾婭：剩下的時光包次數與同意紀錄一起刪除（消耗型無法恢復，條款已說明）；收據紀錄保留，避免同一筆購買重複加次數
       // 低語團：團主就整團解散，團員就退出

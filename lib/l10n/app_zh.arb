@@ -2107,5 +2107,94 @@
         "type": "int"
       }
     }
-  }
+  },
+  "asmTitle": "量子集會",
+  "asmCreateTitle": "開量子集會",
+  "asmCreateIntro": "你會坐進 101 旁第 3 圈的主持席，量子世界裡的人都看得到你的集會光環，可以自願加入。",
+  "asmTitleHint": "集會主題（例如：一起看流星雨）",
+  "asmPlanFree": "本月免費場",
+  "asmPlanFreeSub": "30 分鐘・最多 50 人・每月一場",
+  "asmPlanFreeUsed": "本月的免費場已經用過了",
+  "asmPlan1h": "1 小時",
+  "asmPlan1hSub": "最多 200 人",
+  "asmPlan2h": "2 小時",
+  "asmPlan2hSub": "最多 1000 人",
+  "asmVoucherCount": "已有 {count} 張主辦券",
+  "@asmVoucherCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "asmRules": "主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。",
+  "asmStart": "開始集會",
+  "asmStarted": "集會開始了！",
+  "asmVoucherReady": "主辦券到了，可以開集會",
+  "asmBuyFailed": "購買沒有完成，這次沒有扣款或稍後會自動補上",
+  "asmHostLine": "主持人 {name} · ⬡ {code}",
+  "@asmHostLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "asmJoin": "加入集會",
+  "asmJoined": "你加入了集會",
+  "asmLeave": "離開集會",
+  "asmHostPanel": "主持人控制台",
+  "asmAnnounceHint": "發一則公告（最多 100 字）",
+  "asmAnnounceSend": "發公告",
+  "asmAnnounced": "公告已送出",
+  "asmCheerTitle": "量子應援：選一個光色和倒數，所有參加者的光球會在同一刻一起亮",
+  "asmCheerNow": "立即",
+  "asmCheerIn": "{n} 秒後",
+  "@asmCheerIn": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "asmCheer": "應援！",
+  "asmRemoveHint": "要把某人移出集會：在地圖上點那個人 →「移出集會」",
+  "asmEnd": "結束集會",
+  "asmReport": "檢舉這場集會",
+  "asmErrFreeUsed": "本月的免費場已經用過了",
+  "asmErrSeatsFull": "第 3 圈的主持席都坐滿了，稍後再試",
+  "asmErrBlocked": "主題或公告含有不適合的內容",
+  "asmErrFull": "集會人數已滿",
+  "asmErrRemoved": "你已經被移出這場集會",
+  "asmErrEnded": "這場集會已經結束",
+  "asmErrTooSoon": "太快了，稍等一下再試",
+  "asmErrHidden": "你的帳號暫時不能開集會",
+  "asmErrHosting": "你正在主持另一場集會",
+  "asmErrGeneric": "發生錯誤，請稍後再試",
+  "asmMemorialEyebrow": "量子集會紀念卡",
+  "asmMemorialUnit": "人",
+  "asmMemorialTogether": "一起在量子世界",
+  "shareCardFindUs": "App Store 搜 {name}",
+  "@shareCardFindUs": {"placeholders": {"name": {"type": "String"}}},
+  "shareCardFindUsPlay": "Google Play 搜 {name}",
+  "@shareCardFindUsPlay": {"placeholders": {"name": {"type": "String"}}},
+  "asmShareCard": "分享紀念卡",
+  "asmShareText": "我們在量子世界辦了「{title}」，{count} 人一起參加。打開城市低語，下次一起來。",
+  "@asmShareText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "asmOpenEntry": "開量子集會",
+  "asmOpenEntrySub": "坐進 101 旁的主持席，辦一場全世界都能加入的集會",
+  "asmRemoveMember": "移出集會",
+  "asmRemovedDone": "已經移出集會"
 }

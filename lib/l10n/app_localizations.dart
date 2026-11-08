@@ -5768,6 +5768,324 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'我的平行護照已經蓋了 {count} 座城市的章。打開城市低語，一起走進平行宇宙。'**
   String passportCardShareText(int count);
+
+  /// No description provided for @asmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子集會'**
+  String get asmTitle;
+
+  /// No description provided for @asmCreateTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'開量子集會'**
+  String get asmCreateTitle;
+
+  /// No description provided for @asmCreateIntro.
+  ///
+  /// In zh, this message translates to:
+  /// **'你會坐進 101 旁第 3 圈的主持席，量子世界裡的人都看得到你的集會光環，可以自願加入。'**
+  String get asmCreateIntro;
+
+  /// No description provided for @asmTitleHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'集會主題（例如：一起看流星雨）'**
+  String get asmTitleHint;
+
+  /// No description provided for @asmPlanFree.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月免費場'**
+  String get asmPlanFree;
+
+  /// No description provided for @asmPlanFreeSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'30 分鐘・最多 50 人・每月一場'**
+  String get asmPlanFreeSub;
+
+  /// No description provided for @asmPlanFreeUsed.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月的免費場已經用過了'**
+  String get asmPlanFreeUsed;
+
+  /// No description provided for @asmPlan1h.
+  ///
+  /// In zh, this message translates to:
+  /// **'1 小時'**
+  String get asmPlan1h;
+
+  /// No description provided for @asmPlan1hSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'最多 200 人'**
+  String get asmPlan1hSub;
+
+  /// No description provided for @asmPlan2h.
+  ///
+  /// In zh, this message translates to:
+  /// **'2 小時'**
+  String get asmPlan2h;
+
+  /// No description provided for @asmPlan2hSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'最多 1000 人'**
+  String get asmPlan2hSub;
+
+  /// No description provided for @asmVoucherCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'已有 {count} 張主辦券'**
+  String asmVoucherCount(int count);
+
+  /// No description provided for @asmRules.
+  ///
+  /// In zh, this message translates to:
+  /// **'主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。'**
+  String get asmRules;
+
+  /// No description provided for @asmStart.
+  ///
+  /// In zh, this message translates to:
+  /// **'開始集會'**
+  String get asmStart;
+
+  /// No description provided for @asmStarted.
+  ///
+  /// In zh, this message translates to:
+  /// **'集會開始了！'**
+  String get asmStarted;
+
+  /// No description provided for @asmVoucherReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'主辦券到了，可以開集會'**
+  String get asmVoucherReady;
+
+  /// No description provided for @asmBuyFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'購買沒有完成，這次沒有扣款或稍後會自動補上'**
+  String get asmBuyFailed;
+
+  /// No description provided for @asmHostLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'主持人 {name} · ⬡ {code}'**
+  String asmHostLine(String name, String code);
+
+  /// No description provided for @asmJoin.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入集會'**
+  String get asmJoin;
+
+  /// No description provided for @asmJoined.
+  ///
+  /// In zh, this message translates to:
+  /// **'你加入了集會'**
+  String get asmJoined;
+
+  /// No description provided for @asmLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'離開集會'**
+  String get asmLeave;
+
+  /// No description provided for @asmHostPanel.
+  ///
+  /// In zh, this message translates to:
+  /// **'主持人控制台'**
+  String get asmHostPanel;
+
+  /// No description provided for @asmAnnounceHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'發一則公告（最多 100 字）'**
+  String get asmAnnounceHint;
+
+  /// No description provided for @asmAnnounceSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'發公告'**
+  String get asmAnnounceSend;
+
+  /// No description provided for @asmAnnounced.
+  ///
+  /// In zh, this message translates to:
+  /// **'公告已送出'**
+  String get asmAnnounced;
+
+  /// No description provided for @asmCheerTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子應援：選一個光色和倒數，所有參加者的光球會在同一刻一起亮'**
+  String get asmCheerTitle;
+
+  /// No description provided for @asmCheerNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'立即'**
+  String get asmCheerNow;
+
+  /// No description provided for @asmCheerIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'{n} 秒後'**
+  String asmCheerIn(int n);
+
+  /// No description provided for @asmCheer.
+  ///
+  /// In zh, this message translates to:
+  /// **'應援！'**
+  String get asmCheer;
+
+  /// No description provided for @asmRemoveHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'要把某人移出集會：在地圖上點那個人 →「移出集會」'**
+  String get asmRemoveHint;
+
+  /// No description provided for @asmEnd.
+  ///
+  /// In zh, this message translates to:
+  /// **'結束集會'**
+  String get asmEnd;
+
+  /// No description provided for @asmReport.
+  ///
+  /// In zh, this message translates to:
+  /// **'檢舉這場集會'**
+  String get asmReport;
+
+  /// No description provided for @asmErrFreeUsed.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月的免費場已經用過了'**
+  String get asmErrFreeUsed;
+
+  /// No description provided for @asmErrSeatsFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 3 圈的主持席都坐滿了，稍後再試'**
+  String get asmErrSeatsFull;
+
+  /// No description provided for @asmErrBlocked.
+  ///
+  /// In zh, this message translates to:
+  /// **'主題或公告含有不適合的內容'**
+  String get asmErrBlocked;
+
+  /// No description provided for @asmErrFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'集會人數已滿'**
+  String get asmErrFull;
+
+  /// No description provided for @asmErrRemoved.
+  ///
+  /// In zh, this message translates to:
+  /// **'你已經被移出這場集會'**
+  String get asmErrRemoved;
+
+  /// No description provided for @asmErrEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'這場集會已經結束'**
+  String get asmErrEnded;
+
+  /// No description provided for @asmErrTooSoon.
+  ///
+  /// In zh, this message translates to:
+  /// **'太快了，稍等一下再試'**
+  String get asmErrTooSoon;
+
+  /// No description provided for @asmErrHidden.
+  ///
+  /// In zh, this message translates to:
+  /// **'你的帳號暫時不能開集會'**
+  String get asmErrHidden;
+
+  /// No description provided for @asmErrHosting.
+  ///
+  /// In zh, this message translates to:
+  /// **'你正在主持另一場集會'**
+  String get asmErrHosting;
+
+  /// No description provided for @asmErrGeneric.
+  ///
+  /// In zh, this message translates to:
+  /// **'發生錯誤，請稍後再試'**
+  String get asmErrGeneric;
+
+  /// No description provided for @asmMemorialEyebrow.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子集會紀念卡'**
+  String get asmMemorialEyebrow;
+
+  /// No description provided for @asmMemorialUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'人'**
+  String get asmMemorialUnit;
+
+  /// No description provided for @asmMemorialTogether.
+  ///
+  /// In zh, this message translates to:
+  /// **'一起在量子世界'**
+  String get asmMemorialTogether;
+
+  /// No description provided for @shareCardFindUs.
+  ///
+  /// In zh, this message translates to:
+  /// **'App Store 搜 {name}'**
+  String shareCardFindUs(String name);
+
+  /// No description provided for @shareCardFindUsPlay.
+  ///
+  /// In zh, this message translates to:
+  /// **'Google Play 搜 {name}'**
+  String shareCardFindUsPlay(String name);
+
+  /// No description provided for @asmShareCard.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享紀念卡'**
+  String get asmShareCard;
+
+  /// No description provided for @asmShareText.
+  ///
+  /// In zh, this message translates to:
+  /// **'我們在量子世界辦了「{title}」，{count} 人一起參加。打開城市低語，下次一起來。'**
+  String asmShareText(String title, int count);
+
+  /// No description provided for @asmOpenEntry.
+  ///
+  /// In zh, this message translates to:
+  /// **'開量子集會'**
+  String get asmOpenEntry;
+
+  /// No description provided for @asmOpenEntrySub.
+  ///
+  /// In zh, this message translates to:
+  /// **'坐進 101 旁的主持席，辦一場全世界都能加入的集會'**
+  String get asmOpenEntrySub;
+
+  /// No description provided for @asmRemoveMember.
+  ///
+  /// In zh, this message translates to:
+  /// **'移出集會'**
+  String get asmRemoveMember;
+
+  /// No description provided for @asmRemovedDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已經移出集會'**
+  String get asmRemovedDone;
 }
 
 class _AppLocalizationsDelegate

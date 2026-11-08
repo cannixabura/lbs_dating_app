@@ -183,6 +183,9 @@ class QuantumApi {
   /// 整點報時：送出一道報時微光
   static Future<(int, Map<String, dynamic>)> chime() => _call({'action': 'chime'});
 
+  /// 量子集會：action = asmCreate / asmJoin / asmLeave / asmAnnounce / asmCheer / asmRemove / asmEnd / asmStatus / asmVerify
+  static Future<(int, Map<String, dynamic>)> assembly(String action, [Map<String, dynamic> body = const {}]) => _call({'action': action, ...body});
+
   /// 量子糾纏：op = invite / accept / decline / cut
   static Future<(int, Map<String, dynamic>)> entangle(String op, String uid) => _call({'action': 'entangle', 'op': op, 'uid': uid});
 }

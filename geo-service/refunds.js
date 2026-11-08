@@ -5,6 +5,7 @@
 const aiya = require('./aiya');
 const orbs = require('./orbs');
 const gifts = require('./gifts');
+const assembly = require('./assembly');
 
 const REFUNDED = 'refunded';
 const REFUND_TYPES = new Set(['REFUND', 'REVOKE']);
@@ -18,6 +19,7 @@ function appleRefundTarget(notificationType, tx, bundleId) {
         return { kind: 'pack', receipt: `a_${tx.transactionId}`, credits: packCredits * qty };
     }
     if (gifts.kindOfProduct(tx.productId) && tx.transactionId) return { kind: 'gift', receipt: `a_${tx.transactionId}` };
+    if (assembly.planOfProduct(tx.productId) && tx.transactionId) return { kind: 'assembly', receipt: `a_${tx.transactionId}` };
     const style = orbs.styleOfProduct(tx.productId);
     const id = tx.originalTransactionId || tx.transactionId;
     if (style && id) return { kind: 'orb', receipt: orbs.receiptKey('apple', id), style };

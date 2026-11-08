@@ -3206,6 +3206,177 @@ class AppLocalizationsZh extends AppLocalizations {
   String passportCardShareText(int count) {
     return '我的平行護照已經蓋了 $count 座城市的章。打開城市低語，一起走進平行宇宙。';
   }
+
+  @override
+  String get asmTitle => '量子集會';
+
+  @override
+  String get asmCreateTitle => '開量子集會';
+
+  @override
+  String get asmCreateIntro => '你會坐進 101 旁第 3 圈的主持席，量子世界裡的人都看得到你的集會光環，可以自願加入。';
+
+  @override
+  String get asmTitleHint => '集會主題（例如：一起看流星雨）';
+
+  @override
+  String get asmPlanFree => '本月免費場';
+
+  @override
+  String get asmPlanFreeSub => '30 分鐘・最多 50 人・每月一場';
+
+  @override
+  String get asmPlanFreeUsed => '本月的免費場已經用過了';
+
+  @override
+  String get asmPlan1h => '1 小時';
+
+  @override
+  String get asmPlan1hSub => '最多 200 人';
+
+  @override
+  String get asmPlan2h => '2 小時';
+
+  @override
+  String get asmPlan2hSub => '最多 1000 人';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '已有 $count 張主辦券';
+  }
+
+  @override
+  String get asmRules => '主辦券買了就是一場，沒用完的時間不退。主題與公告會過濾不當內容，違規會被停權。';
+
+  @override
+  String get asmStart => '開始集會';
+
+  @override
+  String get asmStarted => '集會開始了！';
+
+  @override
+  String get asmVoucherReady => '主辦券到了，可以開集會';
+
+  @override
+  String get asmBuyFailed => '購買沒有完成，這次沒有扣款或稍後會自動補上';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return '主持人 $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => '加入集會';
+
+  @override
+  String get asmJoined => '你加入了集會';
+
+  @override
+  String get asmLeave => '離開集會';
+
+  @override
+  String get asmHostPanel => '主持人控制台';
+
+  @override
+  String get asmAnnounceHint => '發一則公告（最多 100 字）';
+
+  @override
+  String get asmAnnounceSend => '發公告';
+
+  @override
+  String get asmAnnounced => '公告已送出';
+
+  @override
+  String get asmCheerTitle => '量子應援：選一個光色和倒數，所有參加者的光球會在同一刻一起亮';
+
+  @override
+  String get asmCheerNow => '立即';
+
+  @override
+  String asmCheerIn(int n) {
+    return '$n 秒後';
+  }
+
+  @override
+  String get asmCheer => '應援！';
+
+  @override
+  String get asmRemoveHint => '要把某人移出集會：在地圖上點那個人 →「移出集會」';
+
+  @override
+  String get asmEnd => '結束集會';
+
+  @override
+  String get asmReport => '檢舉這場集會';
+
+  @override
+  String get asmErrFreeUsed => '本月的免費場已經用過了';
+
+  @override
+  String get asmErrSeatsFull => '第 3 圈的主持席都坐滿了，稍後再試';
+
+  @override
+  String get asmErrBlocked => '主題或公告含有不適合的內容';
+
+  @override
+  String get asmErrFull => '集會人數已滿';
+
+  @override
+  String get asmErrRemoved => '你已經被移出這場集會';
+
+  @override
+  String get asmErrEnded => '這場集會已經結束';
+
+  @override
+  String get asmErrTooSoon => '太快了，稍等一下再試';
+
+  @override
+  String get asmErrHidden => '你的帳號暫時不能開集會';
+
+  @override
+  String get asmErrHosting => '你正在主持另一場集會';
+
+  @override
+  String get asmErrGeneric => '發生錯誤，請稍後再試';
+
+  @override
+  String get asmMemorialEyebrow => '量子集會紀念卡';
+
+  @override
+  String get asmMemorialUnit => '人';
+
+  @override
+  String get asmMemorialTogether => '一起在量子世界';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'App Store 搜 $name';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Google Play 搜 $name';
+  }
+
+  @override
+  String get asmShareCard => '分享紀念卡';
+
+  @override
+  String asmShareText(String title, int count) {
+    return '我們在量子世界辦了「$title」，$count 人一起參加。打開城市低語，下次一起來。';
+  }
+
+  @override
+  String get asmOpenEntry => '開量子集會';
+
+  @override
+  String get asmOpenEntrySub => '坐進 101 旁的主持席，辦一場全世界都能加入的集會';
+
+  @override
+  String get asmRemoveMember => '移出集會';
+
+  @override
+  String get asmRemovedDone => '已經移出集會';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6409,4 +6580,175 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String passportCardShareText(int count) {
     return '我的平行护照已经盖了 $count 座城市的章。打开城市低语，一起走进平行宇宙。';
   }
+
+  @override
+  String get asmTitle => '量子集会';
+
+  @override
+  String get asmCreateTitle => '开量子集会';
+
+  @override
+  String get asmCreateIntro => '你会坐进 101 旁第 3 圈的主持席，量子世界里的人都看得到你的集会光环，可以自愿加入。';
+
+  @override
+  String get asmTitleHint => '集会主题（例如：一起看流星雨）';
+
+  @override
+  String get asmPlanFree => '本月免费场';
+
+  @override
+  String get asmPlanFreeSub => '30 分钟・最多 50 人・每月一场';
+
+  @override
+  String get asmPlanFreeUsed => '本月的免费场已经用过了';
+
+  @override
+  String get asmPlan1h => '1 小时';
+
+  @override
+  String get asmPlan1hSub => '最多 200 人';
+
+  @override
+  String get asmPlan2h => '2 小时';
+
+  @override
+  String get asmPlan2hSub => '最多 1000 人';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '已有 $count 张主办券';
+  }
+
+  @override
+  String get asmRules => '主办券买了就是一场，没用完的时间不退。主题与公告会过滤不当内容，违规会被停权。';
+
+  @override
+  String get asmStart => '开始集会';
+
+  @override
+  String get asmStarted => '集会开始了！';
+
+  @override
+  String get asmVoucherReady => '主办券到了，可以开集会';
+
+  @override
+  String get asmBuyFailed => '购买没有完成，这次没有扣款或稍后会自动补上';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return '主持人 $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => '加入集会';
+
+  @override
+  String get asmJoined => '你加入了集会';
+
+  @override
+  String get asmLeave => '离开集会';
+
+  @override
+  String get asmHostPanel => '主持人控制台';
+
+  @override
+  String get asmAnnounceHint => '发一则公告（最多 100 字）';
+
+  @override
+  String get asmAnnounceSend => '发公告';
+
+  @override
+  String get asmAnnounced => '公告已送出';
+
+  @override
+  String get asmCheerTitle => '量子应援：选一个光色和倒数，所有参加者的光球会在同一刻一起亮';
+
+  @override
+  String get asmCheerNow => '立即';
+
+  @override
+  String asmCheerIn(int n) {
+    return '$n 秒后';
+  }
+
+  @override
+  String get asmCheer => '应援！';
+
+  @override
+  String get asmRemoveHint => '要把某人移出集会：在地图上点那个人 →“移出集会”';
+
+  @override
+  String get asmEnd => '结束集会';
+
+  @override
+  String get asmReport => '举报这场集会';
+
+  @override
+  String get asmErrFreeUsed => '本月的免费场已经用过了';
+
+  @override
+  String get asmErrSeatsFull => '第 3 圈的主持席都坐满了，稍后再试';
+
+  @override
+  String get asmErrBlocked => '主题或公告含有不适合的内容';
+
+  @override
+  String get asmErrFull => '集会人数已满';
+
+  @override
+  String get asmErrRemoved => '你已经被移出这场集会';
+
+  @override
+  String get asmErrEnded => '这场集会已经结束';
+
+  @override
+  String get asmErrTooSoon => '太快了，稍等一下再试';
+
+  @override
+  String get asmErrHidden => '你的账号暂时不能开集会';
+
+  @override
+  String get asmErrHosting => '你正在主持另一场集会';
+
+  @override
+  String get asmErrGeneric => '发生错误，请稍后再试';
+
+  @override
+  String get asmMemorialEyebrow => '量子集会纪念卡';
+
+  @override
+  String get asmMemorialUnit => '人';
+
+  @override
+  String get asmMemorialTogether => '一起在量子世界';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'App Store 搜 $name';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Google Play 搜 $name';
+  }
+
+  @override
+  String get asmShareCard => '分享纪念卡';
+
+  @override
+  String asmShareText(String title, int count) {
+    return '我们在量子世界办了“$title”，$count 人一起参加。打开城市低语，下次一起来。';
+  }
+
+  @override
+  String get asmOpenEntry => '开量子集会';
+
+  @override
+  String get asmOpenEntrySub => '坐进 101 旁的主持席，办一场全世界都能加入的集会';
+
+  @override
+  String get asmRemoveMember => '移出集会';
+
+  @override
+  String get asmRemovedDone => '已经移出集会';
 }

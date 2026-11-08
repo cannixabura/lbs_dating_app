@@ -3435,4 +3435,185 @@ class AppLocalizationsMs extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'Pasport Selari saya ada cop dari $count bandar. Buka Mood Whisper dan masuk ke Alam Selari.';
   }
+
+  @override
+  String get asmTitle => 'Perhimpunan Kuantum';
+
+  @override
+  String get asmCreateTitle => 'Anjur Perhimpunan Kuantum';
+
+  @override
+  String get asmCreateIntro =>
+      'Anda duduk di kerusi hos gelang ke-3 di sebelah 101. Semua orang di Dunia Kuantum nampak cahaya perhimpunan anda dan boleh pilih untuk sertai.';
+
+  @override
+  String get asmTitleHint =>
+      'Tema perhimpunan (cth: Tengok hujan meteor bersama)';
+
+  @override
+  String get asmPlanFree => 'Percuma bulan ini';
+
+  @override
+  String get asmPlanFreeSub => '30 min · hingga 50 orang · sebulan sekali';
+
+  @override
+  String get asmPlanFreeUsed => 'Anda sudah guna perhimpunan percuma bulan ini';
+
+  @override
+  String get asmPlan1h => '1 jam';
+
+  @override
+  String get asmPlan1hSub => 'Hingga 200 orang';
+
+  @override
+  String get asmPlan2h => '2 jam';
+
+  @override
+  String get asmPlan2hSub => 'Hingga 1,000 orang';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '$count pas hos sedia';
+  }
+
+  @override
+  String get asmRules =>
+      'Satu pas hos untuk satu perhimpunan; masa yang tidak digunakan tidak dipulangkan. Tema dan pengumuman ditapis, dan melanggar peraturan boleh menyebabkan akaun digantung.';
+
+  @override
+  String get asmStart => 'Mula perhimpunan';
+
+  @override
+  String get asmStarted => 'Perhimpunan anda sudah bermula!';
+
+  @override
+  String get asmVoucherReady => 'Pas hos anda sudah sedia';
+
+  @override
+  String get asmBuyFailed =>
+      'Pembelian tidak selesai. Anda tidak dicaj, atau ia akan dikreditkan kemudian.';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'Hos $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => 'Sertai';
+
+  @override
+  String get asmJoined => 'Anda telah menyertai perhimpunan';
+
+  @override
+  String get asmLeave => 'Keluar';
+
+  @override
+  String get asmHostPanel => 'Kawalan hos';
+
+  @override
+  String get asmAnnounceHint => 'Hantar pengumuman (hingga 100 aksara)';
+
+  @override
+  String get asmAnnounceSend => 'Hantar';
+
+  @override
+  String get asmAnnounced => 'Pengumuman dihantar';
+
+  @override
+  String get asmCheerTitle =>
+      'Sorakan kuantum: pilih warna dan kiraan detik, dan orb setiap peserta menyala pada saat yang sama';
+
+  @override
+  String get asmCheerNow => 'Sekarang';
+
+  @override
+  String asmCheerIn(int n) {
+    return 'Dalam $n s';
+  }
+
+  @override
+  String get asmCheer => 'Sorak!';
+
+  @override
+  String get asmRemoveHint =>
+      'Untuk keluarkan seseorang, ketik dia pada peta → Keluarkan dari perhimpunan';
+
+  @override
+  String get asmEnd => 'Tamatkan perhimpunan';
+
+  @override
+  String get asmReport => 'Laporkan perhimpunan ini';
+
+  @override
+  String get asmErrFreeUsed => 'Anda sudah guna perhimpunan percuma bulan ini';
+
+  @override
+  String get asmErrSeatsFull =>
+      'Semua kerusi hos gelang ke-3 sudah penuh. Cuba lagi nanti.';
+
+  @override
+  String get asmErrBlocked =>
+      'Tema atau pengumuman mengandungi kandungan yang tidak sesuai';
+
+  @override
+  String get asmErrFull => 'Perhimpunan sudah penuh';
+
+  @override
+  String get asmErrRemoved => 'Anda telah dikeluarkan dari perhimpunan ini';
+
+  @override
+  String get asmErrEnded => 'Perhimpunan ini sudah tamat';
+
+  @override
+  String get asmErrTooSoon => 'Terlalu cepat. Tunggu sebentar dan cuba lagi.';
+
+  @override
+  String get asmErrHidden =>
+      'Akaun anda tidak boleh menganjurkan perhimpunan buat masa ini';
+
+  @override
+  String get asmErrHosting => 'Anda sedang menganjurkan perhimpunan lain';
+
+  @override
+  String get asmErrGeneric => 'Ada ralat. Cuba lagi nanti.';
+
+  @override
+  String get asmMemorialEyebrow => 'Kenangan Perhimpunan Kuantum';
+
+  @override
+  String get asmMemorialUnit => 'orang';
+
+  @override
+  String get asmMemorialTogether => 'bersama di Dunia Kuantum';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'Cari “$name” di App Store';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Cari “$name” di Google Play';
+  }
+
+  @override
+  String get asmShareCard => 'Kongsi kenangan';
+
+  @override
+  String asmShareText(String title, int count) {
+    return 'Kami anjurkan \"$title\" di Dunia Kuantum bersama $count orang. Buka Mood Whisper dan sertai kami lain kali.';
+  }
+
+  @override
+  String get asmOpenEntry => 'Anjur Perhimpunan Kuantum';
+
+  @override
+  String get asmOpenEntrySub =>
+      'Duduk di kerusi hos di sebelah 101 dan anjurkan perhimpunan yang boleh disertai sesiapa sahaja di dunia';
+
+  @override
+  String get asmRemoveMember => 'Keluarkan dari perhimpunan';
+
+  @override
+  String get asmRemovedDone => 'Dikeluarkan dari perhimpunan';
 }

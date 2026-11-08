@@ -3504,4 +3504,183 @@ class AppLocalizationsEn extends AppLocalizations {
   String passportCardShareText(int count) {
     return 'My Parallel Passport has stamps from $count cities. Open Mood Whisper and step into Parallel Universe.';
   }
+
+  @override
+  String get asmTitle => 'Quantum Assembly';
+
+  @override
+  String get asmCreateTitle => 'Host a Quantum Assembly';
+
+  @override
+  String get asmCreateIntro =>
+      'You take a host seat on ring 3 next to 101. Everyone in Quantum World sees your assembly glow and can choose to join.';
+
+  @override
+  String get asmTitleHint => 'Assembly theme (e.g. Meteor shower together)';
+
+  @override
+  String get asmPlanFree => 'Free this month';
+
+  @override
+  String get asmPlanFreeSub => '30 min · up to 50 people · once a month';
+
+  @override
+  String get asmPlanFreeUsed => 'You have used this month\'s free assembly';
+
+  @override
+  String get asmPlan1h => '1 hour';
+
+  @override
+  String get asmPlan1hSub => 'Up to 200 people';
+
+  @override
+  String get asmPlan2h => '2 hours';
+
+  @override
+  String get asmPlan2hSub => 'Up to 1,000 people';
+
+  @override
+  String asmVoucherCount(int count) {
+    return '$count host passes ready';
+  }
+
+  @override
+  String get asmRules =>
+      'A host pass is good for one assembly; unused time is not refunded. Themes and announcements are filtered, and breaking the rules can get you suspended.';
+
+  @override
+  String get asmStart => 'Start assembly';
+
+  @override
+  String get asmStarted => 'Your assembly has started!';
+
+  @override
+  String get asmVoucherReady => 'Your host pass is ready';
+
+  @override
+  String get asmBuyFailed =>
+      'The purchase did not complete. You were not charged, or it will be applied later.';
+
+  @override
+  String asmHostLine(String name, String code) {
+    return 'Host $name · ⬡ $code';
+  }
+
+  @override
+  String get asmJoin => 'Join';
+
+  @override
+  String get asmJoined => 'You joined the assembly';
+
+  @override
+  String get asmLeave => 'Leave';
+
+  @override
+  String get asmHostPanel => 'Host controls';
+
+  @override
+  String get asmAnnounceHint => 'Post an announcement (up to 100 characters)';
+
+  @override
+  String get asmAnnounceSend => 'Post';
+
+  @override
+  String get asmAnnounced => 'Announcement posted';
+
+  @override
+  String get asmCheerTitle =>
+      'Quantum cheer: pick a colour and a countdown, and every participant\'s orb lights up at the same moment';
+
+  @override
+  String get asmCheerNow => 'Now';
+
+  @override
+  String asmCheerIn(int n) {
+    return 'In $n s';
+  }
+
+  @override
+  String get asmCheer => 'Cheer!';
+
+  @override
+  String get asmRemoveHint =>
+      'To remove someone, tap them on the map → Remove from assembly';
+
+  @override
+  String get asmEnd => 'End assembly';
+
+  @override
+  String get asmReport => 'Report this assembly';
+
+  @override
+  String get asmErrFreeUsed => 'You have used this month\'s free assembly';
+
+  @override
+  String get asmErrSeatsFull =>
+      'All host seats on ring 3 are taken. Try again later.';
+
+  @override
+  String get asmErrBlocked =>
+      'The theme or announcement contains inappropriate content';
+
+  @override
+  String get asmErrFull => 'The assembly is full';
+
+  @override
+  String get asmErrRemoved => 'You were removed from this assembly';
+
+  @override
+  String get asmErrEnded => 'This assembly has ended';
+
+  @override
+  String get asmErrTooSoon => 'Too fast. Wait a moment and try again.';
+
+  @override
+  String get asmErrHidden => 'Your account cannot host assemblies right now';
+
+  @override
+  String get asmErrHosting => 'You are already hosting an assembly';
+
+  @override
+  String get asmErrGeneric => 'Something went wrong. Try again later.';
+
+  @override
+  String get asmMemorialEyebrow => 'Quantum Assembly memento';
+
+  @override
+  String get asmMemorialUnit => 'people';
+
+  @override
+  String get asmMemorialTogether => 'together in Quantum World';
+
+  @override
+  String shareCardFindUs(String name) {
+    return 'Search “$name” on the App Store';
+  }
+
+  @override
+  String shareCardFindUsPlay(String name) {
+    return 'Search “$name” on Google Play';
+  }
+
+  @override
+  String get asmShareCard => 'Share memento';
+
+  @override
+  String asmShareText(String title, int count) {
+    return 'We held \"$title\" in Quantum World with $count people. Open Mood Whisper and join us next time.';
+  }
+
+  @override
+  String get asmOpenEntry => 'Host a Quantum Assembly';
+
+  @override
+  String get asmOpenEntrySub =>
+      'Take a host seat next to 101 and hold an assembly anyone in the world can join';
+
+  @override
+  String get asmRemoveMember => 'Remove from assembly';
+
+  @override
+  String get asmRemovedDone => 'Removed from the assembly';
 }

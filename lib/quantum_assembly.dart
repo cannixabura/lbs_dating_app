@@ -973,14 +973,14 @@ class AssemblyMemorialCard extends StatelessWidget {
           Positioned(
             left: 28, right: 28, top: 52,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tr.asmMemorialEyebrow, style: TextStyle(color: a.color, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500)),
+              Text(tr.asmMemorialEyebrow, style: TextStyle(color: a.color, fontSize: 13, letterSpacing: ls(3), fontWeight: FontWeight.w500)),
               const SizedBox(height: 12),
               Text('${a.emoji} ${a.title}', style: TextStyle(color: Night.ink, fontSize: 30, height: 1.35, fontWeight: FontWeight.w600,
                   shadows: [Shadow(color: a.color.withOpacity(0.75), blurRadius: 24)])),
               const SizedBox(height: 16),
               Container(width: 72, height: 2, decoration: BoxDecoration(color: a.color, boxShadow: [BoxShadow(color: a.color, blurRadius: 8)])),
               const SizedBox(height: 12),
-              Text('$dateText · ⬡ ${a.code}', style: const TextStyle(color: Night.ink, fontSize: 13, letterSpacing: 1)),
+              Text('$dateText · ⬡ ${a.code}', style: TextStyle(color: Night.ink, fontSize: 13, letterSpacing: ls(1))),
             ]),
           ),
           Positioned(
@@ -992,7 +992,7 @@ class AssemblyMemorialCard extends StatelessWidget {
                 Text(tr.asmMemorialUnit, style: const TextStyle(color: Night.ink, fontSize: 20, fontWeight: FontWeight.w600)),
               ]),
               const SizedBox(height: 4),
-              Text(tr.asmMemorialTogether, textAlign: TextAlign.center, style: const TextStyle(color: Night.ink, fontSize: 15, letterSpacing: 2)),
+              Text(tr.asmMemorialTogether, textAlign: TextAlign.center, style: TextStyle(color: Night.ink, fontSize: 15, letterSpacing: ls(2))),
             ]),
           ),
           Positioned(

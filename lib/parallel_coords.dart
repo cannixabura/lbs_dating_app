@@ -62,6 +62,7 @@ Future<ParallelCoords?> fetchParallelCoords(double lat, double lng) async {
 const _flags = {
   'tw': '🇹🇼', 'jp': '🇯🇵', 'kr': '🇰🇷', 'hk': '🇭🇰', 'mo': '🇲🇴', 'sg': '🇸🇬', 'my': '🇲🇾',
   'id': '🇮🇩', 'vn': '🇻🇳', 'th': '🇹🇭', 'ph': '🇵🇭', 'au': '🇦🇺',
+  'nz': '🇳🇿', 'in': '🇮🇳', 'br': '🇧🇷', 'ar': '🇦🇷', 'za': '🇿🇦',
 };
 
 Locale _geocodeLocale() => switch (currentLanguageTag) {

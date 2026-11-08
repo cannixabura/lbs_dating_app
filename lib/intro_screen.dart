@@ -112,7 +112,7 @@ class _IntroScreenState extends State<IntroScreen> {
                         children: [
                           Text(
                             _introData[index]["title"]!,
-                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
+                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: ls(2)),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),

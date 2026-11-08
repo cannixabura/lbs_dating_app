@@ -515,7 +515,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     const SizedBox(height: Night.space4),
                     Text(
                       _leaveMessage,
-                      style: const TextStyle(color: Night.inkMuted, fontSize: 16, letterSpacing: 3, fontWeight: FontWeight.w300),
+                      style: TextStyle(color: Night.inkMuted, fontSize: 16, letterSpacing: ls(3), fontWeight: FontWeight.w300),
                     ),
                   ]),
                 ),

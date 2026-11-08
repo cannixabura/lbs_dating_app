@@ -16,7 +16,10 @@ test('語言標籤', () => {
     assert.strictEqual(normalizeLang('zh_CN'), 'zh-Hans');
     assert.strictEqual(normalizeLang('en-US,en;q=0.9'), 'en');
     assert.strictEqual(normalizeLang('in-ID'), 'id');
-    assert.strictEqual(normalizeLang('fr'), 'zh-Hant');
+    assert.strictEqual(normalizeLang('fr'), 'en');
+    assert.strictEqual(normalizeLang('pt-BR'), 'pt');
+    assert.strictEqual(normalizeLang('es-419'), 'es');
+    assert.strictEqual(normalizeLang('hi-IN'), 'hi');
     assert.strictEqual(normalizeLang(null), 'zh-Hant');
 });
 

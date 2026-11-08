@@ -2129,7 +2129,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               ShaderMask(
                 shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-                child: Text(tr.cityMoodTitle, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: 2)),
+                child: Text(tr.cityMoodTitle, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: ls(2))),
               ),
               const SizedBox(height: Night.space2),
               Text(quiet ? tr.cityMoodQuietCount(total) : tr.cityMoodCount(total),
@@ -2257,7 +2257,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         ShaderMask(
           shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-          child: Text(tr.emptyRadarTitle, style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: 2)),
+          child: Text(tr.emptyRadarTitle, style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600, letterSpacing: ls(2))),
         ),
         const SizedBox(height: Night.space2),
         Text(tr.emptyRadarBody, style: Night.body, textAlign: TextAlign.center),
@@ -3527,7 +3527,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Night.space6),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(tr.sensingCity, style: const TextStyle(color: Night.inkMuted, letterSpacing: 2)),
+              Text(tr.sensingCity, style: TextStyle(color: Night.inkMuted, letterSpacing: ls(2))),
               if (widget.checkIn) ...[
                 const SizedBox(height: Night.space4),
                 ConstrainedBox(
@@ -3926,7 +3926,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (!quantumOn) ..._placeLamps(seen: false, centerX: centerX, centerY: centerY, screenHeight: screenHeight, pitch: smoothPitch, heading: currentHeading, scale: currentScale, rhythm: currentRhythmScore),
                       // 地圖資料授權要求可見的出處標示（OpenStreetMap ODbL、OpenMapTiles）
                       // 放在底部選單下方的空間，不佔地圖
-                      Positioned(left: 20, bottom: max(1.0, MediaQuery.of(context).padding.bottom - 14), child: const IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: 0.5)))),
+                      Positioned(left: 20, bottom: max(1.0, MediaQuery.of(context).padding.bottom - 14), child: IgnorePointer(child: Text('© OpenMapTiles © OpenStreetMap', style: TextStyle(color: Night.inkFaint, fontSize: 10, letterSpacing: ls(0.5))))),
                       // 被婉拒、逾時或對方略過：光在對方的位置化成粒子散去
                       if (_dissolveAt != null)
                         Positioned.fill(

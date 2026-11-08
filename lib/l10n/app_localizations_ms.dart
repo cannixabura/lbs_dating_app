@@ -1026,7 +1026,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Setiap bandar atau daerah di Taiwan berpusat di stesen pusatnya sendiri (Taipei Raya di Stesen Taipei, Taoyuan di Stesen Taoyuan, dan seterusnya) dan dipadankan dengan bandar di luar negara: Jepun, Korea, Hong Kong, Macau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina dan Australia. Bandar di luar negara dipadankan dengan Taiwan.';
+      'Setiap bandar atau daerah di Taiwan berpusat di stesen pusatnya sendiri (Taipei Raya di Stesen Taipei, Taoyuan di Stesen Taoyuan, dan seterusnya) dan dipadankan dengan bandar di luar negara: Jepun, Korea, Hong Kong, Macau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina, Australia, New Zealand, India, Brazil, Argentina dan Afrika Selatan. Bandar di luar negara dipadankan dengan Taiwan.';
 
   @override
   String get guideS14L3 =>
@@ -2654,6 +2654,30 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get guideS17L12 =>
       'Edisi terhad: bebola kristal Krismas (kalungan holi, bintang emas berkelip, salji turun) dijual hingga 12/25, dan bebola kristal Tahun Baru Kuantum (detik jam emas dan bunga api, paling besar tepat tengah malam) hingga 1/1, waktu Taiwan. Selepas itu ia tidak dijual lagi; jika anda membelinya, ia kekal milik anda dan boleh dipulihkan.';
+
+  @override
+  String get guideS14L6 =>
+      'Bandar luar negara berpusat di stesen pusat, atau dewan bandar raya jika tiada. Koordinat selari: apabila Alam Selari dihidupkan, ketik butang di kiri glob dan pilih bandar untuk melihat lebih kurang di mana anda berdiri di sana. Kad kongsi hanya menulis bandar, tanpa nama tempat.';
+
+  @override
+  String get guideS14L7 =>
+      'Pasport Selari: bersembang dengan orang di bandar selari; apabila kedua-dua pihak sudah bercakap, anda dapat cop bandar itu. Kumpul 5 bandar untuk mendapat bola Pasport. Buka dari koordinat selari atau Tetapan. Orang selari menunjukkan waktu tempatan dan warna langit di bawah nama.';
+
+  @override
+  String get guideS17L13 =>
+      'Perhimpunan Kuantum: di Dunia Kuantum, perhimpunan menjadi Perhimpunan Kuantum. Ketik kod tempat duduk di kiri atas → Buka Perhimpunan Kuantum, tulis tajuk, pilih ikon dan warna, dan anda berpindah ke kerusi hos di gelang 3 dekat 101; orang lain mengetik lingkaran cahaya untuk menyertai. Hos boleh membuat pengumuman, mencetuskan Sorakan Kuantum (bola semua peserta menyala pada saat yang sama) dan mengetik seseorang di peta untuk mengeluarkannya. Percuma sekali sebulan (30 minit, 50 orang); 1 jam 200 orang atau 2 jam 1,000 orang perlukan pas hos, satu pas untuk membuka sekali atau melanjutkan sekali (maksimum 12 jam), dan boleh dibeli beberapa sekali gus. Perhimpunan hanya tamat apabila hos menamatkannya atau masa habis, walaupun hos keluar dari Dunia Kuantum atau menutup aplikasi. Selepas itu semua mendapat kad kenangan dengan bilangan orang dan wilayah sahaja.';
+
+  @override
+  String get guideS17L14 =>
+      'Bola yang membesar: Jejak Bintang mendapat satu bintang bagi setiap Kad Temu Kuantum yang lengkap (orang yang sama dikira sekali setiap 24 jam, maksimum 24 bintang); Gelang Tahun mendapat satu gelang setiap 3 jam di Dunia Kuantum (maksimum 12). Pertumbuhan disimpan pada akaun anda dan bermula sebelum anda membeli.';
+
+  @override
+  String get guideS17L15 =>
+      'Hadiah: ketik seseorang di peta, atau pilih Hantar hadiah di kanan atas sembang, untuk menghantar Jambak Cahaya (cahaya mekar di skrinnya dan kelopak cahaya di sekeliling bolanya selama 24 jam), satu gaya bola, atau pasangan Terjerat (setiap seorang satu bola, berpasangan, disambung tali cahaya apabila kedua-duanya di Dunia Kuantum). Penerima boleh menerima atau menolak; hadiah yang ditolak atau tidak dijawab 7 hari kembali kepada anda untuk diberi kepada orang lain. Penerimaan hadiah boleh dimatikan dalam Tetapan.';
+
+  @override
+  String get guideS17L16 =>
+      'Reka bentuk terhad lain: bola Valentine dijual hingga 2/14 dan bola Sakura hingga 4/10 (waktu Taiwan). Selepas itu ia hilang dari kedai, dan pembeli memilikinya selama-lamanya.';
 
   @override
   String get guideS18L6 =>

@@ -17,6 +17,9 @@
 		<string>id</string>
 		<string>vi</string>
 		<string>th</string>
+		<string>pt-BR</string>
+		<string>es-419</string>
+		<string>hi</string>
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>城市低語</string>

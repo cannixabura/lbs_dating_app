@@ -237,7 +237,7 @@ class _AiyaCameoState extends State<AiyaCameo> with SingleTickerProviderStateMix
                       decoration: BoxDecoration(color: Night.glassFill, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0x66FFC861))),
                       child: Text.rich(
                         TextSpan(children: [
-                          TextSpan(text: '${tr.aiyaName} · AI  ', style: const TextStyle(color: Color(0xFFFFC861), fontSize: 11, letterSpacing: 1)),
+                          TextSpan(text: '${tr.aiyaName} · AI  ', style: TextStyle(color: Color(0xFFFFC861), fontSize: 11, letterSpacing: ls(1))),
                           TextSpan(text: _caption, style: const TextStyle(color: Night.ink, fontSize: 13, height: 1.4)),
                         ]),
                         textAlign: TextAlign.center,

@@ -334,7 +334,7 @@ void showQuantumSheet(BuildContext context, {required ValueChanged<bool> onQuiet
                 const SizedBox(height: Night.space1),
                 ShaderMask(
                   shaderCallback: (r) => Night.brightGradient.createShader(r),
-                  child: Text(s.code, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w600, letterSpacing: 2)),
+                  child: Text(s.code, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w600, letterSpacing: ls(2))),
                 ),
                 Text(tr.quantumSeatHint(s.ring), style: Night.caption, textAlign: TextAlign.center),
                 const SizedBox(height: Night.space4),
@@ -551,7 +551,7 @@ class QuantumEntryPainter extends CustomPainter {
       final hole = Path()..addOval(Rect.fromCircle(center: c, radius: full * k));
       canvas.drawPath(Path.combine(PathOperation.difference, Path()..addRect(Offset.zero & size), hole), dark..color = Night.night900.withOpacity(1 - k));
       final tp = TextPainter(
-        text: TextSpan(text: code, style: TextStyle(color: Colors.white.withOpacity(sin(k * pi).clamp(0.0, 1.0)), fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: 3,
+        text: TextSpan(text: code, style: TextStyle(color: Colors.white.withOpacity(sin(k * pi).clamp(0.0, 1.0)), fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: ls(3),
             shadows: const [Shadow(color: Night.auroraBlue, blurRadius: 18)])),
         textDirection: TextDirection.ltr,
       )..layout();

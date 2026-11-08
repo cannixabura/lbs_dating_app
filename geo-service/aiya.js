@@ -186,6 +186,7 @@ const REPLY_SCHEMA = {
 const LANG_NAMES = {
     'zh-Hant': 'Traditional Chinese (Taiwan)', 'zh-Hans': 'Simplified Chinese', en: 'English', ja: 'Japanese',
     ko: 'Korean', ms: 'Malay', id: 'Indonesian', vi: 'Vietnamese', th: 'Thai',
+    pt: 'Brazilian Portuguese', es: 'Latin American Spanish', hi: 'Hindi',
 };
 const MOOD_NAMES = { joy: 'happy', sad: 'sad or tired', angry: 'annoyed', calm: 'calm', passion: 'fired up', love: 'in love', other: 'other moods' };
 
@@ -247,6 +248,7 @@ const CRISIS_WORDS = [
     '自殺', '自杀', '想死', '不想活', '輕生', '轻生', '結束生命', '结束生命', '活不下去',
     'suicide', 'suicidal', 'kill myself', 'end my life', 'want to die',
     '死にたい', '自殺したい', '消えたい', '자살', '죽고 싶', 'bunuh diri', 'tự tử', 'muốn chết', 'ฆ่าตัวตาย', 'อยากตาย',
+    'suicídio', 'me matar', 'quero morrer', 'suicidio', 'matarme', 'quiero morir', 'आत्महत्या', 'मरना चाहता', 'मरना चाहती',
 ];
 const HOTLINES = {
     'zh-Hant': '如果你現在很難受，可以打 1925 安心專線或 1995 生命線，24 小時都有人在。',
@@ -257,6 +259,9 @@ const HOTLINES = {
     en: "If you're struggling right now, please call your local emergency number or a crisis line. You don't have to go through this alone.",
     'zh-Hans': '如果你现在很难受，请联系当地的紧急电话或心理援助热线，你不需要一个人扛。',
     id: 'Kalau kamu sedang sangat berat, hubungi nomor darurat atau layanan krisis di tempatmu. Kamu tidak sendirian.',
+    pt: 'Se você está sofrendo muito agora, ligue para o CVV no 188 (gratuito, 24 horas). Você não está sozinho.',
+    es: 'Si estás pasando un momento muy difícil, llama al número de emergencias o a una línea de crisis de tu país (en Argentina, el 135). No estás solo.',
+    hi: 'अगर आप अभी बहुत परेशान हैं, तो Tele-MANAS हेल्पलाइन 14416 पर कॉल करें (24 घंटे, मुफ़्त)। आप अकेले नहीं हैं।',
     vi: 'Nếu bạn đang rất khó khăn, hãy gọi số khẩn cấp hoặc đường dây hỗ trợ khủng hoảng tại nơi bạn ở. Bạn không một mình.',
 };
 

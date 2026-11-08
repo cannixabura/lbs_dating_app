@@ -16,17 +16,19 @@ import 'ui/night.dart';
 const passportRewardCities = 5;
 
 /// 名稱順序與伺服器 parallel.js 的 LANGS 相同
-const _langs = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th'];
+const _langs = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th', 'pt', 'es', 'hi'];
 
 /// 國旗與國家的顏色（印章用）；顏色只是裝飾，不代表任何意思
 const passportFlags = {
   'tw': '🇹🇼', 'jp': '🇯🇵', 'kr': '🇰🇷', 'hk': '🇭🇰', 'mo': '🇲🇴', 'sg': '🇸🇬', 'my': '🇲🇾',
   'id': '🇮🇩', 'vn': '🇻🇳', 'th': '🇹🇭', 'ph': '🇵🇭', 'au': '🇦🇺',
+  'nz': '🇳🇿', 'in': '🇮🇳', 'br': '🇧🇷', 'ar': '🇦🇷', 'za': '🇿🇦',
 };
 const _countryColors = {
   'tw': Color(0xFF7FD8FF), 'jp': Color(0xFFFF8AD8), 'kr': Color(0xFF9CB8FF), 'hk': Color(0xFFFF9C8A), 'mo': Color(0xFF8AFFC8),
   'sg': Color(0xFFFFB37F), 'my': Color(0xFFFFD27A), 'id': Color(0xFFFF7FA0), 'vn': Color(0xFFFFE07F), 'th': Color(0xFFB79CFF),
   'ph': Color(0xFF7FFFE8), 'au': Color(0xFF9CFF8A),
+  'nz': Color(0xFF8AE0FF), 'in': Color(0xFFFFB86B), 'br': Color(0xFF8CFFB0), 'ar': Color(0xFFA8D8FF), 'za': Color(0xFFFFE38A),
 };
 Color passportColor(String country) => _countryColors[country] ?? Night.auroraViolet;
 
@@ -39,7 +41,9 @@ class PassportStamp {
   String get name {
     final i = _langs.indexOf(currentLanguageTag);
     if (names.isEmpty) return id;
-    return names[i >= 0 && i < names.length ? i : 0];
+    if (i >= 0 && i < names.length) return names[i];
+    // 較早加入的城市沒有葡、西、印地文名稱：用英文
+    return names.length > 2 && i >= 0 ? names[2] : names[0];
   }
 
   String get date => '${at.year}.${at.month.toString().padLeft(2, '0')}.${at.day.toString().padLeft(2, '0')}';
@@ -231,9 +235,9 @@ class PassportStampView extends StatelessWidget {
               Text(passportFlags[stamp.country] ?? '', style: TextStyle(fontSize: size * 0.16)),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(stamp.name, style: TextStyle(color: color, fontSize: size * 0.17, fontWeight: FontWeight.w700, letterSpacing: 1)),
+                child: Text(stamp.name, style: TextStyle(color: color, fontSize: size * 0.17, fontWeight: FontWeight.w700, letterSpacing: ls(1))),
               ),
-              Text(stamp.date, style: TextStyle(color: color.withOpacity(0.8), fontSize: size * 0.1, letterSpacing: 0.5)),
+              Text(stamp.date, style: TextStyle(color: color.withOpacity(0.8), fontSize: size * 0.1, letterSpacing: ls(0.5))),
             ]),
           ),
         ),
@@ -308,10 +312,10 @@ class PassportCard extends StatelessWidget {
           Positioned(
             left: 28, right: 28, top: 52,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tr.passportTitle, style: const TextStyle(color: Night.auroraViolet, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500)),
+              Text(tr.passportTitle, style: TextStyle(color: Night.auroraViolet, fontSize: 13, letterSpacing: ls(3), fontWeight: FontWeight.w500)),
               const SizedBox(height: 12),
               Text(tr.passportCardTitle(count),
-                  style: const TextStyle(color: Night.ink, fontSize: 30, height: 1.4, fontWeight: FontWeight.w600, letterSpacing: 1,
+                  style: TextStyle(color: Night.ink, fontSize: 30, height: 1.4, fontWeight: FontWeight.w600, letterSpacing: ls(1),
                       shadows: [Shadow(color: Color(0xBFB79CFF), blurRadius: 24)])),
               const SizedBox(height: 16),
               Container(width: 72, height: 2, decoration: const BoxDecoration(color: Night.auroraViolet, boxShadow: [BoxShadow(color: Night.auroraViolet, blurRadius: 8)])),

@@ -48,7 +48,7 @@ class AiyaPillarChip extends StatelessWidget {
                 border: Border.all(color: const Color(0x66FFC861), width: 0.6),
                 boxShadow: const [BoxShadow(color: Color(0x39FFC861), blurRadius: 7)],
               ),
-              child: Text(tr.aiyaChip, style: TextStyle(color: Night.ink.withOpacity(0.67), fontSize: 6.5, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+              child: Text(tr.aiyaChip, style: TextStyle(color: Night.ink.withOpacity(0.67), fontSize: 6.5, fontWeight: FontWeight.w600, letterSpacing: ls(0.5))),
             ),
           ),
         ),
@@ -685,12 +685,12 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Night.space4),
             child: Row(children: [
-              Text(tr.aiyaName, style: const TextStyle(color: Night.ink, fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: 2)),
+              Text(tr.aiyaName, style: TextStyle(color: Night.ink, fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: ls(2))),
               const SizedBox(width: Night.space2),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: Night.glassLine)),
-                child: const Text('AI', style: TextStyle(color: Night.auroraBlue, fontSize: 11, letterSpacing: 1.5)),
+                child: Text('AI', style: TextStyle(color: Night.auroraBlue, fontSize: 11, letterSpacing: ls(1.5))),
               ),
               const SizedBox(width: Night.space2),
               Text(_timeLeft(), style: Night.caption),
@@ -730,7 +730,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color(0x66FFC861))),
-                      child: Text(tr.aiyaPackEntry, style: const TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: 0.5)),
+                      child: Text(tr.aiyaPackEntry, style: TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: ls(0.5))),
                     ),
                   ),
                   GestureDetector(
@@ -739,7 +739,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: const Color(0x66FFC861))),
-                      child: Text(tr.aiyaSkinEntry, style: const TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: 0.5)),
+                      child: Text(tr.aiyaSkinEntry, style: TextStyle(color: Color(0xFFFFC861), fontSize: 12, letterSpacing: ls(0.5))),
                     ),
                   ),
                 ]),

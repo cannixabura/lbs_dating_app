@@ -127,11 +127,11 @@ class QuantumMeetCard extends StatelessWidget {
       Text(p.nickname, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
           style: TextStyle(color: Night.ink, fontSize: 22, fontWeight: FontWeight.w600, shadows: [Shadow(color: accent.withOpacity(0.6), blurRadius: 14)])),
       const SizedBox(height: 6),
-      Text('⬡ ${p.code}', style: TextStyle(color: seat, fontSize: p.ring <= 4 ? 19 : 16, fontWeight: FontWeight.w600, letterSpacing: 2,
+      Text('⬡ ${p.code}', style: TextStyle(color: seat, fontSize: p.ring <= 4 ? 19 : 16, fontWeight: FontWeight.w600, letterSpacing: ls(2),
           shadows: [Shadow(color: seat.withOpacity(0.7), blurRadius: p.ring <= 4 ? 14 : 6)])),
       if (time != null) ...[
         const SizedBox(height: 8),
-        Text(time, style: TextStyle(color: quantumDayTint(part) ?? Night.inkMuted, fontSize: 13, letterSpacing: 1)),
+        Text(time, style: TextStyle(color: quantumDayTint(part) ?? Night.inkMuted, fontSize: 13, letterSpacing: ls(1))),
       ],
       if (p.mood.isNotEmpty) ...[
         const SizedBox(height: 10),
@@ -161,7 +161,7 @@ class QuantumMeetCard extends StatelessWidget {
                       letterSpacing: RegExp(r'[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]').hasMatch(tr.quantumMeetEyebrow) ? 6 : 1.5,
                       shadows: [Shadow(color: accent.withOpacity(0.6), blurRadius: 16)]))),
               const SizedBox(height: 6),
-              Text(date, style: const TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: 2)),
+              Text(date, style: TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: ls(2))),
             ]),
           ),
           Positioned(
@@ -177,7 +177,7 @@ class QuantumMeetCard extends StatelessWidget {
           ),
           Positioned(
             left: 28, right: 28, bottom: 86,
-            child: Text(tr.quantumMeetFooter, textAlign: TextAlign.center, style: const TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: 2)),
+            child: Text(tr.quantumMeetFooter, textAlign: TextAlign.center, style: TextStyle(color: Night.inkMuted, fontSize: 12, letterSpacing: ls(2))),
           ),
           Positioned(
             left: 24, right: 24, bottom: 22,

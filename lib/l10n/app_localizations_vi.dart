@@ -1023,7 +1023,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Mỗi thành phố hoặc huyện ở Đài Loan lấy nhà ga trung tâm của mình làm tâm (Đại Đài Bắc là ga Đài Bắc, Đào Viên là ga Đào Viên…) và được ghép với các thành phố nước ngoài: Nhật Bản, Hàn Quốc, Hồng Kông, Ma Cao, Singapore, Malaysia, Indonesia, Việt Nam, Thái Lan, Philippines và Úc. Các thành phố nước ngoài được ghép với Đài Loan.';
+      'Mỗi thành phố hoặc huyện ở Đài Loan lấy nhà ga trung tâm của mình làm tâm (Đại Đài Bắc là ga Đài Bắc, Đào Viên là ga Đào Viên…) và được ghép với các thành phố nước ngoài: Nhật Bản, Hàn Quốc, Hồng Kông, Ma Cao, Singapore, Malaysia, Indonesia, Việt Nam, Thái Lan, Philippines, Úc, New Zealand, Ấn Độ, Brazil, Argentina và Nam Phi. Các thành phố nước ngoài được ghép với Đài Loan.';
 
   @override
   String get guideS14L3 =>
@@ -2641,6 +2641,30 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get guideS17L12 =>
       'Mẫu giới hạn: quả cầu pha lê Giáng sinh (vòng nguyệt quế, ngôi sao vàng lấp lánh, tuyết rơi) bán đến 12/25, và quả cầu pha lê Năm mới Lượng tử (vạch đồng hồ vàng và pháo hoa, rực nhất đúng lúc giao thừa) bán đến 1/1, giờ Đài Loan. Sau đó sẽ không bán lại; ai đã mua được giữ mãi và có thể khôi phục.';
+
+  @override
+  String get guideS14L6 =>
+      'Các thành phố nước ngoài lấy ga trung tâm làm tâm, nơi không có ga trung tâm thì lấy tòa thị chính. Tọa độ song song: khi bật Vũ trụ song song, chạm nút bên trái quả địa cầu và chọn một thành phố để xem bạn đứng khoảng chỗ nào ở đó. Thẻ chia sẻ chỉ ghi thành phố, không ghi địa danh.';
+
+  @override
+  String get guideS14L7 =>
+      'Hộ chiếu song song: trò chuyện với người ở thành phố song song, khi cả hai đã nói thì bạn có một con dấu của thành phố đó. Sưu tầm 5 thành phố để nhận quả cầu Hộ chiếu. Mở từ tọa độ song song hoặc Cài đặt. Người ở vũ trụ song song hiện giờ địa phương và màu trời dưới tên.';
+
+  @override
+  String get guideS17L13 =>
+      'Tụ họp lượng tử: trong Thế giới lượng tử, buổi tụ họp trở thành Tụ họp lượng tử. Chạm mã chỗ ngồi ở góc trên bên trái → Mở tụ họp lượng tử, đặt tiêu đề, chọn biểu tượng và màu, bạn sẽ chuyển tới ghế chủ trì ở vòng 3 cạnh 101; mọi người chạm vòng sáng để tham gia. Chủ trì có thể đăng thông báo, kích hoạt Cổ vũ lượng tử (quả cầu của mọi người tham gia sáng cùng lúc) và chạm vào ai đó trên bản đồ để mời ra. Miễn phí mỗi tháng một buổi (30 phút, 50 người); 1 giờ 200 người hoặc 2 giờ 1.000 người cần vé chủ trì, một vé mở một buổi hoặc gia hạn một lần (tối đa 12 giờ), và có thể mua trước nhiều vé. Buổi tụ họp chỉ kết thúc khi chủ trì bấm kết thúc hoặc hết giờ, kể cả khi chủ trì rời Thế giới lượng tử hay đóng ứng dụng. Sau đó mọi người nhận thẻ kỷ niệm chỉ ghi số người và khu vực.';
+
+  @override
+  String get guideS17L14 =>
+      'Quả cầu lớn dần: Vệt sao thêm một ngôi sao mỗi khi bạn hoàn thành một Thẻ gặp gỡ lượng tử (cùng một người tính một lần mỗi 24 giờ, tối đa 24 sao); Vân gỗ thêm một vòng cho mỗi 3 giờ ở Thế giới lượng tử (tối đa 12 vòng). Sự lớn dần gắn với tài khoản và tích lũy cả trước khi mua.';
+
+  @override
+  String get guideS17L15 =>
+      'Quà tặng: chạm vào ai đó trên bản đồ, hoặc chọn Tặng quà ở góc trên bên phải cuộc trò chuyện, để tặng Bó hoa ánh sáng (ánh sáng nở trên màn hình người nhận và cánh hoa sáng quanh quả cầu trong 24 giờ), một kiểu quả cầu, hoặc cặp Vướng víu (mỗi người một quả, ghép đôi, nối bằng sợi dây sáng khi cả hai ở Thế giới lượng tử). Người nhận có thể nhận hoặc từ chối; quà bị từ chối hoặc 7 ngày không trả lời sẽ quay về để bạn tặng người khác. Có thể tắt nhận quà trong Cài đặt.';
+
+  @override
+  String get guideS17L16 =>
+      'Thêm mẫu giới hạn: quả cầu Valentine bán đến 2/14 và quả cầu Hoa anh đào đến 4/10 (giờ Đài Loan). Sau đó không còn bán, người đã mua giữ mãi mãi.';
 
   @override
   String get guideS18L6 =>

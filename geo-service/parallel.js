@@ -38,7 +38,7 @@ const TAIWAN = 'tw';
 const TAIWAN_MAIN_ISLAND = { box: [21.85, 25.35, 119.95, 122.1] };
 
 // 城市：中心點（中央車站）、國家、成員範圍、各語言名稱
-// 名稱順序 [繁中, 簡中, 英, 日, 韓, 馬來, 印尼, 越南, 泰]，與 i18n.js 的 LANGS 相同。
+// 名稱順序 [繁中, 簡中, 英, 日, 韓, 馬來, 印尼, 越南, 泰, 葡, 西, 印地]（較早的城市只有前 9 種，缺的用英文）。
 // 成員範圍：預設是離車站 DEFAULT_KM 內；box = [南, 北, 西, 東]；circles = [[lat, lng, km], ...]
 const CITIES = [
     // ---- 台灣：各縣市的中央車站 ----
@@ -200,6 +200,49 @@ const CITIES = [
     { id: 'canberra', country: 'au', lat: -35.2809, lng: 149.13, km: 30, names: ['坎培拉', '堪培拉', 'Canberra', 'キャンベラ', '캔버라', 'Canberra', 'Canberra', 'Canberra', 'แคนเบอร์รา'] }, // Civic
     { id: 'adelaide', country: 'au', lat: -34.921, lng: 138.596, names: ['阿德雷德', '阿德莱德', 'Adelaide', 'アデレード', '애들레이드', 'Adelaide', 'Adelaide', 'Adelaide', 'แอดิเลด'] }, // Adelaide Railway Station
     { id: 'perth', country: 'au', lat: -31.9512, lng: 115.8604, names: ['伯斯', '珀斯', 'Perth', 'パース', '퍼스', 'Perth', 'Perth', 'Perth', 'เพิร์ท'] }, // Perth Station
+    // ---- 紐西蘭、印度、巴西、阿根廷、南非（2026-11-08 加入）----
+    { id: 'auckland', country: 'nz', lat: -36.8443, lng: 174.7676, names: ['奧克蘭', '奥克兰', 'Auckland', 'オークランド', '오클랜드', 'Auckland', 'Auckland', 'Auckland', 'โอ๊คแลนด์', 'Auckland', 'Auckland', 'ऑकलैंड'] }, // Britomart Transport Centre
+    { id: 'wellington', country: 'nz', lat: -41.2789, lng: 174.7806, km: 30, names: ['威靈頓', '惠灵顿', 'Wellington', 'ウェリントン', '웰링턴', 'Wellington', 'Wellington', 'Wellington', 'เวลลิงตัน', 'Wellington', 'Wellington', 'वेलिंगटन'] }, // Wellington Railway Station
+    { id: 'christchurch', country: 'nz', lat: -43.5321, lng: 172.6311, km: 30, names: ['基督城', '基督城', 'Christchurch', 'クライストチャーチ', '크라이스트처치', 'Christchurch', 'Christchurch', 'Christchurch', 'ไครสต์เชิร์ช', 'Christchurch', 'Christchurch', 'क्राइस्टचर्च'] }, // Civic Offices（市政府）
+    { id: 'hamilton', country: 'nz', lat: -37.787, lng: 175.2793, km: 25, names: ['漢米爾頓', '汉密尔顿', 'Hamilton', 'ハミルトン', '해밀턴', 'Hamilton', 'Hamilton', 'Hamilton', 'แฮมิลตัน', 'Hamilton', 'Hamilton', 'हैमिल्टन'] }, // Hamilton Transport Centre
+    { id: 'tauranga', country: 'nz', lat: -37.6863, lng: 176.1667, km: 25, names: ['陶朗加', '陶朗加', 'Tauranga', 'タウランガ', '타우랑가', 'Tauranga', 'Tauranga', 'Tauranga', 'เทารังกา', 'Tauranga', 'Tauranga', 'टौरंगा'] }, // 市中心
+    { id: 'dunedin', country: 'nz', lat: -45.8753, lng: 170.5065, km: 25, names: ['但尼丁', '达尼丁', 'Dunedin', 'ダニーデン', '더니든', 'Dunedin', 'Dunedin', 'Dunedin', 'ดะนีดิน', 'Dunedin', 'Dunedin', 'ड्यूनेडिन'] }, // Dunedin Railway Station
+    { id: 'queenstown', country: 'nz', lat: -45.0312, lng: 168.6626, km: 20, names: ['皇后鎮', '皇后镇', 'Queenstown', 'クイーンズタウン', '퀸스타운', 'Queenstown', 'Queenstown', 'Queenstown', 'ควีนส์ทาวน์', 'Queenstown', 'Queenstown', 'क्वीन्सटाउन'] }, // 市中心
+    { id: 'delhi', country: 'in', lat: 28.643, lng: 77.2194, names: ['德里', '德里', 'Delhi', 'デリー', '델리', 'Delhi', 'Delhi', 'Delhi', 'เดลี', 'Déli', 'Delhi', 'दिल्ली'] }, // New Delhi Railway Station
+    { id: 'mumbai', country: 'in', lat: 18.9398, lng: 72.8355, names: ['孟買', '孟买', 'Mumbai', 'ムンバイ', '뭄바이', 'Mumbai', 'Mumbai', 'Mumbai', 'มุมไบ', 'Mumbai', 'Bombay', 'मुंबई'] }, // Chhatrapati Shivaji Maharaj Terminus
+    { id: 'bengaluru', country: 'in', lat: 12.9781, lng: 77.5697, names: ['班加羅爾', '班加罗尔', 'Bengaluru', 'ベンガルール', '벵갈루루', 'Bengaluru', 'Bengaluru', 'Bengaluru', 'เบงกาลูรู', 'Bangalore', 'Bangalore', 'बेंगलुरु'] }, // KSR Bengaluru City Junction
+    { id: 'chennai', country: 'in', lat: 13.0827, lng: 80.2757, names: ['清奈', '金奈', 'Chennai', 'チェンナイ', '첸나이', 'Chennai', 'Chennai', 'Chennai', 'เจนไน', 'Chennai', 'Chennai', 'चेन्नई'] }, // Chennai Central
+    { id: 'kolkata', country: 'in', lat: 22.5839, lng: 88.3425, names: ['加爾各答', '加尔各答', 'Kolkata', 'コルカタ', '콜카타', 'Kolkata', 'Kolkata', 'Kolkata', 'โกลกาตา', 'Calcutá', 'Calcuta', 'कोलकाता'] }, // Howrah Station
+    { id: 'hyderabad', country: 'in', lat: 17.392, lng: 78.4676, names: ['海德拉巴', '海得拉巴', 'Hyderabad', 'ハイデラバード', '하이데라바드', 'Hyderabad', 'Hyderabad', 'Hyderabad', 'ไฮเดอราบาด', 'Hyderabad', 'Hyderabad', 'हैदराबाद'] }, // Hyderabad Deccan（Nampally）
+    { id: 'pune', country: 'in', lat: 18.5285, lng: 73.8743, km: 30, names: ['浦那', '浦那', 'Pune', 'プネー', '푸네', 'Pune', 'Pune', 'Pune', 'ปูเน', 'Pune', 'Pune', 'पुणे'] }, // Pune Junction
+    { id: 'ahmedabad', country: 'in', lat: 23.0258, lng: 72.6014, km: 30, names: ['亞美達巴德', '艾哈迈达巴德', 'Ahmedabad', 'アーメダバード', '아마다바드', 'Ahmedabad', 'Ahmedabad', 'Ahmedabad', 'อาห์มดาบาด', 'Ahmedabad', 'Ahmedabad', 'अहमदाबाद'] }, // Ahmedabad Junction（Kalupur）
+    { id: 'jaipur', country: 'in', lat: 26.9196, lng: 75.788, km: 25, names: ['齋浦爾', '斋浦尔', 'Jaipur', 'ジャイプール', '자이푸르', 'Jaipur', 'Jaipur', 'Jaipur', 'ชัยปุระ', 'Jaipur', 'Jaipur', 'जयपुर'] }, // Jaipur Junction
+    { id: 'goa', country: 'in', lat: 15.4989, lng: 73.8278, km: 30, names: ['果阿', '果阿', 'Goa', 'ゴア', '고아', 'Goa', 'Goa', 'Goa', 'กัว', 'Goa', 'Goa', 'गोवा'] }, // Panaji 市政府
+    { id: 'saopaulo', country: 'br', lat: -23.5347, lng: -46.6353, names: ['聖保羅', '圣保罗', 'São Paulo', 'サンパウロ', '상파울루', 'São Paulo', 'São Paulo', 'São Paulo', 'เซาเปาลู', 'São Paulo', 'São Paulo', 'साओ पाउलो'] }, // Estação da Luz
+    { id: 'rio', country: 'br', lat: -22.9037, lng: -43.1909, names: ['里約熱內盧', '里约热内卢', 'Rio de Janeiro', 'リオデジャネイロ', '리우데자네이루', 'Rio de Janeiro', 'Rio de Janeiro', 'Rio de Janeiro', 'รีโอเดจาเนโร', 'Rio de Janeiro', 'Río de Janeiro', 'रियो डी जेनेरो'] }, // Central do Brasil
+    { id: 'brasilia', country: 'br', lat: -15.7939, lng: -47.8828, km: 30, names: ['巴西利亞', '巴西利亚', 'Brasília', 'ブラジリア', '브라질리아', 'Brasília', 'Brasília', 'Brasília', 'บราซีเลีย', 'Brasília', 'Brasilia', 'ब्रासीलिया'] }, // Rodoviária do Plano Piloto
+    { id: 'salvador', country: 'br', lat: -12.9737, lng: -38.5129, km: 30, names: ['薩爾瓦多', '萨尔瓦多', 'Salvador', 'サルヴァドール', '사우바도르', 'Salvador', 'Salvador', 'Salvador', 'ซัลวาดอร์', 'Salvador', 'Salvador', 'साल्वाडोर'] }, // Praça Municipal（市政府）
+    { id: 'belohorizonte', country: 'br', lat: -19.9165, lng: -43.9346, km: 30, names: ['貝洛奧里藏特', '贝洛奥里藏特', 'Belo Horizonte', 'ベロオリゾンテ', '벨루오리존치', 'Belo Horizonte', 'Belo Horizonte', 'Belo Horizonte', 'เบโลโอรีซอนตี', 'Belo Horizonte', 'Belo Horizonte', 'बेलो होरिज़ोंटे'] }, // Estação Central
+    { id: 'fortaleza', country: 'br', lat: -3.7253, lng: -38.5289, km: 30, names: ['福塔雷薩', '福塔雷萨', 'Fortaleza', 'フォルタレザ', '포르탈레자', 'Fortaleza', 'Fortaleza', 'Fortaleza', 'ฟอร์ตาเลซา', 'Fortaleza', 'Fortaleza', 'फ़ोर्टालेज़ा'] }, // Estação João Felipe
+    { id: 'curitiba', country: 'br', lat: -25.4372, lng: -49.2569, km: 25, names: ['庫里提巴', '库里蒂巴', 'Curitiba', 'クリチバ', '쿠리치바', 'Curitiba', 'Curitiba', 'Curitiba', 'กูรีชีบา', 'Curitiba', 'Curitiba', 'कूरितिबा'] }, // Rodoferroviária
+    { id: 'recife', country: 'br', lat: -8.0679, lng: -34.8902, km: 25, names: ['累西腓', '累西腓', 'Recife', 'レシフェ', '헤시피', 'Recife', 'Recife', 'Recife', 'เรซีฟี', 'Recife', 'Recife', 'रेसिफ़े'] }, // Estação Central do Recife
+    { id: 'portoalegre', country: 'br', lat: -30.0277, lng: -51.2287, km: 25, names: ['阿雷格里港', '阿雷格里港', 'Porto Alegre', 'ポルトアレグレ', '포르투알레그리', 'Porto Alegre', 'Porto Alegre', 'Porto Alegre', 'โปร์ตูอาเลกรี', 'Porto Alegre', 'Porto Alegre', 'पोर्टो एलेग्रे'] }, // Paço Municipal（市政府）
+    { id: 'manaus', country: 'br', lat: -3.1316, lng: -60.0234, km: 25, names: ['瑪瑙斯', '马瑙斯', 'Manaus', 'マナウス', '마나우스', 'Manaus', 'Manaus', 'Manaus', 'มาเนาส์', 'Manaus', 'Manaos', 'मनौस'] }, // 市中心
+    { id: 'buenosaires', country: 'ar', lat: -34.6085, lng: -58.372, names: ['布宜諾斯艾利斯', '布宜诺斯艾利斯', 'Buenos Aires', 'ブエノスアイレス', '부에노스아이레스', 'Buenos Aires', 'Buenos Aires', 'Buenos Aires', 'บัวโนสไอเรส', 'Buenos Aires', 'Buenos Aires', 'ब्यूनस आयर्स'] }, // Palacio Municipal（市政府）
+    { id: 'cordoba', country: 'ar', lat: -31.4167, lng: -64.1835, km: 30, names: ['哥多華', '科尔多瓦', 'Córdoba', 'コルドバ', '코르도바', 'Córdoba', 'Córdoba', 'Córdoba', 'กอร์โดบา', 'Córdoba', 'Córdoba', 'कोर्डोबा'] }, // 市中心
+    { id: 'rosario', country: 'ar', lat: -32.9477, lng: -60.6309, km: 25, names: ['羅薩里奧', '罗萨里奥', 'Rosario', 'ロサリオ', '로사리오', 'Rosario', 'Rosario', 'Rosario', 'โรซาริโอ', 'Rosário', 'Rosario', 'रोसारियो'] }, // Palacio de los Leones（市政府）
+    { id: 'mendoza', country: 'ar', lat: -32.8895, lng: -68.8458, km: 25, names: ['門多薩', '门多萨', 'Mendoza', 'メンドーサ', '멘도사', 'Mendoza', 'Mendoza', 'Mendoza', 'เมนโดซา', 'Mendoza', 'Mendoza', 'मेंडोज़ा'] }, // 市中心
+    { id: 'laplata', country: 'ar', lat: -34.9205, lng: -57.9536, km: 20, names: ['拉普拉塔', '拉普拉塔', 'La Plata', 'ラ・プラタ', '라플라타', 'La Plata', 'La Plata', 'La Plata', 'ลาปลาตา', 'La Plata', 'La Plata', 'ला प्लाटा'] }, // Palacio Municipal（市政府）
+    { id: 'mardelplata', country: 'ar', lat: -38.0055, lng: -57.5426, km: 25, names: ['馬德普拉塔', '马德普拉塔', 'Mar del Plata', 'マル・デル・プラタ', '마르델플라타', 'Mar del Plata', 'Mar del Plata', 'Mar del Plata', 'มาร์เดลปลาตา', 'Mar del Plata', 'Mar del Plata', 'मार डेल प्लाटा'] }, // 市中心
+    { id: 'tucuman', country: 'ar', lat: -26.8241, lng: -65.2226, km: 25, names: ['土庫曼', '图库曼', 'San Miguel de Tucumán', 'トゥクマン', '투쿠만', 'Tucumán', 'Tucumán', 'Tucumán', 'ตูกูมัน', 'Tucumán', 'San Miguel de Tucumán', 'टुकुमान'] }, // 市中心
+    { id: 'salta', country: 'ar', lat: -24.7883, lng: -65.4106, km: 20, names: ['薩爾塔', '萨尔塔', 'Salta', 'サルタ', '살타', 'Salta', 'Salta', 'Salta', 'ซัลตา', 'Salta', 'Salta', 'साल्टा'] }, // 市中心
+    { id: 'bariloche', country: 'ar', lat: -41.1335, lng: -71.3103, km: 25, names: ['巴里洛切', '巴里洛切', 'Bariloche', 'バリローチェ', '바릴로체', 'Bariloche', 'Bariloche', 'Bariloche', 'บาริโลเช', 'Bariloche', 'Bariloche', 'बारिलोचे'] }, // Centro Cívico
+    { id: 'johannesburg', country: 'za', lat: -26.1959, lng: 28.0423, names: ['約翰尼斯堡', '约翰内斯堡', 'Johannesburg', 'ヨハネスブルグ', '요하네스버그', 'Johannesburg', 'Johannesburg', 'Johannesburg', 'โจฮันเนสเบิร์ก', 'Joanesburgo', 'Johannesburgo', 'जोहान्सबर्ग'] }, // Park Station
+    { id: 'pretoria', country: 'za', lat: -25.759, lng: 28.1897, km: 30, names: ['普利托利亞', '比勒陀利亚', 'Pretoria', 'プレトリア', '프리토리아', 'Pretoria', 'Pretoria', 'Pretoria', 'พริทอเรีย', 'Pretória', 'Pretoria', 'प्रिटोरिया'] }, // Pretoria Station
+    { id: 'capetown', country: 'za', lat: -33.9221, lng: 18.4231, names: ['開普敦', '开普敦', 'Cape Town', 'ケープタウン', '케이프타운', 'Cape Town', 'Cape Town', 'Cape Town', 'เคปทาวน์', 'Cidade do Cabo', 'Ciudad del Cabo', 'केप टाउन'] }, // Cape Town Station
+    { id: 'durban', country: 'za', lat: -29.851, lng: 31.027, km: 30, names: ['德班', '德班', 'Durban', 'ダーバン', '더반', 'Durban', 'Durban', 'Durban', 'เดอร์บัน', 'Durban', 'Durban', 'डरबन'] }, // Durban Station
+    { id: 'gqeberha', country: 'za', lat: -33.9608, lng: 25.6022, km: 25, names: ['格克貝拉', '格贝哈', 'Gqeberha', 'グケベラ', '그케베하', 'Gqeberha', 'Gqeberha', 'Gqeberha', 'เกเบอร์ฮา', 'Gqeberha', 'Gqeberha', 'गकेबरहा'] }, // 市中心（舊稱伊莉莎白港）
+    { id: 'bloemfontein', country: 'za', lat: -29.121, lng: 26.214, km: 20, names: ['布隆泉', '布隆方丹', 'Bloemfontein', 'ブルームフォンテーン', '블룸폰테인', 'Bloemfontein', 'Bloemfontein', 'Bloemfontein', 'บลูมฟอนเทน', 'Bloemfontein', 'Bloemfontein', 'ब्लोमफ़ोन्टेन'] }, // 市中心
 ];
 const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
 
@@ -207,9 +250,11 @@ const CITY_BY_ID = Object.fromEntries(CITIES.map((c) => [c.id, c]));
 const COUNTRY_TZ = {
     tw: 'Asia/Taipei', jp: 'Asia/Tokyo', kr: 'Asia/Seoul', hk: 'Asia/Hong_Kong', mo: 'Asia/Macau', sg: 'Asia/Singapore',
     my: 'Asia/Kuala_Lumpur', id: 'Asia/Jakarta', vn: 'Asia/Ho_Chi_Minh', th: 'Asia/Bangkok', ph: 'Asia/Manila', au: 'Australia/Sydney',
+    nz: 'Pacific/Auckland', in: 'Asia/Kolkata', br: 'America/Sao_Paulo', ar: 'America/Argentina/Buenos_Aires', za: 'Africa/Johannesburg',
 };
 const CITY_TZ = {
     bali: 'Asia/Makassar', makassar: 'Asia/Makassar',
+    manaus: 'America/Manaus',
     brisbane: 'Australia/Brisbane', goldcoast: 'Australia/Brisbane', adelaide: 'Australia/Adelaide', perth: 'Australia/Perth',
 };
 const tzOf = (city) => CITY_TZ[city.id] || COUNTRY_TZ[city.country];
@@ -224,13 +269,15 @@ function utcOffsetMinutes(cityId, now = Date.now()) {
     const local = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute);
     return Math.round((local - Math.floor(now / 60000) * 60000) / 60000);
 }
-const LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th'];
+const LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko', 'ms', 'id', 'vi', 'th', 'pt', 'es', 'hi'];
 
-/** 城市名稱（使用者的語言；不認得的語言用繁中） */
+/** 城市名稱（使用者的語言；較早加入的城市沒有葡、西、印地文名稱時用英文；不認得的語言用繁中） */
 function nameOf(id, lang) {
     const city = CITY_BY_ID[id];
     if (!city) return id;
-    return city.names[Math.max(0, LANGS.indexOf(lang))];
+    const i = LANGS.indexOf(lang);
+    if (i < 0) return city.names[0];
+    return city.names[i] || city.names[2];
 }
 
 /** 兩座城市是否互疊：目前固定是台灣 ↔ 其他國家 */

@@ -192,7 +192,7 @@ class BeaconControls extends StatelessWidget {
               Icon(Icons.wc, size: 20, color: on ? beaconColor : Night.inkMuted),
               if (on) ...[
                 const SizedBox(width: Night.space1),
-                Text('· $count', style: const TextStyle(color: Night.ink, fontSize: 14, letterSpacing: 1)),
+                Text('· $count', style: TextStyle(color: Night.ink, fontSize: 14, letterSpacing: ls(1))),
               ],
             ]),
           ),

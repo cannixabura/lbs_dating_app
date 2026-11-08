@@ -1,0 +1,7 @@
+/* 系統權限說明與 App 名稱（Info.plist 的翻譯） */
+"CFBundleDisplayName" = "Mood Whisper";
+"NSPhotoLibraryUsageDescription" = "Mood Whisper आपकी चुनी हुई फ़ोटो को प्रोफ़ाइल फ़ोटो बनाने के लिए पढ़ता है।";
+"NSPhotoLibraryAddUsageDescription" = "Mood Whisper आपका मूड कार्ड आपकी फ़ोटो लाइब्रेरी में सेव करता है ताकि आप उसे कहीं और शेयर कर सकें।";
+"NSCameraUsageDescription" = "Mood Whisper कैमरे का इस्तेमाल करता है ताकि आप प्रोफ़ाइल फ़ोटो ले सकें।";
+"NSLocationWhenInUseUsageDescription" = "Mood Whisper ऐप इस्तेमाल करते समय आपकी लोकेशन लेता है, ताकि रडार पर 5 किमी के अंदर के लोग दिखा सके और आस-पास के लोग आपका मूड बबल देख सकें।";
+"Radar" = "रडार को यह जानने के लिए आपकी सटीक लोकेशन चाहिए कि आपके पास कौन है। दूसरों को सिर्फ़ अनुमानित दूरी दिखती है, आपका पता कभी नहीं।";

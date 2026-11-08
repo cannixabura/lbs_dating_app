@@ -613,7 +613,7 @@ class QuantumCountdownPainter extends CustomPainter {
     final k = 1 - ((-t) - (n - 1)); // 這一秒過了多少：0～1
     final alpha = sin(k * pi).clamp(0.0, 1.0);
     final tp = TextPainter(
-      text: TextSpan(text: '$n', style: TextStyle(color: Colors.white.withOpacity(alpha), fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: 3,
+      text: TextSpan(text: '$n', style: TextStyle(color: Colors.white.withOpacity(alpha), fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: ls(3),
           shadows: const [Shadow(color: Night.auroraBlue, blurRadius: 18)])),
       textDirection: TextDirection.ltr,
     )..layout();

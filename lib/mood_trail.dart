@@ -165,7 +165,7 @@ class _MoodTrailScreenState extends State<MoodTrailScreen> {
         backgroundColor: Night.night900,
         foregroundColor: Night.ink,
         elevation: 0,
-        title: Text(tr.myMoodTrail, style: TextStyle(fontSize: 17, letterSpacing: 1)),
+        title: Text(tr.myMoodTrail, style: TextStyle(fontSize: 17, letterSpacing: ls(1))),
         centerTitle: true,
       ),
       body: ListView(

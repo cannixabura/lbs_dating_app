@@ -34,6 +34,9 @@ const languageOptions = <(Locale?, String)>[
   (Locale('id'), 'Bahasa Indonesia'),
   (Locale('vi'), 'Tiếng Việt'),
   (Locale('th'), 'ไทย'),
+  (Locale('pt'), 'Português (Brasil)'),
+  (Locale('es'), 'Español (Latinoamérica)'),
+  (Locale('hi'), 'हिन्दी'),
 ];
 
 String _encode(Locale l) => [l.languageCode, if (l.scriptCode != null) l.scriptCode].join('_');
@@ -61,14 +64,14 @@ Future<void> setAppLocale(Locale? locale) async {
 }
 
 /// 跟隨手機時選哪個語言：中文依字體或地區分繁簡（新加坡、馬來西亞用簡體），
-/// 其他語言比對語言代碼，都沒有就用繁體中文。
+/// 其他語言比對語言代碼，都沒有就用英文（例如法文、德文的手機）。
 Locale resolveLocale(Locale? device, Iterable<Locale> supported) {
   if (device == null) return const Locale('zh');
   if (device.languageCode == 'zh') {
     final hans = device.scriptCode == 'Hans' || (device.scriptCode == null && const {'CN', 'SG', 'MY'}.contains(device.countryCode));
     return hans ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans') : const Locale('zh');
   }
-  return supported.firstWhere((l) => l.languageCode == device.languageCode && l.scriptCode == null, orElse: () => const Locale('zh'));
+  return supported.firstWhere((l) => l.languageCode == device.languageCode && l.scriptCode == null, orElse: () => const Locale('en'));
 }
 
 /// 伺服器與推播要知道使用者的語言：送出 zh-Hant / zh-Hans / en / ja …

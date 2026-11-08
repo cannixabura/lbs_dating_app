@@ -120,7 +120,11 @@ test('city names follow the language', () => {
     assert.strictEqual(p.nameOf('yokohama', 'ja'), '横浜');
     assert.strictEqual(p.nameOf('taoyuan', 'en'), 'Taoyuan');
     assert.strictEqual(p.nameOf('taipei', 'xx'), '台北');
-    for (const c of p.CITIES) assert.strictEqual(c.names.length, p.LANGS.length, c.id);
+    // 較早的城市有 9 種語言，2026-11-08 起加入的國家有全部 12 種（葡、西、印地文缺的時候用英文）
+    const full = new Set(['nz', 'in', 'br', 'ar', 'za']);
+    for (const c of p.CITIES) assert.strictEqual(c.names.length, full.has(c.country) ? p.LANGS.length : 9, c.id);
+    assert.strictEqual(p.nameOf('tokyo', 'pt'), 'Tokyo');
+    assert.strictEqual(p.nameOf('saopaulo', 'hi'), 'साओ पाउलो');
 });
 
 test('one snapshot search reaches every city', () => {

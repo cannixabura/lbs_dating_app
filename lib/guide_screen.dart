@@ -82,6 +82,8 @@ class GuideScreen extends StatelessWidget {
       tr.guideS14L3,
       tr.guideS14L4,
       tr.guideS14L5,
+      tr.guideS14L6,
+      tr.guideS14L7,
     ]),
     (Icons.hive_outlined, tr.guideS17Title, [
       tr.guideS17L1,
@@ -96,6 +98,10 @@ class GuideScreen extends StatelessWidget {
       tr.guideS17L10,
       tr.guideS17L11,
       tr.guideS17L12,
+      tr.guideS17L16,
+      tr.guideS17L13,
+      tr.guideS17L14,
+      tr.guideS17L15,
     ]),
     (Icons.auto_awesome_outlined, tr.guideS18Title, [
       tr.guideS18L1,
@@ -144,7 +150,7 @@ class GuideScreen extends StatelessWidget {
         backgroundColor: Night.night900,
         foregroundColor: Night.ink,
         elevation: 0,
-        title: Text(tr.guide, style: TextStyle(color: Night.ink, fontSize: 17, fontWeight: FontWeight.w500, letterSpacing: 1)),
+        title: Text(tr.guide, style: TextStyle(color: Night.ink, fontSize: 17, fontWeight: FontWeight.w500, letterSpacing: ls(1))),
         centerTitle: true,
       ),
       body: ListView(

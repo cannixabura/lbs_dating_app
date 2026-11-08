@@ -6,10 +6,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
+import 'app_localizations_hi.dart';
 import 'app_localizations_id.dart';
 import 'app_localizations_ja.dart';
 import 'app_localizations_ko.dart';
 import 'app_localizations_ms.dart';
+import 'app_localizations_pt.dart';
 import 'app_localizations_th.dart';
 import 'app_localizations_vi.dart';
 import 'app_localizations_zh.dart';
@@ -101,10 +104,13 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
+    Locale('hi'),
     Locale('id'),
     Locale('ja'),
     Locale('ko'),
     Locale('ms'),
+    Locale('pt'),
     Locale('th'),
     Locale('vi'),
     Locale('zh'),
@@ -1794,7 +1800,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideS14L2.
   ///
   /// In zh, this message translates to:
-  /// **'台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼、越南、泰國、菲律賓與澳洲；國外的城市則對應到台灣。'**
+  /// **'台灣各縣市以各自的中央車站為中心（例如大台北是台北車站、桃園是桃園車站），對應到國外的城市：日本、韓國、香港、澳門、新加坡、馬來西亞、印尼、越南、泰國、菲律賓、澳洲、紐西蘭、印度、巴西、阿根廷與南非；國外的城市則對應到台灣。'**
   String get guideS14L2;
 
   /// No description provided for @guideS14L3.
@@ -4503,6 +4509,42 @@ abstract class AppLocalizations {
   /// **'限定款：聖誕水晶球（冬青花圈、會閃的金星、飄雪）賣到 12/25，量子跨年水晶球（金色時鐘刻度、輪流綻開的煙火，跨年那一刻綻開得特別大）賣到 1/1（台灣時間）。過了販售期就不再上架，買過的人永久保留，也可以恢復購買。'**
   String get guideS17L12;
 
+  /// No description provided for @guideS14L6.
+  ///
+  /// In zh, this message translates to:
+  /// **'國外城市以中央車站為中心，沒有中央車站的城市以市政府為中心。平行座標：開啟平行宇宙後，點地球左邊的按鈕，選一座城市，就會看到你在那座城市大約站在哪一帶；分享卡只寫城市，不寫地名。'**
+  String get guideS14L6;
+
+  /// No description provided for @guideS14L7.
+  ///
+  /// In zh, this message translates to:
+  /// **'平行護照：跟平行城市的人聊天，雙方都說過話，就在那座城市蓋一個章；集滿 5 座城市得到「護照款」光球。從平行座標或設定打開。平行宇宙的人名字下面會顯示對方的當地時間與天色。'**
+  String get guideS14L7;
+
+  /// No description provided for @guideS17L13.
+  ///
+  /// In zh, this message translates to:
+  /// **'量子集會：量子世界裡的集會改成量子集會。點左上角的席位代號 →「開量子集會」，填主題、選圖示和光色，你會坐進 101 旁第 3 圈的主持席，大家點集會光環就能加入。主持人可以發公告、觸發「量子應援」（所有參加者的光球同一刻一起亮），在地圖上點某人可以「移出集會」。每月免費一場（30 分鐘、50 人）；1 小時 200 人、2 小時 1000 人要買主辦券，一張開一場或延長一次（一場最長 12 小時），也可以先多買幾張。集會只在主持人按結束或時間到時結束，主持人離開量子世界或關掉 App 都照常進行；結束後大家拿到一張只寫人數與各大區分布的紀念卡。'**
+  String get guideS17L13;
+
+  /// No description provided for @guideS17L14.
+  ///
+  /// In zh, this message translates to:
+  /// **'會長大的光球：星軌每完成一張量子相遇卡多一顆星（同一個人 24 小時內算一次，最多 24 顆）；年輪在量子世界累積待滿 3 小時多一圈（最多 12 圈）。成長紀錄跟著帳號，買之前就開始累積。'**
+  String get guideS17L14;
+
+  /// No description provided for @guideS17L15.
+  ///
+  /// In zh, this message translates to:
+  /// **'送禮物：在地圖上點某人、或在聊天室右上角選「送禮物」，可以送光之花束（對方畫面綻開一束光，24 小時內光球旁有花瓣光點）、送一款光球，或糾纏款（兩人各一顆，配成一對，都在量子世界時有光繩相連）。對方可以收下或婉拒；婉拒或 7 天沒回應會退回給你，可以再送給別人。不想收禮物可以在設定裡關掉。'**
+  String get guideS17L15;
+
+  /// No description provided for @guideS17L16.
+  ///
+  /// In zh, this message translates to:
+  /// **'更多限定款：情人節水晶球賣到 2/14，櫻花季水晶球賣到 4/10（台灣時間）。過了販售期就不再上架，買過的人永久保留。'**
+  String get guideS17L16;
+
   /// No description provided for @guideS18L6.
   ///
   /// In zh, this message translates to:
@@ -6148,10 +6190,13 @@ class _AppLocalizationsDelegate
   @override
   bool isSupported(Locale locale) => <String>[
     'en',
+    'es',
+    'hi',
     'id',
     'ja',
     'ko',
     'ms',
+    'pt',
     'th',
     'vi',
     'zh',
@@ -6178,6 +6223,10 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
+    case 'hi':
+      return AppLocalizationsHi();
     case 'id':
       return AppLocalizationsId();
     case 'ja':
@@ -6186,6 +6235,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsKo();
     case 'ms':
       return AppLocalizationsMs();
+    case 'pt':
+      return AppLocalizationsPt();
     case 'th':
       return AppLocalizationsTh();
     case 'vi':

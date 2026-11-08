@@ -192,7 +192,7 @@ Future<void> _showShareCard(
           if (count > 1) TextButton.icon(
             onPressed: sharing ? null : next,
             icon: const Icon(Icons.shuffle, size: 18, color: Night.inkMuted),
-            label: Text(tr.shuffleCard(index + 1, count), style: const TextStyle(color: Night.inkMuted, fontSize: 14, letterSpacing: 1)),
+            label: Text(tr.shuffleCard(index + 1, count), style: TextStyle(color: Night.inkMuted, fontSize: 14, letterSpacing: ls(1))),
           ),
           const SizedBox(height: Night.space2),
           Row(mainAxisSize: MainAxisSize.min, children: [
@@ -204,7 +204,7 @@ Future<void> _showShareCard(
             TextButton.icon(
               onPressed: sharing ? null : () => share(link: true),
               icon: const Icon(Icons.link, size: 18, color: Night.inkMuted),
-              label: Text(tr.sendLinkToFriends, style: TextStyle(color: Night.inkMuted, fontSize: 13, letterSpacing: 0.5)),
+              label: Text(tr.sendLinkToFriends, style: TextStyle(color: Night.inkMuted, fontSize: 13, letterSpacing: ls(0.5))),
             ),
         ]),
       );
@@ -244,11 +244,11 @@ class ShareCardBrand extends StatelessWidget {
     return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
       ShaderMask(
         shaderCallback: (rect) => Night.brightGradient.createShader(rect),
-        child: Text(tr.appName, maxLines: 1, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: 3)),
+        child: Text(tr.appName, maxLines: 1, style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: ls(3))),
       ),
       const SizedBox(height: 2),
       Text(shareCardFindUsText(), maxLines: 1, overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Night.ink, fontSize: 11, letterSpacing: 0.5, shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
+          style: TextStyle(color: Night.ink, fontSize: 11, letterSpacing: ls(0.5), shadows: [Shadow(color: Night.night900, blurRadius: 6)])),
     ]);
   }
 }
@@ -297,7 +297,7 @@ class ShareCard extends StatelessWidget {
           Positioned(
               left: 28, right: 28, top: 52,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(invite ? tr.cardInviteEyebrow : (parallel ? tr.parallelUniverse : tr.cardMoodEyebrow), style: TextStyle(color: accent, fontSize: 13, letterSpacing: 3, fontWeight: FontWeight.w500,
+                Text(invite ? tr.cardInviteEyebrow : (parallel ? tr.parallelUniverse : tr.cardMoodEyebrow), style: TextStyle(color: accent, fontSize: 13, letterSpacing: ls(3), fontWeight: FontWeight.w500,
                     shadows: const [Shadow(color: Night.night900, blurRadius: 6)])),
                 const SizedBox(height: 12),
                 Text(
@@ -305,7 +305,7 @@ class ShareCard extends StatelessWidget {
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Night.ink, fontSize: 30, height: 1.4, fontWeight: FontWeight.w600, letterSpacing: 1,
+                    color: Night.ink, fontSize: 30, height: 1.4, fontWeight: FontWeight.w600, letterSpacing: ls(1),
                     shadows: [Shadow(color: accent.withOpacity(0.75), blurRadius: 24), const Shadow(color: Night.night900, blurRadius: 8)],
                   ),
                 ),
@@ -314,7 +314,7 @@ class ShareCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   invite ? tr.cardInviteBody : tr.cardMoodFooter(date, _partOfDay(at)),
-                  style: const TextStyle(color: Night.ink, fontSize: 13, height: 1.7, letterSpacing: 1, shadows: [Shadow(color: Night.night900, blurRadius: 6)]),
+                  style: TextStyle(color: Night.ink, fontSize: 13, height: 1.7, letterSpacing: ls(1), shadows: [Shadow(color: Night.night900, blurRadius: 6)]),
                 ),
               ]),
             ),

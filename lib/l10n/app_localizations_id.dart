@@ -1023,7 +1023,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Setiap kota atau kabupaten di Taiwan berpusat di stasiun pusatnya sendiri (Taipei Raya di Stasiun Taipei, Taoyuan di Stasiun Taoyuan, dan seterusnya) dan dipasangkan dengan kota di luar negeri: Jepang, Korea, Hong Kong, Makau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina, dan Australia. Kota di luar negeri dipasangkan dengan Taiwan.';
+      'Setiap kota atau kabupaten di Taiwan berpusat di stasiun pusatnya sendiri (Taipei Raya di Stasiun Taipei, Taoyuan di Stasiun Taoyuan, dan seterusnya) dan dipasangkan dengan kota di luar negeri: Jepang, Korea, Hong Kong, Makau, Singapura, Malaysia, Indonesia, Vietnam, Thailand, Filipina, Australia, Selandia Baru, India, Brasil, Argentina, dan Afrika Selatan. Kota di luar negeri dipasangkan dengan Taiwan.';
 
   @override
   String get guideS14L3 =>
@@ -2642,6 +2642,30 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get guideS17L12 =>
       'Edisi terbatas: bola kristal Natal (karangan holly, bintang emas berkelip, salju turun) dijual sampai 12/25, dan bola kristal Tahun Baru Kuantum (tanda jam emas dan kembang api, paling besar tepat tengah malam) sampai 1/1, waktu Taiwan. Setelah itu tidak dijual lagi; kalau kamu sudah membeli, tetap jadi milikmu dan bisa dipulihkan.';
+
+  @override
+  String get guideS14L6 =>
+      'Kota di luar negeri berpusat di stasiun pusat, atau balai kota jika tidak ada. Koordinat paralel: saat Semesta Paralel aktif, ketuk tombol di kiri bola dunia dan pilih kota untuk melihat kira-kira di mana kamu berdiri di sana. Kartu berbagi hanya menulis kota, tanpa nama tempat.';
+
+  @override
+  String get guideS14L7 =>
+      'Paspor Paralel: mengobrol dengan orang di kota paralel; setelah kalian berdua bicara, kamu dapat cap kota itu. Kumpulkan 5 kota untuk mendapat bola Paspor. Buka dari koordinat paralel atau Pengaturan. Orang paralel menampilkan waktu lokal dan warna langit di bawah namanya.';
+
+  @override
+  String get guideS17L13 =>
+      'Pertemuan Kuantum: di Dunia Kuantum, pertemuan menjadi Pertemuan Kuantum. Ketuk kode kursimu di kiri atas → Buka Pertemuan Kuantum, tulis judul, pilih ikon dan warna, lalu kamu pindah ke kursi tuan rumah di cincin 3 dekat 101; orang lain mengetuk lingkaran cahaya untuk bergabung. Tuan rumah bisa memasang pengumuman, memicu Sorakan Kuantum (bola semua peserta menyala di saat yang sama), dan mengetuk seseorang di peta untuk mengeluarkannya. Gratis sekali sebulan (30 menit, 50 orang); 1 jam 200 orang atau 2 jam 1.000 orang perlu tiket tuan rumah, satu tiket untuk membuka sekali atau memperpanjang sekali (maksimal 12 jam), dan bisa dibeli beberapa sekaligus. Pertemuan hanya berakhir saat tuan rumah mengakhirinya atau waktu habis, walau tuan rumah keluar dari Dunia Kuantum atau menutup aplikasi. Setelahnya semua mendapat kartu kenangan berisi jumlah orang dan wilayah saja.';
+
+  @override
+  String get guideS17L14 =>
+      'Bola yang tumbuh: Jejak Bintang mendapat satu bintang setiap kamu menyelesaikan Kartu Temu Kuantum (orang yang sama dihitung sekali per 24 jam, maksimal 24 bintang); Lingkar Tahun mendapat satu lingkar setiap 3 jam di Dunia Kuantum (maksimal 12). Pertumbuhan tersimpan di akunmu dan mulai terkumpul sebelum kamu membeli.';
+
+  @override
+  String get guideS17L15 =>
+      'Hadiah: ketuk seseorang di peta, atau pilih Kirim hadiah di kanan atas obrolan, untuk mengirim Buket Cahaya (cahaya mekar di layarnya dan kelopak cahaya di sekitar bolanya selama 24 jam), satu gaya bola, atau pasangan Terjerat (masing-masing satu bola, berpasangan, terhubung tali cahaya saat kalian berdua di Dunia Kuantum). Penerima bisa menerima atau menolak; hadiah yang ditolak atau tak dijawab 7 hari kembali kepadamu untuk diberikan ke orang lain. Penerimaan hadiah bisa dimatikan di Pengaturan.';
+
+  @override
+  String get guideS17L16 =>
+      'Desain terbatas lainnya: bola Valentine dijual sampai 2/14 dan bola Sakura sampai 4/10 (waktu Taiwan). Setelah itu hilang dari toko, dan pembeli memilikinya selamanya.';
 
   @override
   String get guideS18L6 =>

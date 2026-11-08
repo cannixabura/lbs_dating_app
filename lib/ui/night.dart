@@ -2,6 +2,9 @@ import '../l10n/l10n.dart';
 import '../mood_keywords.dart';
 import 'package:flutter/material.dart';
 
+/// 字距：印地文（天城文）加字距會把連在一起的字母拉開，所以一律不加
+double ls(double v) => tr.localeName == 'hi' ? 0 : v;
+
 /// 城市低語「夜光設計系統」的 Flutter 版本。
 /// 數值與設計系統的 tokens.json 一致：https://claude.ai/artifact/TSf7xkrr7ZBbPfkFGqGAg4
 class Night {
@@ -55,10 +58,10 @@ class Night {
   static const glowViolet = BoxShadow(color: Color(0x73B44CFF), blurRadius: 24);
 
   // ---------- 字級 ----------
-  static const title = TextStyle(color: ink, fontSize: 20, height: 1.4, fontWeight: FontWeight.w500, letterSpacing: 1);
+  static TextStyle get title => TextStyle(color: ink, fontSize: 20, height: 1.4, fontWeight: FontWeight.w500, letterSpacing: ls(1));
   static const body = TextStyle(color: inkMuted, fontSize: 15, height: 1.6);
-  static const label = TextStyle(fontSize: 15, height: 1.33, fontWeight: FontWeight.w600, letterSpacing: 1);
-  static const caption = TextStyle(color: inkFaint, fontSize: 12, height: 1.33, letterSpacing: 1);
+  static TextStyle get label => TextStyle(fontSize: 15, height: 1.33, fontWeight: FontWeight.w600, letterSpacing: ls(1));
+  static TextStyle get caption => TextStyle(color: inkFaint, fontSize: 12, height: 1.33, letterSpacing: ls(1));
 }
 
 /// 浮在地圖上的玻璃卡片。`glow` 只給需要使用者立刻決定的那一張（敲門、進場）。

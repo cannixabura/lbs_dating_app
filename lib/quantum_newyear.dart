@@ -148,13 +148,13 @@ class QuantumFireworksPainter extends CustomPainter {
       final alpha = (t < 0.6 ? t / 0.6 : t > 7 ? (9 - t) / 2 : 1.0).clamp(0.0, 1.0);
       final scale = 0.9 + 0.1 * Curves.easeOut.transform(min(1.0, t / 1.5));
       final yearText = TextPainter(
-        text: TextSpan(text: '$year', style: TextStyle(fontSize: 64, fontWeight: FontWeight.w600, letterSpacing: 6,
+        text: TextSpan(text: '$year', style: TextStyle(fontSize: 64, fontWeight: FontWeight.w600, letterSpacing: ls(6),
             foreground: Paint()..shader = Night.brightGradient.createShader(const Rect.fromLTWH(-100, -32, 200, 64))..color = Colors.white.withOpacity(alpha),
             shadows: [Shadow(color: Night.auroraBlue.withOpacity(alpha), blurRadius: 22)])),
         textDirection: TextDirection.ltr,
       )..layout();
       final happy = TextPainter(
-        text: TextSpan(text: tr.quantumNyHappy, style: TextStyle(color: Colors.white.withOpacity(alpha), fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: 4,
+        text: TextSpan(text: tr.quantumNyHappy, style: TextStyle(color: Colors.white.withOpacity(alpha), fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: ls(4),
             shadows: const [Shadow(color: Night.auroraBlue, blurRadius: 14)])),
         textDirection: TextDirection.ltr,
       )..layout();

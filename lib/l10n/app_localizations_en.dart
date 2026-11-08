@@ -1072,7 +1072,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideS14L2 =>
-      'Each city or county in Taiwan is centred on its own central station (Greater Taipei on Taipei Station, Taoyuan on Taoyuan Station, and so on) and matched with cities abroad: Japan, Korea, Hong Kong, Macau, Singapore, Malaysia, Indonesia, Vietnam, Thailand, the Philippines and Australia. Cities abroad are matched with Taiwan.';
+      'Each city or county in Taiwan is centred on its own central station (Greater Taipei on Taipei Station, Taoyuan on Taoyuan Station, and so on) and matched with cities abroad: Japan, Korea, Hong Kong, Macau, Singapore, Malaysia, Indonesia, Vietnam, Thailand, the Philippines, Australia, New Zealand, India, Brazil, Argentina and South Africa. Cities abroad are matched with Taiwan.';
 
   @override
   String get guideS14L3 =>
@@ -2716,6 +2716,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideS17L12 =>
       'Limited looks: the Christmas crystal orb (holly wreath, twinkling gold star, falling snow) is sold until 12/25, and the Quantum New Year crystal orb (gold clock ticks and bursting fireworks, extra big at the stroke of midnight) until 1/1, Taiwan time. After that they are never sold again; if you bought one you keep it forever and can restore it.';
+
+  @override
+  String get guideS14L6 =>
+      'Cities abroad are centred on their central station, or on city hall where there is none. Parallel coordinates: with Parallel Universe on, tap the button left of the globe and pick a city to see roughly where you\'d be standing there. The share card shows only the city, never a place name.';
+
+  @override
+  String get guideS14L7 =>
+      'Parallel Passport: chat with someone in a parallel city and, once you\'ve both spoken, you get a stamp for that city. Collect 5 cities to earn the Passport orb. Open it from parallel coordinates or Settings. Parallel people show their local time and sky under their name.';
+
+  @override
+  String get guideS17L13 =>
+      'Quantum Assembly: in Quantum World, gatherings become Quantum Assemblies. Tap your seat code at top left → Host a Quantum Assembly, write a title, pick an icon and colour, and you move to a host seat on ring 3 beside 101; everyone can tap the halo to join. The host can post announcements, set off a Quantum Cheer (every participant\'s orb lights up at the same moment), and tap someone on the map to remove them. One free assembly a month (30 minutes, 50 people); 1 hour for 200 people or 2 hours for 1,000 needs a host pass, which starts one assembly or extends one (up to 12 hours in all), and you can buy several ahead. An assembly ends only when the host ends it or time runs out, even if the host leaves Quantum World or closes the app. Afterwards everyone gets a memento card with just the head count and regions.';
+
+  @override
+  String get guideS17L14 =>
+      'Growing orbs: Star Trail gains a star for each Quantum Meet Card you complete (the same person counts once per 24 hours, up to 24 stars); Growth Rings gains a ring for every 3 hours you spend in Quantum World (up to 12 rings). Growth is tied to your account and builds up even before you buy.';
+
+  @override
+  String get guideS17L15 =>
+      'Gifts: tap someone on the map, or choose Send a gift at the top right of a chat, to send a Light Bouquet (a burst of light on their screen and petal lights around their orb for 24 hours), an orb style, or the Entangled pair (one orb each, paired, joined by a rope of light when you\'re both in Quantum World). They can accept or decline; declined or unanswered gifts come back to you after 7 days so you can give them to someone else. You can turn off receiving gifts in Settings.';
+
+  @override
+  String get guideS17L16 =>
+      'More limited looks: the Valentine orb is on sale until 2/14 and the Sakura orb until 4/10 (Taiwan time). After that they leave the store, and buyers keep them for good.';
 
   @override
   String get guideS18L6 =>

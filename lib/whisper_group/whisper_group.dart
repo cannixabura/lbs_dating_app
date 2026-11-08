@@ -337,7 +337,7 @@ Future<void> showJoinByCode(BuildContext context) {
             const SizedBox(height: Night.space3),
             TextField(
               controller: ctl, maxLength: 8, textCapitalization: TextCapitalization.characters, autofocus: true,
-              style: const TextStyle(color: Night.ink, fontSize: 22, letterSpacing: 4), textAlign: TextAlign.center,
+              style: TextStyle(color: Night.ink, fontSize: 22, letterSpacing: ls(4)), textAlign: TextAlign.center,
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]'))],
             ),
             const SizedBox(height: Night.space2),
@@ -833,7 +833,7 @@ void _showQr(BuildContext context, WgGroup g) {
                 child: QrImageView(data: qr, size: 220, backgroundColor: Colors.white),
               ),
               const SizedBox(height: Night.space2),
-              SelectableText(cur?.code ?? g.code, style: const TextStyle(color: Night.ink, fontSize: 22, letterSpacing: 4)),
+              SelectableText(cur?.code ?? g.code, style: TextStyle(color: Night.ink, fontSize: 22, letterSpacing: ls(4))),
               const SizedBox(height: Night.space2),
               Wrap(alignment: WrapAlignment.center, children: [
                 TextButton.icon(onPressed: () => SharePlus.instance.share(ShareParams(text: tr.wgShareText(g.name, qr))), icon: const Icon(Icons.ios_share, size: 18), label: Text(tr.wgShare), style: TextButton.styleFrom(foregroundColor: Night.ink)),

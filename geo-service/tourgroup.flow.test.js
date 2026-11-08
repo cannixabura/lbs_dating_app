@@ -1,0 +1,172 @@
+// 旅行團完整流程：迷你 Redis ＋ 記憶體 RTDB，直接呼叫 tourgroup_api 的 handle
+const test = require('node:test');
+const assert = require('node:assert');
+const { run } = require('./mini_redis');
+const api = require('./tourgroup_api');
+const tg = require('./tourgroup');
+
+let now = Date.UTC(2026, 10, 17, 1, 0);
+const store = {};
+const ref = (path) => ({
+    transaction: async (fn) => {
+        const next = fn(store[path] ?? null);
+        if (next === undefined) return { committed: false };
+        store[path] = next;
+        return { committed: true };
+    },
+});
+const pushes = [];
+const tour = api.create({
+    cmd: async (c) => run(c),
+    pipe: async (cs) => cs.map((c) => run(c)),
+    verifyCaller: async (req) => req.uid,
+    isDisallowed: (t) => String(t).includes('髒話'),
+    push: async (uids, title, body, data, opts) => { pushes.push({ uids, body, data, urgent: !!(opts && opts.urgent) }); return uids.length; },
+    langOf: () => 'zh-Hant',
+    localize: (l, t) => t,
+    db: () => ({ ref }),
+    verifyAppleJws: (jws) => JSON.parse(jws),
+    receiptKey: (src, id) => `g_${id}`,
+    playPurchase: async () => ({ purchaseState: 0 }),
+    clock: () => now,
+});
+
+async function call(uid, action, body = {}) {
+    let out;
+    const res = { status: () => res, json: (x) => { out = x; return res; }, send: (x) => { out = x; return res; } };
+    await tour.handle({ method: 'POST', uid, body: { action, ...body } }, res);
+    return out;
+}
+
+test('完整流程：開團、入團、共同團主、分組集合、點名、公告、行程表、迷路、團購券、解散', async () => {
+    let r = await call('leader', 'create', { name: '京都秋楓五日', color: 'violet', days: 5, tz: 'Asia/Taipei', subs: ['1 號車', '2 號車'] });
+    assert.equal(r.success, true);
+    const g0 = r.group;
+    assert.equal(g0.role, 'host');
+    assert.deepEqual(g0.subs, ['1 號車', '2 號車']);
+    const v = Number(new URL(g0.qr).searchParams.get('v'));
+
+    // 19 位團員＋導遊入團（含團主共 21 人 → 第 21 位被擋）
+    for (let i = 1; i <= 18; i++) assert.equal((await call(`m${i}`, 'join', { code: g0.code, v })).success, true);
+    assert.equal((await call('guide', 'join', { code: g0.code, v })).success, true);
+    r = await call('late', 'join', { code: g0.code, v });
+    assert.equal(r.code, 'full');
+    assert.ok(pushes.some((p) => p.data.type === 'tgroup_full'));
+
+    // 導遊成為共同團主
+    r = await call('leader', 'cohost_add', { uid: 'guide' });
+    assert.equal(r.group.staff.length, 2);
+    r = await call('guide', 'status');
+    assert.equal(r.group.role, 'cohost');
+    assert.equal(r.group.members.length, 18);
+
+    // 共同團主不能解散、不能升別人
+    assert.equal((await call('guide', 'dissolve')).code, 'not_host');
+
+    // 分組：m1～m9 是 1 號車、m10～m18 是 2 號車
+    for (let i = 1; i <= 18; i++) await call('leader', 'assign', { uid: `m${i}`, sub: i <= 9 ? 0 : 1 });
+
+    // 共同團主只叫 2 號車集合（京都時間）
+    pushes.length = 0;
+    r = await call('guide', 'call', { at: now + 15 * 60000, tz: 'Asia/Tokyo', place: '仁王門前石階下', lat: 34.99, lng: 135.78, sub: 1 });
+    assert.equal(r.success, true);
+    assert.equal(pushes[0].uids.length, 9);
+    assert.equal(pushes[0].urgent, true);
+    assert.equal(r.group.callRoster.total, 9);
+    // 1 號車的人看不到這次集合；2 號車看得到
+    assert.equal((await call('m1', 'status')).group.call, null);
+    const m10 = (await call('m10', 'status')).group;
+    assert.equal(m10.call.place, '仁王門前石階下');
+    assert.equal((await call('m10', 'ack', { callId: m10.call.id })).success, true);
+
+    // 一分鐘後只提醒 2 號車還沒收到的 8 個人
+    pushes.length = 0;
+    now += 61000;
+    await tour.remind();
+    assert.equal(pushes[0].uids.length, 8);
+    assert.ok(!pushes[0].uids.includes('m10'));
+
+    // 全團點名；m3 需要幫忙 → 團主與共同團主都收到
+    r = await call('leader', 'rollcall', {});
+    const rollId = r.group.roll.id;
+    await call('m1', 'answer', { rollId, answer: 'here' });
+    pushes.length = 0;
+    await call('m3', 'answer', { rollId, answer: 'help' });
+    assert.deepEqual(pushes[0].uids.sort(), ['guide', 'leader']);
+    r = await call('leader', 'status');
+    assert.equal(r.group.rollRoster.rows[0].uid, 'm3');
+    assert.equal(r.group.rollRoster.here, 1);
+
+    // 公告：只給 1 號車
+    await call('leader', 'announce', { text: '1 號車 18:30 在飯店大廳集合', sub: 0 });
+    assert.equal((await call('m2', 'status')).group.announcements.length, 1);
+    assert.equal((await call('m12', 'status')).group.announcements.length, 0);
+    assert.equal((await call('leader', 'announce', { text: '髒話' })).code, 'filtered');
+
+    // 行程表：最後一個集合點在京都 → 結束時間改成京都的 23:59
+    const before = (await call('leader', 'status')).group.endsAt;
+    await call('leader', 'stop_add', { at: now + 3600000, tz: 'Asia/Taipei', place: '桃園機場 第一航廈' });
+    r = await call('leader', 'stop_add', { at: now + 6 * 3600000, tz: 'Asia/Tokyo', place: '關西機場 南出口', lat: 34.43, lng: 135.24 });
+    assert.equal(r.group.stops.length, 2);
+    assert.equal(r.group.endsAt, before - 3600000);
+    assert.equal(new Date(r.group.endsAt).toISOString(), '2026-11-21T14:59:59.999Z');
+
+    // 我迷路了：團員按下才傳一次位置
+    await call('m5', 'lost', { lat: 34.995, lng: 135.785 });
+    r = await call('guide', 'status');
+    assert.equal(r.group.lost.length, 1);
+    assert.equal(r.group.lost[0].uid, 'm5');
+    assert.equal(r.group.members.some((m) => 'lat' in m), false); // 名單裡沒有任何人的位置
+    assert.equal((await call('leader', 'lost', { lat: 1, lng: 1 })).code, 'bad_request');
+
+    // 旅行社買團購券 → 發給領隊 → 這一團升級，第 21 位就能入團
+    r = await call('agency', 'buy_voucher', { purchase: { platform: 'apple', data: JSON.stringify({ bundleId: tg.BUNDLE_ID, productId: tg.PASS_PRODUCT, transactionId: '777' }) } });
+    assert.equal(r.result, 'granted');
+    const voucher = r.voucher;
+    r = await call('agency', 'buy_voucher', { purchase: { platform: 'apple', data: JSON.stringify({ bundleId: tg.BUNDLE_ID, productId: tg.PASS_PRODUCT, transactionId: '777' }) } });
+    assert.equal(r.result, 'exists');
+    assert.equal(r.vouchers.length, 1);
+    assert.equal((await call('guide', 'redeem', { voucher })).code, 'not_host');
+    r = await call('leader', 'redeem', { voucher });
+    assert.equal(r.group.paid, true);
+    assert.equal(r.group.limit, 100);
+    assert.equal((await call('agency', 'vouchers')).vouchers[0].used, true);
+    assert.equal((await call('late', 'join', { code: g0.code, v })).success, true);
+
+    // 換新 QR code：舊的失效
+    await call('leader', 'rotate_qr');
+    assert.equal((await call('late2', 'join', { code: g0.code, v })).code, 'qr');
+
+    // 交棒給導遊：原團主變共同團主
+    r = await call('leader', 'handoff', { uid: 'guide' });
+    assert.equal(r.group.role, 'cohost');
+    assert.equal((await call('guide', 'status')).group.role, 'host');
+
+    // 解散：所有資料刪除
+    r = await call('guide', 'dissolve');
+    assert.equal(r.group, null);
+    assert.equal((await call('m1', 'status')).group, null);
+    assert.equal(run(['GET', tg.KEY.group(g0.code)]), null);
+});
+
+test('城市低語的低語團不受影響：使用不同的 Redis key', () => {
+    const wg = require('./whispergroup');
+    assert.notEqual(wg.KEY.group('ABCDEFGH'), tg.KEY.group('ABCDEFGH'));
+    assert.notEqual(wg.KEY.of('u'), tg.KEY.of('u'));
+    assert.notEqual(wg.KEY.activeCalls, tg.KEY.activeCalls);
+});
+
+test('單獨呼叫：只推給那一個人；沒有集合或點名時不送', async () => {
+    let r = await call('lead2', 'create', { name: '單獨呼叫測試', color: 'blue', days: 1, tz: 'Asia/Taipei' });
+    const code = r.group.code, v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('p1', 'join', { code, v });
+    await call('p2', 'join', { code, v });
+    assert.equal((await call('lead2', 'ping', { uid: 'p1' })).code, 'ended');
+    await call('lead2', 'call', { at: now + 10 * 60000, tz: 'Asia/Taipei', place: '大廳', lat: 25, lng: 121 });
+    pushes.length = 0;
+    r = await call('lead2', 'ping', { uid: 'p1' });
+    assert.equal(r.success, true);
+    assert.deepEqual(pushes[0].uids, ['p1']);
+    assert.equal((await call('p2', 'ping', { uid: 'p1' })).code, 'not_host');
+    await call('lead2', 'dissolve');
+});

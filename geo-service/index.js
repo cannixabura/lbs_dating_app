@@ -1390,10 +1390,10 @@ exports.syncModeration = functionsV1.runWith({ secrets: UPSTASH_SECRETS }).datab
 const PLAY_PACKAGE = "com.softchip.moodwhisper";
 
 /** Google Play Developer API：查一筆一次性商品的購買。Cloud Functions 的服務帳號要先在 Play Console 加入使用者並給「查看財務資料」權限 */
-async function playPurchase(productId, token) {
+async function playPurchase(productId, token, pkg = PLAY_PACKAGE) {
     const { GoogleAuth } = require("google-auth-library");
     const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
-    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(token)}`;
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${pkg}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(token)}`;
     return (await client.request({ url })).data;
 }
 
@@ -2403,6 +2403,30 @@ exports.remindWhisperGroups = onSchedule({ schedule: "every 1 minutes", region: 
     }
   }
 });
+
+// ============================================================================
+// 旅行團（TourChip，獨立 App）：規格「旅行團 產品規格」；純函式 tourgroup.js、API tourgroup_api.js
+// 與低語團共用同一個後端，但 Redis 用 tgroup* 開頭，低語團完全不受影響。
+// ============================================================================
+const tourApi = require("./tourgroup_api").create({
+  cmd: sendUpstashCommand,
+  pipe: sendUpstashPipeline,
+  verifyCaller,
+  isDisallowed,
+  push: wgPush,
+  langOf,
+  localize,
+  db: () => admin.database(),
+  verifyAppleJws: (jws) => orbs.verifyAppleJws(jws),
+  receiptKey: orbs.receiptKey,
+  playPurchase,
+});
+
+exports.tourGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+  cors(req, res, () => tourApi.handle(req, res));
+});
+
+exports.remindTourGroups = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, () => tourApi.remind());
 
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {

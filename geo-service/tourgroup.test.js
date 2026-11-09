@@ -3,7 +3,8 @@ const assert = require('node:assert');
 const t = require('./tourgroup');
 
 const NOW = Date.UTC(2026, 10, 17, 1, 0); // 2026-11-17 09:00 台北
-const mk = (extra = {}) => t.makeGroup({ host: 'h', name: '京都秋楓五日', color: 'violet', days: 5, tz: 'Asia/Taipei', ...extra }, NOW).group;
+// 5 天的團：免費 3 天＋一張天數券
+const mk = (extra = {}) => t.addDayPass(t.makeGroup({ host: 'h', name: '京都秋楓五日', color: 'violet', days: 5, tz: 'Asia/Taipei', ...extra }, NOW).group, []).group;
 
 test('開團：結束日 23:59 以開團時區計算', () => {
   const g = mk();
@@ -15,7 +16,7 @@ test('開團：結束日 23:59 以開團時區計算', () => {
 test('開團：檢查團名、團色、天數；無效時區改用台北', () => {
   assert.equal(t.makeGroup({ host: 'h', name: ' ', color: 'violet', days: 1 }, NOW).code, 'name');
   assert.equal(t.makeGroup({ host: 'h', name: 'a', color: 'black', days: 1 }, NOW).code, 'color');
-  assert.equal(t.makeGroup({ host: 'h', name: 'a', color: 'violet', days: 8 }, NOW).code, 'days');
+  assert.equal(t.makeGroup({ host: 'h', name: 'a', color: 'violet', days: 31 }, NOW).code, 'days');
   assert.equal(t.makeGroup({ host: 'h', name: 'a', color: 'violet', days: 1, tz: 'Mars/Base' }, NOW).group.tz, 'Asia/Taipei');
 });
 
@@ -71,7 +72,8 @@ test('分組與通知對象：不含團主、共同團主；可只通知一組',
 });
 
 test('集合呼叫：時間範圍、時區、對象；提醒只給這次的對象', () => {
-  assert.equal(t.makeCall({ at: NOW + 4 * 3600000, lat: 35, lng: 135 }, NOW).code, 'time');
+  assert.equal(t.makeCall({ at: NOW + 13 * 3600000, lat: 35, lng: 135 }, NOW).code, 'time');
+  assert.equal(t.makeCall({ at: NOW + 11 * 3600000, lat: 35, lng: 135 }, NOW).ok, true);
   assert.equal(t.makeCall({ at: NOW, lat: 999, lng: 135 }, NOW).code, 'place');
   const c = t.makeCall({ at: NOW + 15 * 60000, tz: 'Asia/Tokyo', place: '仁王門前', lat: 35, lng: 135.78, sub: 1, targets: ['m2'] }, NOW).call;
   assert.equal(c.tz, 'Asia/Tokyo');

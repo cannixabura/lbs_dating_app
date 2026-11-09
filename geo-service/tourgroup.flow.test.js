@@ -10,7 +10,7 @@ const store = {};
 const ref = (path) => ({
     transaction: async (fn) => {
         const next = fn(store[path] ?? null);
-        if (next === undefined) return { committed: false };
+        if (next === undefined) return { committed: false, snapshot: { val: () => store[path] ?? null } };
         store[path] = next;
         return { committed: true };
     },
@@ -109,7 +109,9 @@ test('完整流程：開團、入團、共同團主、分組集合、點名、�
     r = await call('leader', 'stop_add', { at: now + 6 * 3600000, tz: 'Asia/Tokyo', place: '關西機場 南出口', lat: 34.43, lng: 135.24 });
     assert.equal(r.group.stops.length, 2);
     assert.equal(r.group.endsAt, before - 3600000);
-    assert.equal(new Date(r.group.endsAt).toISOString(), '2026-11-21T14:59:59.999Z');
+    // 5 天的團還沒買天數券：先在免費的第 3 天結束
+    assert.equal(new Date(r.group.endsAt).toISOString(), '2026-11-19T14:59:59.999Z');
+    assert.equal(r.group.daysNeeded, 1);
 
     // 我迷路了：團員按下才傳一次位置
     await call('m5', 'lost', { lat: 34.995, lng: 135.785 });
@@ -288,4 +290,143 @@ test('地圖上的人不會因為太久沒更新而消失：30 分鐘沒回應�
     assert.ok(!(await call('lead6', 'status')).group.people.some((p) => p.uid === 'c1'));
     assert.equal(run(['ZSCORE', tg.KEY.pingDue, `${code}|c1`]), null);
     await call('lead6', 'dissolve');
+});
+
+test('出發日與天數：免費 3 天，天數券每張多 7 天（購買、團購券），最長 30 天；團主改天數', async () => {
+    now = Date.UTC(2026, 10, 20, 1, 0); // 台北 11/20 09:00
+    assert.equal((await call('t1', 'create', { name: '北海道十日', color: 'blue', days: 10, tz: 'Asia/Taipei', start: '2026-10-01' })).code, 'start');
+    assert.equal((await call('t1', 'create', { name: '北海道十日', color: 'blue', days: 10, tz: 'Asia/Taipei', start: '2027-03-01' })).code, 'start'); // 超過 90 天
+    let r = await call('t1', 'create', { name: '北海道十日', color: 'blue', days: 10, tz: 'Asia/Taipei', start: '2026-12-01' });
+    assert.equal(r.group.startDate, '2026-12-01');
+    assert.equal(r.group.endDate, '2026-12-03');
+    assert.equal(r.group.allowedDays, 3);
+    assert.equal(r.group.daysNeeded, 1);
+    // 出發前就能入團
+    const v = Number(new URL(r.group.qr).searchParams.get('v'));
+    assert.equal((await call('t2', 'join', { code: r.group.code, v })).success, true);
+
+    // 買一張天數券 → 10 天
+    const buy = (id, productId) => call('t1', 'verify', { purchase: { platform: 'apple', data: JSON.stringify({ bundleId: tg.BUNDLE_ID, productId, transactionId: id }) } });
+    r = await buy('d1', tg.DAYS_PRODUCT);
+    assert.equal(r.result, 'granted');
+    assert.equal(r.group.endDate, '2026-12-10');
+    assert.equal(r.group.daysNeeded, 0);
+    assert.equal(r.group.paid, false);
+    // 同一筆購買再送一次不會多加
+    r = await buy('d1', tg.DAYS_PRODUCT);
+    assert.equal(r.result, 'granted');
+    assert.equal(r.group.allowedDays, 10);
+
+    // 改成 30 天：要再 3 張；用團購券補一張
+    r = await call('t1', 'trip', { days: 30 });
+    assert.equal(r.group.days, 30);
+    assert.equal(r.group.endDate, '2026-12-10');
+    assert.equal(r.group.daysNeeded, 3);
+    r = await call('agency2', 'buy_voucher', { purchase: { platform: 'apple', data: JSON.stringify({ bundleId: tg.BUNDLE_ID, productId: tg.DAYS_PRODUCT, transactionId: 'dv1' }) } });
+    assert.equal(r.vouchers[0].kind, 'days');
+    r = await call('t1', 'redeem', { voucher: r.voucher });
+    assert.equal(r.kind, 'days');
+    assert.equal(r.group.endDate, '2026-12-17');
+    await buy('d2', tg.DAYS_PRODUCT);
+    r = await buy('d3', tg.DAYS_PRODUCT);
+    assert.equal(r.group.allowedDays, 30);
+    assert.equal(r.group.endDate, '2026-12-30');
+    assert.equal((await buy('d4', tg.DAYS_PRODUCT)).code, 'max_days');
+    // 人數券另外算
+    r = await buy('p1', tg.PASS_PRODUCT);
+    assert.equal(r.group.paid, true);
+    assert.equal(r.group.allowedDays, 30);
+
+    // 改出發日：整段往後移；不能改到過去；共同團主、團員不能改
+    r = await call('t1', 'trip', { start: '2026-12-05' });
+    assert.equal(r.group.endDate, '2027-01-03');
+    assert.equal((await call('t1', 'trip', { start: '2026-11-01' })).code, 'start');
+    assert.equal((await call('t2', 'trip', { days: 3 })).code, 'not_host');
+    await call('t1', 'dissolve');
+});
+
+test('每日資訊卡、車輛、緊急聯絡、團員資料（只有團主看得到）；解散刪除', async () => {
+    now = Date.UTC(2026, 10, 20, 1, 0);
+    let r = await call('h1', 'create', { name: '東京三日', color: 'red', days: 3, tz: 'Asia/Tokyo', subs: ['1 號車', '2 號車'] });
+    const code = r.group.code;
+    const v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('u1', 'join', { code, v });
+
+    r = await call('h1', 'day_set', {
+        date: '2026-11-20', note: '早餐 7:00 一樓\n午餐自理',
+        hotel: { name: '新宿王子飯店', addr: '東京都新宿区歌舞伎町1-30-1', phone: '+81-3-3205-1111 <script>', lat: 35.69, lng: 139.70 },
+        links: [{ title: '淺草寺攻略', url: 'https://example.com/asakusa' }, { url: 'https://example.com/b' }],
+    });
+    assert.equal(r.success, true);
+    let card = r.group.dayCards[0];
+    assert.equal(card.hotel.phone, '+81-3-3205-1111');
+    assert.equal(card.links[1].title, 'example.com/b');
+    assert.equal((await call('h1', 'day_set', { date: '2026-11-20', links: [{ url: 'javascript:alert(1)' }] })).code, 'url');
+    assert.equal((await call('h1', 'day_set', { date: '2026-11-20', note: '髒話' })).code, 'filtered');
+    assert.equal((await call('u1', 'day_set', { date: '2026-11-20', note: 'x' })).code, 'not_host');
+    r = await call('u1', 'status');
+    assert.equal(r.group.dayCards.length, 1);
+    // 全部清空 → 刪除這一天
+    r = await call('h1', 'day_set', { date: '2026-11-20', note: '' });
+    assert.equal(r.group.dayCards.length, 0);
+    await call('h1', 'day_set', { date: '2026-11-21', note: '自由活動' });
+
+    r = await call('h1', 'info_set', { buses: [{ sub: 0, plate: '品川 500 あ 12-34', driver: '佐藤', phone: '090-1234-5678' }, { sub: 5, plate: 'x' }] });
+    assert.equal(r.code, 'bad_request');
+    r = await call('h1', 'info_set', { buses: [{ sub: 0, plate: '品川 500 あ 12-34', driver: '佐藤', phone: '090-1234-5678' }, { sub: null }], emergency: { phone: '+886 912 345 678', agency: '雄獅旅遊', agencyPhone: '+886 2 1234 5678' } });
+    assert.equal(r.group.info.buses.length, 1);
+    assert.equal((await call('u1', 'status')).group.info.emergency.agency, '雄獅旅遊');
+
+    // 團員資料：自己填；團主在名單看得到，其他團員看不到
+    await call('u2', 'join', { code, v });
+    r = await call('u1', 'mdata', { diet: '不吃牛', health: '花生過敏', contact: '媽媽', contactPhone: '0912-000-000' });
+    assert.equal(r.group.myData.diet, '不吃牛');
+    r = await call('h1', 'status');
+    assert.equal(r.group.members.find((m) => m.uid === 'u1').data.health, '花生過敏');
+    r = await call('u2', 'status');
+    assert.equal(r.group.members, undefined);
+    assert.equal(JSON.stringify(r.group).includes('花生過敏'), false);
+    // 退團就刪除
+    await call('u1', 'leave');
+    assert.equal(run(['HGET', tg.KEY.mdata(code), 'u1']), null);
+    await call('h1', 'dissolve');
+    assert.equal(run(['GET', tg.KEY.info(code)]), null);
+    assert.equal(run(['HGETALL', tg.KEY.days(code)]).length, 0);
+});
+
+test('集合前 15 分鐘自動提醒：集合呼叫與行程表都會；同一個時間只提醒一次', async () => {
+    now = Date.UTC(2026, 10, 20, 1, 0);
+    let r = await call('h2', 'create', { name: '大阪', color: 'gold', days: 2, tz: 'Asia/Tokyo' });
+    const code = r.group.code;
+    await call('w1', 'join', { code, v: Number(new URL(r.group.qr).searchParams.get('v')) });
+
+    // 自由活動 3 小時後集合
+    const at = now + 3 * 3600000;
+    r = await call('h2', 'call', { at, tz: 'Asia/Tokyo', place: '道頓堀 固力果', lat: 34.67, lng: 135.50 });
+    assert.equal(r.success, true);
+    await call('w1', 'ack', { callId: r.group.call.id });
+    // 行程表：同一個時間的集合點（有集合呼叫就不重複）＋ 晚一點的另一個
+    await call('h2', 'stop_add', { at, tz: 'Asia/Tokyo', place: '道頓堀 固力果' });
+    await call('h2', 'stop_add', { at: at + 3600000, tz: 'Asia/Tokyo', place: '飯店大廳' });
+
+    pushes.length = 0;
+    const loud = () => pushes.filter((p) => p.data.type !== 'tgroup_ping'); // 不算無聲推播
+    now = at - 20 * 60000;
+    await tour.remind();
+    assert.equal(loud().length, 0);
+    now = at - 15 * 60000;
+    await tour.remind();
+    assert.equal(loud().length, 1);
+    assert.deepEqual(loud()[0].uids, ['w1']); // 按過收到的也會提醒
+    assert.match(loud()[0].body, /還有 15 分鐘/);
+    now += 60000;
+    await tour.remind();
+    assert.equal(loud().length, 1); // 只提醒一次
+
+    now = at + 3600000 - 15 * 60000;
+    await tour.remind();
+    assert.equal(loud().length, 2);
+    assert.equal(loud()[1].data.type, 'tgroup_stop');
+    assert.match(loud()[1].body, /飯店大廳/);
+    await call('h2', 'dissolve');
 });

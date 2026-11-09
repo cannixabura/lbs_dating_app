@@ -41,7 +41,7 @@ test('旅行團推播：英文都有翻譯', () => {
         [tg.callText({ at, tz: 'Asia/Taipei' }, at - 5 * 60000), 'Meet at 08:30 (5 min left). Open the app to see the meeting point.'],
         [tg.callText({ at, tz: 'Asia/Taipei', place: '台北車站' }, at), 'Meet at "台北車站" now'],
         [tg.callText({ at, tz: 'Asia/Taipei' }, at), 'Meet now. Open the app to see the meeting point.'],
-        ['第 21 位團員正在等待入團，升級 7 天方案或使用團購券後就能加入。', 'Member 21 is waiting to join. Upgrade to the 7-day pass or use a voucher to let them in.'],
+        ['第 21 位團員正在等待入團，買人數券或使用團購券後就能加入。', 'Member 21 is waiting to join. Buy a group-size pass or use a voucher to let them in.'],
         ['你成為這一團的共同團主了，可以發集合、點名和公告。', "You're now a co-leader of this group. You can call meetups, take roll calls and post notices."],
         ['你成為這一團的團主了。', "You're now the leader of this group."],
         ['這一團已經解散，謝謝這幾天一起同行。', 'This group has ended. Thanks for traveling together.'],

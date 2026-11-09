@@ -27,8 +27,15 @@ const crypto = require('crypto');
 
 const FREE_LIMIT = 20; // 含團主、共同團主
 const PAID_LIMIT = 100;
-const MAX_DAYS = 7;
+// 天數：出發日起免費 3 天；每張天數券多 7 天，可以疊加，一團最長 30 天。出發日最遠可以選 90 天後。
+const FREE_DAYS = 3;
+const DAYS_PER_PASS = 7;
+const MAX_DAYS = 30;
+const MAX_LEAD_DAYS = 90;
+// 人數券（商品代碼沿用 tour_pass_7d）：這一團升到 100 人，到解散為止；天數券：這一團多 7 天
 const PASS_PRODUCT = 'tour_pass_7d';
+const DAYS_PRODUCT = 'tour_days_7d';
+const PRODUCTS = [PASS_PRODUCT, DAYS_PRODUCT];
 const BUNDLE_ID = 'com.softchip.tourchip';
 const PLAY_PACKAGE = 'com.softchip.tourchip';
 const LINK_BASE = 'https://tourchip.web.app';
@@ -58,7 +65,19 @@ const PING_EVERY_MS = 12 * 60 * 1000;
 const COLORS = ['violet', 'pink', 'blue', 'teal', 'green', 'gold', 'orange', 'red'];
 const REMIND_EVERY_MS = 60 * 1000;
 const REMIND_MAX = 3;
-const CALL_LEAD_MAX_MS = 3 * 60 * 60 * 1000;
+const CALL_LEAD_MAX_MS = 12 * 60 * 60 * 1000; // 自由活動可以排到 12 小時後
+// 集合前 15 分鐘自動提醒一次（集合呼叫與行程表的集合點都會）；離發出不到 20 分鐘的集合不另外提醒
+const PRE_REMIND_MS = 15 * 60 * 1000;
+const PRE_REMIND_MIN_LEAD_MS = 20 * 60 * 1000;
+// 每日資訊卡、團體資訊、團員資料
+const MAX_DAY_NOTE = 1000;
+const MAX_LINKS = 10;
+const MAX_LINK_TITLE = 40;
+const MAX_URL = 500;
+const MAX_HOTEL_NAME = 40;
+const MAX_ADDR = 200;
+const MAX_PHONE = 25;
+const MAX_INFO_NOTE = 200;
 const CALL_LINGER_MS = 30 * 60 * 1000;
 const ANSWERS = ['here', '5min', 'help'];
 const LOST_TTL_MS = 30 * 60 * 1000;
@@ -90,6 +109,10 @@ const KEY = {
     pingDue: 'tgroup_ping_due', // 有序集合：「團代碼|uid」→ 下次該送無聲推播的時間
     voucher: (v) => `tvoucher:${v}`,
     vouchersOf: (uid) => `tvouchers_of:${uid}`,
+    days: (code) => `tgroup_days:${code}`, // 每日資訊卡：hash 日期 'YYYY-MM-DD' → JSON（說明、飯店、攻略連結）
+    info: (code) => `tgroup_info:${code}`, // 團體資訊 JSON：車輛（可依分組）、緊急聯絡
+    mdata: (code) => `tgroup_mdata:${code}`, // 團員資料：hash uid → JSON（飲食、健康、緊急聯絡人；只有團主與共同團主看得到）
+    stopDue: 'tgroup_stop_due', // 有序集合：「團代碼|集合點 id」→ 集合前 15 分鐘提醒的時間
 };
 
 const segmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
@@ -171,21 +194,76 @@ function computeEndsAt(g, stops) {
 
 // ---------- 開團、入團 ----------
 
+const validDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && addDays(s, 0) === s;
+/** 兩個日期差幾天（b − a） */
+const dayDiff = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
+
+/** 目前的行程長度（舊的團沒有 days 欄位：用開始、結束日算） */
+const tripDays = (g) => (Number.isInteger(g.days) ? g.days : dayDiff(g.startDate, g.endDate) + 1);
+/** 這一團最多能用幾天：免費天數＋每張天數券 7 天，最多 30 天（舊的團：原本的長度都算免費） */
+const freeDaysOf = (g) => (Number.isInteger(g.freeDays) ? g.freeDays : dayDiff(g.startDate, g.endDate) + 1);
+const allowedDays = (g) => Math.min(MAX_DAYS, freeDaysOf(g) + DAYS_PER_PASS * (g.dayPasses || 0));
+/** 依想要的天數與可用天數算出結束日；還要再買幾張天數券 */
+function applyTrip(g) {
+    const len = Math.min(tripDays(g), allowedDays(g));
+    return { ...g, endDate: addDays(g.startDate, len - 1) };
+}
+const daysPassesNeeded = (g) => Math.max(0, Math.ceil((Math.min(tripDays(g), MAX_DAYS) - allowedDays(g)) / DAYS_PER_PASS));
+
+/** 出發日：今天到 90 天後（開團的人手機的時區）；沒填就是今天 */
+function checkStart(start, zone, now) {
+    const today = localDate(now, zone);
+    if (start === undefined || start === null || start === '') return { ok: true, date: today };
+    if (!validDate(start)) return { ok: false, code: 'start' };
+    const diff = dayDiff(today, start);
+    if (diff < 0 || diff > MAX_LEAD_DAYS) return { ok: false, code: 'start' };
+    return { ok: true, date: start };
+}
+
 /**
- * 開團：團名、團色、天數（1～7，含開團當天）、開團的人手機的時區
+ * 開團：團名、團色、出發日（今天到 90 天後）、天數（1～30，含出發當天）、開團的人手機的時區。
+ * 超過免費 3 天的部分要買天數券才會生效（還沒買之前，團在第 3 天結束）。
  * @returns {{ok: true, group: object} | {ok: false, code: string}}
  */
-function makeGroup({ host, name, color, days, tz }, now) {
+function makeGroup({ host, name, color, days, tz, start }, now) {
     const n = clip(name, MAX_NAME);
     if (!n) return { ok: false, code: 'name' };
     if (!COLORS.includes(color)) return { ok: false, code: 'color' };
     const d = Math.round(Number(days));
     if (!Number.isFinite(d) || d < 1 || d > MAX_DAYS) return { ok: false, code: 'days' };
     const zone = validTz(tz) ? tz : DEFAULT_TZ;
-    const startDate = localDate(now, zone);
-    const g = { host, cohosts: [], name: n, color, tz: zone, startDate, endDate: addDays(startDate, d - 1), createdAt: now, paid: false, qrVer: 1, subs: [] };
+    const st = checkStart(start, zone, now);
+    if (!st.ok) return st;
+    const g = applyTrip({ host, cohosts: [], name: n, color, tz: zone, startDate: st.date, days: d, freeDays: FREE_DAYS, dayPasses: 0, createdAt: now, paid: false, qrVer: 1, subs: [] });
     g.endsAt = computeEndsAt(g, []);
     return { ok: true, group: g };
+}
+
+/**
+ * 團主改出發日或天數。出發日改了的話要在今天到 90 天後；改完的結束時間不能已經過去。
+ * @returns {{ok: true, group: object} | {ok: false, code: string}} （endsAt 由呼叫的人依行程表重算）
+ */
+function changeTrip(g, { start, days }, stops, now) {
+    let startDate = g.startDate;
+    if (start !== undefined && start !== null && start !== g.startDate) {
+        const st = checkStart(start, g.tz, now);
+        if (!st.ok) return st;
+        startDate = st.date;
+    }
+    const d = days === undefined || days === null ? tripDays(g) : Math.round(Number(days));
+    if (!Number.isFinite(d) || d < 1 || d > MAX_DAYS) return { ok: false, code: 'days' };
+    const next = applyTrip({ ...g, startDate, days: d, freeDays: freeDaysOf(g) });
+    next.endsAt = computeEndsAt(next, stops);
+    if (next.endsAt <= now) return { ok: false, code: 'days' };
+    return { ok: true, group: next };
+}
+
+/** 套用一張天數券（已經 30 天就不能再加） */
+function addDayPass(g, stops) {
+    if (allowedDays(g) >= MAX_DAYS) return { ok: false, code: 'max_days' };
+    const next = applyTrip({ ...g, freeDays: freeDaysOf(g), days: tripDays(g), dayPasses: (g.dayPasses || 0) + 1 });
+    next.endsAt = computeEndsAt(next, stops);
+    return { ok: true, group: next };
 }
 
 const isOpen = (g, now) => !!g && now <= g.endsAt;
@@ -253,7 +331,7 @@ function badCoord(lat, lng) {
 }
 
 /**
- * 集合呼叫：集合時間（現在到 3 小時後）、集合點的時區、說明、座標（團主放的集合點）、分組
+ * 集合呼叫：集合時間（現在到 12 小時後）、集合點的時區、說明、座標（團主放的集合點）、分組
  */
 function makeCall({ at, tz, place, lat, lng, sub, targets }, now) {
     const t = Number(at);
@@ -270,6 +348,11 @@ function makeCall({ at, tz, place, lat, lng, sub, targets }, now) {
 }
 
 const callLive = (call, now) => !!call && now <= call.at + CALL_LINGER_MS;
+
+/** 集合前 15 分鐘的提醒該不該送了（只送一次；發出時離集合不到 20 分鐘的不送） */
+const preRemindDue = (call, now) => !!call && !call.pre && now < call.at && call.at - now <= PRE_REMIND_MS && call.at - call.sentAt >= PRE_REMIND_MIN_LEAD_MS;
+/** 行程表集合點的提醒時間；已經來不及（離現在不到 15 分鐘）就是 null */
+const stopRemindAt = (stop, now) => (stop && stop.at - PRE_REMIND_MS > now ? stop.at - PRE_REMIND_MS : null);
 
 /** 該再提醒誰：這次集合的對象中，還沒按「收到」、提醒不到 3 次、距上次滿 60 秒、還沒到集合時間 */
 function dueReminders(call, memberUids, acks, now) {
@@ -372,27 +455,100 @@ const removeStop = (stops, id) => (stops || []).filter((s) => s.id !== id);
 function applePass(tx, bundleId = BUNDLE_ID) {
     if (!tx || tx.bundleId !== bundleId) throw new Error('wrong_app');
     if (tx.revocationDate) throw new Error('revoked');
-    if (tx.productId !== PASS_PRODUCT) throw new Error('unknown_product');
+    if (!PRODUCTS.includes(tx.productId)) throw new Error('unknown_product');
     if (!tx.transactionId) throw new Error('bad_tx');
     return { receipt: `ta_${tx.transactionId}`, productId: tx.productId };
 }
 
 function googlePass(productId, receiptKey, purchase) {
-    if (productId !== PASS_PRODUCT) throw new Error('unknown_product');
+    if (!PRODUCTS.includes(productId)) throw new Error('unknown_product');
     if (!purchase || purchase.purchaseState !== 0) throw new Error('not_paid');
     return { receipt: `t${receiptKey}`, productId };
 }
 
-/** 團購券：買的人、這張券來自哪一筆購買 */
-const makeVoucher = (buyer, receipt, now) => ({ buyer, receipt, createdAt: now, usedBy: null, usedAt: null });
+/** 團購券：買的人、這張券來自哪一筆購買、哪一種（people 人數券／days 天數券） */
+const kindOf = (productId) => (productId === DAYS_PRODUCT ? 'days' : 'people');
+const makeVoucher = (buyer, receipt, now, productId = PASS_PRODUCT) => ({ buyer, receipt, kind: kindOf(productId), createdAt: now, usedBy: null, usedAt: null });
 
-/** 能不能把券用在這一團 */
+/** 能不能把券用在這一團（舊的券沒有 kind，當成人數券） */
 function canRedeem(v, g, now) {
     if (!v) return { ok: false, code: 'voucher_not_found' };
     if (v.usedBy) return { ok: false, code: 'voucher_used' };
     if (now - v.createdAt > VOUCHER_TTL_DAYS * 86400000) return { ok: false, code: 'voucher_expired' };
-    if (g.paid) return { ok: false, code: 'already_paid' };
+    if (v.kind === 'days') {
+        if (allowedDays(g) >= MAX_DAYS) return { ok: false, code: 'max_days' };
+    } else if (g.paid) return { ok: false, code: 'already_paid' };
     return { ok: true };
+}
+
+// ---------- 每日資訊卡、團體資訊、團員資料 ----------
+
+/** 電話：只留數字、+、-、括號、空白、#、*，最多 25 字 */
+const cleanPhone = (p) => String(p || '').replace(/[^0-9+\-() #*]/g, '').replace(/\s+/g, ' ').trim().slice(0, MAX_PHONE);
+/** 攻略連結：只收 http／https，不能有空白，最多 500 字 */
+function cleanUrl(u) {
+    const s = String(u || '').trim();
+    if (s.length > MAX_URL || /\s/.test(s) || !/^https?:\/\/[^/?#]+\.[^/?#]+/i.test(s)) return null;
+    return s;
+}
+
+/**
+ * 每日資訊卡：日期（出發日前一天到最後一天）、說明（餐食、注意事項…最多 1000 字）、
+ * 今晚的飯店（名稱、當地地址、電話、座標可不填）、攻略連結（最多 10 個）。
+ * 全部空白 → card 是 null（刪除這一天）
+ */
+function makeDay({ date, note, hotel, links }, g) {
+    if (!validDate(date)) return { ok: false, code: 'bad_request' };
+    const off = dayDiff(g.startDate, date);
+    if (off < -1 || off >= MAX_DAYS) return { ok: false, code: 'bad_request' };
+    const n = clipText(note, MAX_DAY_NOTE);
+    let h = null;
+    if (hotel && typeof hotel === 'object') {
+        const name = clip(hotel.name, MAX_HOTEL_NAME);
+        const addr = clipText(hotel.addr, MAX_ADDR);
+        const phone = cleanPhone(hotel.phone);
+        const hasCoord = hotel.lat !== undefined && hotel.lat !== null && hotel.lng !== undefined && hotel.lng !== null;
+        if (hasCoord && badCoord(hotel.lat, hotel.lng)) return { ok: false, code: 'place' };
+        if (name || addr) h = { name, addr, phone, lat: hasCoord ? Number(hotel.lat) : null, lng: hasCoord ? Number(hotel.lng) : null };
+    }
+    const out = [];
+    if (links !== undefined && !Array.isArray(links)) return { ok: false, code: 'bad_request' };
+    for (const l of links || []) {
+        const url = cleanUrl(l && l.url);
+        if (!url) return { ok: false, code: 'url' };
+        out.push({ title: clip(l.title, MAX_LINK_TITLE) || url.replace(/^https?:\/\//i, '').slice(0, MAX_LINK_TITLE), url });
+    }
+    if (out.length > MAX_LINKS) return { ok: false, code: 'too_many' };
+    if (!n && !h && !out.length) return { ok: true, card: null };
+    return { ok: true, card: { date, note: n, hotel: h, links: out } };
+}
+/** 要過濾髒話的文字 */
+const dayTexts = (c) => (c ? [c.note, c.hotel && c.hotel.name, ...c.links.map((l) => l.title)].filter(Boolean) : []);
+
+/**
+ * 團體資訊：車輛（全團一台，或依分組各一台：車牌、車色車型、司機稱呼、司機電話、備註）、
+ * 緊急聯絡（領隊電話、旅行社名稱、旅行社 24 小時電話、其他說明）
+ */
+function makeInfo({ buses, emergency }, g) {
+    const bs = [];
+    if (buses !== undefined && !Array.isArray(buses)) return { ok: false, code: 'bad_request' };
+    for (const b of buses || []) {
+        if (!b || !validSub(g, b.sub)) return { ok: false, code: 'bad_request' };
+        const row = { sub: normSub(b.sub), plate: clip(b.plate, 15), desc: clip(b.desc, 20), driver: clip(b.driver, 20), phone: cleanPhone(b.phone), note: clip(b.note, 40) };
+        if (row.plate || row.desc || row.driver || row.phone || row.note) bs.push(row);
+    }
+    if (bs.length > MAX_SUBS + 1) return { ok: false, code: 'too_many' };
+    const e = emergency || {};
+    const em = { phone: cleanPhone(e.phone), agency: clip(e.agency, 30), agencyPhone: cleanPhone(e.agencyPhone), note: clipText(e.note, MAX_INFO_NOTE) };
+    return { ok: true, info: { buses: bs, emergency: em } };
+}
+const infoTexts = (i) => [...i.buses.flatMap((b) => [b.plate, b.desc, b.driver, b.note]), i.emergency.agency, i.emergency.note].filter(Boolean);
+
+/** 團員資料：飲食禁忌、健康狀況（過敏、病史、用藥）、緊急聯絡人與電話；全部空白 → null（刪除） */
+function cleanMemberData(x) {
+    const o = x || {};
+    const d = { diet: clip(o.diet, 60), health: clipText(o.health, 150), contact: clip(o.contact, 20), contactPhone: cleanPhone(o.contactPhone) };
+    return d.diet || d.health || d.contact || d.contactPhone ? d : null;
 }
 
 // ---------- 連結 ----------
@@ -480,16 +636,16 @@ function callText(call, now) {
 }
 
 module.exports = {
-    FREE_LIMIT, PAID_LIMIT, MAX_DAYS, PASS_PRODUCT, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
+    FREE_LIMIT, PAID_LIMIT, MAX_DAYS, FREE_DAYS, DAYS_PER_PASS, MAX_LEAD_DAYS, PASS_PRODUCT, DAYS_PRODUCT, PRODUCTS, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
     MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, PRESENCE_STALE_MS, PING_EVERY_MS, COLORS,
-    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
+    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
-    makeGroup, isOpen, memberLimit, isStaff, roleOf, canJoin, nextNumber,
+    makeGroup, changeTrip, addDayPass, tripDays, allowedDays, daysPassesNeeded, validDate, dayDiff, isOpen, memberLimit, isStaff, roleOf, canJoin, nextNumber,
     addCohost, removeCohost, cleanSubs, validSub, normSub, targetUids,
-    makeCall, callLive, dueReminders, callRoster, rollRoster, makeLost, lostRoster,
+    makeCall, callLive, preRemindDue, stopRemindAt, dueReminders, callRoster, rollRoster, makeLost, lostRoster,
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
     makeStop, upsertStop, removeStop,
-    applePass, googlePass, makeVoucher, canRedeem, groupLink, voucherLink, callText, cleanProfile,
+    applePass, googlePass, kindOf, makeVoucher, canRedeem, cleanPhone, cleanUrl, makeDay, dayTexts, makeInfo, infoTexts, cleanMemberData, groupLink, voucherLink, callText, cleanProfile,
     shareState, validPos, isOnline, peopleView, makeMessage, messagesFor,
 };

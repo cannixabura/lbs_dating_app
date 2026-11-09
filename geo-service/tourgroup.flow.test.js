@@ -254,3 +254,38 @@ test('同團互相看得到：同意後分享位置、氣泡、私訊、封鎖�
     assert.equal(run(['LRANGE', tg.KEY.msgs(code), '0', '-1']).length, 0);
     assert.equal(run(['HGETALL', tg.KEY.pos(code)]).length, 0);
 });
+
+test('地圖上的人不會因為太久沒更新而消失：30 分鐘沒回應變灰；背景時送無聲推播，回 pong 就恢復；退團才拿掉', async () => {
+    let r = await call('lead6', 'create', { name: '在線測試', color: 'blue', days: 1, tz: 'Asia/Taipei' });
+    const code = r.group.code, v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('c1', 'join', { code, v });
+    for (const u of ['lead6', 'c1']) await call(u, 'share', { consent: true, on: true });
+    await call('c1', 'pos', { lat: 25.04, lng: 121.51 });
+    const c1 = async () => (await call('lead6', 'status')).group.people.find((p) => p.uid === 'c1');
+    assert.equal((await c1()).online, true);
+    // 13 分鐘沒聯絡：該送無聲推播了（只送給 c1；團主剛剛才聯絡過）
+    now += 13 * 60000;
+    pushes.length = 0;
+    await tour.remind();
+    const ping = pushes.find((p) => p.data.type === 'tgroup_ping');
+    assert.ok(ping && ping.uids.includes('c1'));
+    // 回 pong：仍然在線，而且不會改掉推播語言
+    await call('c1', 'pong', {}, 'en');
+    assert.notEqual(run(['HGET', tg.KEY.lang, 'c1']), 'en');
+    now += 20 * 60000;
+    assert.equal((await c1()).online, true);
+    // App 被關掉或關機：之後一直沒回應 → 超過 30 分鐘變灰，但還在地圖上（位置是最後一次的）
+    now += 15 * 60000;
+    const gone = await c1();
+    assert.ok(gone, '超過 30 分鐘仍然在地圖上');
+    assert.equal(gone.online, false);
+    assert.equal(gone.lat, 25.04);
+    // 再打開 App：恢復彩色
+    await call('c1', 'status');
+    assert.equal((await c1()).online, true);
+    // 退團：從地圖拿掉，也不再送無聲推播
+    await call('c1', 'leave');
+    assert.ok(!(await call('lead6', 'status')).group.people.some((p) => p.uid === 'c1'));
+    assert.equal(run(['ZSCORE', tg.KEY.pingDue, `${code}|c1`]), null);
+    await call('lead6', 'dissolve');
+});

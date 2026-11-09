@@ -49,7 +49,12 @@ const MAX_BUBBLE = 20;
 const MAX_MSG = 200;
 const MAX_MSGS = 300; // 每團最多留幾則私訊（舊的刪掉）
 const MSG_RATE = 20; // 每人每分鐘最多傳幾則
-const POS_FRESH_MS = 10 * 60 * 1000; // 超過 10 分鐘沒更新的位置不再顯示
+const POS_FRESH_MS = 10 * 60 * 1000; // （舊）不再用來隱藏人；保留匯出給舊測試
+// 地圖上的人永遠不會因為沒更新而消失（只有退團、被移出、解散、到期才拿掉）；
+// 超過 30 分鐘沒有任何回應（App 被關掉、手機關機）就顯示成灰色。
+// App 在背景時伺服器每 12 分鐘送一個無聲推播，App 回 pong 就算有回應。
+const PRESENCE_STALE_MS = 30 * 60 * 1000;
+const PING_EVERY_MS = 12 * 60 * 1000;
 const COLORS = ['violet', 'pink', 'blue', 'teal', 'green', 'gold', 'orange', 'red'];
 const REMIND_EVERY_MS = 60 * 1000;
 const REMIND_MAX = 3;
@@ -81,6 +86,8 @@ const KEY = {
     blocks: (code) => `tgroup_blocks:${code}`, // 每個人封鎖的對象（JSON 陣列）
     msgRate: (uid) => `tgroup_msgrate:${uid}`,
     reports: 'tgroup_reports',
+    seen: (code) => `tgroup_seen:${code}`, // 每個人最後一次跟伺服器聯絡的時間（判斷要不要變灰）
+    pingDue: 'tgroup_ping_due', // 有序集合：「團代碼|uid」→ 下次該送無聲推播的時間
     voucher: (v) => `tvoucher:${v}`,
     vouchersOf: (uid) => `tvouchers_of:${uid}`,
 };
@@ -424,19 +431,25 @@ function validPos(lat, lng) {
 }
 
 /** 3D 地圖上的人：同團、有同意並開著分享、10 分鐘內有位置；自己不算（自己的位置在手機上） */
-function peopleView({ g, list, me, posHash, bubbleHash, shareHash, profOf, blockedByMe, now }) {
+/** 最近 30 分鐘內有回應才算在線；沒有紀錄的（舊版 App）用最後一次回報位置的時間 */
+function isOnline(seenRaw, pos, now) {
+    const at = Number(seenRaw) || (pos && pos.at) || 0;
+    return now - at < PRESENCE_STALE_MS;
+}
+
+function peopleView({ g, list, me, posHash, bubbleHash, shareHash, seenHash = {}, profOf, blockedByMe, now }) {
     const out = [];
     for (const m of list) {
         if (m.uid === me) continue;
         const share = shareState(shareHash[m.uid]);
         if (!share.on) continue;
         const p = parseJson(posHash[m.uid], null);
-        if (!p || !validPos(p.lat, p.lng) || now - (p.at || 0) > POS_FRESH_MS) continue;
+        if (!p || !validPos(p.lat, p.lng)) continue; // 不因為太久沒更新而拿掉：改成變灰
         const b = parseJson(bubbleHash[m.uid], null);
         const prof = profOf(m.uid);
         out.push({
             uid: m.uid, no: m.no, role: roleOf(g, m.uid), name: prof.name || '', avatar: prof.avatar || '',
-            lat: p.lat, lng: p.lng, at: p.at,
+            lat: p.lat, lng: p.lng, at: p.at, online: isOnline(seenHash[m.uid], p, now),
             bubble: b && b.text && !blockedByMe.includes(m.uid) ? b.text : '',
         });
     }
@@ -468,7 +481,7 @@ function callText(call, now) {
 
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, PASS_PRODUCT, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
-    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, COLORS,
+    MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, PRESENCE_STALE_MS, PING_EVERY_MS, COLORS,
     REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
@@ -478,5 +491,5 @@ module.exports = {
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
     makeStop, upsertStop, removeStop,
     applePass, googlePass, makeVoucher, canRedeem, groupLink, voucherLink, callText, cleanProfile,
-    shareState, validPos, peopleView, makeMessage, messagesFor,
+    shareState, validPos, isOnline, peopleView, makeMessage, messagesFor,
 };

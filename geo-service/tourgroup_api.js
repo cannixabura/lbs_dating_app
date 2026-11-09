@@ -72,7 +72,8 @@ function create(d) {
     async function destroy(code, list) {
         await d.pipe([
             ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
-                tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code)],
+                tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code)],
+            ...list.map((m) => ['ZREM', tg.KEY.pingDue, `${code}|${m.uid}`]),
             ['SREM', tg.KEY.activeCalls, code],
             ...list.map((m) => ['DEL', tg.KEY.of(m.uid)]),
         ]);
@@ -109,12 +110,12 @@ function create(d) {
             else await d.cmd(['DEL', tg.KEY.of(uid)]);
             return { group: null };
         }
-        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops, posFlat, bubbleFlat, msgList, myBlocks] = await Promise.all([
+        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops, posFlat, bubbleFlat, msgList, myBlocks, seenFlat] = await Promise.all([
             members(code), json(tg.KEY.call(code)), json(tg.KEY.roll(code)),
             d.cmd(['HGETALL', tg.KEY.acks(code)]), d.cmd(['HGETALL', tg.KEY.answers(code)]), d.cmd(['HGETALL', tg.KEY.lost(code)]),
             json(tg.KEY.ann(code)), json(tg.KEY.stops(code)),
             d.cmd(['HGETALL', tg.KEY.pos(code)]), d.cmd(['HGETALL', tg.KEY.bubble(code)]), d.cmd(['LRANGE', tg.KEY.msgs(code), '0', '-1']),
-            d.cmd(['HGET', tg.KEY.blocks(code), uid]),
+            d.cmd(['HGET', tg.KEY.blocks(code), uid]), d.cmd(['HGETALL', tg.KEY.seen(code)]),
         ]);
         const acks = hashOf(acksFlat), answers = hashOf(answersFlat), lostHash = hashOf(lostFlat);
         const me = list.find((m) => m.uid === uid);
@@ -146,7 +147,7 @@ function create(d) {
             lostSent: tg.lostRoster(list.filter((m) => m.uid === uid), lostHash, now).length > 0,
             // 同團互相看得到：地圖上的人、氣泡、私訊
             share: tg.shareState(shareHash[uid]),
-            people: tg.peopleView({ g, list, me: uid, posHash: hashOf(posFlat), bubbleHash, shareHash, profOf: (u) => ({ name: nameOf(u), avatar: avatarOf(u) }), blockedByMe, now }),
+            people: tg.peopleView({ g, list, me: uid, posHash: hashOf(posFlat), bubbleHash, shareHash, seenHash: hashOf(seenFlat), profOf: (u) => ({ name: nameOf(u), avatar: avatarOf(u) }), blockedByMe, now }),
             myBubble, blocked: blockedByMe,
             messages: tg.messagesFor(msgList, uid, blockedByMe).map((m) => ({ ...m, mine: m.from === uid })),
             names: Object.fromEntries(list.map((m) => [m.uid, { no: m.no, name: nameOf(m.uid), avatar: avatarOf(m.uid), role: tg.roleOf(g, m.uid) }])),
@@ -168,9 +169,19 @@ function create(d) {
         const lang = d.langOf(req);
         const uid = await d.verifyCaller(req);
         if (!uid) return res.status(401).json({ success: false, error: d.localize(lang, '未授權') });
-        await d.cmd(['HSET', tg.KEY.lang, uid, lang]).catch(() => 0);
         const body = req.body || {};
         const action = body.action, now = clock();
+        // pong 來自背景收到的無聲推播：那時 App 的語言設定可能還沒載入，不更新推播語言
+        if (action !== 'pong') await d.cmd(['HSET', tg.KEY.lang, uid, lang]).catch(() => 0);
+        // 有聯絡就記下時間（地圖上不變灰），並把下次無聲推播往後排
+        const myCode = await d.cmd(['GET', tg.KEY.of(uid)]).catch(() => null);
+        if (myCode) {
+            await d.pipe([
+                ['HSET', tg.KEY.seen(myCode), uid, String(now)], ['EXPIRE', tg.KEY.seen(myCode), String(14 * 86400)],
+                ['ZADD', tg.KEY.pingDue, String(now + tg.PING_EVERY_MS), `${myCode}|${uid}`],
+            ]).catch(() => 0);
+        }
+        if (action === 'pong') return res.status(200).json({ success: true });
         const fail = (code, status = 200) => res.status(status).json({ success: false, code });
         const ok = async (extra = {}) => res.status(200).json({ success: true, ...(await statusView(uid, now)), ...extra });
 
@@ -462,7 +473,7 @@ function create(d) {
                     await d.pipe([
                         ['HDEL', tg.KEY.members(code), target], ['DEL', tg.KEY.of(target)], ['HDEL', tg.KEY.acks(code), target],
                         ['HDEL', tg.KEY.answers(code), target], ['HDEL', tg.KEY.lost(code), target],
-                        ['HDEL', tg.KEY.pos(code), target], ['HDEL', tg.KEY.bubble(code), target],
+                        ['HDEL', tg.KEY.pos(code), target], ['HDEL', tg.KEY.bubble(code), target], ['HDEL', tg.KEY.seen(code), target], ['ZREM', tg.KEY.pingDue, `${code}|${target}`],
                     ]);
                 } else if (action === 'cohost_add') {
                     const r = tg.addCohost(g, target, list);
@@ -533,7 +544,7 @@ function create(d) {
                 await d.pipe([
                     ['HDEL', tg.KEY.members(code), uid], ['DEL', tg.KEY.of(uid)], ['HDEL', tg.KEY.acks(code), uid],
                     ['HDEL', tg.KEY.answers(code), uid], ['HDEL', tg.KEY.lost(code), uid],
-                    ['HDEL', tg.KEY.pos(code), uid], ['HDEL', tg.KEY.bubble(code), uid],
+                    ['HDEL', tg.KEY.pos(code), uid], ['HDEL', tg.KEY.bubble(code), uid], ['HDEL', tg.KEY.seen(code), uid], ['ZREM', tg.KEY.pingDue, `${code}|${uid}`],
                 ]);
                 return res.status(200).json({ success: true, group: null });
             }
@@ -576,9 +587,25 @@ function create(d) {
         }
     }
 
+    /** 每分鐘：12 分鐘沒聯絡的人送一個無聲推播（App 在背景時會回 pong；被關掉或關機就收不到 → 30 分鐘後變灰） */
+    async function pingIdle(now) {
+        const due = (await d.cmd(['ZRANGEBYSCORE', tg.KEY.pingDue, '-inf', String(now), 'LIMIT', '0', '500']).catch(() => [])) || [];
+        if (!due.length) return;
+        const alive = [];
+        for (const item of due) {
+            const [code, uid] = String(item).split('|');
+            // 已經不在這一團（退團、被移出、解散、到期）：不再送
+            if (!code || !uid || (await d.cmd(['GET', tg.KEY.of(uid)])) !== code) { await d.cmd(['ZREM', tg.KEY.pingDue, item]); continue; }
+            alive.push({ item, uid, code });
+        }
+        if (alive.length) await d.push(alive.map((a) => a.uid), '', '', { type: 'tgroup_ping' }, { silent: true });
+        if (alive.length) await d.pipe(alive.map((a) => ['ZADD', tg.KEY.pingDue, String(now + tg.PING_EVERY_MS), a.item]));
+    }
+
     /** 每分鐘：集合呼叫還沒按「收到」的人再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來 */
     async function remind() {
         const now = clock();
+        try { await pingIdle(now); } catch (e) { console.error('[旅行團] 無聲推播失敗:', e); }
         const codes = (await d.cmd(['SMEMBERS', tg.KEY.activeCalls])) || [];
         for (const code of codes) {
             try {
@@ -598,7 +625,7 @@ function create(d) {
         }
     }
 
-    return { handle, remind, statusView };
+    return { handle, remind, statusView, pingIdle };
 }
 
 module.exports = { create, HOST_ONLY, STAFF_ONLY };

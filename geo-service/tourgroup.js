@@ -544,11 +544,11 @@ function makeInfo({ buses, emergency }, g) {
 }
 const infoTexts = (i) => [...i.buses.flatMap((b) => [b.plate, b.desc, b.driver, b.note]), i.emergency.agency, i.emergency.note].filter(Boolean);
 
-/** 團員資料：飲食禁忌、健康狀況（過敏、病史、用藥）、緊急聯絡人與電話；全部空白 → null（刪除） */
+/** 團員資料：飲食禁忌、健康狀況（過敏、病史、用藥）、緊急聯絡人稱呼（不收電話）；全部空白 → null（刪除） */
 function cleanMemberData(x) {
     const o = x || {};
-    const d = { diet: clip(o.diet, 60), health: clipText(o.health, 150), contact: clip(o.contact, 20), contactPhone: cleanPhone(o.contactPhone) };
-    return d.diet || d.health || d.contact || d.contactPhone ? d : null;
+    const d = { diet: clip(o.diet, 60), health: clipText(o.health, 150), contact: clip(o.contact, 20) };
+    return d.diet || d.health || d.contact ? d : null;
 }
 
 // ---------- 連結 ----------

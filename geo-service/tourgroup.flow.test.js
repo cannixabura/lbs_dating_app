@@ -381,6 +381,7 @@ test('每日資訊卡、車輛、緊急聯絡、團員資料（只有團主看�
     await call('u2', 'join', { code, v });
     r = await call('u1', 'mdata', { diet: '不吃牛', health: '花生過敏', contact: '媽媽', contactPhone: '0912-000-000' });
     assert.equal(r.group.myData.diet, '不吃牛');
+    assert.equal('contactPhone' in r.group.myData, false); // 不收緊急聯絡人電話
     r = await call('h1', 'status');
     assert.equal(r.group.members.find((m) => m.uid === 'u1').data.health, '花生過敏');
     r = await call('u2', 'status');

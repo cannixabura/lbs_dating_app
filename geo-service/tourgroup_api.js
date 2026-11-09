@@ -9,7 +9,7 @@
 //   團主與共同團主：call / ping（單獨再叫一次）/ call_done / rollcall / roll_done / announce / note / assign / subs / stop_add / stop_remove / kick / rotate_qr / found
 //   團主與共同團主也能：day_set（每日資訊卡）/ info_set（車輛、緊急聯絡）
 //   只有團主：cohost_add / cohost_remove / handoff / dissolve / verify / redeem / trip（改出發日、天數）
-//   所有團員：mdata（自己的飲食、健康、緊急聯絡人；只有團主與共同團主看得到）
+//   所有團員：mdata（自己的飲食、健康、緊急聯絡人稱呼；只有團主與共同團主看得到）
 //   團員：join / seen / ack / answer / lost / found（自己）/ leave
 //   所有人：status；不必在團裡：create / join / buy_voucher / vouchers
 // 團員的位置不會給團主；集合點是團主放的座標；「我迷路了」是團員自己按下才傳一次。

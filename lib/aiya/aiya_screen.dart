@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:aiya/aiya.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -9,11 +10,7 @@ import '../l10n/l10n.dart';
 import '../legal.dart';
 import '../quantum_orb.dart';
 import '../ui/night.dart';
-import 'aiya_face.dart';
-import 'aiya_particles.dart';
-import 'aiya_skins.dart';
 import 'aiya_store.dart';
-import 'aiya_video.dart';
 
 /// 實測用：--dart-define=AIYA_FPS=true 在畫面上顯示每秒張數與每張花的時間
 const _showFps = bool.fromEnvironment('AIYA_FPS');
@@ -113,6 +110,9 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   int _turnsLeft = 0;
   int _freeLeft = 0, _credits = 0;
   bool _sending = false, _ended = false, _opening = true;
+  // 語音通話（艾婭之友，OpenAI GPT-Live）：伺服器說這個帳號能用才能打
+  bool _voiceConsented = false;
+  int _callSecondsLeft = 0;
   Timer? _clock, _typer;
 
   @override
@@ -133,6 +133,10 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     AiyaStore.notice.addListener(_onNotice);
     AiyaStore.credits.addListener(_onCredits);
     AiyaStore.friendExp.addListener(_onFriend);
+    aiyaPhone.aiyaSpeaking.addListener(_onVoice);
+    aiyaPhone.state.addListener(_onCallState);
+    aiyaPhone.onEnded = _onCallEnded;
+    AiyaStore.callBought.addListener(_onCallBought);
     _load();
   }
 
@@ -153,6 +157,11 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     AiyaStore.notice.removeListener(_onNotice);
     AiyaStore.credits.removeListener(_onCredits);
     AiyaStore.friendExp.removeListener(_onFriend);
+    aiyaPhone.aiyaSpeaking.removeListener(_onVoice);
+    aiyaPhone.state.removeListener(_onCallState);
+    aiyaPhone.onEnded = null;
+    AiyaStore.callBought.removeListener(_onCallBought);
+    if (aiyaPhone.state.value != AiyaCallState.idle) unawaited(aiyaPhone.hangUp());
     _input.dispose();
     _scroll.dispose();
     _frame.dispose();
@@ -178,6 +187,23 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
       if (!agreed) { Navigator.of(context).pop(); return; }
       await aiyaCall('consent');
     }
+    // 進來先看有沒有通話時間：有就直接接通語音；沒有就先給買通話時間的選項（也可以先用文字聊）
+    if (_callSecondsLeft >= 30) {
+      setState(() => _opening = false);
+      _anim.formTarget = 1;
+      await _startCall();
+      if (mounted && aiyaPhone.state.value == AiyaCallState.idle && _sessionId == null) await _open();
+      return;
+    }
+    final choice = await _showCallPacks(entry: true);
+    if (!mounted) return;
+    if (choice == 'call') {
+      setState(() => _opening = false);
+      _anim.formTarget = 1;
+      await _startCall();
+      if (mounted && aiyaPhone.state.value == AiyaCallState.idle && _sessionId == null) await _open();
+      return;
+    }
     await _open();
   }
 
@@ -185,6 +211,8 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     AiyaStore.applyStatus(s);
     if (s['freeLeft'] is num) _freeLeft = (s['freeLeft'] as num).toInt();
     if (s['credits'] is num) _credits = (s['credits'] as num).toInt();
+    if (s['callSecondsLeft'] is num) _callSecondsLeft = (s['callSecondsLeft'] as num).toInt();
+    if (s['voiceConsented'] is bool) _voiceConsented = s['voiceConsented'] as bool;
     final session = s['session'];
     if (session is Map) {
       _sessionId = '${session['id']}';
@@ -194,7 +222,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     if (mounted) setState(() {});
   }
 
-  Future<void> _open() async {
+  Future<void> _open({bool greet = true}) async {
     setState(() => _opening = true);
     final r = await aiyaCall('open');
     if (!mounted) return;
@@ -216,15 +244,19 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     _anim.formTarget = 1;
     await Future.delayed(const Duration(milliseconds: 1800));
     if (!mounted) return;
-    if (r['resumed'] != true || _msgs.isEmpty) _speak(tr.aiyaGreeting, 'smile', talkClip: 'hello');
+    if (greet && (r['resumed'] != true || _msgs.isEmpty)) _speak(tr.aiyaGreeting, 'smile', talkClip: 'hello');
     // 假資料模式：自動送一句測試，確認思考表情、回覆與嘴型
     if (aiyaDirect) Future.delayed(const Duration(seconds: 7), () { if (mounted) { _input.text = '今天好累'; _send(); } });
   }
 
   void _tick() {
-    if (!mounted || _endsAt == null) return;
+    if (!mounted) return;
+    if (_endsAt == null) {
+      if (aiyaPhone.state.value == AiyaCallState.live) setState(() {});
+      return;
+    }
     setState(() {});
-    if (!_ended && DateTime.now().isAfter(_endsAt!)) _finish();
+    if (!_ended && aiyaPhone.state.value == AiyaCallState.idle && DateTime.now().isAfter(_endsAt!)) _finish();
   }
 
   Future<void> _finish() async {
@@ -237,7 +269,171 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     if (mounted) setState(() => _anim.formTarget = 0);
   }
 
+  /// 通話中艾婭說話時嘴巴跟著動；停下來回到待機
+  void _onVoice() {
+    if (!mounted || aiyaPhone.state.value != AiyaCallState.live) return;
+    if (aiyaPhone.aiyaSpeaking.value) {
+      _video.play(aiyaTalkClips[_rnd.nextInt(aiyaTalkClips.length)], _anim.time, loop: true);
+    } else {
+      _video.play('idle', _anim.time, loop: true);
+    }
+  }
+
+  void _onCallState() {
+    if (mounted) setState(() {});
+  }
+
+  void _onCallEnded(String reason) {
+    if (!mounted) return;
+    final line = aiyaPhone.aiyaLine.value.trim();
+    if (line.isNotEmpty) setState(() => _msgs.add(_Msg(line)));
+    _video.play('idle', _anim.time, loop: true);
+    // 更新剩下的通話時間；時間用完就提示可以再買
+    aiyaCall('status').then((st) {
+      if (!mounted) return;
+      _applyStatus(st);
+      AiyaStore.applyStatus(st);
+      final outOfTime = reason == 'time_up' && _callSecondsLeft < 30;
+      _system(outOfTime ? tr.aiyaCallOutOfTime : switch (reason) { 'time_up' => tr.aiyaCallTimeUp, 'idle' => tr.aiyaCallIdle, _ => tr.aiyaCallEnded });
+      if (outOfTime) _showCallPacks();
+    });
+  }
+
+  /// 買到通話時間：關掉購買視窗、直接接通
+  void _onCallBought() {
+    if (!mounted) return;
+    aiyaCall('status').then((st) async {
+      if (!mounted) return;
+      _applyStatus(st);
+      Navigator.of(context).popUntil((r) => r.settings.name != 'aiyaCallPacks');
+      if (_callSecondsLeft >= 30 && aiyaPhone.state.value == AiyaCallState.idle) await _startCall();
+    });
+  }
+
+  /// 買通話時間：時間包（任何人都能買）＋艾婭之友（每月送 60 分鐘）；entry=true 時多一個「先用文字聊」。
+  /// 回傳 'call'（有時間了，可以直接打）、'text' 或 null
+  Future<String?> _showCallPacks({bool entry = false}) {
+    AiyaStore.loadProducts();
+    return showModalBottomSheet<String>(
+      context: context, backgroundColor: Colors.transparent, isScrollControlled: true, routeSettings: const RouteSettings(name: 'aiyaCallPacks'),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: GlassCard(
+            child: ValueListenableBuilder(
+              valueListenable: AiyaStore.details,
+              builder: (context, details, _) => ValueListenableBuilder(
+                valueListenable: AiyaStore.busy,
+                builder: (context, busy, _) => Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  const Icon(Icons.graphic_eq_rounded, color: Color(0xFF4C7DFF), size: 32),
+                  const SizedBox(height: Night.space3),
+                  Text(tr.aiyaCallPacksTitle, style: Night.title, textAlign: TextAlign.center),
+                  const SizedBox(height: Night.space3),
+                  Text(tr.aiyaCallPacksBody, style: Night.body),
+                  const SizedBox(height: Night.space4),
+                  for (final e in AiyaStore.callProducts.entries) ...[
+                    NightButton(
+                      '${tr.aiyaCallPackMinutes(e.value)}${details[e.key] != null ? '  ·  ${details[e.key]!.price}' : ''}',
+                      kind: e.value == 60 ? NightButtonKind.primary : NightButtonKind.ghost,
+                      icon: Icons.graphic_eq_rounded,
+                      onPressed: busy ? null : () => AiyaStore.buy(e.key),
+                    ),
+                    const SizedBox(height: Night.space2),
+                  ],
+                  if (!AiyaStore.isFriend) ...[
+                    NightButton(tr.aiyaCallFriendOption, kind: NightButtonKind.warm, icon: Icons.auto_awesome, onPressed: () { Navigator.pop(ctx); _showFriend(); }),
+                    const SizedBox(height: Night.space2),
+                  ],
+                  if (entry) ...[
+                    NightButton(tr.aiyaCallTextInstead, kind: NightButtonKind.text, onPressed: () => Navigator.pop(ctx, 'text')),
+                    const SizedBox(height: Night.space2),
+                  ],
+                  if (busy) const Padding(padding: EdgeInsets.all(Night.space2), child: Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)))),
+                  Text(tr.aiyaCallPackNote, style: Night.caption, textAlign: TextAlign.center),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 本機試聽聲音用：--dart-define=AIYA_VOICE=cedar（正式版不帶，用伺服器預設）
+  static const _voicePick = String.fromEnvironment('AIYA_VOICE');
+
+  /// 打給艾婭（艾婭之友）：第一次先說明聲音會送到 OpenAI，同意後才接通
+  Future<void> _startCall() async {
+    if (aiyaPhone.state.value == AiyaCallState.live) { await aiyaPhone.hangUp(); return; }
+    if (aiyaPhone.state.value != AiyaCallState.idle) return;
+    if (_callSecondsLeft < 30) {
+      await _showCallPacks();
+      return;
+    }
+    if (!_voiceConsented) {
+      final agreed = await _askVoiceConsent();
+      if (!mounted || !agreed) return;
+      final r = await aiyaCall('voiceConsent');
+      if (!mounted || r['success'] != true) { _system(tr.aiyaCallFailed); return; }
+      _voiceConsented = true;
+    }
+    FocusScope.of(context).unfocus();
+    _typer?.cancel();
+    _anim.setExpr('smile');
+    final code = await aiyaPhone.start(voice: _voicePick.isEmpty ? null : _voicePick);
+    if (!mounted) return;
+    if (code == null) {
+      _clock ??= Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+      setState(() {});
+      return;
+    }
+    switch (code) {
+      case 'no_minutes' || 'friend_only': _callSecondsLeft = 0; await _showCallPacks();
+      case 'voice_consent': _voiceConsented = false; _system(tr.aiyaCallFailed);
+      case 'call_daily_max': _system(tr.aiyaCallDailyMax);
+      case 'call_month_max': _system(tr.aiyaCallMonthMax);
+      case 'call_resting': _system(tr.aiyaCallResting);
+      case 'mic_denied': _system(tr.aiyaCallMicDenied);
+      default: _system(tr.aiyaCallFailed);
+    }
+  }
+
+  Future<bool> _askVoiceConsent() async {
+    final ok = await showModalBottomSheet<bool>(
+      context: context, backgroundColor: Colors.transparent,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Night.space4),
+          child: GlassCard(
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const Icon(Icons.call_rounded, color: Color(0xFFFFC861), size: 32),
+              const SizedBox(height: Night.space3),
+              Text(tr.aiyaCallConsentTitle, style: Night.title, textAlign: TextAlign.center),
+              const SizedBox(height: Night.space3),
+              Text(tr.aiyaCallConsentBody, style: Night.body),
+              const SizedBox(height: Night.space4),
+              NightButton(tr.aiyaCallAgree, onPressed: () => Navigator.pop(ctx, true)),
+              const SizedBox(height: Night.space2),
+              NightButton(tr.aiyaConsentLater, kind: NightButtonKind.text, onPressed: () => Navigator.pop(ctx, false)),
+            ]),
+          ),
+        ),
+      ),
+    );
+    return ok == true;
+  }
+
+  /// 這通還能講多久（剩下的通話時間或 60 分鐘上限）
+  String _callElapsed() {
+    final end = aiyaPhone.endsAt;
+    if (end == null) return '';
+    final left = end.difference(DateTime.now());
+    final sec = left.isNegative ? 0 : left.inSeconds;
+    return '${sec ~/ 60}:${(sec % 60).toString().padLeft(2, '0')}';
+  }
+
   Future<void> _close() async {
+    if (aiyaPhone.state.value != AiyaCallState.idle) unawaited(aiyaPhone.hangUp());
     if (!_ended && _sessionId != null) unawaited(aiyaCall('close'));
     _anim.formTarget = 0;
     _clock?.cancel();
@@ -303,7 +499,12 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
 
   Future<void> _send() async {
     final text = _input.text.trim();
-    if (text.isEmpty || _sending || _ended || _sessionId == null) return;
+    if (text.isEmpty || _sending || _ended) return;
+    // 先用語音進來、通話完才打字：這時才開始文字聊天（會用掉一次聊天次數）
+    if (_sessionId == null) {
+      await _open(greet: false);
+      if (!mounted || _sessionId == null) return;
+    }
     _input.clear();
     setState(() { _msgs.add(_Msg(text, mine: true)); _sending = true; });
     _scrollDown();
@@ -495,6 +696,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                     perk(tr.aiyaFriendPerk2),
                     perk(tr.aiyaFriendPerk3),
                     perk(tr.aiyaFriendPerk4),
+                    perk(tr.aiyaFriendPerk5),
                     const SizedBox(height: Night.space2),
                     if (active)
                       Text(tr.aiyaFriendActive(_date(AiyaStore.friendExp.value!)), style: const TextStyle(color: Color(0xFFFFC861), fontSize: 15), textAlign: TextAlign.center)
@@ -693,7 +895,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                 child: Text('AI', style: TextStyle(color: Night.auroraBlue, fontSize: 11, letterSpacing: ls(1.5))),
               ),
               const SizedBox(width: Night.space2),
-              Text(_timeLeft(), style: Night.caption),
+              Text(aiyaPhone.state.value == AiyaCallState.live ? tr.aiyaCallLive(_callElapsed()) : _timeLeft(), style: Night.caption),
               const Spacer(),
               TextButton(onPressed: _close, child: Text(tr.aiyaEnd, style: const TextStyle(color: Night.inkMuted))),
             ]),
@@ -715,12 +917,21 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: Night.space2),
+                // 通話中：艾婭正在說的話（逐字稿）
+                if (aiyaPhone.state.value == AiyaCallState.live)
+                  ValueListenableBuilder<String>(
+                    valueListenable: aiyaPhone.aiyaLine,
+                    builder: (context, line, _) => line.trim().isEmpty
+                        ? const SizedBox.shrink()
+                        : Padding(padding: const EdgeInsets.only(bottom: Night.space2), child: _bubble(_Msg(line.trim()))),
+                  ),
                 // 剩餘次數＋隨時可以買時光包的入口（不必等免費次數用完）
                 Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, spacing: Night.space2, children: [
                   Text(
                     [
                       if (AiyaStore.isFriend) tr.aiyaFriendLeft(_freeLeft) else if (_freeLeft > 0) tr.aiyaFreeLeft(_freeLeft),
                       if (_credits > 0) tr.aiyaCreditsLeft(_credits),
+                      if (_callSecondsLeft >= 60 && aiyaPhone.state.value == AiyaCallState.idle) tr.aiyaCallMinutesLeft(_callSecondsLeft ~/ 60),
                     ].join('  ·  '),
                     style: Night.caption, textAlign: TextAlign.center,
                   ),
@@ -744,32 +955,66 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                   ),
                 ]),
                 const SizedBox(height: Night.space2),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _input,
-                      enabled: !_ended && _sessionId != null && !_opening,
-                      maxLength: 200,
-                      minLines: 1, maxLines: 3,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _send(),
-                      style: const TextStyle(color: Night.ink),
-                      decoration: InputDecoration(
-                        hintText: tr.aiyaInputHint, hintStyle: const TextStyle(color: Night.inkFaint), counterText: '',
-                        filled: true, fillColor: Night.night700,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusMd), borderSide: BorderSide.none),
+                // 輸入列（參考 ChatGPT）：沒打字時右邊是藍色的語音鍵；通話中變成「靜音」＋「✕ 結束通話」
+                Builder(builder: (context) {
+                  final call = aiyaPhone.state.value;
+                  final inCall = call != AiyaCallState.idle;
+                  return Row(children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _input,
+                        enabled: !_ended && !_opening && !inCall,
+                        maxLength: 200,
+                        minLines: 1, maxLines: 3,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _send(),
+                        onChanged: (_) => setState(() {}),
+                        style: const TextStyle(color: Night.ink),
+                        decoration: InputDecoration(
+                          hintText: inCall ? tr.aiyaCallLive(_callElapsed()) : tr.aiyaInputHint,
+                          hintStyle: const TextStyle(color: Night.inkFaint), counterText: '',
+                          filled: true, fillColor: Night.night700,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(Night.radiusMd), borderSide: BorderSide.none),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: Night.space2),
-                  IconButton.filled(
-                    tooltip: tr.aiyaSend,
-                    onPressed: _sending || _ended || _sessionId == null ? null : _send,
-                    style: IconButton.styleFrom(backgroundColor: Night.deepViolet),
-                    icon: _sending ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.arrow_upward, color: Colors.white),
-                  ),
-                ]),
+                    const SizedBox(width: Night.space2),
+                    if (inCall) ...[
+                      ValueListenableBuilder<bool>(
+                        valueListenable: aiyaPhone.muted,
+                        builder: (context, muted, _) => IconButton.outlined(
+                          tooltip: muted ? tr.aiyaCallUnmute : tr.aiyaCallMute,
+                          onPressed: call == AiyaCallState.live ? () => aiyaPhone.setMuted(!muted) : null,
+                          style: IconButton.styleFrom(side: const BorderSide(color: Night.glassLine)),
+                          icon: Icon(muted ? Icons.mic_off_rounded : Icons.mic_none_rounded, color: muted ? const Color(0xFFFF6B6B) : Night.ink),
+                        ),
+                      ),
+                      const SizedBox(width: Night.space2),
+                      IconButton.filled(
+                        tooltip: tr.aiyaHangUp,
+                        onPressed: call == AiyaCallState.live ? () => aiyaPhone.hangUp() : null,
+                        style: IconButton.styleFrom(backgroundColor: Night.ink, minimumSize: const Size(48, 48)),
+                        icon: call == AiyaCallState.connecting
+                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Night.night900))
+                            : const Icon(Icons.close_rounded, color: Night.night900),
+                      ),
+                    ] else if (_input.text.trim().isEmpty && !_sending)
+                      IconButton.filled(
+                        tooltip: tr.aiyaCallTooltip,
+                        onPressed: _opening ? null : _startCall,
+                        style: IconButton.styleFrom(backgroundColor: const Color(0xFF4C7DFF), minimumSize: const Size(56, 44)),
+                        icon: const Icon(Icons.graphic_eq_rounded, color: Colors.white),
+                      )
+                    else
+                      IconButton.filled(
+                        tooltip: tr.aiyaSend,
+                        onPressed: _sending || _ended ? null : _send,
+                        style: IconButton.styleFrom(backgroundColor: Night.deepViolet),
+                        icon: _sending ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.arrow_upward, color: Colors.white),
+                      ),
+                  ]);
+                }),
               ]),
             ),
           ),

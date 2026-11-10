@@ -33,3 +33,17 @@ test('stylesWithReceipt／googleVoidedReceipts', () => {
 test('appleRefundTarget：禮物（消耗性）用交易編號對收據', () => {
     assert.deepStrictEqual(r.appleRefundTarget('REFUND', { bundleId: B, productId: 'gift_pair', transactionId: '42' }, B), { kind: 'gift', receipt: 'a_42' });
 });
+
+test('旅行團的艾婭時光包退款', () => {
+    const aiya = require('./aiya');
+    const { tour } = aiya.APPS;
+    const tx = { bundleId: tour.bundleId, productId: 'tour_aiya_time_20', transactionId: 't9' };
+    assert.deepStrictEqual(r.appleRefundTarget('REFUND', tx, tour.bundleId, tour.packs), { kind: 'pack', receipt: 'a_t9', credits: 20 });
+    assert.strictEqual(r.appleRefundTarget('REFUND', tx, aiya.APPS.mw.bundleId), null);
+});
+
+test('通話時間包退款（Apple）', () => {
+    assert.deepStrictEqual(r.appleRefundTarget('REFUND', { bundleId: B, productId: 'aiya_call_60', transactionId: '9' }, B), { kind: 'callpack', receipt: 'a_9' });
+    const aiya = require('./aiya');
+    assert.strictEqual(aiya.appOfProduct('tour_aiya_call_30').id, 'tour');
+});

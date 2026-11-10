@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:aiya/aiya.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,26 +34,19 @@ Future<Map<String, dynamic>> _mockCall(String action, Map<String, dynamic> body)
   };
 }
 
+/// 城市低語的艾婭 API（共用套件 package:aiya；旅行團用 app: 'tour'）
+final aiyaApi = AiyaApi(app: 'mw', language: () => currentLanguageTag, url: _aiyaUrl, signInAnonymously: aiyaLive);
+
+/// 艾婭之友的語音通話（OpenAI GPT-Live）
+final aiyaPhone = AiyaCall(aiyaApi);
+
 /// 呼叫伺服器的艾婭 API；連不上時回傳 {success: false, code: 'busy'}
 Future<Map<String, dynamic>> aiyaCall(String action, [Map<String, dynamic> body = const {}]) async {
   if (aiyaMock) return _mockCall(action, body);
-  try {
-    if (aiyaLive && FirebaseAuth.instance.currentUser == null) await FirebaseAuth.instance.signInAnonymously();
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    final response = await http
-        .post(Uri.parse(_aiyaUrl),
-            headers: {'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'},
-            body: jsonEncode({'action': action, 'lang': currentLanguageTag, ...body}))
-        .timeout(const Duration(seconds: 40));
-    final data = jsonDecode(response.body);
-    return data is Map<String, dynamic> ? data : {'success': false, 'code': 'busy'};
-  } catch (_) {
-    return {'success': false, 'code': 'busy'};
-  }
+  return aiyaApi.call(action, body);
 }
 
 /// 跟艾婭說一句（串流）：一邊收一邊吐出 {t: 'delta', text: 到目前為止的回覆}，最後一筆是完整結果（和 aiyaCall 的回應一樣）。
-/// 伺服器還沒更新時會直接回一整個 JSON，當成最後一筆。
 Stream<Map<String, dynamic>> aiyaSayStream(Map<String, dynamic> body) async* {
   if (aiyaMock) {
     final r = await _mockCall('say', body);
@@ -69,29 +60,7 @@ Stream<Map<String, dynamic>> aiyaSayStream(Map<String, dynamic> body) async* {
     yield r;
     return;
   }
-  final client = http.Client();
-  try {
-    if (aiyaLive && FirebaseAuth.instance.currentUser == null) await FirebaseAuth.instance.signInAnonymously();
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    final request = http.Request('POST', Uri.parse(_aiyaUrl))
-      ..headers.addAll({'Content-Type': 'application/json', 'Accept-Language': currentLanguageTag, if (token != null) 'Authorization': 'Bearer $token'})
-      ..body = jsonEncode({'action': 'say', 'lang': currentLanguageTag, 'stream': true, ...body});
-    final response = await client.send(request).timeout(const Duration(seconds: 20));
-    Map<String, dynamic>? last;
-    await for (final line in response.stream.transform(utf8.decoder).transform(const LineSplitter()).timeout(const Duration(seconds: 40))) {
-      if (line.trim().isEmpty) continue;
-      final m = jsonDecode(line);
-      if (m is! Map<String, dynamic>) continue;
-      if (m['t'] == 'delta') { yield m; continue; }
-      last = m;
-      break;
-    }
-    yield last ?? {'success': false, 'code': 'busy'};
-  } catch (_) {
-    yield {'success': false, 'code': 'busy'};
-  } finally {
-    client.close();
-  }
+  yield* aiyaApi.say(body);
 }
 
 /// 設定裡的「艾婭」開關：關掉後量子世界的光柱不再顯示艾婭
@@ -116,6 +85,13 @@ class AiyaStore {
 
   static const products = {'aiya_time_5': 5, 'aiya_time_20': 20};
   static const friendProduct = 'aiya_friend_monthly';
+  /// 語音通話時間包（消耗型）：商品代號 → 分鐘
+  static const callProducts = {'aiya_call_30': 30, 'aiya_call_60': 60, 'aiya_call_180': 180};
+  /// 剩下的通話秒數（艾婭之友當月贈送＋買的時間包）；null = 還不知道
+  static final callSeconds = ValueNotifier<int?>(null);
+  /// 剛買到通話時間：畫面收到後直接接通
+  static final callBought = ValueNotifier<int>(0);
+  static bool _isMine(String id) => products.containsKey(id) || callProducts.containsKey(id) || id == friendProduct;
   static final details = ValueNotifier<Map<String, ProductDetails>>(const {});
   static final busy = ValueNotifier<bool>(false);
   static final credits = ValueNotifier<int?>(null);
@@ -128,6 +104,7 @@ class AiyaStore {
   /// 伺服器回傳的狀態（status / open / verify 都有）
   static void applyStatus(Map<String, dynamic> s) {
     if (s['friendExp'] is num) friendExp.value = (s['friendExp'] as num).toInt();
+    if (s['callSecondsLeft'] is num) callSeconds.value = (s['callSecondsLeft'] as num).toInt();
   }
 
   /// 管理訂閱：Apple 或 Google 的訂閱設定頁（取消、變更都在那裡）
@@ -146,7 +123,7 @@ class AiyaStore {
   static Future<void> loadProducts() async {
     try {
       if (!await InAppPurchase.instance.isAvailable()) return;
-      final response = await InAppPurchase.instance.queryProductDetails({...products.keys, friendProduct});
+      final response = await InAppPurchase.instance.queryProductDetails({...products.keys, ...callProducts.keys, friendProduct});
       details.value = {for (final p in response.productDetails) p.id: p};
     } catch (_) {}
   }
@@ -199,7 +176,7 @@ class AiyaStore {
   }
 
   static Future<void> _onPurchases(List<PurchaseDetails> list) async {
-    final mine = [for (final p in list) if (products.containsKey(p.productID) || p.productID == friendProduct) p];
+    final mine = [for (final p in list) if (_isMine(p.productID)) p];
     if (mine.isEmpty) return;
     final toVerify = <PurchaseDetails>[];
     for (final p in mine) {
@@ -233,7 +210,7 @@ class AiyaStore {
     final wasFriend = isFriend;
     applyStatus(data);
     if (data['credits'] is num) credits.value = (data['credits'] as num).toInt();
-    var added = 0;
+    var added = 0, minutes = 0;
     var friendNew = false, friendElsewhere = false;
     final results = (data['results'] as List? ?? const []).whereType<Map>().toList();
     for (var i = 0; i < toVerify.length; i++) {
@@ -243,6 +220,8 @@ class AiyaStore {
         if (toVerify[i].productID == friendProduct) {
           if (result == 'granted' && toVerify[i].status == PurchaseStatus.purchased) friendNew = true;
           if (result == 'owned_elsewhere') friendElsewhere = true;
+        } else if (result == 'granted' && callProducts.containsKey(toVerify[i].productID)) {
+          minutes += callProducts[toVerify[i].productID]!;
         } else if (result == 'granted') {
           added += products[toVerify[i].productID] ?? 0;
         }
@@ -254,11 +233,14 @@ class AiyaStore {
       notice.value = tr.aiyaFriendElsewhere;
     } else if (friendNew || (wasRestoring && isFriend) || (!wasFriend && isFriend && toVerify.any((p) => p.productID == friendProduct && p.status == PurchaseStatus.purchased))) {
       notice.value = wasRestoring ? tr.aiyaFriendRestored : tr.aiyaFriendWelcome;
+    } else if (minutes > 0) {
+      notice.value = tr.aiyaCallPurchased(minutes);
+      callBought.value++;
     } else if (added > 0) {
       notice.value = tr.aiyaPurchased(added);
     } else if (wasRestoring) {
       notice.value = isFriend ? tr.aiyaFriendRestored : tr.aiyaFriendNotFound;
-    } else if (toVerify.any((p) => products.containsKey(p.productID))) {
+    } else if (toVerify.any((p) => products.containsKey(p.productID) || callProducts.containsKey(p.productID))) {
       notice.value = tr.aiyaPurchaseFailed;
     }
   }

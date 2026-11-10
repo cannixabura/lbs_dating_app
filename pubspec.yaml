@@ -51,6 +51,9 @@ dependencies:
   shared_preferences: ^2.5.5
   firebase_messaging: ^16.7.0
   http: ^1.6.0
+  # 艾婭共用套件（旅行團 TourChip 也用）
+  aiya:
+    path: packages/aiya
   image_picker: ^1.2.4
   firebase_storage: ^13.6.0
   url_launcher: ^6.3.3
@@ -118,8 +121,6 @@ flutter:
     - assets/audio/group_call.wav
     - assets/map/night_style.json
     - assets/opencc/s2t.txt
-    - assets/aiya/
-    - assets/aiya/clips/
   # 🌟 新增這裡：宣告我們要使用的 Fragment Shader 檔案
   shaders:
     - shaders/breathing_glow.frag

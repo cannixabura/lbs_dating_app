@@ -3723,4 +3723,119 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get asmRemovedDone => 'सभा से हटा दिया गया';
+
+  @override
+  String get aiyaFriendPerk5 => 'हर महीने आइया से 60 मिनट वॉइस कॉल';
+
+  @override
+  String get aiyaVoiceOn => 'आवाज़: चालू';
+
+  @override
+  String get aiyaVoiceOff => 'आवाज़: बंद';
+
+  @override
+  String get aiyaVoiceFriendOnly => 'आवाज़ आइया फ्रेंड्स के लिए है';
+
+  @override
+  String get aiyaVoiceDailyMax =>
+      'आज की आवाज़ वाले जवाब खत्म हो गए। कल फिर आइया की आवाज़ सुनें';
+
+  @override
+  String get aiyaCallTooltip => 'आइया से वॉइस कॉल';
+
+  @override
+  String get aiyaCallConsentTitle => 'आइया से वॉइस कॉल';
+
+  @override
+  String get aiyaCallConsentBody =>
+      'वॉइस कॉल के दौरान आपकी आवाज़ सीधे OpenAI (अमेरिका) को भेजी जाती है, जिसका AI उसे समझकर जवाब देता है। आपकी पहचान, उपनाम या लोकेशन नहीं भेजी जाती, और हम कॉल रिकॉर्ड या सेव नहीं करते। आइया एक AI है; जवाब गलत हो सकते हैं और ये पेशेवर सलाह नहीं हैं।';
+
+  @override
+  String get aiyaCallAgree => 'सहमत हूँ, कॉल करें';
+
+  @override
+  String get aiyaCallConnecting => 'कनेक्ट हो रहा है…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return 'कॉल पर · $time बाकी';
+  }
+
+  @override
+  String get aiyaHangUp => 'कॉल काटें';
+
+  @override
+  String get aiyaCallEnded => 'कॉल खत्म';
+
+  @override
+  String get aiyaCallTimeUp =>
+      'एक घंटे बात हो गई। थोड़ा आराम करके फिर आइया को कॉल करें';
+
+  @override
+  String get aiyaCallDailyMax =>
+      'आज की 2 कॉल पूरी हो गईं। कल फिर आइया को कॉल करें';
+
+  @override
+  String get aiyaCallMonthMax =>
+      'इस महीने की कॉल पूरी हो गईं। अगले महीने फिर कॉल करें';
+
+  @override
+  String get aiyaCallResting =>
+      'आज आइया की वॉइस लाइन बहुत व्यस्त है। बाद में फिर कोशिश करें';
+
+  @override
+  String get aiyaCallMicDenied =>
+      'आइया को कॉल करने के लिए माइक्रोफ़ोन की अनुमति दें। आप फ़ोन की सेटिंग में इसे चालू कर सकते हैं';
+
+  @override
+  String get aiyaCallFailed => 'कनेक्ट नहीं हो सका। बाद में फिर कोशिश करें';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return 'आज $today कॉल बाकी · इस महीने $month';
+  }
+
+  @override
+  String get aiyaCallIdle => 'कुछ देर कोई नहीं बोला, इसलिए कॉल खत्म हो गई';
+
+  @override
+  String get aiyaCallMute => 'म्यूट';
+
+  @override
+  String get aiyaCallUnmute => 'अनम्यूट';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '$minutes मिनट कॉल टाइम जोड़ा गया';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => 'आपका कॉल टाइम खत्म हो गया';
+
+  @override
+  String get aiyaCallPacksTitle => 'आइया से वॉइस कॉल';
+
+  @override
+  String get aiyaCallPacksBody =>
+      'फ़ोन कॉल की तरह आइया से बोलकर बात करें। कॉल टाइम खरीदें और शुरू करें; आइया फ्रेंड्स को हर महीने 60 मिनट मुफ़्त मिलते हैं।';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes मिनट';
+  }
+
+  @override
+  String get aiyaCallFriendOption => 'आइया फ्रेंड बनें (हर महीने 60 मिनट)';
+
+  @override
+  String get aiyaCallTextInstead => 'अभी टेक्स्ट से बात करें';
+
+  @override
+  String get aiyaCallPackNote =>
+      'कॉल टाइम कभी खत्म नहीं होता और असल सेकंड के हिसाब से कटता है। उपभोग्य खरीदारी रिस्टोर नहीं की जा सकती।';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return '$n मिनट कॉल टाइम बाकी';
+  }
 }

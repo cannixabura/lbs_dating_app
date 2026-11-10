@@ -2136,7 +2136,16 @@
   "asmExtendTitle": "延長集會",
   "asmExtendHint": "用一張主辦券往後延，一場最長 12 小時",
   "asmExtendPlan": "+{hours} 小時 · {price}",
-  "@asmExtendPlan": {"placeholders": {"hours": {"type": "int"}, "price": {"type": "String"}}},
+  "@asmExtendPlan": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "asmExtended": "集會已延長",
   "asmEndingSoon": "你的集會剩不到 10 分鐘，可以在集會卡延長",
   "asmErrTooLong": "一場集會最長 12 小時",
@@ -2193,9 +2202,21 @@
   "asmMemorialUnit": "人",
   "asmMemorialTogether": "一起在量子世界",
   "shareCardFindUs": "App Store 搜 {name}",
-  "@shareCardFindUs": {"placeholders": {"name": {"type": "String"}}},
+  "@shareCardFindUs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "shareCardFindUsPlay": "Google Play 搜 {name}",
-  "@shareCardFindUsPlay": {"placeholders": {"name": {"type": "String"}}},
+  "@shareCardFindUsPlay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "asmShareCard": "分享紀念卡",
   "asmShareText": "我們在量子世界辦了「{title}」，{count} 人一起參加。打開城市低語，下次一起來。",
   "@asmShareText": {
@@ -2211,5 +2232,75 @@
   "asmOpenEntry": "開量子集會",
   "asmOpenEntrySub": "坐進 101 旁的主持席，辦一場全世界都能加入的集會",
   "asmRemoveMember": "移出集會",
-  "asmRemovedDone": "已經移出集會"
+  "asmRemovedDone": "已經移出集會",
+  "aiyaFriendPerk5": "每月送 60 分鐘跟艾婭語音通話",
+  "aiyaVoiceOn": "語音朗讀：開",
+  "aiyaVoiceOff": "語音朗讀：關",
+  "aiyaVoiceFriendOnly": "語音朗讀是艾婭之友的功能",
+  "aiyaVoiceDailyMax": "今天的語音朗讀用完了，明天再聽艾婭說話",
+  "aiyaCallTooltip": "跟艾婭語音通話",
+  "aiyaCallConsentTitle": "跟艾婭語音通話",
+  "aiyaCallConsentBody": "語音通話時，你的聲音會即時送到 OpenAI（美國）由 AI 處理並回應，不會附上你的身分、暱稱或位置；我們不錄音，也不保存通話內容。艾婭是 AI，回覆可能出錯，不構成專業建議。",
+  "aiyaCallAgree": "同意並通話",
+  "aiyaCallConnecting": "接通中…",
+  "aiyaCallLive": "通話中 · 剩 {time}",
+  "aiyaHangUp": "掛斷",
+  "aiyaCallEnded": "通話結束",
+  "aiyaCallTimeUp": "這通已經聊了 1 小時，休息一下再打給艾婭吧",
+  "aiyaCallDailyMax": "今天的 2 次通話用完了，明天再打給艾婭",
+  "aiyaCallMonthMax": "這個月的通話次數用完了，下個月再打給艾婭",
+  "aiyaCallResting": "艾婭的語音線路今天太忙了，晚一點再試",
+  "aiyaCallMicDenied": "要允許麥克風才能跟艾婭通話，可以到手機設定打開",
+  "aiyaCallFailed": "接不通，請稍後再試",
+  "aiyaCallsLeft": "今天還能通話 {today} 次 · 本月 {month} 次",
+  "@aiyaCallLive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@aiyaCallsLeft": {
+    "placeholders": {
+      "today": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "aiyaCallIdle": "太久沒說話，通話先掛斷了",
+  "aiyaCallMute": "靜音",
+  "aiyaCallUnmute": "取消靜音",
+  "aiyaCallPurchased": "已加入 {minutes} 分鐘通話時間",
+  "aiyaCallOutOfTime": "通話時間用完了",
+  "aiyaCallPacksTitle": "跟艾婭語音通話",
+  "aiyaCallPacksBody": "用說的跟艾婭聊天，就像打電話一樣。買通話時間就能打，艾婭之友每月還送 60 分鐘。",
+  "aiyaCallPackMinutes": "{minutes} 分鐘",
+  "aiyaCallFriendOption": "成為艾婭之友（每月送 60 分鐘）",
+  "aiyaCallTextInstead": "先用文字聊",
+  "aiyaCallPackNote": "通話時間不會過期，依實際通話秒數扣除。消耗型商品無法恢復購買。",
+  "aiyaCallMinutesLeft": "通話時間剩 {n} 分鐘",
+  "@aiyaCallPurchased": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@aiyaCallPackMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@aiyaCallMinutesLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

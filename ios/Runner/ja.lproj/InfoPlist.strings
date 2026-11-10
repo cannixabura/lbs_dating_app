@@ -5,3 +5,4 @@
 "NSCameraUsageDescription" = "プロフィール写真を撮るためにカメラを使います。";
 "NSLocationWhenInUseUsageDescription" = "アプリの使用中に位置情報を使い、5 km 以内の人をレーダーに表示し、近くの人にあなたのムードの泡を表示します。";
 "Radar" = "近くに誰がいるかを判断するため、レーダーには正確な位置情報が必要です。ほかの人に見えるのはおおよその距離だけで、住所は表示されません。";
+"NSMicrophoneUsageDescription" = "アイヤとの音声通話中だけマイクを使い、あなたの声を届けます。";

@@ -1,0 +1,21 @@
+name: aiya
+description: 艾婭 A.I.Y.A 的共用元件：粒子全息、影片片段、伺服器 API、語音朗讀。城市低語與旅行團 TourChip 共用。
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.4
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  firebase_auth: ^6.7.0
+  audioplayers: ^6.8.1
+  flutter_webrtc: ^1.6.3
+
+flutter:
+  assets:
+    - assets/aiya/
+    - assets/aiya/clips/

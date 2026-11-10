@@ -11,6 +11,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_database
   firebase_storage
   flutter_timezone
+  flutter_webrtc
   geolocator_windows
   permission_handler_windows
   share_plus

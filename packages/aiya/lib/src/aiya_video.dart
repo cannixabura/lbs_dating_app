@@ -15,7 +15,7 @@ import 'aiya_face.dart';
 /// 所以手機不用逐格分析影片；眨眼、嘴型、轉頭都是影片裡的真實動作。
 /// 片段都從同一個姿勢開始，播完再倒著播回來，所以結束時剛好回到起點，可以無縫接下一支。
 
-const _dir = 'assets/aiya/clips/';
+const _dir = 'packages/aiya/assets/aiya/clips/';
 const _fps = 24.0;
 const _imgW = 200, _imgH = 189;
 

@@ -3483,4 +3483,112 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get asmRemovedDone => '集会から外しました';
+
+  @override
+  String get aiyaFriendPerk5 => '毎月60分のアイヤとの音声通話つき';
+
+  @override
+  String get aiyaVoiceOn => '読み上げ：オン';
+
+  @override
+  String get aiyaVoiceOff => '読み上げ：オフ';
+
+  @override
+  String get aiyaVoiceFriendOnly => '読み上げはアイヤフレンドの機能です';
+
+  @override
+  String get aiyaVoiceDailyMax => '今日の読み上げは終わりました。また明日アイヤの声を聞いてね';
+
+  @override
+  String get aiyaCallTooltip => 'アイヤと音声通話';
+
+  @override
+  String get aiyaCallConsentTitle => 'アイヤと音声通話';
+
+  @override
+  String get aiyaCallConsentBody =>
+      '音声通話中、あなたの声はリアルタイムで OpenAI（米国）に送られ、AI が処理して返事をします。身元・ニックネーム・位置は送りません。録音や通話内容の保存もしません。アイヤは AI なので返事が間違うことがあり、専門的な助言ではありません。';
+
+  @override
+  String get aiyaCallAgree => '同意して通話';
+
+  @override
+  String get aiyaCallConnecting => '接続中…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return '通話中 · 残り $time';
+  }
+
+  @override
+  String get aiyaHangUp => '切る';
+
+  @override
+  String get aiyaCallEnded => '通話終了';
+
+  @override
+  String get aiyaCallTimeUp => '1時間話しました。少し休んでまたアイヤに電話してね';
+
+  @override
+  String get aiyaCallDailyMax => '今日の2回の通話は終わりました。また明日アイヤに電話してね';
+
+  @override
+  String get aiyaCallMonthMax => '今月の通話回数は終わりました。来月またアイヤに電話してね';
+
+  @override
+  String get aiyaCallResting => 'アイヤの音声回線が今日は混み合っています。少し後でお試しください';
+
+  @override
+  String get aiyaCallMicDenied => 'アイヤと通話するにはマイクを許可してください。端末の設定でオンにできます';
+
+  @override
+  String get aiyaCallFailed => 'つながりませんでした。少し後でお試しください';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return '今日あと $today 回 · 今月あと $month 回';
+  }
+
+  @override
+  String get aiyaCallIdle => 'しばらく話がなかったので通話を終了しました';
+
+  @override
+  String get aiyaCallMute => 'ミュート';
+
+  @override
+  String get aiyaCallUnmute => 'ミュート解除';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '通話時間を$minutes分追加しました';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => '通話時間がなくなりました';
+
+  @override
+  String get aiyaCallPacksTitle => 'アイヤと音声通話';
+
+  @override
+  String get aiyaCallPacksBody =>
+      '電話のように、声でアイヤと話せます。通話時間を買えばすぐにかけられます。アイヤフレンドなら毎月60分のプレゼントも。';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes分';
+  }
+
+  @override
+  String get aiyaCallFriendOption => 'アイヤフレンドになる（毎月60分）';
+
+  @override
+  String get aiyaCallTextInstead => 'まずは文字で話す';
+
+  @override
+  String get aiyaCallPackNote => '通話時間に期限はなく、実際の通話秒数で消費されます。消耗型アイテムは復元できません。';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return '通話時間 残り$n分';
+  }
 }

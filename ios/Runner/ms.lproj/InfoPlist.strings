@@ -5,3 +5,4 @@
 "NSCameraUsageDescription" = "Mood Whisper menggunakan kamera supaya anda boleh mengambil foto untuk gambar profil.";
 "NSLocationWhenInUseUsageDescription" = "Mood Whisper menggunakan lokasi anda semasa anda menggunakan app untuk menunjukkan orang dalam lingkungan 5 km di radar dan membolehkan orang berdekatan melihat gelembung mood anda.";
 "Radar" = "Radar memerlukan lokasi tepat anda untuk mengetahui siapa yang berdekatan. Orang lain hanya melihat jarak anggaran, bukan alamat anda.";
+"NSMicrophoneUsageDescription" = "Mood Whisper menggunakan mikrofon hanya semasa panggilan suara dengan AIYA supaya dia dapat mendengar anda.";

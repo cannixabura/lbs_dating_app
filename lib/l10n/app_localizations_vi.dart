@@ -3641,4 +3641,120 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get asmRemovedDone => 'Đã mời ra khỏi buổi tụ họp';
+
+  @override
+  String get aiyaFriendPerk5 => 'Mỗi tháng 60 phút gọi thoại với AIYA';
+
+  @override
+  String get aiyaVoiceOn => 'Giọng đọc: bật';
+
+  @override
+  String get aiyaVoiceOff => 'Giọng đọc: tắt';
+
+  @override
+  String get aiyaVoiceFriendOnly => 'Giọng đọc dành cho Bạn của AIYA';
+
+  @override
+  String get aiyaVoiceDailyMax =>
+      'Hôm nay đã hết lượt giọng đọc. Ngày mai nghe AIYA nói tiếp nhé';
+
+  @override
+  String get aiyaCallTooltip => 'Gọi thoại với AIYA';
+
+  @override
+  String get aiyaCallConsentTitle => 'Gọi thoại với AIYA';
+
+  @override
+  String get aiyaCallConsentBody =>
+      'Khi gọi thoại, giọng nói của bạn được gửi trực tiếp tới OpenAI (Mỹ) để AI xử lý và trả lời. Không gửi danh tính, biệt danh hay vị trí của bạn; chúng tôi không ghi âm và không lưu cuộc gọi. AIYA là AI, câu trả lời có thể sai và không phải lời khuyên chuyên môn.';
+
+  @override
+  String get aiyaCallAgree => 'Đồng ý và gọi';
+
+  @override
+  String get aiyaCallConnecting => 'Đang kết nối…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return 'Đang gọi · còn $time';
+  }
+
+  @override
+  String get aiyaHangUp => 'Gác máy';
+
+  @override
+  String get aiyaCallEnded => 'Cuộc gọi kết thúc';
+
+  @override
+  String get aiyaCallTimeUp =>
+      'Bạn đã trò chuyện một tiếng rồi. Nghỉ chút rồi gọi AIYA tiếp nhé';
+
+  @override
+  String get aiyaCallDailyMax =>
+      'Đã hết 2 cuộc gọi hôm nay. Ngày mai gọi AIYA tiếp nhé';
+
+  @override
+  String get aiyaCallMonthMax =>
+      'Đã hết lượt gọi tháng này. Tháng sau gọi AIYA tiếp nhé';
+
+  @override
+  String get aiyaCallResting =>
+      'Đường dây giọng nói của AIYA hôm nay quá bận. Thử lại sau nhé';
+
+  @override
+  String get aiyaCallMicDenied =>
+      'Hãy cho phép micrô để gọi AIYA. Bạn có thể bật trong Cài đặt của điện thoại';
+
+  @override
+  String get aiyaCallFailed => 'Không kết nối được. Vui lòng thử lại sau';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return 'Hôm nay còn $today cuộc · tháng này còn $month';
+  }
+
+  @override
+  String get aiyaCallIdle => 'Một lúc không ai nói nên cuộc gọi đã kết thúc';
+
+  @override
+  String get aiyaCallMute => 'Tắt tiếng';
+
+  @override
+  String get aiyaCallUnmute => 'Bật tiếng';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return 'Đã thêm $minutes phút gọi';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => 'Đã hết thời gian gọi';
+
+  @override
+  String get aiyaCallPacksTitle => 'Gọi thoại với AIYA';
+
+  @override
+  String get aiyaCallPacksBody =>
+      'Trò chuyện với AIYA bằng giọng nói, như gọi điện. Mua thời gian gọi để bắt đầu; Bạn của AIYA còn được tặng 60 phút mỗi tháng.';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes phút';
+  }
+
+  @override
+  String get aiyaCallFriendOption =>
+      'Trở thành Bạn của AIYA (60 phút mỗi tháng)';
+
+  @override
+  String get aiyaCallTextInstead => 'Nhắn tin trước đã';
+
+  @override
+  String get aiyaCallPackNote =>
+      'Thời gian gọi không hết hạn và được trừ theo số giây thực tế. Mặt hàng tiêu hao không thể khôi phục.';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return 'Còn $n phút gọi';
+  }
 }

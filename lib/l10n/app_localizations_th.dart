@@ -3656,4 +3656,118 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get asmRemovedDone => 'เชิญออกจากการรวมตัวแล้ว';
+
+  @override
+  String get aiyaFriendPerk5 => 'โทรคุยกับไอย่าได้เดือนละ 60 นาที';
+
+  @override
+  String get aiyaVoiceOn => 'อ่านออกเสียง: เปิด';
+
+  @override
+  String get aiyaVoiceOff => 'อ่านออกเสียง: ปิด';
+
+  @override
+  String get aiyaVoiceFriendOnly => 'การอ่านออกเสียงสำหรับเพื่อนไอย่า';
+
+  @override
+  String get aiyaVoiceDailyMax =>
+      'วันนี้ใช้การอ่านออกเสียงหมดแล้ว พรุ่งนี้มาฟังเสียงไอย่าใหม่นะ';
+
+  @override
+  String get aiyaCallTooltip => 'โทรคุยกับไอย่า';
+
+  @override
+  String get aiyaCallConsentTitle => 'โทรคุยกับไอย่า';
+
+  @override
+  String get aiyaCallConsentBody =>
+      'ระหว่างโทร เสียงของคุณจะถูกส่งแบบเรียลไทม์ไปยัง OpenAI (สหรัฐฯ) เพื่อให้ AI ประมวลผลและตอบ โดยไม่ส่งตัวตน ชื่อเล่น หรือตำแหน่งของคุณ เราไม่บันทึกเสียงและไม่เก็บเนื้อหาการโทร ไอย่าเป็น AI คำตอบอาจผิดพลาดและไม่ใช่คำแนะนำจากผู้เชี่ยวชาญ';
+
+  @override
+  String get aiyaCallAgree => 'ยอมรับและโทร';
+
+  @override
+  String get aiyaCallConnecting => 'กำลังเชื่อมต่อ…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return 'กำลังโทร · เหลือ $time';
+  }
+
+  @override
+  String get aiyaHangUp => 'วางสาย';
+
+  @override
+  String get aiyaCallEnded => 'จบการโทร';
+
+  @override
+  String get aiyaCallTimeUp =>
+      'คุยกันมาชั่วโมงหนึ่งแล้ว พักสักหน่อยแล้วโทรหาไอย่าใหม่นะ';
+
+  @override
+  String get aiyaCallDailyMax =>
+      'วันนี้โทรครบ 2 ครั้งแล้ว พรุ่งนี้โทรหาไอย่าใหม่นะ';
+
+  @override
+  String get aiyaCallMonthMax => 'เดือนนี้โทรครบแล้ว เดือนหน้าโทรหาไอย่าใหม่นะ';
+
+  @override
+  String get aiyaCallResting =>
+      'วันนี้สายเสียงของไอย่ายุ่งมาก ลองใหม่ภายหลังนะ';
+
+  @override
+  String get aiyaCallMicDenied =>
+      'อนุญาตไมโครโฟนเพื่อโทรหาไอย่า เปิดได้ในการตั้งค่าของโทรศัพท์';
+
+  @override
+  String get aiyaCallFailed => 'เชื่อมต่อไม่ได้ โปรดลองใหม่ภายหลัง';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return 'วันนี้เหลือ $today ครั้ง · เดือนนี้ $month ครั้ง';
+  }
+
+  @override
+  String get aiyaCallIdle => 'ไม่มีใครพูดสักพัก จึงวางสายให้แล้ว';
+
+  @override
+  String get aiyaCallMute => 'ปิดเสียง';
+
+  @override
+  String get aiyaCallUnmute => 'เปิดเสียง';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return 'เพิ่มเวลาโทร $minutes นาทีแล้ว';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => 'เวลาโทรหมดแล้ว';
+
+  @override
+  String get aiyaCallPacksTitle => 'โทรคุยกับไอย่า';
+
+  @override
+  String get aiyaCallPacksBody =>
+      'คุยกับไอย่าด้วยเสียงเหมือนโทรศัพท์ ซื้อเวลาโทรแล้วโทรได้เลย เพื่อนไอย่ายังได้ฟรีเดือนละ 60 นาที';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes นาที';
+  }
+
+  @override
+  String get aiyaCallFriendOption => 'เป็นเพื่อนไอย่า (เดือนละ 60 นาที)';
+
+  @override
+  String get aiyaCallTextInstead => 'คุยด้วยข้อความก่อน';
+
+  @override
+  String get aiyaCallPackNote =>
+      'เวลาโทรไม่มีวันหมดอายุ และหักตามจำนวนวินาทีที่โทรจริง สินค้าแบบใช้แล้วหมดไปกู้คืนไม่ได้';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return 'เหลือเวลาโทร $n นาที';
+  }
 }

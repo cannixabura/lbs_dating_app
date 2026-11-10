@@ -36,8 +36,8 @@ class AiyaParticles {
   }
 
   static Future<AiyaParticles> _build() async {
-    final lm = jsonDecode(await rootBundle.loadString('assets/aiya/aiya_landmarks.json')) as Map<String, dynamic>;
-    final bytes = await rootBundle.load('assets/aiya/aiya_cut.png');
+    final lm = jsonDecode(await rootBundle.loadString('packages/aiya/assets/aiya/aiya_landmarks.json')) as Map<String, dynamic>;
+    final bytes = await rootBundle.load('packages/aiya/assets/aiya/aiya_cut.png');
     final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
     final image = (await codec.getNextFrame()).image;
     final w = image.width, h = image.height;

@@ -5,3 +5,4 @@
 "NSCameraUsageDescription" = "Mood Whisper dùng máy ảnh để bạn chụp ảnh đại diện.";
 "NSLocationWhenInUseUsageDescription" = "Mood Whisper dùng vị trí khi bạn đang dùng ứng dụng để hiện những người trong bán kính 5 km trên radar và cho người gần đó thấy bong bóng tâm trạng của bạn.";
 "Radar" = "Radar cần vị trí chính xác để biết ai ở gần bạn. Người khác chỉ thấy khoảng cách gần đúng, không bao giờ thấy địa chỉ của bạn.";
+"NSMicrophoneUsageDescription" = "Mood Whisper chỉ dùng micrô khi bạn gọi thoại với AIYA để cô ấy nghe được bạn.";

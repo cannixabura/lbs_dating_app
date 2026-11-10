@@ -3427,6 +3427,113 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get asmRemovedDone => '已經移出集會';
+
+  @override
+  String get aiyaFriendPerk5 => '每月送 60 分鐘跟艾婭語音通話';
+
+  @override
+  String get aiyaVoiceOn => '語音朗讀：開';
+
+  @override
+  String get aiyaVoiceOff => '語音朗讀：關';
+
+  @override
+  String get aiyaVoiceFriendOnly => '語音朗讀是艾婭之友的功能';
+
+  @override
+  String get aiyaVoiceDailyMax => '今天的語音朗讀用完了，明天再聽艾婭說話';
+
+  @override
+  String get aiyaCallTooltip => '跟艾婭語音通話';
+
+  @override
+  String get aiyaCallConsentTitle => '跟艾婭語音通話';
+
+  @override
+  String get aiyaCallConsentBody =>
+      '語音通話時，你的聲音會即時送到 OpenAI（美國）由 AI 處理並回應，不會附上你的身分、暱稱或位置；我們不錄音，也不保存通話內容。艾婭是 AI，回覆可能出錯，不構成專業建議。';
+
+  @override
+  String get aiyaCallAgree => '同意並通話';
+
+  @override
+  String get aiyaCallConnecting => '接通中…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return '通話中 · 剩 $time';
+  }
+
+  @override
+  String get aiyaHangUp => '掛斷';
+
+  @override
+  String get aiyaCallEnded => '通話結束';
+
+  @override
+  String get aiyaCallTimeUp => '這通已經聊了 1 小時，休息一下再打給艾婭吧';
+
+  @override
+  String get aiyaCallDailyMax => '今天的 2 次通話用完了，明天再打給艾婭';
+
+  @override
+  String get aiyaCallMonthMax => '這個月的通話次數用完了，下個月再打給艾婭';
+
+  @override
+  String get aiyaCallResting => '艾婭的語音線路今天太忙了，晚一點再試';
+
+  @override
+  String get aiyaCallMicDenied => '要允許麥克風才能跟艾婭通話，可以到手機設定打開';
+
+  @override
+  String get aiyaCallFailed => '接不通，請稍後再試';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return '今天還能通話 $today 次 · 本月 $month 次';
+  }
+
+  @override
+  String get aiyaCallIdle => '太久沒說話，通話先掛斷了';
+
+  @override
+  String get aiyaCallMute => '靜音';
+
+  @override
+  String get aiyaCallUnmute => '取消靜音';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '已加入 $minutes 分鐘通話時間';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => '通話時間用完了';
+
+  @override
+  String get aiyaCallPacksTitle => '跟艾婭語音通話';
+
+  @override
+  String get aiyaCallPacksBody => '用說的跟艾婭聊天，就像打電話一樣。買通話時間就能打，艾婭之友每月還送 60 分鐘。';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes 分鐘';
+  }
+
+  @override
+  String get aiyaCallFriendOption => '成為艾婭之友（每月送 60 分鐘）';
+
+  @override
+  String get aiyaCallTextInstead => '先用文字聊';
+
+  @override
+  String get aiyaCallPackNote => '通話時間不會過期，依實際通話秒數扣除。消耗型商品無法恢復購買。';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return '通話時間剩 $n 分鐘';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6851,4 +6958,111 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get asmRemovedDone => '已经移出集会';
+
+  @override
+  String get aiyaFriendPerk5 => '每月送 60 分钟跟艾娅语音通话';
+
+  @override
+  String get aiyaVoiceOn => '语音朗读：开';
+
+  @override
+  String get aiyaVoiceOff => '语音朗读：关';
+
+  @override
+  String get aiyaVoiceFriendOnly => '语音朗读是艾娅之友的功能';
+
+  @override
+  String get aiyaVoiceDailyMax => '今天的语音朗读用完了，明天再听艾娅说话';
+
+  @override
+  String get aiyaCallTooltip => '跟艾娅语音通话';
+
+  @override
+  String get aiyaCallConsentTitle => '跟艾娅语音通话';
+
+  @override
+  String get aiyaCallConsentBody =>
+      '语音通话时，你的声音会实时发送到 OpenAI（美国）由 AI 处理并回应，不会附上你的身份、昵称或位置；我们不录音，也不保存通话内容。艾娅是 AI，回复可能出错，不构成专业建议。';
+
+  @override
+  String get aiyaCallAgree => '同意并通话';
+
+  @override
+  String get aiyaCallConnecting => '接通中…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return '通话中 · 剩 $time';
+  }
+
+  @override
+  String get aiyaHangUp => '挂断';
+
+  @override
+  String get aiyaCallEnded => '通话结束';
+
+  @override
+  String get aiyaCallTimeUp => '这通已经聊了 1 小时，休息一下再打给艾娅吧';
+
+  @override
+  String get aiyaCallDailyMax => '今天的 2 次通话用完了，明天再打给艾娅';
+
+  @override
+  String get aiyaCallMonthMax => '这个月的通话次数用完了，下个月再打给艾娅';
+
+  @override
+  String get aiyaCallResting => '艾娅的语音线路今天太忙了，晚一点再试';
+
+  @override
+  String get aiyaCallMicDenied => '需要允许麦克风才能跟艾娅通话，可以到手机设置打开';
+
+  @override
+  String get aiyaCallFailed => '接不通，请稍后再试';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return '今天还能通话 $today 次 · 本月 $month 次';
+  }
+
+  @override
+  String get aiyaCallIdle => '太久没说话，通话先挂断了';
+
+  @override
+  String get aiyaCallMute => '静音';
+
+  @override
+  String get aiyaCallUnmute => '取消静音';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '已加入 $minutes 分钟通话时间';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => '通话时间用完了';
+
+  @override
+  String get aiyaCallPacksTitle => '跟艾娅语音通话';
+
+  @override
+  String get aiyaCallPacksBody => '用说的跟艾娅聊天，就像打电话一样。买通话时间就能打，艾娅之友每月还送 60 分钟。';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String get aiyaCallFriendOption => '成为艾娅之友（每月送 60 分钟）';
+
+  @override
+  String get aiyaCallTextInstead => '先用文字聊';
+
+  @override
+  String get aiyaCallPackNote => '通话时间不会过期，按实际通话秒数扣除。消耗型商品无法恢复购买。';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return '通话时间剩 $n 分钟';
+  }
 }

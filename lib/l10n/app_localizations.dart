@@ -6176,6 +6176,198 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已經移出集會'**
   String get asmRemovedDone;
+
+  /// No description provided for @aiyaFriendPerk5.
+  ///
+  /// In zh, this message translates to:
+  /// **'每月送 60 分鐘跟艾婭語音通話'**
+  String get aiyaFriendPerk5;
+
+  /// No description provided for @aiyaVoiceOn.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音朗讀：開'**
+  String get aiyaVoiceOn;
+
+  /// No description provided for @aiyaVoiceOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音朗讀：關'**
+  String get aiyaVoiceOff;
+
+  /// No description provided for @aiyaVoiceFriendOnly.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音朗讀是艾婭之友的功能'**
+  String get aiyaVoiceFriendOnly;
+
+  /// No description provided for @aiyaVoiceDailyMax.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天的語音朗讀用完了，明天再聽艾婭說話'**
+  String get aiyaVoiceDailyMax;
+
+  /// No description provided for @aiyaCallTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟艾婭語音通話'**
+  String get aiyaCallTooltip;
+
+  /// No description provided for @aiyaCallConsentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟艾婭語音通話'**
+  String get aiyaCallConsentTitle;
+
+  /// No description provided for @aiyaCallConsentBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音通話時，你的聲音會即時送到 OpenAI（美國）由 AI 處理並回應，不會附上你的身分、暱稱或位置；我們不錄音，也不保存通話內容。艾婭是 AI，回覆可能出錯，不構成專業建議。'**
+  String get aiyaCallConsentBody;
+
+  /// No description provided for @aiyaCallAgree.
+  ///
+  /// In zh, this message translates to:
+  /// **'同意並通話'**
+  String get aiyaCallAgree;
+
+  /// No description provided for @aiyaCallConnecting.
+  ///
+  /// In zh, this message translates to:
+  /// **'接通中…'**
+  String get aiyaCallConnecting;
+
+  /// No description provided for @aiyaCallLive.
+  ///
+  /// In zh, this message translates to:
+  /// **'通話中 · 剩 {time}'**
+  String aiyaCallLive(String time);
+
+  /// No description provided for @aiyaHangUp.
+  ///
+  /// In zh, this message translates to:
+  /// **'掛斷'**
+  String get aiyaHangUp;
+
+  /// No description provided for @aiyaCallEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'通話結束'**
+  String get aiyaCallEnded;
+
+  /// No description provided for @aiyaCallTimeUp.
+  ///
+  /// In zh, this message translates to:
+  /// **'這通已經聊了 1 小時，休息一下再打給艾婭吧'**
+  String get aiyaCallTimeUp;
+
+  /// No description provided for @aiyaCallDailyMax.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天的 2 次通話用完了，明天再打給艾婭'**
+  String get aiyaCallDailyMax;
+
+  /// No description provided for @aiyaCallMonthMax.
+  ///
+  /// In zh, this message translates to:
+  /// **'這個月的通話次數用完了，下個月再打給艾婭'**
+  String get aiyaCallMonthMax;
+
+  /// No description provided for @aiyaCallResting.
+  ///
+  /// In zh, this message translates to:
+  /// **'艾婭的語音線路今天太忙了，晚一點再試'**
+  String get aiyaCallResting;
+
+  /// No description provided for @aiyaCallMicDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'要允許麥克風才能跟艾婭通話，可以到手機設定打開'**
+  String get aiyaCallMicDenied;
+
+  /// No description provided for @aiyaCallFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'接不通，請稍後再試'**
+  String get aiyaCallFailed;
+
+  /// No description provided for @aiyaCallsLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天還能通話 {today} 次 · 本月 {month} 次'**
+  String aiyaCallsLeft(int today, int month);
+
+  /// No description provided for @aiyaCallIdle.
+  ///
+  /// In zh, this message translates to:
+  /// **'太久沒說話，通話先掛斷了'**
+  String get aiyaCallIdle;
+
+  /// No description provided for @aiyaCallMute.
+  ///
+  /// In zh, this message translates to:
+  /// **'靜音'**
+  String get aiyaCallMute;
+
+  /// No description provided for @aiyaCallUnmute.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消靜音'**
+  String get aiyaCallUnmute;
+
+  /// No description provided for @aiyaCallPurchased.
+  ///
+  /// In zh, this message translates to:
+  /// **'已加入 {minutes} 分鐘通話時間'**
+  String aiyaCallPurchased(int minutes);
+
+  /// No description provided for @aiyaCallOutOfTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'通話時間用完了'**
+  String get aiyaCallOutOfTime;
+
+  /// No description provided for @aiyaCallPacksTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟艾婭語音通話'**
+  String get aiyaCallPacksTitle;
+
+  /// No description provided for @aiyaCallPacksBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'用說的跟艾婭聊天，就像打電話一樣。買通話時間就能打，艾婭之友每月還送 60 分鐘。'**
+  String get aiyaCallPacksBody;
+
+  /// No description provided for @aiyaCallPackMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes} 分鐘'**
+  String aiyaCallPackMinutes(int minutes);
+
+  /// No description provided for @aiyaCallFriendOption.
+  ///
+  /// In zh, this message translates to:
+  /// **'成為艾婭之友（每月送 60 分鐘）'**
+  String get aiyaCallFriendOption;
+
+  /// No description provided for @aiyaCallTextInstead.
+  ///
+  /// In zh, this message translates to:
+  /// **'先用文字聊'**
+  String get aiyaCallTextInstead;
+
+  /// No description provided for @aiyaCallPackNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'通話時間不會過期，依實際通話秒數扣除。消耗型商品無法恢復購買。'**
+  String get aiyaCallPackNote;
+
+  /// No description provided for @aiyaCallMinutesLeft.
+  ///
+  /// In zh, this message translates to:
+  /// **'通話時間剩 {n} 分鐘'**
+  String aiyaCallMinutesLeft(int n);
 }
 
 class _AppLocalizationsDelegate

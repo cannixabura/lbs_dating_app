@@ -198,6 +198,13 @@
     "aiyaConsent": {
       "$uid": { ".read": "auth != null && auth.uid === $uid" }
     },
+    // 旅行團 TourChip 的艾婭（同一套規則，資料分開）
+    "tour_aiyaCredits": {
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
+    "tour_aiyaConsent": {
+      "$uid": { ".read": "auth != null && auth.uid === $uid" }
+    },
 
     // 共鳴推播的節流紀錄（只由 Cloud Functions 寫入）
     "resonancePush": {

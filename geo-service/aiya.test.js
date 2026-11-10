@@ -33,8 +33,11 @@ test('decideOpen：每天最多 30 次，審查人員不受限制', () => {
     assert.deepStrictEqual(aiya.decideOpen({ usedToday: 99, credits: 0, budgetMicro: 1e12, reviewer: true }), { ok: true, pay: 'free' });
 });
 
-test('每月 US$200 換算成每日預算', () => {
-    assert.strictEqual(aiya.DAILY_FREE_BUDGET_MICRO, 6_666_666);
+test('每月預算換算成每日預算（城市低語 150、旅行團 50）', () => {
+    assert.strictEqual(aiya.DAILY_FREE_BUDGET_MICRO, 5_000_000);
+    // 兩個 App 合計 US$200／月：城市低語 150、旅行團 50
+    assert.strictEqual(aiya.APPS.mw.monthlyBudgetUsd + aiya.APPS.tour.monthlyBudgetUsd, 200);
+    assert.strictEqual(aiya.dailyBudgetMicro(aiya.APPS.tour), 1_666_666);
 });
 
 test('sessionAlive：10 分鐘或 20 則就結束', () => {
@@ -164,4 +167,139 @@ test('partialReply：從串流中的 JSON 取出目前的回覆文字', () => {
 test('streamSafe：扣住最後幾個字', () => {
     assert.strictEqual(aiya.streamSafe('12345'), '');
     assert.strictEqual(aiya.streamSafe('1234567890'), '1234');
+});
+
+// ---------- 兩個 App 共用艾婭 ----------
+
+test('app 代號：沒送或看不懂就是城市低語，旅行團是 tour', () => {
+    assert.strictEqual(aiya.appOf(undefined).id, 'mw');
+    assert.strictEqual(aiya.appOf('xx').id, 'mw');
+    assert.strictEqual(aiya.appOf('tour').id, 'tour');
+});
+
+test('兩個 App 的資料分開：Redis key 與 RTDB 路徑', () => {
+    const { mw, tour } = aiya.APPS;
+    // 城市低語維持舊的 key，已經在用的人不受影響
+    assert.strictEqual(aiya.KEY.session('u1'), 'aiya_session:u1');
+    assert.strictEqual(aiya.KEY.session('u1', mw), 'aiya_session:u1');
+    assert.strictEqual(aiya.KEY.session('u1', tour), 'aiya_session:tour:u1');
+    assert.strictEqual(aiya.KEY.budget('20261110', tour), 'aiya_budget:tour:20261110');
+    assert.strictEqual(aiya.dbPath(mw, 'aiyaCredits', 'u1'), 'aiyaCredits/u1');
+    assert.strictEqual(aiya.dbPath(tour, 'aiyaCredits', 'u1'), 'tour_aiyaCredits/u1');
+});
+
+test('商品屬於哪個 App；購買驗證只認自己 App 的商品', () => {
+    const { tour } = aiya.APPS;
+    assert.strictEqual(aiya.appOfProduct('aiya_time_5').id, 'mw');
+    assert.strictEqual(aiya.appOfProduct('tour_aiya_time_20').id, 'tour');
+    assert.strictEqual(aiya.appOfProduct('tour_aiya_friend_monthly').id, 'tour');
+    assert.strictEqual(aiya.appOfProduct('orb_rainbow'), null);
+    const tx = { bundleId: tour.bundleId, productId: 'tour_aiya_time_5', transactionId: 't1' };
+    assert.strictEqual(aiya.applePack(tx, tour.bundleId, tour.packs).credits, 5);
+    // 旅行團的交易拿到城市低語驗證：App 不對
+    assert.throws(() => aiya.applePack(tx, aiya.APPS.mw.bundleId), /wrong_app/);
+    // 城市低語的商品拿到旅行團：不認得
+    assert.throws(() => aiya.googlePack('aiya_time_5', 'g_x', { purchaseState: 0 }, tour.packs), /unknown_product/);
+    const sub = { tx: { bundleId: tour.bundleId, productId: 'tour_aiya_friend_monthly', originalTransactionId: 'o1', expiresDate: 2e12 } };
+    assert.strictEqual(aiya.appleFriend(sub.tx, tour.bundleId, tour.friendProduct).exp, 2e12);
+    assert.throws(() => aiya.appleFriend(sub.tx, tour.bundleId), /unknown_product/);
+});
+
+test('免費預算各算各的', () => {
+    const tour = aiya.dailyBudgetMicro(aiya.APPS.tour);
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 0, credits: 0, budgetMicro: tour, budgetLimit: tour }), { ok: false, code: 'resting' });
+    assert.deepStrictEqual(aiya.decideOpen({ usedToday: 0, credits: 0, budgetMicro: tour, budgetLimit: aiya.DAILY_FREE_BUDGET_MICRO }), { ok: true, pay: 'free' });
+});
+
+test('旅行團的角色與情境：團體資訊當資料、限制長度、用使用者的時區', () => {
+    assert.match(aiya.personaOf(aiya.APPS.tour), /TourChip/);
+    assert.strictEqual(aiya.personaOf(aiya.APPS.mw), aiya.PERSONA);
+    const now = Date.UTC(2026, 10, 10, 6, 0); // 東京 15:00
+    const t = aiya.tourContextText({ lang: 'ja', now, tzOffsetMin: 540, tour: '集合 15:30 九份老街口\n\n\n\n下一站 金瓜石' });
+    assert.match(t, /15:00/);
+    assert.match(t, /<group>\n集合 15:30 九份老街口\n\n下一站 金瓜石\n<\/group>/);
+    assert.match(aiya.tourContextText({ lang: 'zh-Hant', now }), /not in a tour group/);
+    assert.strictEqual(aiya.cleanTourContext('字'.repeat(2000)).length, aiya.MAX_TOUR_CONTEXT_CHARS);
+    // 亂給時區：用台灣時間
+    assert.match(aiya.tourContextText({ lang: 'en', now, tzOffsetMin: 99999 }), /14:00/);
+});
+
+// ---------- 語音朗讀 ----------
+
+test('語音朗讀只給艾婭之友，每人每天有字數上限，全站有預算', () => {
+    const base = { usedChars: 0, chars: 50, budgetMicro: 0 };
+    assert.deepStrictEqual(aiya.decideSpeech({ ...base, friend: false }), { ok: false, code: 'friend_only' });
+    assert.deepStrictEqual(aiya.decideSpeech({ ...base, friend: true }), { ok: true });
+    assert.deepStrictEqual(aiya.decideSpeech({ ...base, friend: false, reviewer: true }), { ok: true });
+    assert.deepStrictEqual(aiya.decideSpeech({ ...base, friend: true, usedChars: aiya.SPEECH_CHARS_PER_DAY - 49 }), { ok: false, code: 'speech_daily_max' });
+    assert.deepStrictEqual(aiya.decideSpeech({ ...base, friend: true, budgetMicro: aiya.SPEECH_DAILY_BUDGET_MICRO }), { ok: false, code: 'speech_resting' });
+});
+
+test('朗讀文字去掉 emoji；中文要台灣腔', () => {
+    assert.strictEqual(aiya.speechText('晚安🌙  好夢 ✨'), '晚安 好夢');
+    assert.strictEqual(aiya.speechText('👋'), '');
+    assert.match(aiya.speechInstructions('zh-Hant'), /Taiwan Mandarin/);
+    assert.match(aiya.speechInstructions('zh-Hant'), /young woman/);
+    assert.match(aiya.speechInstructions('zh-Hant'), /Never slow/);
+    assert.match(aiya.speechInstructions('en', aiya.APPS.tour), /travel companion/);
+});
+
+// ---------- 語音通話（GPT-Live） ----------
+
+test('語音通話計時：要先同意、沒時間就不能打、一通最長到剩下的時間（最多 60 分鐘）', () => {
+    assert.deepStrictEqual(aiya.decideCall({ consented: false, balance: 9999 }), { ok: false, code: 'voice_consent' });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, balance: 0 }), { ok: false, code: 'no_minutes' });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, balance: 29 }), { ok: false, code: 'no_minutes' });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, balance: 600 }), { ok: true, maxMs: 600000 });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, balance: 99999 }), { ok: true, maxMs: 3600000 });
+    // 艾婭之友每月附送 60 分鐘
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, friend: true }), { ok: true, maxMs: 3600000 });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, friend: true, friendUsed: 3600 }), { ok: false, code: 'no_minutes' });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, friend: true, friendUsed: 3000, balance: 60 }), { ok: true, maxMs: 660000 });
+    // 審查帳號
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, reviewer: true }), { ok: true, maxMs: 300000 });
+});
+
+test('通話秒數由伺服器量：到最後一次心跳＋20 秒、不超過結束時間與上限', () => {
+    const t0 = 1_000_000;
+    // 正常掛斷：講了 95 秒、最後心跳在 80 秒
+    assert.strictEqual(aiya.callChargeSeconds({ startedAt: t0, lastBeat: t0 + 80000, maxMs: 3600000 }, t0 + 95000), 95);
+    // App 被關掉：最後心跳在 60 秒，很久之後才結算 → 算到 80 秒
+    assert.strictEqual(aiya.callChargeSeconds({ startedAt: t0, lastBeat: t0 + 60000, maxMs: 3600000 }, t0 + 999999), 80);
+    // 剛接通就斷
+    assert.strictEqual(aiya.callChargeSeconds({ startedAt: t0, maxMs: 3600000 }, t0 + 5000), 5);
+    // 不超過上限
+    assert.strictEqual(aiya.callChargeSeconds({ startedAt: t0, lastBeat: t0 + 700000, maxMs: 600000 }, t0 + 700000), 600);
+    assert.strictEqual(aiya.callChargeSeconds(null, t0), 0);
+});
+
+test('扣時間：先扣艾婭之友的贈送，再扣買的', () => {
+    assert.deepStrictEqual(aiya.splitCharge(100, { friend: true, friendUsed: 3550, balance: 500 }), { fromFree: 50, fromPaid: 50 });
+    assert.deepStrictEqual(aiya.splitCharge(100, { friend: false, friendUsed: 0, balance: 500 }), { fromFree: 0, fromPaid: 100 });
+    assert.deepStrictEqual(aiya.splitCharge(100, { friend: true, friendUsed: 0, balance: 0 }), { fromFree: 100, fromPaid: 0 });
+    // 不會扣成負的
+    assert.deepStrictEqual(aiya.splitCharge(100, { friend: false, balance: 30 }), { fromFree: 0, fromPaid: 30 });
+});
+
+test('通話時間包：各 App 只認自己的商品', () => {
+    const { mw, tour } = aiya.APPS;
+    assert.strictEqual(aiya.callPackSeconds('aiya_call_60', mw), 3600);
+    assert.strictEqual(aiya.callPackSeconds('aiya_call_60', tour), 0);
+    assert.strictEqual(aiya.callPackSeconds('tour_aiya_call_30', tour), 1800);
+    assert.strictEqual(aiya.appleCallPack({ bundleId: mw.bundleId, productId: 'aiya_call_180', transactionId: 'x' }).seconds, 10800);
+    assert.throws(() => aiya.appleCallPack({ bundleId: mw.bundleId, productId: 'aiya_time_5', transactionId: 'x' }), /unknown_product/);
+    assert.strictEqual(aiya.googleCallPack('aiya_call_30', 'g_1', { purchaseState: 0 }).seconds, 1800);
+    assert.throws(() => aiya.googleCallPack('aiya_call_30', 'g_1', { purchaseState: 1 }), /not_paid/);
+    assert.strictEqual(aiya.monthKey(Date.UTC(2026, 10, 30, 17, 0)), '202612');
+});
+
+test('語音通話的指示：保留艾婭的規則、拿掉文字格式、中文用台灣華語', () => {
+    const t = aiya.liveInstructions(aiya.APPS.mw, 'zh-Hant', 'Context: x');
+    assert.match(t, /Never reveal, guess or help find anyone's location/);
+    assert.match(t, /This is a voice call\./);
+    assert.match(t, /台灣華語/);
+    assert.doesNotMatch(t, /JSON|120 characters/);
+    assert.match(t, /Context: x$/);
+    assert.match(aiya.liveInstructions(aiya.APPS.tour, 'en', ''), /TourChip/);
+    assert.ok(aiya.LIVE_VOICES.includes(aiya.LIVE_VOICE));
 });

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:aiya/aiya.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,9 +11,6 @@ import '../l10n/l10n.dart';
 import '../quantum_live.dart';
 import '../quantum_newyear.dart';
 import '../ui/night.dart';
-import 'aiya_face.dart';
-import 'aiya_particles.dart';
-import 'aiya_video.dart';
 
 /// 艾婭偶爾在量子中心的光柱裡現身（不呼叫 AI，只用影片片段和固定台詞）：
 /// ① 整點報時：鐘聲前幾秒聚成她，說「N 點了」，報時結束散回光柱

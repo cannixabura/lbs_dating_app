@@ -5,3 +5,4 @@
 "NSCameraUsageDescription" = "프로필 사진을 찍기 위해 카메라를 사용해요.";
 "NSLocationWhenInUseUsageDescription" = "앱을 사용하는 동안 위치를 사용해 레이더에 5km 안의 사람을 보여 주고, 근처 사람들에게 내 무드 버블을 보여 줘요.";
 "Radar" = "근처에 누가 있는지 알려면 레이더에 정확한 위치가 필요해요. 다른 사람에게는 대략적인 거리만 보이고 주소는 보이지 않아요.";
+"NSMicrophoneUsageDescription" = "아이야와 음성 통화할 때만 마이크를 사용해 목소리를 전달해요.";

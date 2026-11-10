@@ -11,13 +11,14 @@ const REFUNDED = 'refunded';
 const REFUND_TYPES = new Set(['REFUND', 'REVOKE']);
 
 /** Apple 退款通知要處理哪一筆收據；不是退款、或不是時光包／光球／造型就回 null */
-function appleRefundTarget(notificationType, tx, bundleId) {
+function appleRefundTarget(notificationType, tx, bundleId, packs = aiya.PACKS) {
     if (!REFUND_TYPES.has(notificationType) || !tx || tx.bundleId !== bundleId) return null;
-    const packCredits = aiya.PACKS[tx.productId];
+    const packCredits = packs[tx.productId];
     if (packCredits && tx.transactionId) {
         const qty = Number(tx.quantity) > 1 ? Number(tx.quantity) : 1;
         return { kind: 'pack', receipt: `a_${tx.transactionId}`, credits: packCredits * qty };
     }
+    if (Object.values(aiya.CALL_PACKS).some((p) => p[tx.productId]) && tx.transactionId) return { kind: 'callpack', receipt: `a_${tx.transactionId}` };
     if (gifts.kindOfProduct(tx.productId) && tx.transactionId) return { kind: 'gift', receipt: `a_${tx.transactionId}` };
     if (assembly.planOfProduct(tx.productId) && tx.transactionId) return { kind: 'assembly', receipt: `a_${tx.transactionId}` };
     const style = orbs.styleOfProduct(tx.productId);

@@ -3503,4 +3503,113 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get asmRemovedDone => '집회에서 내보냈어요';
+
+  @override
+  String get aiyaFriendPerk5 => '매달 아이야와 음성 통화 60분 제공';
+
+  @override
+  String get aiyaVoiceOn => '음성 읽기: 켜짐';
+
+  @override
+  String get aiyaVoiceOff => '음성 읽기: 꺼짐';
+
+  @override
+  String get aiyaVoiceFriendOnly => '음성 읽기는 아이야 프렌드 기능이에요';
+
+  @override
+  String get aiyaVoiceDailyMax => '오늘 음성 읽기를 다 썼어요. 내일 다시 아이야의 목소리를 들어 보세요';
+
+  @override
+  String get aiyaCallTooltip => '아이야와 음성 통화';
+
+  @override
+  String get aiyaCallConsentTitle => '아이야와 음성 통화';
+
+  @override
+  String get aiyaCallConsentBody =>
+      '음성 통화 중에는 목소리가 실시간으로 OpenAI(미국)에 전송되어 AI가 처리하고 답해요. 신원, 닉네임, 위치는 보내지 않으며 녹음하거나 통화 내용을 저장하지 않아요. 아이야는 AI라서 답이 틀릴 수 있고 전문적인 조언이 아니에요.';
+
+  @override
+  String get aiyaCallAgree => '동의하고 통화';
+
+  @override
+  String get aiyaCallConnecting => '연결 중…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return '통화 중 · $time 남음';
+  }
+
+  @override
+  String get aiyaHangUp => '끊기';
+
+  @override
+  String get aiyaCallEnded => '통화 종료';
+
+  @override
+  String get aiyaCallTimeUp => '1시간 동안 통화했어요. 잠깐 쉬고 다시 아이야에게 전화해요';
+
+  @override
+  String get aiyaCallDailyMax => '오늘 통화 2회를 다 썼어요. 내일 다시 아이야에게 전화해요';
+
+  @override
+  String get aiyaCallMonthMax => '이번 달 통화 횟수를 다 썼어요. 다음 달에 다시 전화해요';
+
+  @override
+  String get aiyaCallResting => '오늘은 아이야의 음성 회선이 너무 바빠요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String get aiyaCallMicDenied => '아이야와 통화하려면 마이크를 허용해 주세요. 휴대폰 설정에서 켤 수 있어요';
+
+  @override
+  String get aiyaCallFailed => '연결하지 못했어요. 잠시 후 다시 시도해 주세요';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return '오늘 $today회 · 이번 달 $month회 남음';
+  }
+
+  @override
+  String get aiyaCallIdle => '한동안 말이 없어서 통화를 종료했어요';
+
+  @override
+  String get aiyaCallMute => '음소거';
+
+  @override
+  String get aiyaCallUnmute => '음소거 해제';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '통화 시간 $minutes분이 추가됐어요';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => '통화 시간을 다 썼어요';
+
+  @override
+  String get aiyaCallPacksTitle => '아이야와 음성 통화';
+
+  @override
+  String get aiyaCallPacksBody =>
+      '전화처럼 목소리로 아이야와 이야기해요. 통화 시간을 사면 바로 걸 수 있고, 아이야 프렌드는 매달 60분을 받아요.';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String get aiyaCallFriendOption => '아이야 프렌드 되기(매달 60분)';
+
+  @override
+  String get aiyaCallTextInstead => '일단 채팅하기';
+
+  @override
+  String get aiyaCallPackNote =>
+      '통화 시간은 만료되지 않으며 실제 통화한 초만큼 차감돼요. 소모성 상품은 복원할 수 없어요.';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return '통화 시간 $n분 남음';
+  }
 }

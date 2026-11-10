@@ -3653,4 +3653,121 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get asmRemovedDone => 'Dikeluarkan dari pertemuan';
+
+  @override
+  String get aiyaFriendPerk5 =>
+      '60 menit panggilan suara dengan AIYA setiap bulan';
+
+  @override
+  String get aiyaVoiceOn => 'Suara: aktif';
+
+  @override
+  String get aiyaVoiceOff => 'Suara: nonaktif';
+
+  @override
+  String get aiyaVoiceFriendOnly => 'Suara khusus Teman AIYA';
+
+  @override
+  String get aiyaVoiceDailyMax =>
+      'Bacaan suara hari ini sudah habis. Dengar AIYA lagi besok';
+
+  @override
+  String get aiyaCallTooltip => 'Panggilan suara dengan AIYA';
+
+  @override
+  String get aiyaCallConsentTitle => 'Panggilan suara dengan AIYA';
+
+  @override
+  String get aiyaCallConsentBody =>
+      'Saat panggilan suara, suaramu dikirim langsung ke OpenAI (AS) yang AI-nya memproses dan membalas. Identitas, nama panggilan, atau lokasimu tidak dikirim, dan kami tidak merekam atau menyimpan panggilan. AIYA adalah AI; balasannya bisa keliru dan bukan saran profesional.';
+
+  @override
+  String get aiyaCallAgree => 'Setuju dan telepon';
+
+  @override
+  String get aiyaCallConnecting => 'Menghubungkan…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return 'Sedang menelepon · sisa $time';
+  }
+
+  @override
+  String get aiyaHangUp => 'Tutup';
+
+  @override
+  String get aiyaCallEnded => 'Panggilan berakhir';
+
+  @override
+  String get aiyaCallTimeUp =>
+      'Kamu sudah ngobrol satu jam. Istirahat dulu, lalu telepon AIYA lagi';
+
+  @override
+  String get aiyaCallDailyMax =>
+      'Panggilan hari ini sudah habis. Telepon AIYA lagi besok';
+
+  @override
+  String get aiyaCallMonthMax =>
+      'Panggilan bulan ini sudah habis. Telepon AIYA lagi bulan depan';
+
+  @override
+  String get aiyaCallResting =>
+      'Jalur suara AIYA terlalu sibuk hari ini. Coba lagi nanti';
+
+  @override
+  String get aiyaCallMicDenied =>
+      'Izinkan mikrofon untuk menelepon AIYA. Kamu bisa menyalakannya di Pengaturan ponsel';
+
+  @override
+  String get aiyaCallFailed => 'Tidak bisa tersambung. Coba lagi nanti';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return 'Sisa $today panggilan hari ini · $month bulan ini';
+  }
+
+  @override
+  String get aiyaCallIdle =>
+      'Lama tidak ada yang bicara, jadi panggilan diakhiri';
+
+  @override
+  String get aiyaCallMute => 'Bisukan';
+
+  @override
+  String get aiyaCallUnmute => 'Bunyikan';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '$minutes menit waktu panggilan ditambahkan';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => 'Waktu panggilan sudah habis';
+
+  @override
+  String get aiyaCallPacksTitle => 'Panggilan suara dengan AIYA';
+
+  @override
+  String get aiyaCallPacksBody =>
+      'Ngobrol dengan AIYA pakai suara, seperti menelepon. Beli waktu panggilan untuk mulai; Teman AIYA juga dapat 60 menit gratis setiap bulan.';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes menit';
+  }
+
+  @override
+  String get aiyaCallFriendOption => 'Jadi Teman AIYA (60 menit sebulan)';
+
+  @override
+  String get aiyaCallTextInstead => 'Ngobrol lewat teks dulu';
+
+  @override
+  String get aiyaCallPackNote =>
+      'Waktu panggilan tidak kedaluwarsa dan dipotong sesuai detik sebenarnya. Pembelian habis pakai tidak bisa dipulihkan.';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return 'Sisa $n menit waktu panggilan';
+  }
 }

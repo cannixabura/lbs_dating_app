@@ -1398,10 +1398,10 @@ async function playPurchase(productId, token, pkg = PLAY_PACKAGE) {
 }
 
 /** Google Play 訂閱的查詢結果（subscriptionsv2） */
-async function playSubscription(token) {
+async function playSubscription(token, pkg = PLAY_PACKAGE) {
     const { GoogleAuth } = require("google-auth-library");
     const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
-    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/subscriptionsv2/tokens/${encodeURIComponent(token)}`;
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${pkg}/purchases/subscriptionsv2/tokens/${encodeURIComponent(token)}`;
     return (await client.request({ url })).data;
 }
 
@@ -1671,21 +1671,74 @@ function claude() {
     return anthropicClient;
 }
 
+// 艾婭的語音朗讀（只給艾婭之友）：OpenAI 語音合成。金鑰：firebase functions:secrets:set OPENAI_API_KEY
+const OPENAI_KEY = defineSecret("OPENAI_API_KEY");
+/**
+ * 建立 GPT-Live 的 WebRTC 通話：把 App 的 SDP offer 送給 OpenAI，拿回 SDP answer 與通話代號。
+ * 送出的只有 App 的 SDP、艾婭的指示與匿名情境；使用者的聲音之後由手機直接送到 OpenAI。
+ */
+async function openaiLiveSession(sdp, session) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    try {
+        const r = await fetch("https://api.openai.com/v1/live/sessions", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${cleanSecret(OPENAI_KEY)}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ session, transport: { type: "webrtc", sdp } }),
+            signal: ctrl.signal,
+        });
+        const text = await r.text();
+        if (!r.ok) {
+            const err = new Error(`openai live ${r.status}: ${text.slice(0, 300)}`);
+            err.status = r.status;
+            throw err;
+        }
+        const data = JSON.parse(text);
+        const answer = data && data.transport && data.transport.sdp;
+        if (!answer) throw new Error("openai live: no sdp answer");
+        return { sdp: answer, id: data.session && data.session.id };
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+/** 文字 → AAC 音訊（Buffer）。送出的只有艾婭要說的那句話和語氣指示，不含 uid 或任何個人資料 */
+async function openaiSpeech(text, instructions) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    try {
+        const r = await fetch("https://api.openai.com/v1/audio/speech", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${cleanSecret(OPENAI_KEY)}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: aiya.SPEECH_MODEL, voice: aiya.SPEECH_VOICE, input: text, instructions, response_format: "aac" }),
+            signal: ctrl.signal,
+        });
+        if (!r.ok) {
+            const err = new Error(`openai ${r.status}: ${(await r.text()).slice(0, 200)}`);
+            err.status = r.status;
+            throw err;
+        }
+        return Buffer.from(await r.arrayBuffer());
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 /** 這個人今天的額度狀態 */
 /**
  * 艾婭之友的訂閱紀錄。Google 的訂閱過期時重新查一次（每小時最多一次），有續訂就延長；
  * Apple 的續訂由 App Store 伺服器通知（appStoreNotify）和 App 每次啟動時送來的交易更新。
  */
-async function aiyaFriendRecord(uid, now) {
+async function aiyaFriendRecord(uid, now, app = aiya.APPS.mw) {
     const db = admin.database();
-    const rec = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+    const rec = (await db.ref(aiya.dbPath(app, "aiyaFriend", uid)).once("value")).val();
     if (!rec || aiya.friendActive(rec, now) || rec.src !== "google" || now - (Number(rec.checkedAt) || 0) < 3600 * 1000) return rec;
     try {
         const token = (await db.ref(`aiyaFriendTokens/${rec.receipt}`).once("value")).val();
         if (!token) return rec;
         let exp = Number(rec.exp) || 0;
-        try { exp = aiya.googleFriend(rec.product || aiya.FRIEND_PRODUCT, rec.receipt, await playSubscription(token)).exp; } catch (e) { /* 已過期或取消：維持原本的到期時間 */ }
-        await db.ref(`aiyaFriend/${uid}`).update({ exp, checkedAt: now });
+        try { exp = aiya.googleFriend(rec.product || app.friendProduct, rec.receipt, await playSubscription(token, app.playPackage), app.friendProduct).exp; } catch (e) { /* 已過期或取消：維持原本的到期時間 */ }
+        await db.ref(aiya.dbPath(app, "aiyaFriend", uid)).update({ exp, checkedAt: now });
         return { ...rec, exp, checkedAt: now };
     } catch (e) {
         console.warn("aiya friend recheck:", e.message);
@@ -1694,29 +1747,41 @@ async function aiyaFriendRecord(uid, now) {
 }
 
 /** 把訂閱記到帳號上；同一個訂閱已經屬於別的帳號就拒絕。restore 會送來舊的交易，所以到期時間只往後延（退款除外） */
-async function grantAiyaFriend(uid, src, { exp, receipt, productId, revoked }, token) {
+async function grantAiyaFriend(uid, src, { exp, receipt, productId, revoked }, token, app = aiya.APPS.mw) {
     const db = admin.database();
     const claim = await db.ref(`aiyaFriendReceipts/${receipt}`).transaction((cur) => (cur == null || cur === uid ? uid : undefined));
     if (!claim.committed) return "owned_elsewhere";
-    const prev = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+    const prev = (await db.ref(aiya.dbPath(app, "aiyaFriend", uid)).once("value")).val();
     const keep = prev && prev.receipt === receipt && !revoked ? Math.max(Number(prev.exp) || 0, exp) : exp;
-    await db.ref(`aiyaFriend/${uid}`).set({ exp: keep, src, receipt, product: productId, at: admin.database.ServerValue.TIMESTAMP });
+    await db.ref(aiya.dbPath(app, "aiyaFriend", uid)).set({ exp: keep, src, receipt, product: productId, at: admin.database.ServerValue.TIMESTAMP });
     if (token) await db.ref(`aiyaFriendTokens/${receipt}`).set(token);
+    if (app.id !== "mw") await db.ref(`aiyaFriendApp/${receipt}`).set(app.id); // App Store 通知續訂、退款時知道是哪個 App
     return "granted";
 }
 
-async function aiyaStatus(uid, now) {
+async function aiyaStatus(uid, now, app = aiya.APPS.mw) {
     const day = aiya.dayKey(now);
-    const [usedRaw, budgetRaw, reviewer, sessionRaw] = await sendUpstashPipeline([
-        ["GET", aiya.KEY.quota(uid, day)], ["GET", aiya.KEY.budget(day)], ["SISMEMBER", demo.REVIEWERS_KEY, uid], ["GET", aiya.KEY.session(uid)],
+    const [usedRaw, budgetRaw, reviewer, sessionRaw, speechRaw, friendUsedRaw, activeCallRaw] = await sendUpstashPipeline([
+        ["GET", aiya.KEY.quota(uid, day, app)], ["GET", aiya.KEY.budget(day, app)], ["SISMEMBER", demo.REVIEWERS_KEY, uid], ["GET", aiya.KEY.session(uid, app)],
+        ["GET", aiya.KEY.speech(uid, day, app)],
+        ["GET", aiya.CALL_KEY.friendUsed(uid, aiya.monthKey(now), app)], ["GET", aiya.CALL_KEY.active(uid, app)],
     ]);
     const db = admin.database();
-    const [creditsSnap, consentSnap, friendRec] = await Promise.all([db.ref(`aiyaCredits/${uid}`).once("value"), db.ref(`aiyaConsent/${uid}`).once("value"), aiyaFriendRecord(uid, now)]);
+    const [creditsSnap, consentSnap, friendRec, voiceConsentSnap, callBalanceSnap] = await Promise.all([
+        db.ref(aiya.dbPath(app, "aiyaCredits", uid)).once("value"), db.ref(aiya.dbPath(app, "aiyaConsent", uid)).once("value"), aiyaFriendRecord(uid, now, app),
+        db.ref(aiya.dbPath(app, "aiyaVoiceConsent", uid)).once("value"), db.ref(aiya.dbPath(app, "aiyaCallSeconds", uid)).once("value"),
+    ]);
+    let activeCall = null;
+    try { activeCall = activeCallRaw ? JSON.parse(activeCallRaw) : null; } catch (e) { activeCall = null; }
+    const voiceConsent = voiceConsentSnap.val();
     const consent = consentSnap.val();
     let session = null;
     try { session = sessionRaw ? JSON.parse(sessionRaw) : null; } catch (e) { session = null; }
     return {
-        day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), reviewer: reviewer === 1,
+        day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), budgetLimit: aiya.dailyBudgetMicro(app), reviewer: reviewer === 1,
+        speechChars: parseInt(speechRaw || "0", 10),
+        callFriendUsed: parseInt(friendUsedRaw || "0", 10), callBalance: Math.max(0, Number(callBalanceSnap.val()) || 0), activeCall,
+        voiceConsented: !!voiceConsent && voiceConsent.v >= aiya.VOICE_CONSENT_VERSION,
         credits: Math.max(0, Number(creditsSnap.val()) || 0), consented: !!consent && consent.v >= aiya.CONSENT_VERSION,
         session: aiya.sessionAlive(session, now) ? session : null,
         friend: aiya.friendActive(friendRec, now), friendExp: friendRec ? Number(friendRec.exp) || 0 : 0,
@@ -1727,14 +1792,64 @@ function aiyaStatusView(st, now) {
     return {
         freeLeft: st.reviewer ? aiya.FREE_PER_DAY : Math.max(0, (st.friend ? aiya.FRIEND_PER_DAY : aiya.FREE_PER_DAY) - st.usedToday),
         credits: st.credits, consented: st.consented,
-        resting: !st.reviewer && !st.friend && st.budgetMicro >= aiya.DAILY_FREE_BUDGET_MICRO,
+        resting: !st.reviewer && !st.friend && st.budgetMicro >= st.budgetLimit,
         friend: st.friend, friendExp: st.friendExp,
+        // 語音朗讀（艾婭之友）：今天還能念幾個字
+        speech: st.friend || st.reviewer, speechCharsLeft: Math.max(0, aiya.SPEECH_CHARS_PER_DAY - (st.speechChars || 0)),
+        // 語音通話（計時）：剩下的秒數＝艾婭之友當月贈送剩下的＋買的通話時間包
+        ...aiyaCallView(st),
         session: st.session ? aiya.sessionView(st.session, now) : null,
     };
 }
 
-async function saveAiyaSession(uid, session) {
-    await sendUpstashCommand(["SET", aiya.KEY.session(uid), JSON.stringify(session), "EX", String(aiya.SESSION_TTL_S)]);
+/** 給 App 的通話時間資訊 */
+function aiyaCallView(st) {
+    const left = aiya.callSecondsLeft({ friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+    return {
+        call: true, voiceConsented: st.voiceConsented, callIdleMs: aiya.CALL_IDLE_MS, callBeatMs: aiya.CALL_BEAT_MS,
+        callSecondsLeft: st.reviewer ? Math.max(left.total, 300) : left.total, callFreeLeft: left.free, callPaidLeft: left.paid,
+        callFriendMonthly: aiya.FRIEND_CALL_SECONDS,
+    };
+}
+
+/**
+ * 結算一通電話：算秒數（伺服器自己量）→ 先扣艾婭之友當月贈送、再扣時間包 → 清掉進行中的紀錄。
+ * force=false 時只結算「已經沒心跳」的通話（App 被關掉、斷線）。回傳扣了幾秒。
+ */
+async function settleAiyaCall(uid, app, now, st, force = true) {
+    const call = st.activeCall;
+    if (!call) return 0;
+    if (!force && now - (call.lastBeat || call.startedAt) < aiya.CALL_STALE_MS) return 0;
+    // 先刪掉進行中的紀錄（同時兩個請求結算，只有刪到的那個會扣）
+    const deleted = await sendUpstashCommand(["DEL", aiya.CALL_KEY.active(uid, app)]);
+    st.activeCall = null;
+    if (deleted !== 1) return 0;
+    const seconds = st.reviewer ? 0 : aiya.callChargeSeconds(call, now);
+    const { fromFree, fromPaid } = aiya.splitCharge(seconds, { friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+    const month = aiya.monthKey(now);
+    const cmds = [["INCRBY", aiya.CALL_KEY.budget(month), String(aiya.callChargeSeconds(call, now))], ["EXPIRE", aiya.CALL_KEY.budget(month), String(400 * 86400)]];
+    if (fromFree > 0) cmds.push(["INCRBY", aiya.CALL_KEY.friendUsed(uid, month, app), String(fromFree)], ["EXPIRE", aiya.CALL_KEY.friendUsed(uid, month, app), String(40 * 86400)]);
+    await sendUpstashPipeline(cmds);
+    if (fromPaid > 0) await admin.database().ref(aiya.dbPath(app, "aiyaCallSeconds", uid)).transaction((cur) => refunds.deduct(cur, fromPaid));
+    st.callFriendUsed += fromFree;
+    st.callBalance = Math.max(0, st.callBalance - fromPaid);
+    console.log("aiya call settled:", app.id, call.id, seconds, "free", fromFree, "paid", fromPaid);
+    return seconds;
+}
+
+/** 通話時間包加到帳號上；同一筆收據只加一次 */
+async function grantCallPack(uid, { seconds, receipt }, app = aiya.APPS.mw) {
+    const db = admin.database();
+    const claim = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur == null ? uid : undefined));
+    if (!claim.committed) return (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val() === uid ? "already" : "owned_elsewhere";
+    await db.ref(aiya.dbPath(app, "aiyaCallSeconds", uid)).transaction((cur) => (Number(cur) || 0) + seconds);
+    await db.ref(`aiyaPackCallSeconds/${receipt}`).set(seconds); // 退款時知道要扣幾秒
+    if (app.id !== "mw") await db.ref(`aiyaPackApp/${receipt}`).set(app.id);
+    return "granted";
+}
+
+async function saveAiyaSession(uid, session, app = aiya.APPS.mw) {
+    await sendUpstashCommand(["SET", aiya.KEY.session(uid, app), JSON.stringify(session), "EX", String(aiya.SESSION_TTL_S)]);
 }
 
 /** 艾婭的情境：量子世界在線人數、台北今晚的心情（有快取才用）、離整點報時幾分鐘 */
@@ -1749,13 +1864,32 @@ async function aiyaContext(lang, now) {
     return aiya.contextText({ lang, now, online, cityMood, minutesToChime: minute === 0 ? 0 : 60 - minute });
 }
 
+/**
+ * 刪除帳號時要清掉的艾婭資料（某個 App 的次數、同意紀錄、艾婭之友；釋放訂閱收據，之後用新帳號可以恢復購買）。
+ * 回傳 RTDB 的多路徑更新；Redis 的對話也一併刪掉。旅行團刪帳號時用 aiyaDeleteUpdates(uid, aiya.APPS.tour)。
+ */
+async function aiyaDeleteUpdates(uid, app) {
+    const db = admin.database();
+    const updates = {};
+    for (const name of ["aiyaCredits", "aiyaConsent", "aiyaVoiceConsent", "aiyaCallSeconds", "aiyaFriend"]) updates[aiya.dbPath(app, name, uid)] = null;
+    const myFriend = (await db.ref(aiya.dbPath(app, "aiyaFriend", uid)).once("value")).val();
+    if (myFriend && typeof myFriend.receipt === "string") {
+        updates[`aiyaFriendReceipts/${myFriend.receipt}`] = null;
+        updates[`aiyaFriendTokens/${myFriend.receipt}`] = null;
+        updates[`aiyaFriendApp/${myFriend.receipt}`] = null;
+    }
+    await sendUpstashCommand(["DEL", aiya.KEY.session(uid, app), aiya.CALL_KEY.active(uid, app)]).catch(() => {});
+    return updates;
+}
+
 /** 時光包加到帳號上；同一筆收據只加一次 */
-async function grantAiyaPack(uid, { credits, receipt }) {
+async function grantAiyaPack(uid, { credits, receipt }, app = aiya.APPS.mw) {
     const db = admin.database();
     const claim = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur == null ? uid : undefined));
     if (!claim.committed) return (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val() === uid ? "already" : "owned_elsewhere";
-    await db.ref(`aiyaCredits/${uid}`).transaction((cur) => (Number(cur) || 0) + credits);
-    await db.ref(`aiyaPackCredits/${receipt}`).set(credits); // 退款時知道要扣幾次（Google 的退款清單沒有商品編號）
+    await db.ref(aiya.dbPath(app, "aiyaCredits", uid)).transaction((cur) => (Number(cur) || 0) + credits);
+    await db.ref(`aiyaPackCredits/${receipt}`).set(credits);
+    if (app.id !== "mw") await db.ref(`aiyaPackApp/${receipt}`).set(app.id); // 退款時扣回對的 App // 退款時知道要扣幾次（Google 的退款清單沒有商品編號）
     return "granted";
 }
 
@@ -1767,10 +1901,18 @@ async function applyRefund(receipt, credits) {
     const db = admin.database();
     const done = [];
     const packOwner = (await db.ref(`aiyaReceipts/${receipt}`).once("value")).val();
-    if (typeof packOwner === "string" && packOwner !== refunds.REFUNDED) {
+    const callSeconds = Number((await db.ref(`aiyaPackCallSeconds/${receipt}`).once("value")).val()) || 0;
+    if (typeof packOwner === "string" && packOwner !== refunds.REFUNDED && callSeconds > 0) {
+        // 通話時間包：扣回秒數（最少到 0，已經講掉的不追討）
+        const packApp = aiya.appOf((await db.ref(`aiyaPackApp/${receipt}`).once("value")).val());
+        const mark = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur === packOwner ? refunds.REFUNDED : undefined));
+        if (mark.committed) await db.ref(aiya.dbPath(packApp, "aiyaCallSeconds", packOwner)).transaction((cur) => refunds.deduct(cur, callSeconds));
+        if (mark.committed) done.push(`call-${callSeconds}`);
+    } else if (typeof packOwner === "string" && packOwner !== refunds.REFUNDED) {
         const n = Number(credits) || Number((await db.ref(`aiyaPackCredits/${receipt}`).once("value")).val()) || 0;
         const mark = await db.ref(`aiyaReceipts/${receipt}`).transaction((cur) => (cur === packOwner ? refunds.REFUNDED : undefined));
-        if (mark.committed && n > 0) await db.ref(`aiyaCredits/${packOwner}`).transaction((cur) => refunds.deduct(cur, n));
+        const packApp = aiya.appOf((await db.ref(`aiyaPackApp/${receipt}`).once("value")).val());
+        if (mark.committed && n > 0) await db.ref(aiya.dbPath(packApp, "aiyaCredits", packOwner)).transaction((cur) => refunds.deduct(cur, n));
         if (mark.committed) done.push(`pack-${n}`);
     }
     // 禮物：還沒收下的取消、變成禮券的刪掉、已經收下的光球從對方帳號拿掉（花束、配對不追回）
@@ -1803,25 +1945,29 @@ async function applyRefund(receipt, credits) {
     return done;
 }
 
-exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY], timeoutSeconds: 60 }, (req, res) => {
+exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY, OPENAI_KEY], timeoutSeconds: 60 }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const lang = langOf(req);
     const uid = await verifyCaller(req);
     if (!uid) return res.status(401).json({ success: false, error: localize(lang, "未授權") });
     const action = req.body.action, now = Date.now();
+    // app：城市低語不送（舊版也是）；旅行團送 "tour"。兩個 App 的次數、會員、預算分開
+    const app = aiya.appOf(req.body.app);
     try {
       if (action === "status") {
-        return res.status(200).json({ success: true, ...aiyaStatusView(await aiyaStatus(uid, now), now) });
+        const st = await aiyaStatus(uid, now, app);
+        await settleAiyaCall(uid, app, now, st, false); // App 被關掉沒掛斷的通話：結算到最後一次心跳
+        return res.status(200).json({ success: true, ...aiyaStatusView(st, now) });
       }
 
       if (action === "consent") {
-        await admin.database().ref(`aiyaConsent/${uid}`).set({ v: aiya.CONSENT_VERSION, at: admin.database.ServerValue.TIMESTAMP });
+        await admin.database().ref(aiya.dbPath(app, "aiyaConsent", uid)).set({ v: aiya.CONSENT_VERSION, at: admin.database.ServerValue.TIMESTAMP });
         return res.status(200).json({ success: true });
       }
 
       if (action === "open") {
-        const st = await aiyaStatus(uid, now);
+        const st = await aiyaStatus(uid, now, app);
         if (!st.consented) return res.status(200).json({ success: false, code: "consent" });
         // 10 分鐘內回來算同一次，不重複扣
         if (st.session) return res.status(200).json({ success: true, resumed: true, ...aiyaStatusView(st, now) });
@@ -1831,7 +1977,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           // Admin SDK 的 transaction 第一次會用本機快取（通常是 null）呼叫；這時回傳 undefined 會直接放棄、不去伺服器拿真正的值，
           // 所以有次數也扣不到。改成看不到值就原樣回傳，讓它拿到伺服器的值重跑，最後一次執行的結果才算數
           let charged = false;
-          const paid = await admin.database().ref(`aiyaCredits/${uid}`).transaction((cur) => {
+          const paid = await admin.database().ref(aiya.dbPath(app, "aiyaCredits", uid)).transaction((cur) => {
             const n = Number(cur) || 0;
             charged = n > 0;
             return charged ? n - 1 : cur;
@@ -1839,15 +1985,15 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           if (!paid.committed || !charged) return res.status(200).json({ success: false, code: "no_quota", ...aiyaStatusView(st, now) });
           st.credits = Math.max(0, st.credits - 1);
         }
-        await sendUpstashPipeline([["INCR", aiya.KEY.quota(uid, st.day)], ["EXPIRE", aiya.KEY.quota(uid, st.day), "172800"]]);
+        await sendUpstashPipeline([["INCR", aiya.KEY.quota(uid, st.day, app)], ["EXPIRE", aiya.KEY.quota(uid, st.day, app), "172800"]]);
         st.usedToday += 1;
         st.session = { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, startedAt: now, turns: 0, pay: decision.pay, lang, msgs: [] };
-        await saveAiyaSession(uid, st.session);
+        await saveAiyaSession(uid, st.session, app);
         return res.status(200).json({ success: true, resumed: false, ...aiyaStatusView(st, now) });
       }
 
       if (action === "say") {
-        const raw = await sendUpstashCommand(["GET", aiya.KEY.session(uid)]);
+        const raw = await sendUpstashCommand(["GET", aiya.KEY.session(uid, app)]);
         let session = null;
         try { session = raw ? JSON.parse(raw) : null; } catch (e) { session = null; }
         if (!session || session.id !== req.body.sessionId || !aiya.sessionAlive(session, now)) return res.status(200).json({ success: false, code: "ended" });
@@ -1878,8 +2024,14 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
             max_tokens: 1024,
             output_config: { effort: "low", format: { type: "json_schema", schema: aiya.REPLY_SCHEMA } },
             system: [
-              { type: "text", text: aiya.PERSONA, cache_control: { type: "ephemeral" } },
-              { type: "text", text: await aiyaContext(session.lang || lang, now) },
+              { type: "text", text: aiya.personaOf(app), cache_control: { type: "ephemeral" } },
+              {
+                type: "text",
+                // 旅行團：App 送來團主公布的行程、集合時間地點（不含任何人的位置）和使用者的時區
+                text: app.id === "tour"
+                  ? aiya.tourContextText({ lang: session.lang || lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), tour: req.body.tourContext })
+                  : await aiyaContext(session.lang || lang, now),
+              },
             ],
             messages: session.msgs,
           };
@@ -1899,7 +2051,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           }
           const spent = aiya.costMicro(response.usage);
           const day = aiya.dayKey(now);
-          const budgetKey = session.pay === "free" ? aiya.KEY.budget(day) : `aiya_paid:${day}`;
+          const budgetKey = session.pay === "free" ? aiya.KEY.budget(day, app) : aiya.KEY.paid(day, app);
           sendUpstashPipeline([["INCRBY", budgetKey, String(spent)], ["EXPIRE", budgetKey, "172800"]]).catch((e) => console.warn("aiya budget:", e.message));
           if (response.stop_reason === "refusal") code = "refused";
           else {
@@ -1915,18 +2067,105 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           // 沒拿到回覆：把這則從紀錄拿掉、不算次數，讓使用者可以再試
           session.msgs.pop();
           session.turns -= 1;
-          await saveAiyaSession(uid, session);
+          await saveAiyaSession(uid, session, app);
           return finish({ success: false, code, session: aiya.sessionView(session, now) });
         }
         let reply = maskBlockedTerms(parsed.reply);
         if (aiya.mentionsCrisis(text)) reply = `${reply} ${aiya.hotline(session.lang || lang)}`;
         session.msgs.push({ role: "assistant", content: JSON.stringify({ reply: parsed.reply, expression: parsed.expression }) });
-        await saveAiyaSession(uid, session);
+        // 語音朗讀只念艾婭剛說的這一句（不能拿去念任意文字）；同一句最多念 2 次
+        session.lastReply = reply;
+        session.spoken = 0;
+        await saveAiyaSession(uid, session, app);
         return finish({ success: true, reply, expression: parsed.expression, session: aiya.sessionView(session, now) });
       }
 
+      if (action === "speak") {
+        // 艾婭之友：把艾婭剛說的那一句念出來（OpenAI 語音合成，台灣腔、溫柔的年輕女性）。回 base64 的 AAC
+        const raw = await sendUpstashCommand(["GET", aiya.KEY.session(uid, app)]);
+        let session = null;
+        try { session = raw ? JSON.parse(raw) : null; } catch (e) { session = null; }
+        if (!session || session.id !== req.body.sessionId || !session.lastReply) return res.status(200).json({ success: false, code: "ended" });
+        if ((session.spoken || 0) >= 2) return res.status(200).json({ success: false, code: "speech_repeat" });
+        const text = aiya.speechText(session.lastReply);
+        if (!text) return res.status(200).json({ success: false, code: "empty" });
+        const st = await aiyaStatus(uid, now, app);
+        const day = aiya.dayKey(now);
+        const spentToday = parseInt((await sendUpstashCommand(["GET", aiya.KEY.speechBudget(day)])) || "0", 10);
+        const ok = aiya.decideSpeech({ friend: st.friend, reviewer: st.reviewer, usedChars: st.speechChars, chars: text.length, budgetMicro: spentToday });
+        if (!ok.ok) return res.status(200).json({ success: false, code: ok.code });
+        let audio;
+        try {
+          audio = await openaiSpeech(text, aiya.speechInstructions(session.lang || lang, app));
+        } catch (e) {
+          console.error("aiya speech failed:", e && e.status, e && e.message);
+          return res.status(200).json({ success: false, code: "busy" });
+        }
+        session.spoken = (session.spoken || 0) + 1;
+        const cost = text.length * aiya.SPEECH_MICRO_PER_CHAR;
+        await Promise.all([
+          saveAiyaSession(uid, session, app),
+          sendUpstashPipeline([
+            ["INCRBY", aiya.KEY.speech(uid, day, app), String(text.length)], ["EXPIRE", aiya.KEY.speech(uid, day, app), "172800"],
+            ["INCRBY", aiya.KEY.speechBudget(day), String(cost)], ["EXPIRE", aiya.KEY.speechBudget(day), "172800"],
+          ]),
+        ]);
+        return res.status(200).json({ success: true, format: "aac", audio: audio.toString("base64"), speechCharsLeft: Math.max(0, aiya.SPEECH_CHARS_PER_DAY - st.speechChars - text.length) });
+      }
+
+      if (action === "voiceConsent") {
+        // 語音通話的同意：你的聲音會即時送到 OpenAI（美國）處理
+        await admin.database().ref(aiya.dbPath(app, "aiyaVoiceConsent", uid)).set({ v: aiya.VOICE_CONSENT_VERSION, at: admin.database.ServerValue.TIMESTAMP });
+        return res.status(200).json({ success: true });
+      }
+
+      if (action === "call") {
+        // 語音通話（計時）：App 送 WebRTC 的 SDP offer，伺服器代為向 OpenAI 建立 GPT-Live 通話，回傳 SDP answer
+        const sdp = typeof req.body.sdp === "string" ? req.body.sdp : "";
+        if (!sdp || sdp.length > aiya.MAX_SDP_CHARS || !sdp.startsWith("v=0")) return res.status(400).json({ success: false, code: "bad_request" });
+        const st = await aiyaStatus(uid, now, app);
+        // 上一通還沒結算（例如 App 當掉）：先結算再開新的
+        await settleAiyaCall(uid, app, now, st, true);
+        const ok = aiya.decideCall({ consented: st.voiceConsented, reviewer: st.reviewer, friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+        if (!ok.ok) return res.status(200).json({ success: false, code: ok.code, ...aiyaStatusView(st, now) });
+        const voice = aiya.LIVE_VOICES.includes(req.body.voice) ? req.body.voice : aiya.LIVE_VOICE;
+        const context = app.id === "tour"
+          ? aiya.tourContextText({ lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), tour: req.body.tourContext })
+          : await aiyaContext(lang, now);
+        let live;
+        try {
+          live = await openaiLiveSession(sdp, { model: aiya.LIVE_MODEL, instructions: aiya.liveInstructions(app, lang, context), audio: { output: { voice } } });
+        } catch (e) {
+          console.error("aiya call failed:", e && e.status, e && e.message);
+          return res.status(200).json({ success: false, code: "busy" });
+        }
+        const startedAt = Date.now();
+        const call = { id: live.id || `c${startedAt.toString(36)}`, startedAt, lastBeat: startedAt, maxMs: ok.maxMs };
+        await sendUpstashCommand(["SET", aiya.CALL_KEY.active(uid, app), JSON.stringify(call), "EX", String(Math.ceil(ok.maxMs / 1000) + 3600)]);
+        return res.status(200).json({ success: true, sdp: live.sdp, callId: call.id, maxMs: ok.maxMs, idleMs: aiya.CALL_IDLE_MS, beatMs: aiya.CALL_BEAT_MS, voice, ...aiyaStatusView(st, now) });
+      }
+
+      if (action === "callBeat") {
+        // 通話中每 20 秒回報一次：伺服器據此計算秒數（App 被關掉時算到最後一次心跳）
+        const raw = await sendUpstashCommand(["GET", aiya.CALL_KEY.active(uid, app)]);
+        let call = null;
+        try { call = raw ? JSON.parse(raw) : null; } catch (e) { call = null; }
+        if (!call || call.id !== req.body.callId) return res.status(200).json({ success: false, code: "ended" });
+        call.lastBeat = now;
+        await sendUpstashCommand(["SET", aiya.CALL_KEY.active(uid, app), JSON.stringify(call), "KEEPTTL"]);
+        return res.status(200).json({ success: true, remainingMs: Math.max(0, call.startedAt + call.maxMs - now) });
+      }
+
+      if (action === "callEnd") {
+        // 通話結束：結算秒數，回傳剩下的通話時間
+        const st = await aiyaStatus(uid, now, app);
+        const charged = st.activeCall && st.activeCall.id === req.body.callId ? await settleAiyaCall(uid, app, now, st, true) : 0;
+        console.log("aiya call end:", app.id, String(req.body.callId || "").slice(0, 60), charged, String(req.body.reason || "").slice(0, 30));
+        return res.status(200).json({ success: true, charged, ...aiyaStatusView(st, now) });
+      }
+
       if (action === "close") {
-        await sendUpstashCommand(["DEL", aiya.KEY.session(uid)]);
+        await sendUpstashCommand(["DEL", aiya.KEY.session(uid, app)]);
         return res.status(200).json({ success: true });
       }
 
@@ -1935,11 +2174,11 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         const reply = String(req.body.reply || "").slice(0, 400);
         let lastUser = "";
         try {
-          const s = JSON.parse((await sendUpstashCommand(["GET", aiya.KEY.session(uid)])) || "null");
+          const s = JSON.parse((await sendUpstashCommand(["GET", aiya.KEY.session(uid, app)])) || "null");
           const users = s ? s.msgs.filter((m) => m.role === "user") : [];
           lastUser = users.length ? users[users.length - 1].content : "";
         } catch (e) { /* 對話已結束也照樣收檢舉 */ }
-        await admin.database().ref("aiyaReports").push({ uid, reply, lastUser, reason: String(req.body.reason || "").slice(0, 40), lang, at: admin.database.ServerValue.TIMESTAMP });
+        await admin.database().ref("aiyaReports").push({ uid, app: app.id, reply, lastUser, reason: String(req.body.reason || "").slice(0, 40), lang, at: admin.database.ServerValue.TIMESTAMP });
         return res.status(200).json({ success: true });
       }
 
@@ -1951,31 +2190,41 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
             // 艾婭之友（訂閱）和時光包（消耗型）分開處理
             if (p.platform === "apple") {
               const tx = orbs.verifyAppleJws(p.data);
-              if (tx.productId === aiya.FRIEND_PRODUCT) {
-                const g = aiya.appleFriend(tx, orbs.BUNDLE_ID);
-                results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "apple", { ...g, revoked: !!tx.revocationDate }) });
+              if (tx.productId === app.friendProduct) {
+                const g = aiya.appleFriend(tx, app.bundleId, app.friendProduct);
+                results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "apple", { ...g, revoked: !!tx.revocationDate }, null, app) });
                 continue;
               }
-              const grant = aiya.applePack(tx, orbs.BUNDLE_ID);
-              results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant) });
+              if (aiya.callPackSeconds(tx.productId, app)) {
+                const g = aiya.appleCallPack(tx, app);
+                results.push({ productId: g.productId, result: await grantCallPack(uid, g, app) });
+                continue;
+              }
+              const grant = aiya.applePack(tx, app.bundleId, app.packs);
+              results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant, app) });
               continue;
             }
             if (p.platform !== "google" || typeof p.token !== "string" || typeof p.productId !== "string") throw new Error("bad_request");
-            if (p.productId === aiya.FRIEND_PRODUCT) {
-              const g = aiya.googleFriend(p.productId, orbs.receiptKey("google", p.token), await playSubscription(p.token));
-              results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "google", g, p.token) });
+            if (p.productId === app.friendProduct) {
+              const g = aiya.googleFriend(p.productId, orbs.receiptKey("google", p.token), await playSubscription(p.token, app.playPackage), app.friendProduct);
+              results.push({ productId: g.productId, result: await grantAiyaFriend(uid, "google", g, p.token, app) });
               continue;
             }
-            const grant = aiya.googlePack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token));
-            results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant) });
+            if (aiya.callPackSeconds(p.productId, app)) {
+              const g = aiya.googleCallPack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token, app.playPackage), app);
+              results.push({ productId: g.productId, result: await grantCallPack(uid, g, app) });
+              continue;
+            }
+            const grant = aiya.googlePack(p.productId, orbs.receiptKey("google", p.token), await playPurchase(p.productId, p.token, app.playPackage), app.packs);
+            results.push({ productId: grant.productId, result: await grantAiyaPack(uid, grant, app) });
           } catch (e) {
             console.warn("aiya verify failed:", e.message);
             results.push({ productId: p.productId, result: e.message });
           }
         }
-        const credits = Math.max(0, Number((await admin.database().ref(`aiyaCredits/${uid}`).once("value")).val()) || 0);
-        const friendRec = (await admin.database().ref(`aiyaFriend/${uid}`).once("value")).val();
-        return res.status(200).json({ success: true, results, credits, friend: aiya.friendActive(friendRec, now), friendExp: friendRec ? Number(friendRec.exp) || 0 : 0 });
+        const credits = Math.max(0, Number((await admin.database().ref(aiya.dbPath(app, "aiyaCredits", uid)).once("value")).val()) || 0);
+        const st = await aiyaStatus(uid, now, app);
+        return res.status(200).json({ success: true, results, credits, friend: st.friend, friendExp: st.friendExp, ...aiyaCallView(st) });
       }
 
       return res.status(400).json({ success: false, error: localize(lang, "未知的操作") });
@@ -2003,22 +2252,30 @@ exports.appStoreNotify = onRequest({ region: "asia-southeast1" }, async (req, re
     const info = payload.data && payload.data.signedTransactionInfo;
     if (!info) return res.status(200).send("ok");
     const tx = orbs.verifyAppleJws(info);
+    // 旅行團 TourChip 的艾婭商品（時光包退款、艾婭之友續訂／退款）也送到這裡
+    const tourAiya = tx.bundleId === aiya.APPS.tour.bundleId && aiya.appOfProduct(tx.productId) === aiya.APPS.tour;
+    if (tourAiya && (aiya.APPS.tour.packs[tx.productId] || aiya.callPackSeconds(tx.productId, aiya.APPS.tour))) {
+      const t = refunds.appleRefundTarget(payload.notificationType, tx, aiya.APPS.tour.bundleId, aiya.APPS.tour.packs);
+      if (t) console.log("appStoreNotify tour refund:", tx.productId, (await applyRefund(t.receipt, t.credits)).join(",") || "nothing to undo");
+      return res.status(200).send("ok");
+    }
     const refund = refunds.appleRefundTarget(payload.notificationType, tx, orbs.BUNDLE_ID);
     if (refund) {
       console.log("appStoreNotify refund:", payload.notificationType, tx.productId, (await applyRefund(refund.receipt, refund.credits)).join(",") || "nothing to undo");
       return res.status(200).send("ok");
     }
-    if (tx.productId !== aiya.FRIEND_PRODUCT) {
+    const friendApp = tourAiya ? aiya.APPS.tour : aiya.APPS.mw;
+    if (tx.productId !== friendApp.friendProduct) {
       console.log("appStoreNotify:", payload.notificationType, tx.productId);
       return res.status(200).send("ok");
     }
-    const g = aiya.appleFriend(tx, orbs.BUNDLE_ID);
+    const g = aiya.appleFriend(tx, friendApp.bundleId, friendApp.friendProduct);
     const db = admin.database();
     const uid = (await db.ref(`aiyaFriendReceipts/${g.receipt}`).once("value")).val();
     if (uid) {
-      const prev = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
+      const prev = (await db.ref(aiya.dbPath(friendApp, "aiyaFriend", uid)).once("value")).val();
       const exp = tx.revocationDate ? g.exp : Math.max(prev && prev.receipt === g.receipt ? Number(prev.exp) || 0 : 0, g.exp);
-      await db.ref(`aiyaFriend/${uid}`).update({ exp, src: "apple", receipt: g.receipt, product: g.productId });
+      await db.ref(aiya.dbPath(friendApp, "aiyaFriend", uid)).update({ exp, src: "apple", receipt: g.receipt, product: g.productId });
     }
     console.log("appStoreNotify:", payload.notificationType, payload.subtype || "", uid ? "matched" : "no account");
   } catch (e) {
@@ -2382,19 +2639,27 @@ exports.googleRefunds = onSchedule({ schedule: "every day 04:30", timeZone: "Asi
   const { GoogleAuth } = require("google-auth-library");
   const client = await new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/androidpublisher"] }).getClient();
   const startTime = Date.now() - 3 * 86400000;
-  let pageToken, handled = 0;
-  do {
-    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${PLAY_PACKAGE}/purchases/voidedpurchases?startTime=${startTime}&maxResults=1000${pageToken ? `&token=${encodeURIComponent(pageToken)}` : ""}`;
-    const data = (await client.request({ url })).data || {};
-    for (const receipt of refunds.googleVoidedReceipts(data.voidedPurchases)) {
-      try {
-        if ((await applyRefund(receipt)).length) handled++;
-      } catch (e) {
-        console.warn("googleRefunds failed:", e.message);
-      }
+  let handled = 0;
+  // 城市低語，加上旅行團的艾婭時光包（旅行團還沒上架或服務帳號沒權限時只記 log）
+  for (const pkg of [PLAY_PACKAGE, aiya.APPS.tour.playPackage]) {
+    let pageToken;
+    try {
+      do {
+        const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${pkg}/purchases/voidedpurchases?startTime=${startTime}&maxResults=1000${pageToken ? `&token=${encodeURIComponent(pageToken)}` : ""}`;
+        const data = (await client.request({ url })).data || {};
+        for (const receipt of refunds.googleVoidedReceipts(data.voidedPurchases)) {
+          try {
+            if ((await applyRefund(receipt)).length) handled++;
+          } catch (e) {
+            console.warn("googleRefunds failed:", e.message);
+          }
+        }
+        pageToken = data.tokenPagination && data.tokenPagination.nextPageToken;
+      } while (pageToken);
+    } catch (e) {
+      console.warn("googleRefunds", pkg, e.message);
     }
-    pageToken = data.tokenPagination && data.tokenPagination.nextPageToken;
-  } while (pageToken);
+  }
   console.log("googleRefunds: handled", handled);
 });
 
@@ -2499,8 +2764,7 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
         if (wg && wg.host === uid) await wgDestroy(myGroup, await wgMembers(myGroup));
         else await sendUpstashPipeline([["HDEL", wgroup.KEY.members(myGroup), uid], ["DEL", wgroup.KEY.of(uid)], ["HDEL", wgroup.KEY.acks(myGroup), uid], ["HDEL", wgroup.KEY.answers(myGroup), uid], ["HDEL", wgroup.KEY.lost(myGroup), uid]]);
       }
-      updates[`aiyaCredits/${uid}`] = null;
-      updates[`aiyaConsent/${uid}`] = null;
+      Object.assign(updates, await aiyaDeleteUpdates(uid, aiya.APPS.mw));
       // 送禮：收到還沒回覆的禮物退回給送的人；自己的禮券、接收設定、花束刪掉；糾纏款配對解除
       for (const id of Object.keys((await db.ref(`giftInbox/${uid}`).once("value")).val() || {})) {
         const g = (await db.ref(`gifts/${id}`).once("value")).val();
@@ -2524,13 +2788,6 @@ exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_
       updates[`orbPair/${uid}`] = null;
       if (myPartner) { updates[`orbPair/${myPartner}`] = null; await sendUpstashCommand(["DEL", gifts.pairKey(myPartner)]); }
       await sendUpstashCommand(["DEL", gifts.pairKey(uid)]);
-      // 艾婭之友：刪掉訂閱紀錄並釋放收據，之後用新帳號可以恢復購買（訂閱本身要到 Apple／Google 取消）
-      const myFriend = (await db.ref(`aiyaFriend/${uid}`).once("value")).val();
-      updates[`aiyaFriend/${uid}`] = null;
-      if (myFriend && typeof myFriend.receipt === "string") {
-        updates[`aiyaFriendReceipts/${myFriend.receipt}`] = null;
-        updates[`aiyaFriendTokens/${myFriend.receipt}`] = null;
-      }
       // 自己寫在別人底下的資料：封鎖對方時的 blockedBy、對別人的敲門
       const myBlocks = (await db.ref(`blocks/${uid}`).once("value")).val() || {};
       for (const target of Object.keys(myBlocks)) updates[`blockedBy/${target}/${uid}`] = null;

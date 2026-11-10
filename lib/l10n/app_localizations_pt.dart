@@ -3741,4 +3741,122 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get asmRemovedDone => 'Removido da assembleia';
+
+  @override
+  String get aiyaFriendPerk5 =>
+      '60 minutos de chamadas de voz com a AIYA por mês';
+
+  @override
+  String get aiyaVoiceOn => 'Voz: ligada';
+
+  @override
+  String get aiyaVoiceOff => 'Voz: desligada';
+
+  @override
+  String get aiyaVoiceFriendOnly => 'A voz é para Amigos da AIYA';
+
+  @override
+  String get aiyaVoiceDailyMax =>
+      'As respostas em voz de hoje acabaram. Ouça a AIYA de novo amanhã';
+
+  @override
+  String get aiyaCallTooltip => 'Chamada de voz com a AIYA';
+
+  @override
+  String get aiyaCallConsentTitle => 'Chamada de voz com a AIYA';
+
+  @override
+  String get aiyaCallConsentBody =>
+      'Durante a chamada, sua voz é enviada ao vivo para a OpenAI (EUA), cuja IA processa e responde. Não enviamos sua identidade, apelido ou localização, e não gravamos nem guardamos a chamada. A AIYA é uma IA; as respostas podem errar e não são conselho profissional.';
+
+  @override
+  String get aiyaCallAgree => 'Concordar e ligar';
+
+  @override
+  String get aiyaCallConnecting => 'Conectando…';
+
+  @override
+  String aiyaCallLive(String time) {
+    return 'Em chamada · faltam $time';
+  }
+
+  @override
+  String get aiyaHangUp => 'Desligar';
+
+  @override
+  String get aiyaCallEnded => 'Chamada encerrada';
+
+  @override
+  String get aiyaCallTimeUp =>
+      'Vocês conversaram por uma hora. Descanse um pouco e ligue para a AIYA de novo';
+
+  @override
+  String get aiyaCallDailyMax =>
+      'Você usou as 2 chamadas de hoje. Ligue para a AIYA amanhã';
+
+  @override
+  String get aiyaCallMonthMax =>
+      'Você usou as chamadas deste mês. Ligue para a AIYA no mês que vem';
+
+  @override
+  String get aiyaCallResting =>
+      'A linha de voz da AIYA está muito ocupada hoje. Tente mais tarde';
+
+  @override
+  String get aiyaCallMicDenied =>
+      'Permita o microfone para ligar para a AIYA. Você pode ativar nos Ajustes do celular';
+
+  @override
+  String get aiyaCallFailed =>
+      'Não foi possível conectar. Tente novamente mais tarde';
+
+  @override
+  String aiyaCallsLeft(int today, int month) {
+    return 'Restam $today chamadas hoje · $month este mês';
+  }
+
+  @override
+  String get aiyaCallIdle =>
+      'Ninguém falou por um tempo, então a chamada foi encerrada';
+
+  @override
+  String get aiyaCallMute => 'Silenciar';
+
+  @override
+  String get aiyaCallUnmute => 'Ativar som';
+
+  @override
+  String aiyaCallPurchased(int minutes) {
+    return '$minutes minutos de chamada adicionados';
+  }
+
+  @override
+  String get aiyaCallOutOfTime => 'Seu tempo de chamada acabou';
+
+  @override
+  String get aiyaCallPacksTitle => 'Chamada de voz com a AIYA';
+
+  @override
+  String get aiyaCallPacksBody =>
+      'Converse com a AIYA em voz alta, como numa ligação. Compre tempo de chamada para começar; Amigos da AIYA ganham 60 minutos grátis por mês.';
+
+  @override
+  String aiyaCallPackMinutes(int minutes) {
+    return '$minutes minutos';
+  }
+
+  @override
+  String get aiyaCallFriendOption => 'Seja Amigo da AIYA (60 minutos por mês)';
+
+  @override
+  String get aiyaCallTextInstead => 'Conversar por texto por enquanto';
+
+  @override
+  String get aiyaCallPackNote =>
+      'O tempo de chamada não expira e é descontado por segundo. Compras consumíveis não podem ser restauradas.';
+
+  @override
+  String aiyaCallMinutesLeft(int n) {
+    return 'Restam $n minutos de chamada';
+  }
 }

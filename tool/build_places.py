@@ -26,7 +26,7 @@ SITE = "https://mood-whisper-f7de9.web.app"
 # 人數改在 App Store Connect（App 分析 → 獲取 → 行銷活動）與 Play Console（使用者獲取 → UTM 行銷活動）看。
 IOS_APP_ID = "6820145668"  # App Store 網址裡 id 後面的數字（1.0.2 起已上架）
 IOS_PROVIDER_TOKEN = ""  # App Store Connect → App 分析 → 行銷活動連結產生器裡的 pt 值；空的就不帶行銷參數
-ANDROID_PUBLIC = False   # Google Play 正式版（不是封閉測試）上架後改成 True
+ANDROID_PUBLIC = True   # Google Play 正式版（不是封閉測試）上架後改成 True
 ANDROID_ID = "com.softchip.moodwhisper"
 
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]

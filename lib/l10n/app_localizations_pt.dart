@@ -3863,4 +3863,146 @@ class AppLocalizationsPt extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return 'Restam $n minutos de chamada';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 voz ao vivo (assento de anfitrião no anel 2)';
+
+  @override
+  String get asmQ2Intro =>
+      'Tudo do Q3, mais voz ao vivo e perguntas: fale com todos que entrarem, convide ao palco quem levantar a mão e deixe todos enviarem perguntas por escrito e votarem.';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 hora';
+
+  @override
+  String get asmPlanQ2_1hSub => 'Até 200 pessoas, voz ao vivo + perguntas';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 horas';
+
+  @override
+  String get asmPlanQ2_2hSub => 'Até 1000 pessoas, voz ao vivo + perguntas';
+
+  @override
+  String get asmErrQ2Unavailable => 'A voz ao vivo não está disponível agora';
+
+  @override
+  String get asmQ2JoinHint =>
+      'Entre para ouvir a transmissão, levantar a mão e perguntar';
+
+  @override
+  String get asmLiveOn => 'Ao vivo';
+
+  @override
+  String get asmLiveConnecting => 'Conectando…';
+
+  @override
+  String get asmLiveError => 'Não foi possível conectar à transmissão';
+
+  @override
+  String get asmLiveOff => 'Não conectado à transmissão';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'No palco: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'Ligar microfone';
+
+  @override
+  String get asmLiveMicOff => 'Desligar microfone';
+
+  @override
+  String get asmLiveHandUp => 'Levantar a mão';
+
+  @override
+  String get asmLiveHandDown => 'Baixar a mão';
+
+  @override
+  String get asmLiveMute => 'Silenciar transmissão';
+
+  @override
+  String get asmLiveUnmute => 'Reativar som';
+
+  @override
+  String get asmLiveMusicMode => 'Modo música';
+
+  @override
+  String get asmLiveMusicHint =>
+      'Qualidade de som maior e sem supressão de ruído, para música que você toca ou da qual tem os direitos. Músicas comerciais sem licença não são permitidas.';
+
+  @override
+  String get asmLiveSpeakers => 'Convidados no palco';
+
+  @override
+  String get asmLiveMuteGuest => 'Silenciar';
+
+  @override
+  String get asmLiveOffStage => 'Tirar do palco';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count mãos levantadas';
+  }
+
+  @override
+  String get asmLiveInvite => 'Convidar ao palco';
+
+  @override
+  String get asmLiveNoRecording =>
+      'A transmissão não é gravada e nenhum áudio é guardado.';
+
+  @override
+  String get asmLiveOnStage =>
+      'O anfitrião convidou você ao palco. Você pode ligar o microfone e falar';
+
+  @override
+  String get asmLiveMicDenied =>
+      'Sem acesso ao microfone, você só pode ouvir. É possível ativar em Ajustes.';
+
+  @override
+  String get asmLiveStageFull => 'Já há 3 convidados no palco';
+
+  @override
+  String get asmLiveGone => 'Essa pessoa já saiu da assembleia';
+
+  @override
+  String get asmAskOpen => 'Perguntas';
+
+  @override
+  String get asmAskTitle => 'Perguntas';
+
+  @override
+  String get asmAskHint =>
+      'Envie uma pergunta. Todos podem votar e as mais votadas sobem. O anfitrião escolhe quais responder.';
+
+  @override
+  String get asmAskHostHint =>
+      'As perguntas são ordenadas por votos. Marque como respondidas ou oculte as inadequadas.';
+
+  @override
+  String get asmAskInput =>
+      'O que você quer perguntar ao anfitrião? (até 80 caracteres)';
+
+  @override
+  String get asmAskSend => 'Enviar';
+
+  @override
+  String get asmAskSent => 'Pergunta enviada';
+
+  @override
+  String get asmAskEmpty => 'Ainda não há perguntas';
+
+  @override
+  String get asmAskAnswered => 'Marcar como respondida';
+
+  @override
+  String get asmAskReopen => 'Marcar como não respondida';
+
+  @override
+  String get asmAskHide => 'Ocultar';
+
+  @override
+  String get asmAskTooMany => 'Você já fez 5 perguntas nesta assembleia';
 }

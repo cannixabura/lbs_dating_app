@@ -6374,6 +6374,264 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'通話時間剩 {n} 分鐘'**
   String aiyaCallMinutesLeft(int n);
+
+  /// No description provided for @asmQ2Section.
+  ///
+  /// In zh, this message translates to:
+  /// **'Q2 語音直播（主持席在第 2 圈）'**
+  String get asmQ2Section;
+
+  /// No description provided for @asmQ2Intro.
+  ///
+  /// In zh, this message translates to:
+  /// **'Q3 的全部功能，再加上語音直播與提問：你可以對著所有參加者講話，邀請舉手的人上台，大家用文字提問、按讚。'**
+  String get asmQ2Intro;
+
+  /// No description provided for @asmPlanQ2_1h.
+  ///
+  /// In zh, this message translates to:
+  /// **'Q2 · 1 小時'**
+  String get asmPlanQ2_1h;
+
+  /// No description provided for @asmPlanQ2_1hSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'最多 200 人，語音直播＋提問'**
+  String get asmPlanQ2_1hSub;
+
+  /// No description provided for @asmPlanQ2_2h.
+  ///
+  /// In zh, this message translates to:
+  /// **'Q2 · 2 小時'**
+  String get asmPlanQ2_2h;
+
+  /// No description provided for @asmPlanQ2_2hSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'最多 1000 人，語音直播＋提問'**
+  String get asmPlanQ2_2hSub;
+
+  /// No description provided for @asmErrQ2Unavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音直播暫時沒有開放'**
+  String get asmErrQ2Unavailable;
+
+  /// No description provided for @asmQ2JoinHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'加入後就能收聽語音直播、舉手和提問'**
+  String get asmQ2JoinHint;
+
+  /// No description provided for @asmLiveOn.
+  ///
+  /// In zh, this message translates to:
+  /// **'直播中'**
+  String get asmLiveOn;
+
+  /// No description provided for @asmLiveConnecting.
+  ///
+  /// In zh, this message translates to:
+  /// **'連線中…'**
+  String get asmLiveConnecting;
+
+  /// No description provided for @asmLiveError.
+  ///
+  /// In zh, this message translates to:
+  /// **'直播連不上'**
+  String get asmLiveError;
+
+  /// No description provided for @asmLiveOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'還沒連上直播'**
+  String get asmLiveOff;
+
+  /// No description provided for @asmLiveStage.
+  ///
+  /// In zh, this message translates to:
+  /// **'台上：{names}'**
+  String asmLiveStage(String names);
+
+  /// No description provided for @asmLiveMicOn.
+  ///
+  /// In zh, this message translates to:
+  /// **'開麥克風'**
+  String get asmLiveMicOn;
+
+  /// No description provided for @asmLiveMicOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'關麥克風'**
+  String get asmLiveMicOff;
+
+  /// No description provided for @asmLiveHandUp.
+  ///
+  /// In zh, this message translates to:
+  /// **'舉手'**
+  String get asmLiveHandUp;
+
+  /// No description provided for @asmLiveHandDown.
+  ///
+  /// In zh, this message translates to:
+  /// **'放下手'**
+  String get asmLiveHandDown;
+
+  /// No description provided for @asmLiveMute.
+  ///
+  /// In zh, this message translates to:
+  /// **'靜音直播'**
+  String get asmLiveMute;
+
+  /// No description provided for @asmLiveUnmute.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消靜音'**
+  String get asmLiveUnmute;
+
+  /// No description provided for @asmLiveMusicMode.
+  ///
+  /// In zh, this message translates to:
+  /// **'音樂模式'**
+  String get asmLiveMusicMode;
+
+  /// No description provided for @asmLiveMusicHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'音質較高、不降噪，給你自己演奏或播放自己擁有權利的音樂。不能播放沒有授權的市售歌曲。'**
+  String get asmLiveMusicHint;
+
+  /// No description provided for @asmLiveSpeakers.
+  ///
+  /// In zh, this message translates to:
+  /// **'台上來賓'**
+  String get asmLiveSpeakers;
+
+  /// No description provided for @asmLiveMuteGuest.
+  ///
+  /// In zh, this message translates to:
+  /// **'禁音'**
+  String get asmLiveMuteGuest;
+
+  /// No description provided for @asmLiveOffStage.
+  ///
+  /// In zh, this message translates to:
+  /// **'請下台'**
+  String get asmLiveOffStage;
+
+  /// No description provided for @asmLiveHands.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 人舉手'**
+  String asmLiveHands(int count);
+
+  /// No description provided for @asmLiveInvite.
+  ///
+  /// In zh, this message translates to:
+  /// **'邀請上台'**
+  String get asmLiveInvite;
+
+  /// No description provided for @asmLiveNoRecording.
+  ///
+  /// In zh, this message translates to:
+  /// **'直播不錄音，也不保存聲音。'**
+  String get asmLiveNoRecording;
+
+  /// No description provided for @asmLiveOnStage.
+  ///
+  /// In zh, this message translates to:
+  /// **'主持人邀你上台了，可以開麥克風講話'**
+  String get asmLiveOnStage;
+
+  /// No description provided for @asmLiveMicDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有麥克風權限，只能收聽。可以到系統設定開啟。'**
+  String get asmLiveMicDenied;
+
+  /// No description provided for @asmLiveStageFull.
+  ///
+  /// In zh, this message translates to:
+  /// **'台上已經有 3 位來賓'**
+  String get asmLiveStageFull;
+
+  /// No description provided for @asmLiveGone.
+  ///
+  /// In zh, this message translates to:
+  /// **'對方已經離開集會'**
+  String get asmLiveGone;
+
+  /// No description provided for @asmAskOpen.
+  ///
+  /// In zh, this message translates to:
+  /// **'提問'**
+  String get asmAskOpen;
+
+  /// No description provided for @asmAskTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'提問'**
+  String get asmAskTitle;
+
+  /// No description provided for @asmAskHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出問題，大家可以按讚，讚多的會排在前面。主持人會挑題回答。'**
+  String get asmAskHint;
+
+  /// No description provided for @asmAskHostHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'大家的問題依讚數排序。可以標成已回答，或隱藏不適當的問題。'**
+  String get asmAskHostHint;
+
+  /// No description provided for @asmAskInput.
+  ///
+  /// In zh, this message translates to:
+  /// **'想問主持人什麼？（最多 80 字）'**
+  String get asmAskInput;
+
+  /// No description provided for @asmAskSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出'**
+  String get asmAskSend;
+
+  /// No description provided for @asmAskSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'問題已送出'**
+  String get asmAskSent;
+
+  /// No description provided for @asmAskEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'還沒有人提問'**
+  String get asmAskEmpty;
+
+  /// No description provided for @asmAskAnswered.
+  ///
+  /// In zh, this message translates to:
+  /// **'標成已回答'**
+  String get asmAskAnswered;
+
+  /// No description provided for @asmAskReopen.
+  ///
+  /// In zh, this message translates to:
+  /// **'改回未回答'**
+  String get asmAskReopen;
+
+  /// No description provided for @asmAskHide.
+  ///
+  /// In zh, this message translates to:
+  /// **'隱藏'**
+  String get asmAskHide;
+
+  /// No description provided for @asmAskTooMany.
+  ///
+  /// In zh, this message translates to:
+  /// **'這場你已經問了 5 題'**
+  String get asmAskTooMany;
 }
 
 class _AppLocalizationsDelegate

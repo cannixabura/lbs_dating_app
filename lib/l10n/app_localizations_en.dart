@@ -3856,4 +3856,146 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return '$n minutes of call time left';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 voice live (host seat on ring 2)';
+
+  @override
+  String get asmQ2Intro =>
+      'Everything in Q3, plus voice live and Q&A: talk to everyone who joins, invite people who raise a hand on stage, and let people send questions and upvote them.';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 hour';
+
+  @override
+  String get asmPlanQ2_1hSub => 'Up to 200 people, voice live + Q&A';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 hours';
+
+  @override
+  String get asmPlanQ2_2hSub => 'Up to 1000 people, voice live + Q&A';
+
+  @override
+  String get asmErrQ2Unavailable => 'Voice live isn\'t available right now';
+
+  @override
+  String get asmQ2JoinHint =>
+      'Join to listen to the voice live, raise your hand, and ask questions';
+
+  @override
+  String get asmLiveOn => 'Live';
+
+  @override
+  String get asmLiveConnecting => 'Connecting…';
+
+  @override
+  String get asmLiveError => 'Couldn\'t connect to the live';
+
+  @override
+  String get asmLiveOff => 'Not connected to the live';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'On stage: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'Turn mic on';
+
+  @override
+  String get asmLiveMicOff => 'Turn mic off';
+
+  @override
+  String get asmLiveHandUp => 'Raise hand';
+
+  @override
+  String get asmLiveHandDown => 'Lower hand';
+
+  @override
+  String get asmLiveMute => 'Mute live';
+
+  @override
+  String get asmLiveUnmute => 'Unmute live';
+
+  @override
+  String get asmLiveMusicMode => 'Music mode';
+
+  @override
+  String get asmLiveMusicHint =>
+      'Higher sound quality with no noise suppression, for music you play yourself or own the rights to. Unlicensed commercial songs are not allowed.';
+
+  @override
+  String get asmLiveSpeakers => 'Guests on stage';
+
+  @override
+  String get asmLiveMuteGuest => 'Mute';
+
+  @override
+  String get asmLiveOffStage => 'Move off stage';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count hands raised';
+  }
+
+  @override
+  String get asmLiveInvite => 'Invite on stage';
+
+  @override
+  String get asmLiveNoRecording =>
+      'The live is not recorded, and no audio is kept.';
+
+  @override
+  String get asmLiveOnStage =>
+      'The host invited you on stage. You can turn your mic on and talk.';
+
+  @override
+  String get asmLiveMicDenied =>
+      'No microphone access, so you can only listen. You can turn it on in Settings.';
+
+  @override
+  String get asmLiveStageFull => 'There are already 3 guests on stage';
+
+  @override
+  String get asmLiveGone => 'They have left the assembly';
+
+  @override
+  String get asmAskOpen => 'Questions';
+
+  @override
+  String get asmAskTitle => 'Questions';
+
+  @override
+  String get asmAskHint =>
+      'Send a question. Everyone can upvote, and the most upvoted rise to the top. The host picks which to answer.';
+
+  @override
+  String get asmAskHostHint =>
+      'Questions are sorted by upvotes. Mark them answered, or hide inappropriate ones.';
+
+  @override
+  String get asmAskInput =>
+      'What do you want to ask the host? (up to 80 characters)';
+
+  @override
+  String get asmAskSend => 'Send';
+
+  @override
+  String get asmAskSent => 'Question sent';
+
+  @override
+  String get asmAskEmpty => 'No questions yet';
+
+  @override
+  String get asmAskAnswered => 'Mark answered';
+
+  @override
+  String get asmAskReopen => 'Mark unanswered';
+
+  @override
+  String get asmAskHide => 'Hide';
+
+  @override
+  String get asmAskTooMany => 'You\'ve asked 5 questions in this assembly';
 }

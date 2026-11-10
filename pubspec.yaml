@@ -69,6 +69,7 @@ dependencies:
   app_links: ^7.2.2
   wakelock_plus: ^1.8.0
   geocoding: ^5.0.1
+  livekit_client: ^2.13.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

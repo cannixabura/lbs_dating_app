@@ -76,3 +76,73 @@ Redis：
 
 - `assembly_q3_1h`（NT$190，消耗性）、`assembly_q3_2h`（NT$590，消耗性），不含中國大陸。
 - 伺服器驗證收據後發一張主辦券；開集會時用掉。
+
+---
+
+# 量子集會 Q2（第二版：語音直播＋提問）
+
+2026-11-11 使用者確認：價格 NT$990／NT$2,490；自架 LiveKit（主機開發完再租）；音樂只限主持人自己的聲音和自有音樂；不錄音。
+
+## 方案
+
+| 方案 | 主持席 | 時長／人數上限 | 價格（消耗性內購） | 商品代號 |
+|---|---|---|---|---|
+| `q2_1h` | 第 2 圈（12 席，Q2-1～Q2-12） | 1 小時／200 人 | NT$990 | `assembly_q2_1h` |
+| `q2_2h` | 同上 | 2 小時／1000 人 | NT$2,490 | `assembly_q2_2h` |
+
+- Q2 包含 Q3 的全部功能（應援、公告、紀念卡、延長、移除參加者），再加上語音直播與提問。
+- 延長：Q2 集會只能用 Q2 主辦券延長（+1 小時用 `q2_1h`，也就是 NT$990；+2 小時用 `q2_2h`），規則同 Q3（人數上限取大、一場最長 12 小時）。Q3 券不能延長 Q2，Q2 券也不能延長 Q3。
+- 第 2 圈 12 席坐滿時不能再開 Q2。
+- 伺服器沒有設定直播主機（`LIVEKIT_URL`／`LIVEKIT_API_KEY`／`LIVEKIT_API_SECRET`）時，App 不顯示 Q2 方案，伺服器也拒絕開 Q2（`q2_unavailable`）。主機租好、設定好 secret 才開放。
+
+## 語音直播
+
+- 每場 Q2 一個 LiveKit 房間 `asm_{id}`。App 跟伺服器要通行證（動作 `asmAudio`），伺服器確認是主持人或參加者才發，有效 15 分鐘（App 到期前自動換）。
+- 角色：
+  - 主持人：一直可以講話，可以切換「音樂模式」（較高音質、關掉降噪與回音消除，給主持人自己演奏／播放自有音樂用）。
+  - 台上來賓：最多 3 人。參加者按「舉手」→ 主持人同意 → 伺服器把那個人改成可以發聲；主持人可以隨時請下台。
+  - 聽眾：只收聽，不需要麥克風權限。
+- 麥克風權限只在主持人開始講話、或來賓被邀上台時才詢問；不同意就只能收聽。
+- 參加者可以隨時靜音整場直播（只影響自己）。離開集會或離開量子世界就斷線。
+- 主持人可以把來賓禁音、請下台；移除參加者時同時把他踢出房間，不能再加入。
+- 集會結束時伺服器關閉房間。
+- **不錄音**：伺服器和直播主機都不保存聲音。檢舉靠即時處理（檢舉直播＋主持人管理）。
+
+## 提問（文字）
+
+- 參加者送出問題（最多 80 字），送出前過濾不當字詞與聯絡方式；每人每 60 秒最多一題，每場最多 5 題。
+- 大家可以替問題按讚（每題每人一次，可以收回），清單依讚數排序。
+- 主持人可以把問題標成「已回答」或隱藏。
+- 公開資料不含提問者身分；伺服器另存提問者 uid 供檢舉處理。問題可以檢舉。
+
+## 音樂與版權
+
+- 只能使用主持人自己的聲音、自己演奏或擁有權利的音樂。禁止播放沒有授權的市售歌曲。違規的直播可以被檢舉，成立的主辦人停權。寫進使用條款。
+- App 不提供播放音樂檔的功能。
+
+## 資料（新增）
+
+RTDB（只有伺服器寫入）：
+- `qAssemblies/{id}` 多 `tier`（`q3`／`q2`）、`speakers`（台上來賓的暱稱清單，不含 uid）、`hands`（舉手人數）。
+- `qAssemblyQuestions/{id}/{qid}`：{text, at, votes, answered}，登入的人讀得到。
+- `qAssemblyHands/{id}/{handId}`：{name, at}，只有主持人讀得到（規則比對 `qAssemblyHosts/{id}` = 主持人 uid）。
+
+Redis：
+- `qasm_speakers:{id}`：hash，來賓 uid → 暱稱。
+- `qasm_hands:{id}`：hash，舉手 uid → 時間。
+- `qasm_q:{id}:{qid}`：提問者 uid；`qasm_qvotes:{id}:{qid}`：set，按讚的人。
+- `qasm_qcount:{id}:{uid}`：這場已問題數。
+
+## Q2 上線清單（主機租好後）
+
+1. 使用者開 VPS（Vultr 或 Akamai 東京，1 核心／1 GB 起），我裝 LiveKit（Docker＋自動憑證，網域例如 `live.<我們的網域>`），開防火牆 443/TCP、7881/TCP、50000–60000/UDP。
+2. 使用者設定 secret：`LIVEKIT_URL`、`LIVEKIT_API_KEY`、`LIVEKIT_API_SECRET`；`quantum` 與 `endAssemblies` 兩個 function 的 `secrets` 加上這三個再部署（`livekit.js` 讀 `process.env`）。
+3. 壓力測試：`lk load-test` 模擬 200／1000 名聽眾，看 CPU 與流量；決定平常的規格與大型活動前的升級方式。
+4. 商店建立 `assembly_q2_1h`（NT$990）與 `assembly_q2_2h`（NT$2,490），不含中國大陸；Play 台灣未稅價輸入 942.86／2371.43。
+5. 部署網站（條款與隱私權已寫好，版本 2026-11.7，日期要改成上線當天），App 的 `Legal.termsVersion` 已是 2026-11.7，要跟網站同時上線。
+6. 操作說明（guideS17）加上 Q2 的說明，重新產生網站說明頁。
+7. 隱私權政策裡的「日本或新加坡的雲端主機」改成實際業者與地點。
+
+本機測試：`livekit-server --dev`（金鑰 devkey／secret），
+`flutter run --dart-define=ASM_LIVE_TEST=ws://<Mac IP>:7880 --dart-define=ASM_LIVE_TOKEN=$(lk token create --api-key devkey --api-secret secret --join --room asm_test --identity simhost --valid-for 24h)`，
+另一端用 `lk room join --url ws://localhost:7880 --api-key devkey --api-secret secret --identity guest --publish <檔案.ogg> asm_test` 模擬講話的人。

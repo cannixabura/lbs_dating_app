@@ -46,6 +46,7 @@ import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
 import 'parallel_coords.dart';
 import 'passport.dart';
+import 'assembly_live.dart';
 import 'quantum_assembly.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
@@ -147,7 +148,7 @@ class MoodWhisperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // AIYA_MOCK 只在本機測試艾婭畫面時開啟（假資料、不連伺服器），上架版本不會帶
-      home: aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      home: liveTestUrl.isNotEmpty ? const AssemblyLiveTestScreen() : aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
       ),
     );
   }
@@ -4015,6 +4016,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (quantumOn)
                         Positioned(top: MediaQuery.of(context).padding.top + 62, left: Night.space4, right: Night.space4 + 56,
                             child: AssemblyAnnounceBanner(onOpen: (id) => showAssemblyCard(context, id))),
+                      // Q2 語音直播的小列（連線中才出現）
+                      if (quantumOn)
+                        Positioned(left: Night.space4, right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92,
+                            child: AssemblyLiveBar(onOpen: (id) => showAssemblyCard(context, id))),
                       if (quantumOn) const Positioned.fill(child: AssemblyCheerOverlay()),
                       // 平行宇宙開關（右上角，只有圖標）；進入量子世界時暫時離開平行宇宙
                       if (!quantumOn)

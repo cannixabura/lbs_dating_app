@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
+import 'assembly_live.dart';
 import 'l10n/l10n.dart';
 import 'mood_card.dart';
 import 'quantum_world.dart';
@@ -15,8 +16,9 @@ import 'translate.dart';
 import 'ui/night.dart';
 
 // ============================================================================
-// 量子集會（Q3 第一版，規格：docs/quantum-assembly-spec.md）
-// 主持人坐進第 3 圈的保留席；參加者留在自己的席位自願加入。
+// 量子集會（規格：docs/quantum-assembly-spec.md）
+// Q3：主持人坐進第 3 圈的保留席；參加者留在自己的席位自願加入。
+// Q2：主持席在第 2 圈，另外有語音直播與文字提問（assembly_live.dart）。
 // 主持人發公告、觸發「量子應援」（所有參加者的光球在同一刻閃成同一個顏色）；結束後有匿名紀念卡。
 // 資料：qAssemblies/{id}（公開、不含 uid）、qAssemblyActive/{id}、qAssemblyVouchers/{uid}（主辦券）
 // ============================================================================
@@ -35,7 +37,10 @@ Color colorOfHex(Object? hex) {
 }
 
 class QAssembly {
-  final String id, title, emoji, plan, host, code, status;
+  final String id, title, emoji, plan, tier, host, code, status;
+  /// Q2：台上來賓（房間身分 → 暱稱）、舉手人數
+  final Map<String, String> speakers;
+  final int hands;
   final Color color;
   final double lat, lng;
   final int startAt, endAt, cap, count;
@@ -44,9 +49,10 @@ class QAssembly {
   final ({int count, Map<String, int> regions})? summary;
   const QAssembly({required this.id, required this.title, required this.emoji, required this.plan, required this.host, required this.code,
       required this.status, required this.color, required this.lat, required this.lng, required this.startAt, required this.endAt,
-      required this.cap, required this.count, this.announce, this.cheer, this.summary});
+      required this.cap, required this.count, this.announce, this.cheer, this.summary, this.tier = 'q3', this.speakers = const {}, this.hands = 0});
 
   bool get active => status == 'active';
+  bool get isQ2 => tier == 'q2';
 
   static QAssembly? parse(String id, Object? v) {
     if (v is! Map) return null;
@@ -58,6 +64,9 @@ class QAssembly {
       title: '${v['title'] ?? ''}',
       emoji: '${v['emoji'] ?? '✨'}',
       plan: '${v['plan'] ?? 'free'}',
+      tier: '${v['tier'] ?? 'q3'}',
+      speakers: {for (final e in ((v['speakers'] is Map ? v['speakers'] : const {}) as Map).entries) '${e.key}': '${e.value}'},
+      hands: n(v['hands']),
       host: '${v['host'] ?? ''}',
       code: '${v['code'] ?? ''}',
       status: '${v['status'] ?? 'ended'}',
@@ -82,7 +91,7 @@ class AssemblyState {
   static final cheer = ValueNotifier<({String id, Color color, int fireAt})?>(null);
   /// 剛結束、自己有參加或主持的集會：顯示紀念卡
   static final memorial = ValueNotifier<QAssembly?>(null);
-  static final options = ValueNotifier<({bool free, int v1h, int v2h})?>(null);
+  static final options = ValueNotifier<AsmOptions?>(null);
 
   static int _offset = 0; // 伺服器時間 − 手機時間（毫秒）
   static StreamSubscription<DatabaseEvent>? _offsetSub, _addSub, _removeSub;
@@ -122,6 +131,7 @@ class AssemblyState {
   /// 進入量子世界時開始聽；離開時停止
   static void start() {
     if (_addSub != null) return;
+    AssemblyLive.hook();
     _soonTimer ??= Timer.periodic(const Duration(seconds: 20), (_) => _checkEndingSoon());
     final db = FirebaseDatabase.instance;
     _offsetSub = db.ref('.info/serverTimeOffset').onValue.listen((e) => _offset = (e.snapshot.value as num?)?.toInt() ?? 0, onError: (_) {});
@@ -146,6 +156,7 @@ class AssemblyState {
   }
 
   static void stop() {
+    AssemblyLive.disconnect();
     for (final s in _subs.values) {
       s.cancel();
     }
@@ -195,7 +206,11 @@ class AssemblyState {
 
   static void _setOptions(Map<String, dynamic> data) {
     final v = (data['vouchers'] as Map?) ?? const {};
-    options.value = (free: data['free'] == true, v1h: (v['1h'] as num?)?.toInt() ?? 0, v2h: (v['2h'] as num?)?.toInt() ?? 0);
+    options.value = AsmOptions(
+      free: data['free'] == true,
+      q2: data['q2'] == true,
+      vouchers: {for (final e in v.entries) '${e.key}': (e.value as num?)?.toInt() ?? 0},
+    );
   }
 
   static Future<String?> join(String id) async {
@@ -215,9 +230,17 @@ class AssemblyState {
   }
 }
 
+/// 這個人可以用的方案：本月免費場、各方案還沒用的主辦券、Q2 是否開放（直播主機設定好才開放）
+class AsmOptions {
+  final bool free, q2;
+  final Map<String, int> vouchers;
+  const AsmOptions({required this.free, required this.q2, required this.vouchers});
+  int v(String plan) => vouchers[plan] ?? 0;
+}
+
 /// 主辦券的內購（消耗性）：驗證後伺服器發一張券；買完自動開剛才填好的集會
 class AssemblyStore {
-  static const products = {'1h': 'assembly_q3_1h', '2h': 'assembly_q3_2h'};
+  static const products = {'1h': 'assembly_q3_1h', '2h': 'assembly_q3_2h', 'q2_1h': 'assembly_q2_1h', 'q2_2h': 'assembly_q2_2h'};
   static final details = ValueNotifier<Map<String, ProductDetails>>(const {});
   static final busy = ValueNotifier<bool>(false);
   static final notice = ValueNotifier<String?>(null);
@@ -298,7 +321,9 @@ class AssemblyStore {
 
 /// 多買主辦券：只買不用，之後開場或延長時直接扣
 class AssemblyBuyMore extends StatelessWidget {
-  const AssemblyBuyMore({super.key});
+  /// 只顯示這一級的主辦券（主持人控制台）；null 表示全部（開集會面板）
+  final String? tier;
+  const AssemblyBuyMore({super.key, this.tier});
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +342,10 @@ class AssemblyBuyMore extends StatelessWidget {
         return Column(children: [
           Text('${tr.asmBuyMore} · ${tr.asmBuyMoreHint}', style: Night.caption, textAlign: TextAlign.center),
           const SizedBox(height: 4),
-          Wrap(alignment: WrapAlignment.center, spacing: Night.space2, children: [chip('1h', tr.asmPlan1h), chip('2h', tr.asmPlan2h)]),
+          Wrap(alignment: WrapAlignment.center, spacing: Night.space2, runSpacing: 4, children: [
+            if (tier != 'q2') ...[chip('1h', tr.asmPlan1h), chip('2h', tr.asmPlan2h)],
+            if (tier == 'q2' || (tier == null && AssemblyState.options.value?.q2 == true)) ...[chip('q2_1h', tr.asmPlanQ2_1h), chip('q2_2h', tr.asmPlanQ2_2h)],
+          ]),
         ]);
       },
     );
@@ -348,8 +376,7 @@ Future<String?> extendAssembly(String id, String plan) async {
 
 /// 有券就直接用，沒有就先買再用（買完由購買流程接著做）。回傳 null＝已完成或已開始購買
 Future<String?> useOrBuyPass(String plan, Future<String?> Function() use, {String? ok}) async {
-  final o = AssemblyState.options.value;
-  final have = plan == '1h' ? (o?.v1h ?? 0) : (o?.v2h ?? 0);
+  final have = AssemblyState.options.value?.v(plan) ?? 0;
   if (have > 0) return use();
   final started = await AssemblyStore.buy(plan, after: use, ok: ok);
   return started ? 'buying' : 'error';
@@ -366,6 +393,7 @@ String asmErrorText(String? code) => switch (code) {
       'too_soon' => tr.asmErrTooSoon,
       'hidden' => tr.asmErrHidden,
       'already_hosting' => tr.asmErrHosting,
+      'q2_unavailable' => tr.asmErrQ2Unavailable,
       _ => tr.asmErrGeneric,
     };
 
@@ -415,8 +443,7 @@ class _CreateSheetState extends State<_CreateSheet> {
     final plan = _plan;
     if (title.isEmpty || plan == null || _sending) return;
     final body = {'plan': plan, 'title': title, 'emoji': _emoji, 'color': colorHex(_color)};
-    final o = AssemblyState.options.value;
-    final hasVoucher = plan == '1h' ? (o?.v1h ?? 0) > 0 : plan == '2h' ? (o?.v2h ?? 0) > 0 : true;
+    final hasVoucher = plan == 'free' || (AssemblyState.options.value?.v(plan) ?? 0) > 0;
     setState(() => _sending = true);
     if (plan != 'free' && !hasVoucher) {
       final started = await AssemblyStore.buy(plan, after: () => createAssembly(body));
@@ -504,8 +531,18 @@ class _CreateSheetState extends State<_CreateSheet> {
             ]),
             const SizedBox(height: Night.space4),
             _planTile('free', tr.asmPlanFree, o?.free == false ? tr.asmPlanFreeUsed : tr.asmPlanFreeSub, enabled: o?.free != false),
-            _planTile('1h', '${tr.asmPlan1h} · ${paid('1h', o?.v1h ?? 0)}', tr.asmPlan1hSub),
-            _planTile('2h', '${tr.asmPlan2h} · ${paid('2h', o?.v2h ?? 0)}', tr.asmPlan2hSub),
+            _planTile('1h', '${tr.asmPlan1h} · ${paid('1h', o?.v('1h') ?? 0)}', tr.asmPlan1hSub),
+            _planTile('2h', '${tr.asmPlan2h} · ${paid('2h', o?.v('2h') ?? 0)}', tr.asmPlan2hSub),
+            // Q2：主持席在第 2 圈，多了語音直播與提問（直播主機設定好才出現）
+            if (o?.q2 == true) ...[
+              const SizedBox(height: Night.space2),
+              Text(tr.asmQ2Section, style: const TextStyle(color: Night.ink, fontSize: 14, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(tr.asmQ2Intro, style: Night.caption),
+              const SizedBox(height: Night.space2),
+              _planTile('q2_1h', '${tr.asmPlanQ2_1h} · ${paid('q2_1h', o?.v('q2_1h') ?? 0)}', tr.asmPlanQ2_1hSub),
+              _planTile('q2_2h', '${tr.asmPlanQ2_2h} · ${paid('q2_2h', o?.v('q2_2h') ?? 0)}', tr.asmPlanQ2_2hSub),
+            ],
             const SizedBox(height: Night.space2),
             const AssemblyBuyMore(),
             const SizedBox(height: Night.space2),
@@ -662,6 +699,24 @@ class _AssemblyCardState extends State<_AssemblyCard> {
                   return AssemblyState.join(a.id);
                 }, ok: joined ? null : tr.asmJoined),
               ),
+            // Q2：語音直播與提問（參加者加入後、主持人）
+            if (a.isQ2 && (joined || isHost)) ...[
+              const SizedBox(height: Night.space3),
+              AssemblyLivePanel(a: a, isHost: isHost),
+              const SizedBox(height: Night.space2),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: a.color, side: BorderSide(color: a.color.withOpacity(0.7)),
+                    padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: () => showAssemblyQuestions(context, a, isHost: isHost),
+                icon: const Icon(Icons.forum_outlined, size: 18),
+                label: Text(tr.asmAskOpen),
+              ),
+              const SizedBox(height: Night.space3),
+            ],
+            if (a.isQ2 && !joined && !isHost) ...[
+              const SizedBox(height: Night.space2),
+              Text(tr.asmQ2JoinHint, style: Night.caption, textAlign: TextAlign.center),
+            ],
             if (isHost) ...[
               // 主持人控制台：公告、應援、結束
               Text(tr.asmHostPanel, style: const TextStyle(color: Night.ink, fontSize: 15, fontWeight: FontWeight.w600)),
@@ -734,11 +789,13 @@ class _AssemblyCardState extends State<_AssemblyCard> {
                               textAlign: TextAlign.center, style: const TextStyle(fontSize: 13)),
                         ),
                       );
-                  return Row(children: [btn('1h', 1, o?.v1h ?? 0), const SizedBox(width: Night.space2), btn('2h', 2, o?.v2h ?? 0)]);
+                  // Q2 集會只能用 Q2 主辦券延長
+                  final p1 = a.isQ2 ? 'q2_1h' : '1h', p2 = a.isQ2 ? 'q2_2h' : '2h';
+                  return Row(children: [btn(p1, 1, o?.v(p1) ?? 0), const SizedBox(width: Night.space2), btn(p2, 2, o?.v(p2) ?? 0)]);
                 },
               ),
               const SizedBox(height: Night.space2),
-              const AssemblyBuyMore(),
+              AssemblyBuyMore(tier: a.tier),
               const SizedBox(height: Night.space2),
               Text(tr.asmRemoveHint, style: Night.caption, textAlign: TextAlign.center),
               const SizedBox(height: Night.space2),

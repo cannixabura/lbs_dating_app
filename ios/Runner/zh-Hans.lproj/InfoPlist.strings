@@ -5,4 +5,4 @@
 "NSCameraUsageDescription" = "城市低语需要使用相机，让你拍一张照片作为头像。";
 "NSLocationWhenInUseUsageDescription" = "城市低语会在你使用 App 时获取你的位置，用来在雷达上显示 5 公里内的人，并让附近的人看到你的心情气泡。";
 "Radar" = "雷达需要你的精确位置，才能判断谁在你附近；其他人只会看到大概的距离，不会看到你的地址。";
-"NSMicrophoneUsageDescription" = "城市低语只在你跟艾娅语音通话时使用麦克风，让她听得到你说话。";
+"NSMicrophoneUsageDescription" = "城市低语只在你跟艾娅语音通话、或在量子集会上台讲话时使用麦克风，让对方听得到你说话。";

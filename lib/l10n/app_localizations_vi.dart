@@ -3761,4 +3761,145 @@ class AppLocalizationsVi extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return 'Còn $n phút gọi';
   }
+
+  @override
+  String get asmQ2Section =>
+      'Q2 phát trực tiếp giọng nói (ghế chủ trì ở vòng 2)';
+
+  @override
+  String get asmQ2Intro =>
+      'Mọi tính năng của Q3, thêm phát trực tiếp giọng nói và hỏi đáp: nói với mọi người tham gia, mời người giơ tay lên sân khấu, mọi người gửi câu hỏi bằng chữ và bấm thích.';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 giờ';
+
+  @override
+  String get asmPlanQ2_1hSub => 'Tối đa 200 người, live giọng nói + hỏi đáp';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 giờ';
+
+  @override
+  String get asmPlanQ2_2hSub => 'Tối đa 1000 người, live giọng nói + hỏi đáp';
+
+  @override
+  String get asmErrQ2Unavailable => 'Hiện chưa mở phát trực tiếp giọng nói';
+
+  @override
+  String get asmQ2JoinHint => 'Tham gia để nghe live, giơ tay và đặt câu hỏi';
+
+  @override
+  String get asmLiveOn => 'Đang live';
+
+  @override
+  String get asmLiveConnecting => 'Đang kết nối…';
+
+  @override
+  String get asmLiveError => 'Không kết nối được live';
+
+  @override
+  String get asmLiveOff => 'Chưa kết nối live';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'Trên sân khấu: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'Bật mic';
+
+  @override
+  String get asmLiveMicOff => 'Tắt mic';
+
+  @override
+  String get asmLiveHandUp => 'Giơ tay';
+
+  @override
+  String get asmLiveHandDown => 'Hạ tay';
+
+  @override
+  String get asmLiveMute => 'Tắt tiếng live';
+
+  @override
+  String get asmLiveUnmute => 'Bật tiếng live';
+
+  @override
+  String get asmLiveMusicMode => 'Chế độ âm nhạc';
+
+  @override
+  String get asmLiveMusicHint =>
+      'Chất lượng âm thanh cao hơn, không lọc tiếng ồn, dành cho nhạc bạn tự chơi hoặc có quyền. Không được phát bài hát thương mại chưa được cấp phép.';
+
+  @override
+  String get asmLiveSpeakers => 'Khách trên sân khấu';
+
+  @override
+  String get asmLiveMuteGuest => 'Tắt mic';
+
+  @override
+  String get asmLiveOffStage => 'Mời xuống';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count người giơ tay';
+  }
+
+  @override
+  String get asmLiveInvite => 'Mời lên sân khấu';
+
+  @override
+  String get asmLiveNoRecording =>
+      'Buổi live không được ghi âm và không lưu giọng nói.';
+
+  @override
+  String get asmLiveOnStage =>
+      'Chủ trì đã mời bạn lên sân khấu. Bạn có thể bật mic để nói';
+
+  @override
+  String get asmLiveMicDenied =>
+      'Không có quyền dùng micro nên chỉ nghe được. Bạn có thể bật trong Cài đặt.';
+
+  @override
+  String get asmLiveStageFull => 'Sân khấu đã có 3 khách';
+
+  @override
+  String get asmLiveGone => 'Người đó đã rời buổi tụ họp';
+
+  @override
+  String get asmAskOpen => 'Câu hỏi';
+
+  @override
+  String get asmAskTitle => 'Câu hỏi';
+
+  @override
+  String get asmAskHint =>
+      'Gửi câu hỏi, mọi người có thể bấm thích, câu nhiều lượt thích sẽ lên đầu. Chủ trì sẽ chọn câu để trả lời.';
+
+  @override
+  String get asmAskHostHint =>
+      'Câu hỏi được xếp theo lượt thích. Bạn có thể đánh dấu đã trả lời hoặc ẩn câu không phù hợp.';
+
+  @override
+  String get asmAskInput => 'Bạn muốn hỏi chủ trì điều gì? (tối đa 80 ký tự)';
+
+  @override
+  String get asmAskSend => 'Gửi';
+
+  @override
+  String get asmAskSent => 'Đã gửi câu hỏi';
+
+  @override
+  String get asmAskEmpty => 'Chưa có câu hỏi nào';
+
+  @override
+  String get asmAskAnswered => 'Đánh dấu đã trả lời';
+
+  @override
+  String get asmAskReopen => 'Chuyển về chưa trả lời';
+
+  @override
+  String get asmAskHide => 'Ẩn';
+
+  @override
+  String get asmAskTooMany => 'Bạn đã hỏi 5 câu trong buổi này';
 }

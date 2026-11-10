@@ -3774,4 +3774,142 @@ class AppLocalizationsTh extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return 'เหลือเวลาโทร $n นาที';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 ไลฟ์เสียง (ที่นั่งโฮสต์อยู่วงที่ 2)';
+
+  @override
+  String get asmQ2Intro =>
+      'ทุกอย่างใน Q3 พร้อมไลฟ์เสียงและถาม-ตอบ: พูดกับทุกคนที่เข้าร่วม เชิญคนที่ยกมือขึ้นเวที และให้ทุกคนส่งคำถามเป็นข้อความและกดถูกใจ';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 ชั่วโมง';
+
+  @override
+  String get asmPlanQ2_1hSub => 'สูงสุด 200 คน ไลฟ์เสียง + ถาม-ตอบ';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 ชั่วโมง';
+
+  @override
+  String get asmPlanQ2_2hSub => 'สูงสุด 1000 คน ไลฟ์เสียง + ถาม-ตอบ';
+
+  @override
+  String get asmErrQ2Unavailable => 'ตอนนี้ยังใช้ไลฟ์เสียงไม่ได้';
+
+  @override
+  String get asmQ2JoinHint => 'เข้าร่วมเพื่อฟังไลฟ์เสียง ยกมือ และถามคำถาม';
+
+  @override
+  String get asmLiveOn => 'กำลังไลฟ์';
+
+  @override
+  String get asmLiveConnecting => 'กำลังเชื่อมต่อ…';
+
+  @override
+  String get asmLiveError => 'เชื่อมต่อไลฟ์ไม่ได้';
+
+  @override
+  String get asmLiveOff => 'ยังไม่ได้เชื่อมต่อไลฟ์';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'บนเวที: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'เปิดไมค์';
+
+  @override
+  String get asmLiveMicOff => 'ปิดไมค์';
+
+  @override
+  String get asmLiveHandUp => 'ยกมือ';
+
+  @override
+  String get asmLiveHandDown => 'เอามือลง';
+
+  @override
+  String get asmLiveMute => 'ปิดเสียงไลฟ์';
+
+  @override
+  String get asmLiveUnmute => 'เปิดเสียงไลฟ์';
+
+  @override
+  String get asmLiveMusicMode => 'โหมดดนตรี';
+
+  @override
+  String get asmLiveMusicHint =>
+      'คุณภาพเสียงสูงขึ้นและไม่ลดเสียงรบกวน สำหรับดนตรีที่คุณเล่นเองหรือมีสิทธิ์ ห้ามเปิดเพลงในท้องตลาดที่ไม่ได้รับอนุญาต';
+
+  @override
+  String get asmLiveSpeakers => 'แขกบนเวที';
+
+  @override
+  String get asmLiveMuteGuest => 'ปิดไมค์แขก';
+
+  @override
+  String get asmLiveOffStage => 'ให้ลงจากเวที';
+
+  @override
+  String asmLiveHands(int count) {
+    return 'ยกมือ $count คน';
+  }
+
+  @override
+  String get asmLiveInvite => 'เชิญขึ้นเวที';
+
+  @override
+  String get asmLiveNoRecording => 'ไลฟ์นี้ไม่มีการบันทึก และไม่เก็บเสียงไว้';
+
+  @override
+  String get asmLiveOnStage => 'โฮสต์เชิญคุณขึ้นเวทีแล้ว เปิดไมค์พูดได้เลย';
+
+  @override
+  String get asmLiveMicDenied =>
+      'ไม่มีสิทธิ์ใช้ไมโครโฟน จึงฟังได้อย่างเดียว เปิดได้ในการตั้งค่า';
+
+  @override
+  String get asmLiveStageFull => 'บนเวทีมีแขก 3 คนแล้ว';
+
+  @override
+  String get asmLiveGone => 'อีกฝ่ายออกจากการชุมนุมไปแล้ว';
+
+  @override
+  String get asmAskOpen => 'คำถาม';
+
+  @override
+  String get asmAskTitle => 'คำถาม';
+
+  @override
+  String get asmAskHint =>
+      'ส่งคำถาม ทุกคนกดถูกใจได้ คำถามที่ได้ถูกใจมากจะขึ้นไปอยู่ด้านบน โฮสต์จะเลือกตอบ';
+
+  @override
+  String get asmAskHostHint =>
+      'คำถามเรียงตามจำนวนถูกใจ ทำเครื่องหมายว่าตอบแล้ว หรือซ่อนคำถามที่ไม่เหมาะสมได้';
+
+  @override
+  String get asmAskInput => 'อยากถามอะไรโฮสต์? (สูงสุด 80 ตัวอักษร)';
+
+  @override
+  String get asmAskSend => 'ส่ง';
+
+  @override
+  String get asmAskSent => 'ส่งคำถามแล้ว';
+
+  @override
+  String get asmAskEmpty => 'ยังไม่มีคำถาม';
+
+  @override
+  String get asmAskAnswered => 'ทำเครื่องหมายว่าตอบแล้ว';
+
+  @override
+  String get asmAskReopen => 'เปลี่ยนเป็นยังไม่ตอบ';
+
+  @override
+  String get asmAskHide => 'ซ่อน';
+
+  @override
+  String get asmAskTooMany => 'คุณถามครบ 5 คำถามในการชุมนุมนี้แล้ว';
 }

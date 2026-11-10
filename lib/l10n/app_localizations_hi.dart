@@ -3842,4 +3842,145 @@ class AppLocalizationsHi extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return '$n मिनट कॉल टाइम बाकी';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 वॉइस लाइव (होस्ट सीट रिंग 2 पर)';
+
+  @override
+  String get asmQ2Intro =>
+      'Q3 की सारी सुविधाएँ, साथ में वॉइस लाइव और सवाल-जवाब: शामिल होने वाले सभी लोगों से बात करें, हाथ उठाने वालों को मंच पर बुलाएँ, और सभी लिखकर सवाल भेजें और लाइक करें।';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 घंटा';
+
+  @override
+  String get asmPlanQ2_1hSub => '200 लोगों तक, वॉइस लाइव + सवाल-जवाब';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 घंटे';
+
+  @override
+  String get asmPlanQ2_2hSub => '1000 लोगों तक, वॉइस लाइव + सवाल-जवाब';
+
+  @override
+  String get asmErrQ2Unavailable => 'वॉइस लाइव अभी उपलब्ध नहीं है';
+
+  @override
+  String get asmQ2JoinHint =>
+      'लाइव सुनने, हाथ उठाने और सवाल पूछने के लिए शामिल हों';
+
+  @override
+  String get asmLiveOn => 'लाइव';
+
+  @override
+  String get asmLiveConnecting => 'कनेक्ट हो रहा है…';
+
+  @override
+  String get asmLiveError => 'लाइव से कनेक्ट नहीं हो सका';
+
+  @override
+  String get asmLiveOff => 'लाइव से कनेक्ट नहीं है';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'मंच पर: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'माइक चालू करें';
+
+  @override
+  String get asmLiveMicOff => 'माइक बंद करें';
+
+  @override
+  String get asmLiveHandUp => 'हाथ उठाएँ';
+
+  @override
+  String get asmLiveHandDown => 'हाथ नीचे करें';
+
+  @override
+  String get asmLiveMute => 'लाइव म्यूट करें';
+
+  @override
+  String get asmLiveUnmute => 'लाइव अनम्यूट करें';
+
+  @override
+  String get asmLiveMusicMode => 'म्यूज़िक मोड';
+
+  @override
+  String get asmLiveMusicHint =>
+      'बेहतर आवाज़ और कोई शोर-दमन नहीं, उस संगीत के लिए जो आप खुद बजाते हैं या जिसके अधिकार आपके पास हैं। बिना लाइसेंस वाले व्यावसायिक गाने नहीं चला सकते।';
+
+  @override
+  String get asmLiveSpeakers => 'मंच पर मेहमान';
+
+  @override
+  String get asmLiveMuteGuest => 'म्यूट करें';
+
+  @override
+  String get asmLiveOffStage => 'मंच से उतारें';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count लोगों ने हाथ उठाया';
+  }
+
+  @override
+  String get asmLiveInvite => 'मंच पर बुलाएँ';
+
+  @override
+  String get asmLiveNoRecording =>
+      'लाइव रिकॉर्ड नहीं होता और कोई आवाज़ सेव नहीं की जाती।';
+
+  @override
+  String get asmLiveOnStage =>
+      'होस्ट ने आपको मंच पर बुलाया है। आप माइक चालू करके बोल सकते हैं';
+
+  @override
+  String get asmLiveMicDenied =>
+      'माइक्रोफ़ोन की अनुमति नहीं है, इसलिए आप सिर्फ़ सुन सकते हैं। सेटिंग्स में इसे चालू कर सकते हैं।';
+
+  @override
+  String get asmLiveStageFull => 'मंच पर पहले से 3 मेहमान हैं';
+
+  @override
+  String get asmLiveGone => 'वह व्यक्ति सभा छोड़ चुका है';
+
+  @override
+  String get asmAskOpen => 'सवाल';
+
+  @override
+  String get asmAskTitle => 'सवाल';
+
+  @override
+  String get asmAskHint =>
+      'सवाल भेजें। सभी उसे लाइक कर सकते हैं, और ज़्यादा लाइक वाले ऊपर आते हैं। होस्ट चुनकर जवाब देते हैं।';
+
+  @override
+  String get asmAskHostHint =>
+      'सवाल लाइक के क्रम में हैं। उन्हें जवाब दिया गया चिह्नित करें, या अनुचित सवाल छिपाएँ।';
+
+  @override
+  String get asmAskInput => 'होस्ट से क्या पूछना है? (अधिकतम 80 अक्षर)';
+
+  @override
+  String get asmAskSend => 'भेजें';
+
+  @override
+  String get asmAskSent => 'सवाल भेज दिया';
+
+  @override
+  String get asmAskEmpty => 'अभी तक कोई सवाल नहीं';
+
+  @override
+  String get asmAskAnswered => 'जवाब दिया गया चिह्नित करें';
+
+  @override
+  String get asmAskReopen => 'बिना जवाब पर वापस करें';
+
+  @override
+  String get asmAskHide => 'छिपाएँ';
+
+  @override
+  String get asmAskTooMany => 'आप इस सभा में 5 सवाल पूछ चुके हैं';
 }

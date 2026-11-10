@@ -5,4 +5,4 @@
 "NSCameraUsageDescription" = "O Mood Whisper usa a câmera para você tirar uma foto de perfil.";
 "NSLocationWhenInUseUsageDescription" = "O Mood Whisper usa sua localização enquanto você usa o app para mostrar pessoas a até 5 km no radar e deixar quem está por perto ver sua bolha de humor.";
 "Radar" = "O radar precisa da sua localização precisa para saber quem está perto. Os outros só veem uma distância aproximada, nunca seu endereço.";
-"NSMicrophoneUsageDescription" = "O Mood Whisper usa o microfone só durante uma chamada de voz com a AIYA, para ela ouvir você.";
+"NSMicrophoneUsageDescription" = "O Mood Whisper usa o microfone só durante uma chamada de voz com a AIYA ou quando você fala no palco de uma Assembleia Quântica, para que os outros ouçam você.";

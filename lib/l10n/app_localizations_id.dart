@@ -3774,4 +3774,146 @@ class AppLocalizationsId extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return 'Sisa $n menit waktu panggilan';
   }
+
+  @override
+  String get asmQ2Section =>
+      'Q2 siaran suara langsung (kursi host di cincin 2)';
+
+  @override
+  String get asmQ2Intro =>
+      'Semua fitur Q3, ditambah siaran suara langsung dan tanya jawab: bicara ke semua peserta, undang yang angkat tangan ke panggung, dan semua orang bisa kirim pertanyaan teks lalu menyukainya.';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 jam';
+
+  @override
+  String get asmPlanQ2_1hSub => 'Hingga 200 orang, siaran suara + tanya jawab';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 jam';
+
+  @override
+  String get asmPlanQ2_2hSub => 'Hingga 1000 orang, siaran suara + tanya jawab';
+
+  @override
+  String get asmErrQ2Unavailable => 'Siaran suara belum tersedia saat ini';
+
+  @override
+  String get asmQ2JoinHint =>
+      'Gabung untuk mendengarkan siaran, angkat tangan, dan bertanya';
+
+  @override
+  String get asmLiveOn => 'Sedang live';
+
+  @override
+  String get asmLiveConnecting => 'Menghubungkan…';
+
+  @override
+  String get asmLiveError => 'Tidak bisa terhubung ke siaran';
+
+  @override
+  String get asmLiveOff => 'Belum terhubung ke siaran';
+
+  @override
+  String asmLiveStage(String names) {
+    return 'Di panggung: $names';
+  }
+
+  @override
+  String get asmLiveMicOn => 'Nyalakan mik';
+
+  @override
+  String get asmLiveMicOff => 'Matikan mik';
+
+  @override
+  String get asmLiveHandUp => 'Angkat tangan';
+
+  @override
+  String get asmLiveHandDown => 'Turunkan tangan';
+
+  @override
+  String get asmLiveMute => 'Bisukan siaran';
+
+  @override
+  String get asmLiveUnmute => 'Bunyikan siaran';
+
+  @override
+  String get asmLiveMusicMode => 'Mode musik';
+
+  @override
+  String get asmLiveMusicHint =>
+      'Kualitas suara lebih tinggi tanpa peredam bising, untuk musik yang kamu mainkan sendiri atau kamu miliki haknya. Lagu komersial tanpa izin tidak boleh diputar.';
+
+  @override
+  String get asmLiveSpeakers => 'Tamu di panggung';
+
+  @override
+  String get asmLiveMuteGuest => 'Bisukan';
+
+  @override
+  String get asmLiveOffStage => 'Turunkan dari panggung';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count orang angkat tangan';
+  }
+
+  @override
+  String get asmLiveInvite => 'Undang ke panggung';
+
+  @override
+  String get asmLiveNoRecording =>
+      'Siaran tidak direkam dan suara tidak disimpan.';
+
+  @override
+  String get asmLiveOnStage =>
+      'Host mengundangmu ke panggung. Kamu bisa menyalakan mik dan bicara';
+
+  @override
+  String get asmLiveMicDenied =>
+      'Tidak ada akses mikrofon, jadi kamu hanya bisa mendengarkan. Kamu bisa mengaktifkannya di Pengaturan.';
+
+  @override
+  String get asmLiveStageFull => 'Sudah ada 3 tamu di panggung';
+
+  @override
+  String get asmLiveGone => 'Orang itu sudah meninggalkan pertemuan';
+
+  @override
+  String get asmAskOpen => 'Pertanyaan';
+
+  @override
+  String get asmAskTitle => 'Pertanyaan';
+
+  @override
+  String get asmAskHint =>
+      'Kirim pertanyaan. Semua orang bisa menyukainya, dan yang paling banyak disukai naik ke atas. Host memilih yang akan dijawab.';
+
+  @override
+  String get asmAskHostHint =>
+      'Pertanyaan diurutkan menurut jumlah suka. Tandai sudah dijawab, atau sembunyikan yang tidak pantas.';
+
+  @override
+  String get asmAskInput => 'Mau tanya apa ke host? (maks. 80 karakter)';
+
+  @override
+  String get asmAskSend => 'Kirim';
+
+  @override
+  String get asmAskSent => 'Pertanyaan terkirim';
+
+  @override
+  String get asmAskEmpty => 'Belum ada pertanyaan';
+
+  @override
+  String get asmAskAnswered => 'Tandai sudah dijawab';
+
+  @override
+  String get asmAskReopen => 'Tandai belum dijawab';
+
+  @override
+  String get asmAskHide => 'Sembunyikan';
+
+  @override
+  String get asmAskTooMany => 'Kamu sudah bertanya 5 kali di pertemuan ini';
 }

@@ -29,6 +29,7 @@ const refunds = require("./refunds");
 const gifts = require("./gifts");
 const passport = require("./passport");
 const assembly = require("./assembly");
+const livekit = require("./livekit");
 const crypto = require("crypto");
 const wgroup = require("./whispergroup");
 
@@ -647,8 +648,41 @@ async function leaveAssembly(uid, id) {
         ["HDEL", quantum.KEY.seat(uid), "asm"],
         ["SCARD", assembly.KEY.members(id)],
     ]);
-    const status = await sendUpstashCommand(["HGET", assembly.KEY.asm(id), "status"]);
+    const [status, plan] = await sendUpstashCommand(["HMGET", assembly.KEY.asm(id), "status", "plan"]);
     if (status === "active") await asmPublic(id).update({ count: Number(count) || 0 });
+    if (status === "active" && assembly.tierOf(plan) === "q2") await dropFromStage(id, uid).catch((e) => console.warn("dropFromStage:", e.message));
+}
+
+// ---------------------------------------------------------------------------
+// Q2 語音直播：舉手、台上來賓（房間裡的身分是 livekit.identityOf，不是 uid）
+// ---------------------------------------------------------------------------
+
+/** 把某人從舉手名單和台上移掉（離開、被移除、請下台） */
+async function dropFromStage(id, uid, { kick = false } = {}) {
+    const identity = livekit.identityOf(uid, id);
+    const [wasSpeaker] = await sendUpstashPipeline([
+        ["HDEL", assembly.KEY.speakers(id), identity],
+        ["HDEL", assembly.KEY.hands(id), identity],
+    ]);
+    await syncStage(id);
+    if (!livekit.configured()) return;
+    const room = assembly.roomOf(id);
+    if (kick) await livekit.removeParticipant(room, identity);
+    else if (wasSpeaker === 1) await livekit.setCanPublish(room, identity, false);
+}
+
+/** 把台上來賓（暱稱）和舉手人數寫進公開資料；舉手名單（含暱稱）只寫給主持人讀的地方 */
+async function syncStage(id) {
+    const [spRaw, handRaw] = await sendUpstashPipeline([["HGETALL", assembly.KEY.speakers(id)], ["HGETALL", assembly.KEY.hands(id)]]);
+    const speakers = {};
+    for (const [identity, v] of Object.entries(hashToObject(spRaw))) speakers[identity] = JSON.parse(v).name || "";
+    const hands = {};
+    for (const [identity, v] of Object.entries(hashToObject(handRaw))) { const h = JSON.parse(v); hands[identity] = { name: h.name || "", at: h.at }; }
+    await admin.database().ref().update({
+        [`qAssemblies/${id}/speakers`]: Object.keys(speakers).length ? speakers : null,
+        [`qAssemblies/${id}/hands`]: Object.keys(hands).length,
+        [`qAssemblyHands/${id}`]: Object.keys(hands).length ? hands : null,
+    });
 }
 
 /** 結束集會：主持人回到原本的席位、參加者退出、留下匿名的紀念卡數據 */
@@ -672,7 +706,12 @@ async function endAssembly(id, reason) {
         ["HDEL", assembly.KEY.seats, String(h.seat)],
         ["ZREM", assembly.KEY.active, id],
         ...["asm", "members", "removed", "regions", "joined"].map((k) => ["EXPIRE", assembly.KEY[k](id), ttl]),
+        ["DEL", assembly.KEY.speakers(id), assembly.KEY.hands(id)],
     ]);
+    // Q2：關掉直播房間（不錄音，房間關掉就什麼都不留）
+    if (assembly.tierOf(h.plan) === "q2" && livekit.configured()) {
+        await livekit.deleteRoom(assembly.roomOf(id)).catch((e) => console.warn("deleteRoom:", e.message));
+    }
     const summary = { count: Number(joined) || 0, regions: assembly.regionSummary(hashToObject(regionsRaw)) };
     // 主持人這時不在量子世界（或 App 在背景沒有心跳）：記下來，下次入場時給紀念卡
     const hostBeat = await sendUpstashCommand(["ZSCORE", quantum.KEY.beats, h.host]);
@@ -683,7 +722,12 @@ async function endAssembly(id, reason) {
         [`qAssemblies/${id}/status`]: "ended",
         [`qAssemblies/${id}/endedAt`]: now,
         [`qAssemblies/${id}/summary`]: summary,
+        [`qAssemblies/${id}/speakers`]: null,
+        [`qAssemblies/${id}/hands`]: null,
         [`qAssemblyActive/${id}`]: null,
+        [`qAssemblyHands/${id}`]: null,
+        [`qAssemblyHosts/${id}`]: null,
+        [`qAssemblyQuestions/${id}`]: null,
     });
 }
 
@@ -693,9 +737,10 @@ async function assemblyOptions(uid, now) {
         sendUpstashCommand(["EXISTS", assembly.KEY.free(uid, assembly.monthKey(now))]),
         admin.database().ref(`qAssemblyVouchers/${uid}`).once("value"),
     ]);
-    const vouchers = { "1h": 0, "2h": 0 };
+    const vouchers = { "1h": 0, "2h": 0, q2_1h: 0, q2_2h: 0 };
     Object.values(vouchersSnap.val() || {}).forEach((v) => { if (v && vouchers[v.plan] != null) vouchers[v.plan]++; });
-    return { free: freeUsed !== 1, vouchers };
+    // q2：直播主機設定好才開放 Q2
+    return { free: freeUsed !== 1, vouchers, q2: livekit.configured() };
 }
 
 async function handleAssembly(req, res, uid, action, lang, now) {
@@ -743,6 +788,8 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         const plan = assembly.PLANS[req.body.plan] ? req.body.plan : null;
         const title = assembly.cleanTitle(req.body.title);
         if (!plan) return fail("bad_plan");
+        const tier = assembly.tierOf(plan);
+        if (tier === "q2" && !livekit.configured()) return fail("q2_unavailable");
         if (!title) return fail("bad_title");
         if (isDisallowed(title)) return fail("blocked_words");
         const emoji = assembly.validEmoji(req.body.emoji) ? req.body.emoji : assembly.EMOJIS[0];
@@ -752,7 +799,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         let seatIdx = -1;
         for (let tries = 0; tries < 3 && seatIdx < 0; tries++) {
             const taken = hashToObject(await sendUpstashCommand(["HGETALL", assembly.KEY.seats]));
-            const free = assembly.freeHostSeat(taken);
+            const free = assembly.freeHostSeat(taken, tier);
             if (free < 0) return fail("seats_full");
             if ((await sendUpstashCommand(["HSETNX", assembly.KEY.seats, String(free), id])) === 1) seatIdx = free;
         }
@@ -781,8 +828,10 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         ]);
         if (seatH.asm) await leaveAssembly(uid, seatH.asm).catch(() => {});
         await db.ref().update({
-            [`qAssemblies/${id}`]: { title, emoji, color, plan, host: seatH.nickname || "", code: hs.code, lat: pos.lat, lng: pos.lng, startAt: now, endAt, cap: p.cap, count: 0, status: "active" },
+            [`qAssemblies/${id}`]: { title, emoji, color, plan, tier, host: seatH.nickname || "", code: hs.code, lat: pos.lat, lng: pos.lng, startAt: now, endAt, cap: p.cap, count: 0, status: "active" },
             [`qAssemblyActive/${id}`]: true,
+            // 舉手名單只給主持人讀（規則比對這裡的 uid）
+            ...(tier === "q2" ? { [`qAssemblyHosts/${id}`]: uid } : {}),
         });
         return res.status(200).json({ success: true, id, code: hs.code, endAt });
     }
@@ -815,6 +864,68 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         return res.status(200).json({ success: true });
     }
 
+    // ---- Q2：語音直播與提問（主持人和參加者都可以） ----
+    const isQ2 = assembly.tierOf(a.plan) === "q2";
+    const isMember = seatH.asm === id;
+    if (action === "asmAudio" || action === "asmHand" || action === "asmAsk" || action === "asmVote") {
+        if (!isQ2) return fail("not_q2");
+        if (a.status !== "active") return fail("ended");
+        if (!isHost && !isMember) return fail("not_member", 403);
+    }
+
+    if (action === "asmAudio") {
+        // 連進直播房間的通行證：主持人和台上來賓可以發聲，其他人只聽
+        if (!livekit.configured()) return fail("q2_unavailable");
+        const identity = livekit.identityOf(uid, id);
+        const onStage = isHost || (await sendUpstashCommand(["HEXISTS", assembly.KEY.speakers(id), identity])) === 1;
+        const token = livekit.accessToken({ room: assembly.roomOf(id), identity, name: seatH.nickname || "", canPublish: onStage, ttlSeconds: assembly.AUDIO_TOKEN_TTL_S });
+        return res.status(200).json({ success: true, url: livekit.config().url, token, identity, canPublish: onStage, ttl: assembly.AUDIO_TOKEN_TTL_S });
+    }
+
+    if (action === "asmHand") {
+        // 舉手／放下（主持人同意才上台）
+        if (isHost) return fail("host");
+        const identity = livekit.identityOf(uid, id);
+        if (req.body.up === false) await sendUpstashCommand(["HDEL", assembly.KEY.hands(id), identity]);
+        else {
+            if ((await sendUpstashCommand(["HEXISTS", assembly.KEY.speakers(id), identity])) === 1) return fail("on_stage");
+            await sendUpstashCommand(["HSET", assembly.KEY.hands(id), identity, JSON.stringify({ uid, name: seatH.nickname || "", at: now })]);
+        }
+        await syncStage(id);
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmAsk") {
+        // 文字提問：過濾、每人每 60 秒一題、每場最多 5 題；公開資料不含提問者
+        const text = assembly.cleanQuestion(req.body.text);
+        if (!text) return fail("bad_text");
+        if (isDisallowed(text)) return fail("blocked_words");
+        const [count, lastAt] = await sendUpstashPipeline([["GET", assembly.KEY.qCount(id, uid)], ["GET", assembly.KEY.qLast(id, uid)]]);
+        const check = assembly.canAsk({ count: parseInt(count || "0", 10), lastAt: parseInt(lastAt || "0", 10) }, now);
+        if (!check.ok) return fail(check.code);
+        const qid = crypto.randomBytes(5).toString("hex");
+        const ttl = assembly.hostKeyTtl(parseInt(a.endAt, 10), now);
+        await sendUpstashPipeline([
+            ["INCR", assembly.KEY.qCount(id, uid)], ["EXPIRE", assembly.KEY.qCount(id, uid), ttl],
+            ["SET", assembly.KEY.qLast(id, uid), String(now), "EX", ttl],
+            ["SET", assembly.KEY.qAsker(id, qid), uid, "EX", String(7 * 86400)],
+        ]);
+        await db.ref(`qAssemblyQuestions/${id}/${qid}`).set({ text, at: now, votes: 0 });
+        return res.status(200).json({ success: true, qid });
+    }
+
+    if (action === "asmVote") {
+        // 替問題按讚／收回（每題每人一次）
+        const qid = String(req.body.qid || "");
+        if (!/^[0-9a-f]{10}$/.test(qid)) return fail("bad_qid", 400);
+        const exists = (await db.ref(`qAssemblyQuestions/${id}/${qid}/at`).once("value")).val();
+        if (!exists) return fail("no_question");
+        const key = assembly.KEY.qVotes(id, qid);
+        const [, n] = await sendUpstashPipeline([[req.body.up === false ? "SREM" : "SADD", key, uid], ["SCARD", key], ["EXPIRE", key, String(86400 * 2)]]);
+        await db.ref(`qAssemblyQuestions/${id}/${qid}/votes`).set(Number(n) || 0);
+        return res.status(200).json({ success: true, votes: Number(n) || 0 });
+    }
+
     // 以下只有主持人能做
     if (!isHost) return fail("not_host", 403);
     if (a.status !== "active") return fail("ended");
@@ -842,7 +953,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
     if (action === "asmExtend") {
         // 臨時續購：用一張主辦券把這場往後延，人數上限取比較大的
         const plan = String(req.body.plan || "");
-        const check = assembly.extend({ startAt: parseInt(a.startAt, 10), endAt: parseInt(a.endAt, 10), cap: parseInt(a.cap, 10), status: a.status }, plan, now);
+        const check = assembly.extend({ startAt: parseInt(a.startAt, 10), endAt: parseInt(a.endAt, 10), cap: parseInt(a.cap, 10), status: a.status, tier: assembly.tierOf(a.plan) }, plan, now);
         if (!check.ok) return fail(check.code);
         const vouchers = (await db.ref(`qAssemblyVouchers/${uid}`).once("value")).val() || {};
         const voucherKey = Object.keys(vouchers).find((k) => vouchers[k] && vouchers[k].plan === plan) || null;
@@ -863,6 +974,57 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         await sendUpstashCommand(["SADD", assembly.KEY.removed(id), target]);
         const tAsm = await sendUpstashCommand(["HGET", quantum.KEY.seat(target), "asm"]);
         if (tAsm === id) await leaveAssembly(target, id);
+        // Q2：同時踢出直播房間
+        if (isQ2) await dropFromStage(id, target, { kick: true }).catch((e) => console.warn("kick:", e.message));
+        return res.status(200).json({ success: true });
+    }
+
+    // ---- Q2 主持人：上台／下台、禁音、管理提問 ----
+    if (action === "asmStage" || action === "asmMute" || action === "asmQMark") {
+        if (!isQ2) return fail("not_q2");
+    }
+
+    if (action === "asmStage") {
+        // 同意舉手的人上台（on: true），或請台上來賓下台（on: false）。對象用房間身分（identity）指定
+        const identity = String(req.body.identity || "");
+        if (!/^p[0-9a-f]{16}$/.test(identity)) return fail("bad_identity", 400);
+        if (req.body.on === false) {
+            const raw = await sendUpstashCommand(["HGET", assembly.KEY.speakers(id), identity]);
+            if (!raw) return res.status(200).json({ success: true });
+            await dropFromStage(id, JSON.parse(raw).uid);
+            return res.status(200).json({ success: true });
+        }
+        const raw = await sendUpstashCommand(["HGET", assembly.KEY.hands(id), identity]);
+        if (!raw) return fail("no_hand");
+        const hand = JSON.parse(raw);
+        const current = Number(await sendUpstashCommand(["HLEN", assembly.KEY.speakers(id)])) || 0;
+        if (!assembly.canAddSpeaker(current, false)) return fail("stage_full");
+        const stillMember = (await sendUpstashCommand(["SISMEMBER", assembly.KEY.members(id), hand.uid])) === 1;
+        if (!stillMember) { await sendUpstashCommand(["HDEL", assembly.KEY.hands(id), identity]); await syncStage(id); return fail("gone"); }
+        await sendUpstashPipeline([
+            ["HDEL", assembly.KEY.hands(id), identity],
+            ["HSET", assembly.KEY.speakers(id), identity, JSON.stringify({ uid: hand.uid, name: hand.name })],
+        ]);
+        await syncStage(id);
+        await livekit.setCanPublish(assembly.roomOf(id), identity, true).catch((e) => console.warn("setCanPublish:", e.message));
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmMute") {
+        // 把台上來賓的麥克風關掉（對方可以自己再打開；要完全不能講就請下台）
+        const identity = String(req.body.identity || "");
+        if (!/^p[0-9a-f]{16}$/.test(identity)) return fail("bad_identity", 400);
+        await livekit.muteAll(assembly.roomOf(id), identity).catch((e) => console.warn("mute:", e.message));
+        return res.status(200).json({ success: true });
+    }
+
+    if (action === "asmQMark") {
+        // 提問標成已回答（answered）或隱藏（hidden）
+        const qid = String(req.body.qid || "");
+        if (!/^[0-9a-f]{10}$/.test(qid)) return fail("bad_qid", 400);
+        const ref = db.ref(`qAssemblyQuestions/${id}/${qid}`);
+        if (req.body.state === "hidden") await ref.remove();
+        else await ref.update({ answered: req.body.state !== "open" });
         return res.status(200).json({ success: true });
     }
 
@@ -1324,6 +1486,21 @@ exports.onReportCreated = functionsV1.runWith({ secrets: UPSTASH_SECRETS, timeou
                 console.warn(`[檢舉] 量子集會 ${target} 已結束，請到 Firebase 主控台審查主辦人`);
             }
         } catch (e) { console.error(`[檢舉] 量子集會處理失敗 (${target}):`, e); }
+        return null;
+    }
+    // 量子集會提問的檢舉：target = "asmq:<集會 id>:<提問 id>"；3 個不同的人檢舉就移除這題，提問者等人工審查
+    if (report.context === 'assemblyQuestion' && /^asmq:[0-9a-f]{12}:[0-9a-f]{10}$/.test(String(target))) {
+        try {
+            const [, id, qid] = String(target).split(':');
+            const all = (await admin.database().ref('/reports').orderByChild('target').equalTo(target).once('value')).val() || {};
+            const { hide, reporters } = evaluateReports(Object.values(all), Date.now());
+            const asker = await sendUpstashCommand(["GET", assembly.KEY.qAsker(id, qid)]);
+            console.log(`[檢舉] 集會提問 ${target}（提問者 ${asker || "?"}）被檢舉（${report.reason}），24 小時內共 ${reporters} 人`);
+            if (hide) {
+                await admin.database().ref(`qAssemblyQuestions/${id}/${qid}`).remove();
+                console.warn(`[檢舉] 集會提問 ${target} 已移除，請到 Firebase 主控台審查提問者 ${asker || "?"}`);
+            }
+        } catch (e) { console.error(`[檢舉] 集會提問處理失敗 (${target}):`, e); }
         return null;
     }
     // 低語的檢舉：target = "whisper:<id>"，3 個不同的人檢舉就隱藏這則低語

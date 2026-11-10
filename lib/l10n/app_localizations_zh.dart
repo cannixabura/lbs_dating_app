@@ -3538,6 +3538,140 @@ class AppLocalizationsZh extends AppLocalizations {
   String aiyaCallMinutesLeft(int n) {
     return '通話時間剩 $n 分鐘';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 語音直播（主持席在第 2 圈）';
+
+  @override
+  String get asmQ2Intro =>
+      'Q3 的全部功能，再加上語音直播與提問：你可以對著所有參加者講話，邀請舉手的人上台，大家用文字提問、按讚。';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 小時';
+
+  @override
+  String get asmPlanQ2_1hSub => '最多 200 人，語音直播＋提問';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 小時';
+
+  @override
+  String get asmPlanQ2_2hSub => '最多 1000 人，語音直播＋提問';
+
+  @override
+  String get asmErrQ2Unavailable => '語音直播暫時沒有開放';
+
+  @override
+  String get asmQ2JoinHint => '加入後就能收聽語音直播、舉手和提問';
+
+  @override
+  String get asmLiveOn => '直播中';
+
+  @override
+  String get asmLiveConnecting => '連線中…';
+
+  @override
+  String get asmLiveError => '直播連不上';
+
+  @override
+  String get asmLiveOff => '還沒連上直播';
+
+  @override
+  String asmLiveStage(String names) {
+    return '台上：$names';
+  }
+
+  @override
+  String get asmLiveMicOn => '開麥克風';
+
+  @override
+  String get asmLiveMicOff => '關麥克風';
+
+  @override
+  String get asmLiveHandUp => '舉手';
+
+  @override
+  String get asmLiveHandDown => '放下手';
+
+  @override
+  String get asmLiveMute => '靜音直播';
+
+  @override
+  String get asmLiveUnmute => '取消靜音';
+
+  @override
+  String get asmLiveMusicMode => '音樂模式';
+
+  @override
+  String get asmLiveMusicHint => '音質較高、不降噪，給你自己演奏或播放自己擁有權利的音樂。不能播放沒有授權的市售歌曲。';
+
+  @override
+  String get asmLiveSpeakers => '台上來賓';
+
+  @override
+  String get asmLiveMuteGuest => '禁音';
+
+  @override
+  String get asmLiveOffStage => '請下台';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count 人舉手';
+  }
+
+  @override
+  String get asmLiveInvite => '邀請上台';
+
+  @override
+  String get asmLiveNoRecording => '直播不錄音，也不保存聲音。';
+
+  @override
+  String get asmLiveOnStage => '主持人邀你上台了，可以開麥克風講話';
+
+  @override
+  String get asmLiveMicDenied => '沒有麥克風權限，只能收聽。可以到系統設定開啟。';
+
+  @override
+  String get asmLiveStageFull => '台上已經有 3 位來賓';
+
+  @override
+  String get asmLiveGone => '對方已經離開集會';
+
+  @override
+  String get asmAskOpen => '提問';
+
+  @override
+  String get asmAskTitle => '提問';
+
+  @override
+  String get asmAskHint => '送出問題，大家可以按讚，讚多的會排在前面。主持人會挑題回答。';
+
+  @override
+  String get asmAskHostHint => '大家的問題依讚數排序。可以標成已回答，或隱藏不適當的問題。';
+
+  @override
+  String get asmAskInput => '想問主持人什麼？（最多 80 字）';
+
+  @override
+  String get asmAskSend => '送出';
+
+  @override
+  String get asmAskSent => '問題已送出';
+
+  @override
+  String get asmAskEmpty => '還沒有人提問';
+
+  @override
+  String get asmAskAnswered => '標成已回答';
+
+  @override
+  String get asmAskReopen => '改回未回答';
+
+  @override
+  String get asmAskHide => '隱藏';
+
+  @override
+  String get asmAskTooMany => '這場你已經問了 5 題';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -7073,4 +7207,138 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String aiyaCallMinutesLeft(int n) {
     return '通话时间剩 $n 分钟';
   }
+
+  @override
+  String get asmQ2Section => 'Q2 语音直播（主持席在第 2 圈）';
+
+  @override
+  String get asmQ2Intro =>
+      'Q3 的全部功能，再加上语音直播与提问：你可以对着所有参加者讲话，邀请举手的人上台，大家用文字提问、点赞。';
+
+  @override
+  String get asmPlanQ2_1h => 'Q2 · 1 小时';
+
+  @override
+  String get asmPlanQ2_1hSub => '最多 200 人，语音直播＋提问';
+
+  @override
+  String get asmPlanQ2_2h => 'Q2 · 2 小时';
+
+  @override
+  String get asmPlanQ2_2hSub => '最多 1000 人，语音直播＋提问';
+
+  @override
+  String get asmErrQ2Unavailable => '语音直播暂时没有开放';
+
+  @override
+  String get asmQ2JoinHint => '加入后就能收听语音直播、举手和提问';
+
+  @override
+  String get asmLiveOn => '直播中';
+
+  @override
+  String get asmLiveConnecting => '连接中…';
+
+  @override
+  String get asmLiveError => '直播连不上';
+
+  @override
+  String get asmLiveOff => '还没连上直播';
+
+  @override
+  String asmLiveStage(String names) {
+    return '台上：$names';
+  }
+
+  @override
+  String get asmLiveMicOn => '开麦克风';
+
+  @override
+  String get asmLiveMicOff => '关麦克风';
+
+  @override
+  String get asmLiveHandUp => '举手';
+
+  @override
+  String get asmLiveHandDown => '放下手';
+
+  @override
+  String get asmLiveMute => '静音直播';
+
+  @override
+  String get asmLiveUnmute => '取消静音';
+
+  @override
+  String get asmLiveMusicMode => '音乐模式';
+
+  @override
+  String get asmLiveMusicHint => '音质较高、不降噪，给你自己演奏或播放自己拥有权利的音乐。不能播放没有授权的市售歌曲。';
+
+  @override
+  String get asmLiveSpeakers => '台上嘉宾';
+
+  @override
+  String get asmLiveMuteGuest => '禁音';
+
+  @override
+  String get asmLiveOffStage => '请下台';
+
+  @override
+  String asmLiveHands(int count) {
+    return '$count 人举手';
+  }
+
+  @override
+  String get asmLiveInvite => '邀请上台';
+
+  @override
+  String get asmLiveNoRecording => '直播不录音，也不保存声音。';
+
+  @override
+  String get asmLiveOnStage => '主持人邀你上台了，可以开麦克风讲话';
+
+  @override
+  String get asmLiveMicDenied => '没有麦克风权限，只能收听。可以到系统设置开启。';
+
+  @override
+  String get asmLiveStageFull => '台上已经有 3 位嘉宾';
+
+  @override
+  String get asmLiveGone => '对方已经离开集会';
+
+  @override
+  String get asmAskOpen => '提问';
+
+  @override
+  String get asmAskTitle => '提问';
+
+  @override
+  String get asmAskHint => '发送问题，大家可以点赞，赞多的会排在前面。主持人会挑题回答。';
+
+  @override
+  String get asmAskHostHint => '大家的问题按点赞数排序。可以标成已回答，或隐藏不适当的问题。';
+
+  @override
+  String get asmAskInput => '想问主持人什么？（最多 80 字）';
+
+  @override
+  String get asmAskSend => '发送';
+
+  @override
+  String get asmAskSent => '问题已发送';
+
+  @override
+  String get asmAskEmpty => '还没有人提问';
+
+  @override
+  String get asmAskAnswered => '标成已回答';
+
+  @override
+  String get asmAskReopen => '改回未回答';
+
+  @override
+  String get asmAskHide => '隐藏';
+
+  @override
+  String get asmAskTooMany => '这场你已经问了 5 题';
 }

@@ -2303,5 +2303,62 @@
         "type": "int"
       }
     }
+  },
+  "asmQ2Section": "Q2 語音直播（主持席在第 2 圈）",
+  "asmQ2Intro": "Q3 的全部功能，再加上語音直播與提問：你可以對著所有參加者講話，邀請舉手的人上台，大家用文字提問、按讚。",
+  "asmPlanQ2_1h": "Q2 · 1 小時",
+  "asmPlanQ2_1hSub": "最多 200 人，語音直播＋提問",
+  "asmPlanQ2_2h": "Q2 · 2 小時",
+  "asmPlanQ2_2hSub": "最多 1000 人，語音直播＋提問",
+  "asmErrQ2Unavailable": "語音直播暫時沒有開放",
+  "asmQ2JoinHint": "加入後就能收聽語音直播、舉手和提問",
+  "asmLiveOn": "直播中",
+  "asmLiveConnecting": "連線中…",
+  "asmLiveError": "直播連不上",
+  "asmLiveOff": "還沒連上直播",
+  "asmLiveStage": "台上：{names}",
+  "asmLiveMicOn": "開麥克風",
+  "asmLiveMicOff": "關麥克風",
+  "asmLiveHandUp": "舉手",
+  "asmLiveHandDown": "放下手",
+  "asmLiveMute": "靜音直播",
+  "asmLiveUnmute": "取消靜音",
+  "asmLiveMusicMode": "音樂模式",
+  "asmLiveMusicHint": "音質較高、不降噪，給你自己演奏或播放自己擁有權利的音樂。不能播放沒有授權的市售歌曲。",
+  "asmLiveSpeakers": "台上來賓",
+  "asmLiveMuteGuest": "禁音",
+  "asmLiveOffStage": "請下台",
+  "asmLiveHands": "{count} 人舉手",
+  "asmLiveInvite": "邀請上台",
+  "asmLiveNoRecording": "直播不錄音，也不保存聲音。",
+  "asmLiveOnStage": "主持人邀你上台了，可以開麥克風講話",
+  "asmLiveMicDenied": "沒有麥克風權限，只能收聽。可以到系統設定開啟。",
+  "asmLiveStageFull": "台上已經有 3 位來賓",
+  "asmLiveGone": "對方已經離開集會",
+  "asmAskOpen": "提問",
+  "asmAskTitle": "提問",
+  "asmAskHint": "送出問題，大家可以按讚，讚多的會排在前面。主持人會挑題回答。",
+  "asmAskHostHint": "大家的問題依讚數排序。可以標成已回答，或隱藏不適當的問題。",
+  "asmAskInput": "想問主持人什麼？（最多 80 字）",
+  "asmAskSend": "送出",
+  "asmAskSent": "問題已送出",
+  "asmAskEmpty": "還沒有人提問",
+  "asmAskAnswered": "標成已回答",
+  "asmAskReopen": "改回未回答",
+  "asmAskHide": "隱藏",
+  "asmAskTooMany": "這場你已經問了 5 題",
+  "@asmLiveStage": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "@asmLiveHands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -5,6 +5,8 @@
     <!-- 每晚提醒：手機重新開機後重新排程（不使用精確鬧鐘權限） -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 麥克風只給艾婭語音通話用；沒有麥克風的裝置也要能安裝 App -->
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application

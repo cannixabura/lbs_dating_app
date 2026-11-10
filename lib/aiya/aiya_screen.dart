@@ -633,6 +633,9 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
                     NightButton(tr.aiyaFriendEntry, kind: NightButtonKind.warm, icon: Icons.auto_awesome, onPressed: () { Navigator.pop(ctx); _showFriend(); }),
                     const SizedBox(height: Night.space2),
                   ],
+                  // 通話時間包隨時買得到（不必等通話時間用完；審查也找得到）
+                  NightButton(tr.aiyaCallPacksTitle, kind: NightButtonKind.ghost, icon: Icons.graphic_eq_rounded, onPressed: () { Navigator.pop(ctx); _showCallPacks(); }),
+                  const SizedBox(height: Night.space2),
                   for (final e in AiyaStore.products.entries) ...[
                     NightButton(
                       '${tr.aiyaPackTimes(e.value)}${details[e.key] != null ? '  ·  ${details[e.key]!.price}' : ''}',

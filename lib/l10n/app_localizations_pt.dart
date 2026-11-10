@@ -2754,6 +2754,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Amigo da AIYA: escolha \"Amigo da AIYA\" em \"+ Pacotes de tempo\". É um plano mensal com renovação automática: 20 conversas por dia, cada uma com até 20 minutos ou 40 mensagens, conversas mesmo quando a AIYA está descansando e um visual \"Luz das Estrelas\" na AIYA que só você vê. As conversas do pacote de tempo só são usadas depois das 20 diárias. A assinatura renova automaticamente; cancele quando quiser nos ajustes de assinatura da Apple ou do Google, e toque em \"Restaurar compras\" num celular novo.';
 
   @override
+  String get guideS18L7 =>
+      'Chamadas de voz: quando você tem tempo de chamada, abrir a AIYA já conecta uma chamada de voz—converse em voz alta como numa ligação e interrompa quando quiser; durante a chamada, o lado direito da barra de digitação tem Silenciar e ✕ para desligar. Os pacotes de tempo de chamada são de 30, 60 e 180 minutos, não expiram e são descontados por segundo; Amigos da AIYA também ganham 60 minutos grátis por mês (só naquele mês, sem acumular). Sem tempo de chamada? Você pode conversar por texto. Chamadas de voz exigem um consentimento separado na primeira vez, e o áudio é processado pela OpenAI; a AIYA desliga após 3 minutos de silêncio, e cada chamada dura no máximo 60 minutos.';
+
+  @override
   String get mapConsentTitle => 'Mostrar sua localização no mapa?';
 
   @override

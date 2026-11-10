@@ -2671,6 +2671,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Bạn của AIYA: chọn \"Bạn của AIYA\" trong \"+ Gói thời gian\". Đây là gói tháng tự động gia hạn: 20 lượt mỗi ngày, mỗi lượt đến 20 phút hoặc 40 tin nhắn, vẫn trò chuyện được khi AIYA nghỉ, và AIYA khoác diện mạo \"Ánh sao\" chỉ bạn thấy. Gói thời gian chỉ dùng sau khi hết 20 lượt mỗi ngày. Gói tự động gia hạn; hủy bất cứ lúc nào trong cài đặt gói đăng ký Apple hoặc Google, và chạm \"Khôi phục giao dịch\" trên điện thoại mới.';
 
   @override
+  String get guideS18L7 =>
+      'Gọi thoại: khi bạn còn thời gian gọi, mở AIYA sẽ kết nối cuộc gọi thoại ngay—nói chuyện bằng giọng như gọi điện và có thể ngắt lời bất cứ lúc nào; trong cuộc gọi, bên phải ô nhập có nút Tắt tiếng và ✕ để kết thúc. Gói thời gian gọi có 30, 60 và 180 phút, không hết hạn và được trừ theo số giây thực tế; Bạn của AIYA còn được tặng 60 phút mỗi tháng (chỉ trong tháng đó, không cộng dồn). Hết thời gian gọi? Bạn có thể nhắn tin trước. Lần gọi đầu tiên cần đồng ý riêng, và âm thanh do OpenAI xử lý; AIYA tự cúp máy sau 3 phút im lặng, mỗi cuộc gọi dài tối đa 60 phút.';
+
+  @override
   String get mapConsentTitle => 'Hiển thị vị trí của bạn trên bản đồ?';
 
   @override

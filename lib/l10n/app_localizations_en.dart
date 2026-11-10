@@ -2746,6 +2746,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'AIYA Friend: choose \"AIYA Friend\" under \"+ Time Pack\". It is an auto-renewing monthly plan: 20 chats a day, each up to 20 minutes or 40 messages, chats even while AIYA is resting, and a \"Starlight\" look on AIYA that only you see. Time-pack chats are used only after the 20 daily chats. The subscription renews automatically; cancel any time in your Apple or Google subscription settings, and tap \"Restore purchases\" on a new phone.';
 
   @override
+  String get guideS18L7 =>
+      'Voice calls: when you have call time, opening AIYA connects a voice call right away—talk out loud like a phone call and cut in whenever you like; during a call, the right side of the input bar has Mute and ✕ to hang up. Call-time packs come in 30, 60 and 180 minutes, never expire, and are used by the second; AIYA Friends also get 60 free minutes each month (that month only, no carry-over). No call time? You can chat by text instead. Voice calls need a separate consent the first time, and the audio is processed by OpenAI; AIYA hangs up after 3 minutes of silence, and each call lasts up to 60 minutes.';
+
+  @override
   String get mapConsentTitle => 'Show your location on the map?';
 
   @override

@@ -4551,6 +4551,12 @@ abstract class AppLocalizations {
   /// **'艾婭之友：在「＋ 時光包」裡選「艾婭之友」，是自動續訂的月費方案。每天 20 次聊天、每次 20 分鐘或 40 則，艾婭休息時也能聊，她還會換上只有你看得到的「星光」造型。每天 20 次用完後才扣時光包。訂閱會自動續訂，可以隨時在 Apple 或 Google 的訂閱設定取消；換手機後按「恢復購買」找回。'**
   String get guideS18L6;
 
+  /// No description provided for @guideS18L7.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音通話：有通話時間時，打開艾婭會直接接通語音，像打電話一樣用說的聊天，也可以隨時插話；通話中輸入框右邊有靜音和 ✕ 結束。通話時間包有 30、60、180 分鐘，不會過期，依實際通話秒數扣除；艾婭之友每月另送 60 分鐘（當月有效，不累積）。沒有通話時間時，可以先用文字聊。第一次通話前要另外同意，語音由 OpenAI 處理；艾婭 3 分鐘沒聽到聲音會自動掛斷，每通最長 60 分鐘。'**
+  String get guideS18L7;
+
   /// No description provided for @mapConsentTitle.
   ///
   /// In zh, this message translates to:

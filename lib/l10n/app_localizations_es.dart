@@ -2752,6 +2752,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Amigo de AIYA: elige \"Amigo de AIYA\" en \"+ Paquetes de tiempo\". Es un plan mensual con renovación automática: 20 chats por día, cada uno de hasta 20 minutos o 40 mensajes, chats incluso cuando AIYA está descansando, y un look \"Luz de estrellas\" en AIYA que solo tú ves. Los chats del paquete de tiempo solo se usan después de los 20 diarios. La suscripción se renueva automáticamente; cancélala cuando quieras en la configuración de suscripciones de Apple o Google, y toca \"Restaurar compras\" en un teléfono nuevo.';
 
   @override
+  String get guideS18L7 =>
+      'Llamadas de voz: cuando tienes tiempo de llamada, al abrir a AIYA se conecta una llamada de voz al instante—habla en voz alta como en una llamada telefónica e interrumpe cuando quieras; durante la llamada, a la derecha de la barra de escritura están Silenciar y ✕ para colgar. Los paquetes de tiempo de llamada son de 30, 60 y 180 minutos, no vencen y se descuentan por segundo; los Amigos de AIYA también reciben 60 minutos gratis cada mes (solo ese mes, no se acumulan). ¿Sin tiempo de llamada? Puedes chatear por texto. Las llamadas de voz requieren un consentimiento aparte la primera vez, y el audio lo procesa OpenAI; AIYA cuelga tras 3 minutos de silencio y cada llamada dura como máximo 60 minutos.';
+
+  @override
   String get mapConsentTitle => '¿Mostrar tu ubicación en el mapa?';
 
   @override

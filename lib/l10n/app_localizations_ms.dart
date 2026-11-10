@@ -2684,6 +2684,10 @@ class AppLocalizationsMs extends AppLocalizations {
       'Rakan AIYA: pilih \"Rakan AIYA\" dalam \"+ Pek Masa\". Ia pelan bulanan auto-pembaharuan: 20 sembang sehari, setiap satu hingga 20 minit atau 40 mesej, boleh bersembang walaupun AIYA berehat, dan rupa \"Cahaya Bintang\" pada AIYA yang hanya anda nampak. Pek Masa digunakan selepas 20 sembang harian. Langganan diperbaharui secara automatik; batal bila-bila masa dalam tetapan langganan Apple atau Google, dan ketik \"Pulihkan pembelian\" pada telefon baharu.';
 
   @override
+  String get guideS18L7 =>
+      'Panggilan suara: apabila anda ada masa panggilan, membuka AIYA terus menyambungkan panggilan suara—berbual dengan suara seperti panggilan telefon dan menyampuk bila-bila masa; semasa panggilan, sebelah kanan bar input ada Senyap dan ✕ untuk tamat. Pek masa panggilan ada 30, 60 dan 180 minit, tidak luput dan ditolak mengikut saat sebenar; Rakan AIYA juga dapat 60 minit percuma setiap bulan (bulan itu sahaja, tidak dibawa ke hadapan). Tiada masa panggilan? Anda boleh berbual dengan teks dahulu. Panggilan suara memerlukan persetujuan berasingan kali pertama, dan audio diproses oleh OpenAI; AIYA menamatkan panggilan selepas 3 minit senyap, dan setiap panggilan paling lama 60 minit.';
+
+  @override
   String get mapConsentTitle => 'Tunjukkan lokasi anda pada peta?';
 
   @override

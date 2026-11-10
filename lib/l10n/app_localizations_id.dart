@@ -2672,6 +2672,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Teman AIYA: pilih \"Teman AIYA\" di \"+ Paket Waktu\". Ini paket bulanan perpanjang otomatis: 20 obrolan per hari, tiap obrolan sampai 20 menit atau 40 pesan, tetap bisa mengobrol saat AIYA istirahat, dan tampilan \"Cahaya Bintang\" pada AIYA yang hanya kamu lihat. Paket Waktu baru dipakai setelah 20 obrolan harian habis. Langganan diperpanjang otomatis; batalkan kapan saja di pengaturan langganan Apple atau Google, dan ketuk \"Pulihkan pembelian\" di ponsel baru.';
 
   @override
+  String get guideS18L7 =>
+      'Panggilan suara: kalau kamu punya waktu panggilan, membuka AIYA langsung menyambungkan panggilan suara—ngobrol pakai suara seperti menelepon dan bisa menyela kapan saja; saat panggilan, sisi kanan kolom input berisi Bisukan dan ✕ untuk mengakhiri. Paket waktu panggilan tersedia 30, 60, dan 180 menit, tidak kedaluwarsa, dan dipotong sesuai detik sebenarnya; Teman AIYA juga dapat 60 menit gratis setiap bulan (hanya bulan itu, tidak terbawa). Tidak punya waktu panggilan? Kamu bisa ngobrol lewat teks dulu. Panggilan suara butuh persetujuan terpisah saat pertama kali, dan audionya diproses oleh OpenAI; AIYA menutup panggilan setelah 3 menit hening, dan setiap panggilan paling lama 60 menit.';
+
+  @override
   String get mapConsentTitle => 'Tampilkan lokasimu di peta?';
 
   @override

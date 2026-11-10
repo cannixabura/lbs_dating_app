@@ -91,7 +91,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   final _anim = AiyaAnimator();
   final _frame = ValueNotifier<int>(0);
   late final Ticker _ticker;
-  Duration _last = Duration.zero;
+  Duration _last = Duration.zero, _due = Duration.zero;
   AiyaHolo? _holo;
   ui.Image? _sprite;
   AiyaHoloBuffers? _buf;
@@ -119,11 +119,13 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _ticker = createTicker((now) {
-      // 影片本身每秒 24 格：畫面最多每秒畫 30 張就夠順，不跟著 120Hz 螢幕一直重畫（省電、不發燙）
-      final elapsed = (now - _last).inMicroseconds / 1e6;
-      if (elapsed < 1 / 30 - 0.002) return;
-      final dt = elapsed.clamp(0.0, 0.05);
+      // 影片本身每秒 24 格：畫面也每秒畫 24 張，不跟著 120Hz 螢幕一直重畫（省電、不發燙）。
+      // 用排定的時間對齊：60Hz 螢幕會 33／50 毫秒交錯，平均仍是每秒 24 張
+      if (now < _due - const Duration(milliseconds: 4)) return;
+      final dt = ((now - _last).inMicroseconds / 1e6).clamp(0.0, 0.06);
       _last = now;
+      _due += const Duration(microseconds: 41667);
+      if (_due < now) _due = now; // 落後太多（例如剛從背景回來）就從現在重新算
       _anim.update(dt);
       _frame.value++;
       if (_showFps) _countFrame(dt);
@@ -864,13 +866,14 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
             child: GestureDetector(
               onPanUpdate: (d) => _anim.pointer = Offset((d.localPosition.dx / size.width * 2 - 1).clamp(-1.0, 1.0), -((d.localPosition.dy - stage.center.dy) / stage.height * 2).clamp(-1.0, 1.0)),
               onPanEnd: (_) => _anim.pointer = Offset.zero,
-              child: CustomPaint(painter: AiyaHoloPainter(_holo!, _anim, _video, _sprite!, stage: stage, repaint: _frame, buf: _buf!)),
+              // 獨立圖層：光柱每秒重畫 24 次時，聊天訊息、輸入列不用跟著重畫
+              child: RepaintBoundary(child: CustomPaint(painter: AiyaHoloPainter(_holo!, _anim, _video, _sprite!, stage: stage, repaint: _frame, buf: _buf!))),
             ),
           ),
         // 艾婭之友：艾婭身邊多了一圈閃爍的星光（只有訂閱的人看得到）
         // 艾婭的造型（只有自己看得到）：艾婭之友的星光、聖誕、跨年
         if (_holo != null)
-          Positioned.fill(child: IgnorePointer(child: AnimatedBuilder(
+          Positioned.fill(child: IgnorePointer(child: RepaintBoundary(child: AnimatedBuilder(
             animation: Listenable.merge([AiyaSkinPrefs.selected, OrbStore.owned, AiyaStore.friendExp]),
             builder: (context, _) => switch (AiyaSkinPrefs.effective(friend: AiyaStore.isFriend, owned: OrbStore.owned.value)) {
               'starlight' => CustomPaint(painter: _StarlightPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
@@ -878,7 +881,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
               'aiya_newyear' => CustomPaint(painter: AiyaNewYearSkinPainter(stage: stage, repaint: _frame, clock: () => _anim.time)),
               _ => const SizedBox.shrink(),
             },
-          ))),
+          )))),
         if (_showFps)
           Positioned(
             left: Night.space4, top: mq.padding.top + 48,

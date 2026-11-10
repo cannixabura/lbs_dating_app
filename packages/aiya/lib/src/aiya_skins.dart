@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,14 @@ import 'package:flutter/material.dart';
 double _h(int i, [double salt = 0]) {
   final x = sin(i * 127.1 + 311.7 + salt) * 43758.5453;
   return x - x.floorToDouble();
+}
+
+/// 柔邊光點：用放射漸層畫，不用模糊濾鏡（模糊濾鏡每顆都要另開圖層，每秒 24 次會讓手機發燙）
+void _soft(Canvas canvas, Offset p, double r, Color color) {
+  if (color.a <= 0.01) return;
+  canvas.drawCircle(p, r, Paint()
+    ..blendMode = BlendMode.plus
+    ..shader = ui.Gradient.radial(p, r, [color, color.withValues(alpha: color.a * 0.45), color.withValues(alpha: 0)], const [0, 0.5, 1]));
 }
 
 /// 一顆光粒子：外圈淡淡的光暈＋亮核（加法混色）
@@ -78,7 +87,7 @@ class AiyaXmasSkinPainter extends CustomPainter {
     // 樹梢的星星：五角星的輪廓由粒子組成，一閃一閃
     final top = base - Offset(0, height * 1.04);
     final pulse = 0.75 + 0.25 * sin(t * 3 + seed);
-    canvas.drawCircle(top, radius * 0.45, Paint()..color = _gold.withValues(alpha: 0.35 * pulse)..blendMode = BlendMode.plus..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.25));
+    _soft(canvas, top, radius * 0.7, _gold.withValues(alpha: 0.35 * pulse));
     final pts = <Offset>[];
     for (var j = 0; j < 10; j++) {
       final a = -pi / 2 + j * pi / 5 + sin(t * 0.8) * 0.15;
@@ -146,7 +155,7 @@ class AiyaXmasSkinPainter extends CustomPainter {
       final p = Offset(x, stage.top - h * 0.05 + y * h * 1.15);
       final fade = sin(y * pi);
       if (near) {
-        canvas.drawCircle(p, w * 0.011, Paint()..color = _ice.withValues(alpha: 0.22 * fade)..blendMode = BlendMode.plus..maskFilter = MaskFilter.blur(BlurStyle.normal, w * 0.006));
+        _soft(canvas, p, w * 0.017, _ice.withValues(alpha: 0.22 * fade));
       } else {
         _dot(canvas, p, 0.8 + 0.8 * _h(i, 83), Colors.white, 0.75 * fade);
       }

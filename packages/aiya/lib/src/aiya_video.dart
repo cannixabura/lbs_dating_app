@@ -66,6 +66,10 @@ class AiyaVideo {
   final _clips = <String, _Clip>{};
   final _loading = <String, Future<_Clip>>{};
   final _images = <String, ui.Image>{};
+  /// 每一格的光暈版：在小影格（200×189）上先模糊好，畫的時候放大疊上去。
+  /// 原本是每個畫面在整片螢幕解析度上做高斯模糊，手機 GPU 很吃力、會發燙；在小圖上做只要約 1/80 的工作量
+  static final _glowOf = Expando<ui.Image>('aiyaGlow');
+  static ui.Image? glowOf(ui.Image img) => _glowOf[img];
   final _decoding = <String>{};
   _Play? _cur, _prev;
   double _fadeStart = 0;
@@ -132,7 +136,25 @@ class AiyaVideo {
       _decoding.remove(key);
       if (_disposed) { f.image.dispose(); return; }
       _images[key] = f.image;
+      _glowOf[f.image] = _blurred(f.image);
     }, onError: (_) { _decoding.remove(key); });
+  }
+
+  /// 光暈的模糊量（小影格上的像素）：等於原本在螢幕上 0.02 × 鏡頭比例的模糊
+  static const _glowSigma = 0.02 * _imgW / AiyaHolo.panelW;
+
+  static ui.Image _blurred(ui.Image img) {
+    final rec = ui.PictureRecorder();
+    Canvas(rec).drawImage(img, Offset.zero, Paint()..imageFilter = ui.ImageFilter.blur(sigmaX: _glowSigma, sigmaY: _glowSigma, tileMode: TileMode.decal));
+    final pic = rec.endRecording();
+    final out = pic.toImageSync(_imgW, _imgH);
+    pic.dispose();
+    return out;
+  }
+
+  static void _disposeImage(ui.Image img) {
+    _glowOf[img]?.dispose();
+    img.dispose();
   }
 
   /// 只留目前和下一段要用的影格
@@ -147,12 +169,12 @@ class AiyaVideo {
       if (img == null) continue;
       _images.forEach((k, v) { if (identical(v, img)) keep.add(k); });
     }
-    _images.removeWhere((k, v) { if (keep.contains(k)) return false; v.dispose(); return true; });
+    _images.removeWhere((k, v) { if (keep.contains(k)) return false; _disposeImage(v); return true; });
   }
 
   void dispose() {
     _disposed = true;
-    for (final i in _images.values) { i.dispose(); }
+    for (final i in _images.values) { _disposeImage(i); }
     _images.clear();
   }
 }
@@ -166,8 +188,12 @@ class AiyaHolo {
   final int faceCount, count;
   /// 前 faceCount 顆是人像，後面是光柱
   final Float32List base, pillar, src, seed, size, edge;
+  /// 掃描線亮度用：sin／cos(高度 × 160) 先算好，每個畫面不用對每顆粒子算三角函數
+  final Float32List scanSin, scanCos;
 
-  AiyaHolo._(this.faceCount, this.count, this.base, this.pillar, this.src, this.seed, this.size, this.edge);
+  AiyaHolo._(this.faceCount, this.count, this.base, this.pillar, this.src, this.seed, this.size, this.edge)
+      : scanSin = Float32List.fromList([for (var i = 0; i < count; i++) sin(base[i * 3 + 1] * 160)]),
+        scanCos = Float32List.fromList([for (var i = 0; i < count; i++) cos(base[i * 3 + 1] * 160)]);
 
   static AiyaHolo? _cached;
   static Future<AiyaHolo>? _building;
@@ -245,6 +271,7 @@ class AiyaHoloPainter extends CustomPainter {
     final pillarDot = max(1.4, size.height * 0.0032);
     final (img, prevImg, mix) = video.frame(t);
     final dotWorld = AiyaHolo.panelW / AiyaHolo.cols * 0.55 * sqrt(stride); // 細亮點（光暈另外疊）；抽樣時點放大一點
+    final st = sin(t * 3), ct = cos(t * 3); // sin(a − 3t) = sin a·cos 3t − cos a·sin 3t
     var n = 0, np = 0;
 
     for (var i = 0; i < h.count; i += i < h.faceCount ? stride : 1) {
@@ -299,7 +326,7 @@ class AiyaHoloPainter extends CustomPainter {
         _xf[o] = diam; _xf[o + 1] = 0; _xf[o + 2] = sx - diam / 2; _xf[o + 3] = sy - diam / 2;
         _rect[o] = h.src[i2]; _rect[o + 1] = h.src[i2 + 1]; _rect[o + 2] = h.src[i2] + 1; _rect[o + 3] = h.src[i2 + 1] + 1;
         // 疊在地圖上（不是全黑背景），整體壓暗一點，避免過曝
-        final scan = (0.94 + 0.06 * sin(h.base[i3 + 1] * 160 - t * 3)) * _bright;
+        final scan = (0.94 + 0.06 * (h.scanSin[i] * ct - h.scanCos[i] * st)) * _bright;
         _col[n] = _argb(alpha, scan, scan, scan);
         n++;
       }
@@ -311,15 +338,15 @@ class AiyaHoloPainter extends CustomPainter {
     }
     if (n == 0 || img == null) return;
     final xf = Float32List.sublistView(_xf, 0, n * 4), rect = Float32List.sublistView(_rect, 0, n * 4), col = Int32List.sublistView(_col, 0, n);
-    // 光暈：整張影格模糊後淡淡疊上去（取代每顆粒子的柔光）
+    // 光暈：預先模糊好的小影格（AiyaVideo.glowOf）放大後疊上去，取代每顆粒子的柔光
     final s0 = focal / camD;
     final glowRect = Rect.fromCenter(center: Offset(cx + yaw * 0.6 * s0, cy - AiyaHolo.yOff * s0), width: AiyaHolo.panelW * s0, height: AiyaHolo.panelH * s0);
     final form = _smooth(0.5, 1.0, a.form);
     void layer(ui.Image im, double w) {
       if (w <= 0.01) return;
       if (form > 0.01) {
-        canvas.drawImageRect(im, Rect.fromLTWH(0, 0, _imgW.toDouble(), _imgH.toDouble()), glowRect,
-            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.low..colorFilter = _lumaToAlpha..imageFilter = ui.ImageFilter.blur(sigmaX: s0 * 0.02, sigmaY: s0 * 0.02)..color = Color.fromRGBO(255, 255, 255, _glow * w * form));
+        canvas.drawImageRect(AiyaVideo.glowOf(im) ?? im, Rect.fromLTWH(0, 0, _imgW.toDouble(), _imgH.toDouble()), glowRect,
+            Paint()..blendMode = BlendMode.plus..filterQuality = FilterQuality.medium..colorFilter = _lumaToAlpha..color = Color.fromRGBO(255, 255, 255, (_glowPre * w * form).clamp(0.0, 1.0)));
       }
       // 人像粒子：亮度決定透明度（黑色完全透明），不用疊加發光，疊在地圖上才不會越加越白
       canvas.drawRawAtlas(im, xf, rect, w >= 0.99 ? col : Int32List.fromList([for (final c in col) _scaleAlpha(c, w)]), BlendMode.modulate, null, holo);
@@ -337,7 +364,9 @@ class AiyaHoloPainter extends CustomPainter {
   ]);
 
   /// 粒子亮度與光暈強度（使用者 11/5：在量子世界地圖上太亮、太曝 → 調降）
-  static const _bright = 1.0, _glow = 0.1;
+  static const _bright = 1.0;
+  /// 預先模糊的光暈強度：11/11 跟原本（螢幕上即時模糊、程式寫 0.1）的截圖對照後定為 1.0，看起來一樣柔和
+  static const _glowPre = 1.0;
 
   static int _scaleAlpha(int c, double w) => ((((c >> 24) & 0xFF) * w).round() << 24) | (c & 0xFFFFFF);
   static int _argb(double a, double r, double g, double b) =>

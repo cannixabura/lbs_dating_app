@@ -1,0 +1,152 @@
+{
+  "_note": "11/12–11/16 十五則貼文配圖。文案在 marketing/campaign-1112.md。執行：python3 tool/make_social_posts.py marketing/campaign-1112.json marketing/images/15days-2",
+  "cta": "App Store／Google Play 搜尋「城市低語」",
+  "posts": [
+    {
+      "id": "u01",
+      "template": "poster",
+      "kicker": "Google Play 正式上架",
+      "headline": "Android\n也能用了",
+      "when": "搜尋「城市低語」",
+      "sub": "不用再報名公測\niPhone、Android 都能在今晚點亮你的街區"
+    },
+    {
+      "id": "u02",
+      "template": "phone",
+      "shot": "marketing/shots/review-1.0.5/group_pass.jpg",
+      "headline": "低語團：只屬於你們的小團",
+      "sub": "旅行、畢旅、爬山、家族出遊\n掃團主的 QR code 才能加入，外人看不到",
+      "focus": "bottom"
+    },
+    {
+      "id": "u03",
+      "template": "question",
+      "question": "出去玩\n最怕的是\n有人走丟",
+      "sub": "低語團一鍵「集合」，每個團員的手機都會響、會震"
+    },
+    {
+      "id": "u04",
+      "template": "steps",
+      "headline": "開一個低語團，三步",
+      "steps": [
+        [
+          "團主開團",
+          "設定 → 集會 → 開一個低語團，最多 7 天，20 人以內免費。"
+        ],
+        [
+          "掃 QR 加入",
+          "團員掃團主的 QR code 或輸入代碼就加入，外人搜不到。"
+        ],
+        [
+          "集合、點名",
+          "一鍵集合呼叫，團員回「我到了／還要 5 分鐘／需要幫忙」。"
+        ]
+      ]
+    },
+    {
+      "id": "u05",
+      "template": "bubble",
+      "color": "sad",
+      "kicker": "低語團・我迷路了",
+      "mood": "我迷路了",
+      "headline": "只有你按下時，才分享一次位置"
+    },
+    {
+      "id": "u06",
+      "template": "compare",
+      "headline": "一般群組 vs 低語團",
+      "left": "一般群組",
+      "right": "低語團",
+      "rows": [
+        [
+          "要先加好友",
+          "掃 QR code 就加入"
+        ],
+        [
+          "出遊結束還一直留著",
+          "最多 7 天，自動結束"
+        ],
+        [
+          "集合要一直打字",
+          "一鍵集合，手機會響會震"
+        ],
+        [
+          "點名一個一個問",
+          "一鍵點名，團員點一下回覆"
+        ],
+        [
+          "找人只能一直傳訊息",
+          "按「我迷路了」才分享一次位置"
+        ]
+      ]
+    },
+    {
+      "id": "u07",
+      "template": "poster",
+      "kicker": "今晚・每週五",
+      "headline": "點亮之夜",
+      "when": "21:00 – 23:00",
+      "sub": "附近的人越多，城市越亮\n今晚，一起點亮你的街區"
+    },
+    {
+      "id": "u08",
+      "template": "phone",
+      "shot": "marketing/shots/review-1.0.5/gifts.jpg",
+      "headline": "送一份禮物給陌生人",
+      "sub": "地圖上、量子世界裡、聊天中，點一下就能送\n對方可以收下，也可以婉拒",
+      "focus": "bottom"
+    },
+    {
+      "id": "u09",
+      "template": "bubble",
+      "color": "love",
+      "kicker": "光之花束",
+      "mood": "謝謝你今晚陪我聊",
+      "headline": "讓對方的光球，開滿花 24 小時"
+    },
+    {
+      "id": "u10",
+      "template": "question",
+      "question": "聊過一次\n就想留下\n一點聯繫？",
+      "sub": "糾纏款：一次買一對，對方收下後，你們的光球纏在一起"
+    },
+    {
+      "id": "u11",
+      "template": "phone",
+      "shot": "marketing/shots/review-1.0.5/orbs_android.jpg",
+      "headline": "會長大的光球",
+      "sub": "年輪：在量子世界每待 3 小時多一圈\n星軌：每完成一張相遇卡多一顆星"
+    },
+    {
+      "id": "u12",
+      "template": "phone",
+      "shot": "marketing/shots/iap_review_assembly.png",
+      "headline": "量子集會",
+      "sub": "開一場全世界都看得到的集會\n每人每月免費一場：30 分鐘、50 人",
+      "focus": "bottom"
+    },
+    {
+      "id": "u13",
+      "template": "phone",
+      "shot": "marketing/shots/iap_review_orbs_limited.png",
+      "focus": "bottom",
+      "headline": "節日限定光球",
+      "sub": "聖誕到 12/25、跨年到 1/1\n情人節到 2/14、櫻花季到 4/10"
+    },
+    {
+      "id": "u14",
+      "template": "phone",
+      "shot": "marketing/shots/review-1.0.5/ios_6765.png",
+      "focus": "bottom",
+      "headline": "艾婭的節日造型",
+      "sub": "聖誕、跨年兩款\n只有你看得到你的艾婭"
+    },
+    {
+      "id": "u15",
+      "template": "phone",
+      "shot": "marketing/shots/aiya_chat.png",
+      "headline": "跟艾婭講電話",
+      "sub": "不想打字的晚上，直接用說的\n艾婭之友每月含 60 分鐘通話"
+    }
+  ]
+}

@@ -431,3 +431,48 @@ test('集合前 15 分鐘自動提醒：集合呼叫與行程表都會；同一�
     assert.match(loud()[1].body, /飯店大廳/);
     await call('h2', 'dissolve');
 });
+
+test('邀請碼：輸入入團、換新 QR code 後舊碼失效、輸錯太多次暫停、解散後失效', async () => {
+    let r = await call('ih', 'create', { name: '大阪三日', color: 'blue', days: 3, tz: 'Asia/Tokyo' });
+    assert.equal(r.success, true);
+    const inv = r.group.invite;
+    assert.match(inv, /^\d{8}$/);
+    assert.equal(new URL(r.group.qr).searchParams.get('i'), inv);
+    const code = r.group.code;
+
+    // 用邀請碼入團（容許空白）；團員看不到邀請碼
+    r = await call('ia', 'join', { invite: `${inv.slice(0, 4)} ${inv.slice(4)}` });
+    assert.equal(r.success, true);
+    assert.equal(r.group.code, code);
+    assert.equal(r.group.invite, undefined);
+    assert.equal((await call('ia', 'join', { invite: inv })).success, true); // 已經在團裡：當成功
+
+    // 格式不對：不算輸錯
+    assert.equal((await call('ib', 'join', { invite: '123' })).code, 'invite');
+
+    // 換新 QR code：舊邀請碼、舊連結都失效，新的邀請碼可以用
+    await call('ih', 'rotate_qr');
+    const inv2 = (await call('ih', 'status')).group.invite;
+    assert.match(inv2, /^\d{8}$/);
+    assert.notEqual(inv2, inv);
+    assert.equal((await call('ib', 'join', { invite: inv })).code, 'invite');
+    assert.equal((await call('ib', 'join', { invite: inv2 })).success, true);
+
+    // 亂猜：一小時內輸錯 10 次就暫停，連正確的也先不收
+    const wrong = inv2 === '99999999' ? '99999998' : '99999999';
+    for (let i = 0; i < 10; i++) assert.equal((await call('guess', 'join', { invite: wrong })).code, 'invite');
+    assert.equal((await call('guess', 'join', { invite: inv2 })).code, 'invite_rate');
+
+    // 舊的團（沒有邀請碼）：團主打開時補一個
+    const raw = JSON.parse(run(['GET', tg.KEY.group(code)]));
+    run(['DEL', tg.KEY.invite(inv2)]);
+    run(['SET', tg.KEY.group(code), JSON.stringify({ ...raw, invite: undefined })]);
+    const inv3 = (await call('ih', 'status')).group.invite;
+    assert.match(inv3, /^\d{8}$/);
+    assert.equal((await call('ic', 'join', { invite: inv3 })).success, true);
+
+    // 解散後邀請碼失效
+    await call('ih', 'dissolve');
+    assert.equal(run(['GET', tg.KEY.invite(inv3)]), null);
+    assert.equal((await call('id', 'join', { invite: inv3 })).code, 'invite');
+});

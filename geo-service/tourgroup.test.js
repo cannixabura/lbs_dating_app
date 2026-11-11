@@ -142,3 +142,17 @@ test('cleanProfile：暱稱 10 字、頭像只收自己的 Storage 網址、都�
     assert.equal(t.cleanProfile({ name: 'a', avatar: 'https://evil.example/avatars%2Fu1.jpg' }, 'u1').avatar, '');
     assert.equal(t.cleanProfile({ name: '', avatar: '' }, 'u1'), null);
 });
+
+test('邀請碼：8 位數字，輸入時容許空白、連字號、全形數字', () => {
+  const inv = t.newInvite();
+  assert.match(inv, /^\d{8}$/);
+  assert.equal(t.newInvite(() => 0), '00000000');
+  assert.equal(t.normInvite('1234 5678'), '12345678');
+  assert.equal(t.normInvite('1234-5678'), '12345678');
+  assert.equal(t.normInvite('１２３４５６７８'), '12345678');
+  assert.equal(t.normInvite('1234567'), null);
+  assert.equal(t.normInvite('12345678a'), null);
+  assert.equal(t.normInvite(null), null);
+  assert.equal(t.groupLink('ABCDEFGH', 3, '01234567'), 'https://tourchip.web.app/g/ABCDEFGH?v=3&i=01234567');
+  assert.equal(t.groupLink('ABCDEFGH', 3), 'https://tourchip.web.app/g/ABCDEFGH?v=3');
+});

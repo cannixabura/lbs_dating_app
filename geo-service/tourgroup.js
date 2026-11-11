@@ -42,6 +42,10 @@ const LINK_BASE = 'https://tourchip.web.app';
 const CODE_LENGTH = 8;
 const VOUCHER_LENGTH = 10;
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+// 邀請碼：8 位數字，已經裝好 App 的人可以直接輸入入團；換新 QR code 時一起換新
+const INVITE_LENGTH = 8;
+const INVITE_FAILS = 10; // 每人每小時最多輸錯幾次（防止亂猜）
+const INVITE_FAIL_WINDOW_S = 3600;
 const MAX_NAME = 20;
 const MAX_PLACE = 30;
 const MAX_NOTE = 20;
@@ -113,6 +117,8 @@ const KEY = {
     info: (code) => `tgroup_info:${code}`, // 團體資訊 JSON：車輛（可依分組）、緊急聯絡
     mdata: (code) => `tgroup_mdata:${code}`, // 團員資料：hash uid → JSON（飲食、健康、緊急聯絡人；只有團主與共同團主看得到）
     stopDue: 'tgroup_stop_due', // 有序集合：「團代碼|集合點 id」→ 集合前 15 分鐘提醒的時間
+    invite: (inv) => `tgroup_invite:${inv}`, // 邀請碼 → 團代碼（跟著團一起到期；換新 QR code 時刪掉舊的）
+    inviteFails: (uid) => `tgroup_invfail:${uid}`, // 每人輸錯邀請碼的次數（一小時）
 };
 
 const segmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
@@ -130,6 +136,17 @@ const newCode = (random) => randomCode(CODE_LENGTH, random);
 const newVoucherCode = (random) => randomCode(VOUCHER_LENGTH, random);
 const isCodeOf = (len) => (s) => typeof s === 'string' && s.length === len && [...s].every((c) => CODE_ALPHABET.includes(c));
 const isCode = isCodeOf(CODE_LENGTH);
+/** 8 位數字的邀請碼（可以 0 開頭） */
+function newInvite(randomInt = crypto.randomInt) {
+    let s = '';
+    for (let i = 0; i < INVITE_LENGTH; i++) s += String(randomInt(10));
+    return s;
+}
+/** 使用者輸入的邀請碼：拿掉空白、連字號等，只留數字；不是 8 位數就回傳 null */
+function normInvite(raw) {
+    const s = String(raw ?? '').replace(/[\s\-－‐·.]/g, '').replace(/[０-９]/g, (c) => String(c.charCodeAt(0) - 0xff10));
+    return new RegExp(`^\\d{${INVITE_LENGTH}}$`).test(s) ? s : null;
+}
 const isVoucherCode = isCodeOf(VOUCHER_LENGTH);
 
 // ---------- 時區 ----------
@@ -553,7 +570,8 @@ function cleanMemberData(x) {
 
 // ---------- 連結 ----------
 
-const groupLink = (code, qrVer) => `${LINK_BASE}/g/${code}?v=${qrVer}`;
+// 入團連結帶著邀請碼（i）：還沒裝 App 的人在入團網頁看得到，裝好後可以照著輸入
+const groupLink = (code, qrVer, invite) => `${LINK_BASE}/g/${code}?v=${qrVer}${invite ? `&i=${invite}` : ''}`;
 const voucherLink = (v) => `${LINK_BASE}/v/${v}`;
 
 // ---------- 個人資料（暱稱、頭像） ----------
@@ -638,7 +656,7 @@ function callText(call, now) {
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, FREE_DAYS, DAYS_PER_PASS, MAX_LEAD_DAYS, PASS_PRODUCT, DAYS_PRODUCT, PRODUCTS, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
     MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, PRESENCE_STALE_MS, PING_EVERY_MS, COLORS,
-    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY,
+    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY, INVITE_LENGTH, INVITE_FAILS, INVITE_FAIL_WINDOW_S, newInvite, normInvite,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
     makeGroup, changeTrip, addDayPass, tripDays, allowedDays, daysPassesNeeded, validDate, dayDiff, isOpen, memberLimit, isStaff, roleOf, canJoin, nextNumber,

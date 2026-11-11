@@ -73,7 +73,9 @@ function create(d) {
 
     async function destroy(code, list) {
         const stops = (await json(tg.KEY.stops(code)).catch(() => null)) || [];
+        const g = await json(tg.KEY.group(code)).catch(() => null);
         await d.pipe([
+            ...(g && g.invite ? [['DEL', tg.KEY.invite(g.invite)]] : []),
             ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
                 tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code), tg.KEY.days(code), tg.KEY.info(code), tg.KEY.mdata(code)],
             ...stops.map((x) => ['ZREM', tg.KEY.stopDue, `${code}|${x.id}`]),
@@ -93,6 +95,7 @@ function create(d) {
         await d.pipe([
             ['EXPIRE', tg.KEY.members(code), ttl], ['EXPIRE', tg.KEY.stops(code), ttl], ['EXPIRE', tg.KEY.ann(code), ttl],
             ['EXPIRE', tg.KEY.days(code), ttl], ['EXPIRE', tg.KEY.info(code), ttl], ['EXPIRE', tg.KEY.mdata(code), ttl],
+            ...(next.invite ? [['EXPIRE', tg.KEY.invite(next.invite), ttl]] : []),
             ...list.map((m) => ['EXPIRE', tg.KEY.of(m.uid), ttl]),
         ]);
         return next;
@@ -102,6 +105,25 @@ function create(d) {
     async function saveTrip(code, next, now) {
         const stops = (await json(tg.KEY.stops(code))) || [];
         return resetEnds(code, next, stops, await members(code), now, true);
+    }
+
+    /** 邀請碼：團主與共同團主看的時候確認對照表還在；沒有（舊的團）或不見了就補一個 */
+    async function ensureInvite(code, g, now) {
+        const ttl = String(ttlFor(g, now));
+        if (g.invite) {
+            const cur = await d.cmd(['GET', tg.KEY.invite(g.invite)]);
+            if (cur === code) return g;
+            if (cur == null && (await d.cmd(['SET', tg.KEY.invite(g.invite), code, 'NX', 'EX', ttl])) === 'OK') return g;
+        }
+        for (let i = 0; i < 5; i++) {
+            const inv = tg.newInvite();
+            if ((await d.cmd(['SET', tg.KEY.invite(inv), code, 'NX', 'EX', ttl])) === 'OK') {
+                const next = { ...g, invite: inv };
+                await save(code, next, now);
+                return next;
+            }
+        }
+        return g;
     }
 
     async function vouchersOf(uid) {
@@ -115,7 +137,7 @@ function create(d) {
     async function statusView(uid, now) {
         const code = await d.cmd(['GET', tg.KEY.of(uid)]);
         if (!code) return { group: null };
-        const g = await load(code);
+        let g = await load(code);
         if (!g || !tg.isOpen(g, now)) {
             if (g) await destroy(code, await members(code));
             else await d.cmd(['DEL', tg.KEY.of(uid)]);
@@ -136,6 +158,7 @@ function create(d) {
         const me = list.find((m) => m.uid === uid);
         const role = tg.roleOf(g, uid);
         const staff = role !== 'member';
+        if (staff) g = await ensureInvite(code, g, now);
         // 暱稱與頭像：旅行團自己的 tgroup_profile（不讀城市低語的 user_data）
         const profs = (await d.pipe(list.map((m) => ['HGET', tg.KEY.profile, m.uid])).catch(() => [])).map((raw) => { try { return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; } });
         const profOf = (u) => profs[list.findIndex((m) => m.uid === u)] || {};
@@ -170,7 +193,8 @@ function create(d) {
             names: Object.fromEntries(list.map((m) => [m.uid, { no: m.no, name: nameOf(m.uid), avatar: avatarOf(m.uid), role: tg.roleOf(g, m.uid) }])),
         };
         if (staff) {
-            view.qr = tg.groupLink(code, g.qrVer);
+            view.qr = tg.groupLink(code, g.qrVer, g.invite);
+            view.invite = g.invite || null;
             const others = list.filter((m) => !tg.isStaff(g, m.uid)).map((m) => ({ uid: m.uid, no: m.no, note: m.note || '', sub: m.sub ?? null, name: nameOf(m.uid), avatar: avatarOf(m.uid), data: mdata[m.uid] || null }));
             view.members = others;
             const inCall = (rows, x) => (x && x.targets && x.targets.length ? rows.filter((m) => x.targets.includes(m.uid)) : rows);
@@ -276,17 +300,34 @@ function create(d) {
                     ['EXPIRE', tg.KEY.members(code), ttl],
                     ['SET', tg.KEY.of(uid), code, 'EX', ttl],
                 ]);
+                await ensureInvite(code, made.group, now);
                 return ok();
             }
 
             if (action === 'join') {
-                const code = String(body.code || '').toUpperCase();
+                // 掃 QR code、點連結：團代碼＋QR 版本；已經裝好 App 的人也可以輸入 8 位數邀請碼
+                let code = String(body.code || '').toUpperCase(), qrVer = body.v;
+                if (body.invite !== undefined && body.invite !== null) {
+                    const failKey = tg.KEY.inviteFails(uid);
+                    if (Number(await d.cmd(['GET', failKey])) >= tg.INVITE_FAILS) return fail('invite_rate');
+                    const inv = tg.normInvite(body.invite);
+                    if (!inv) return fail('invite');
+                    const target = await d.cmd(['GET', tg.KEY.invite(inv)]);
+                    const found = target ? await load(target) : null;
+                    if (!found || found.invite !== inv) {
+                        const n = await d.cmd(['INCR', failKey]);
+                        if (Number(n) === 1) await d.cmd(['EXPIRE', failKey, String(tg.INVITE_FAIL_WINDOW_S)]);
+                        return fail('invite');
+                    }
+                    code = target;
+                    qrVer = found.qrVer;
+                }
                 const g = await load(code);
                 if (!g) return fail('not_found');
                 const current = await d.cmd(['GET', tg.KEY.of(uid)]);
                 if (current && current !== code) return fail('in_group');
                 const list = await members(code);
-                const check = tg.canJoin(g, { count: list.length, qrVer: body.v, alreadyMember: list.some((m) => m.uid === uid) }, now);
+                const check = tg.canJoin(g, { count: list.length, qrVer, alreadyMember: list.some((m) => m.uid === uid) }, now);
                 if (!check.ok) {
                     if (check.code === 'already') return ok();
                     // 第 21 位：通知團主買方案或用團購券
@@ -596,7 +637,11 @@ function create(d) {
             }
 
             if (action === 'rotate_qr') {
-                await save(code, { ...g, qrVer: (g.qrVer || 1) + 1 }, now);
+                // 換新 QR code：舊的 QR code、連結、邀請碼一起失效
+                if (g.invite) await d.cmd(['DEL', tg.KEY.invite(g.invite)]);
+                const next = { ...g, qrVer: (g.qrVer || 1) + 1, invite: null };
+                await save(code, next, now);
+                await ensureInvite(code, next, now);
                 return ok();
             }
 

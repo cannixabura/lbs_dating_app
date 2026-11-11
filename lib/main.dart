@@ -115,17 +115,16 @@ void main() async {
   await loadAppLocale();
   await loadParallelUniverse();
   final prefs = await SharedPreferences.getInstance();
+  // 導覽頁每次開啟都必看（不論是否新安裝），所以不再記錄「看過了」
   await prefs.remove('has_seen_intro');
-  final bool hasSeenIntro = prefs.getBool('has_seen_intro') ?? false;
   final bool ageBlocked = prefs.getBool(AgeGate.blockedKey) ?? false;
 
-  runApp(MoodWhisperApp(hasSeenIntro: hasSeenIntro, ageBlocked: ageBlocked));
+  runApp(MoodWhisperApp(ageBlocked: ageBlocked));
 }
 
 class MoodWhisperApp extends StatelessWidget {
-  final bool hasSeenIntro; 
   final bool ageBlocked; // 曾回答未滿 18 歲：之後每次開啟都只顯示說明頁
-  const MoodWhisperApp({super.key, required this.hasSeenIntro, this.ageBlocked = false});
+  const MoodWhisperApp({super.key, this.ageBlocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +148,7 @@ class MoodWhisperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // AIYA_MOCK 只在本機測試艾婭畫面時開啟（假資料、不連伺服器），上架版本不會帶
-      home: aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      home: aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : const IntroScreen(),
       ),
     );
   }

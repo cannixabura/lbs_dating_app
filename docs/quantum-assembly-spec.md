@@ -142,5 +142,6 @@ Redis：
 5. 部署網站（條款與隱私權已寫好，版本 2026-11.7，日期要改成上線當天），App 的 `Legal.termsVersion` 已是 2026-11.7，要跟網站同時上線。
 6. 操作說明（guideS17）加上 Q2 的說明，重新產生網站說明頁。
 7. 隱私權政策裡的「日本或新加坡的雲端主機」改成實際業者與地點。
+8. lib/legal.dart 的 termsVersion 改成 2026-11.7（1.0.7 (26) 先退回 11.6），和網站條款同時上線。
 
 本機測試：`livekit-server --dev`（金鑰 devkey／secret），用 `lk room join --url ws://localhost:7880 --api-key devkey --api-secret secret --identity guest --publish <檔案.ogg> <房間>` 模擬講話的人。

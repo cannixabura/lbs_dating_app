@@ -18,6 +18,7 @@ function run([cmd, ...a]) {
         case 'DEL': return a.filter((k) => db.delete(k) || geo.delete(k)).length;
         case 'SET': { if (a.slice(2).map((x) => String(x).toUpperCase()).includes('NX') && db.has(a[0])) return null; db.set(a[0], String(a[1])); return 'OK'; }
         case 'INCR': { const v = Number(db.get(a[0]) || 0) + 1; db.set(a[0], String(v)); return v; }
+        case 'DECR': { const v = Number(db.get(a[0]) || 0) - 1; db.set(a[0], String(v)); return v; }
         case 'HSET': { const h = hash(a[0]); for (let i = 1; i < a.length; i += 2) h.set(a[i], String(a[i + 1])); return 1; }
         case 'HINCRBY': { const h = hash(a[0]); const v = (parseInt(h.get(a[1]) || '0', 10) || 0) + parseInt(a[2], 10); h.set(a[1], String(v)); return v; }
         case 'HGET': return db.has(a[0]) ? (hash(a[0]).get(a[1]) ?? null) : null;

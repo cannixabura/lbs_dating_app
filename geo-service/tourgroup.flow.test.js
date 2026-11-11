@@ -16,6 +16,7 @@ const ref = (path) => ({
     },
 });
 const pushes = [];
+let llmReply = null; // 假的 AI：測試裡設定回傳內容（Error 表示失敗）
 const tour = api.create({
     cmd: async (c) => run(c),
     pipe: async (cs) => cs.map((c) => run(c)),
@@ -29,6 +30,7 @@ const tour = api.create({
     receiptKey: (src, id) => `g_${id}`,
     playPurchase: async () => ({ purchaseState: 0 }),
     clock: () => now,
+    llm: async () => { if (llmReply instanceof Error) throw llmReply; return llmReply; },
 });
 
 async function call(uid, action, body = {}, lang) {
@@ -475,4 +477,139 @@ test('邀請碼：輸入入團、換新 QR code 後舊碼失效、輸錯太多�
     await call('ih', 'dissolve');
     assert.equal(run(['GET', tg.KEY.invite(inv3)]), null);
     assert.equal((await call('id', 'join', { invite: inv3 })).code, 'invite');
+});
+
+test('領隊工具：手動點名、房號、飯店 Wi-Fi／早餐、艾婭匯入', async () => {
+    let r = await call('th', 'create', { name: '北海道五日', color: 'green', days: 3, tz: 'Asia/Tokyo', subs: ['1 號車', '2 號車'] });
+    const inv = r.group.invite;
+    for (const u of ['ta', 'tb']) assert.equal((await call(u, 'join', { invite: inv })).success, true);
+
+    // 手動點名：tb 沒手機，領隊幫他按到了；團員看到自己的是「到了」
+    r = await call('th', 'rollcall', {});
+    const rollId = r.group.rollRoster ? (await call('ta', 'status')).group.roll.id : null;
+    assert.ok(rollId);
+    assert.equal((await call('ta', 'mark', { rollId, uid: 'tb' })).code, 'not_host'); // 團員不能幫別人按
+    r = await call('th', 'mark', { rollId, uid: 'tb' });
+    assert.equal(r.group.rollRoster.here, 1);
+    assert.equal(r.group.rollRoster.rows.find((x) => x.uid === 'tb').marked, true);
+    assert.equal((await call('tb', 'status')).group.roll.mine, 'here');
+    r = await call('th', 'mark', { rollId, uid: 'tb', on: false });
+    assert.equal(r.group.rollRoster.here, 0);
+    // 團員自己按的不會被「取消」清掉
+    await call('ta', 'answer', { rollId, answer: 'here' });
+    r = await call('th', 'mark', { rollId, uid: 'ta', on: false });
+    assert.equal(r.group.rollRoster.here, 1);
+    assert.equal((await call('th', 'mark', { rollId: 'old', uid: 'tb' })).code, 'ended');
+
+    // 房號：單一設定、一次設定（含分組）；團員看到自己的房號
+    await call('th', 'room', { uid: 'ta', room: '1203' });
+    assert.equal((await call('ta', 'status')).group.myRoom, '1203');
+    r = await call('th', 'rooms', { list: [{ uid: 'tb', room: '1205', sub: 1 }, { uid: 'th', room: '1201' }] });
+    assert.equal(r.group.members.find((m) => m.uid === 'tb').room, '1205');
+    assert.equal(r.group.members.find((m) => m.uid === 'tb').sub, 1);
+    assert.equal(r.group.staffRooms.th, '1201');
+    assert.equal((await call('tb', 'status')).group.myRoom, '1205');
+    assert.equal((await call('th', 'rooms', { list: [{ uid: 'nobody', room: '1' }] })).code, 'bad_request');
+
+    // 飯店 Wi-Fi、早餐
+    const date = r.group.startDate;
+    r = await call('th', 'day_set', { date, hotel: { name: 'JR Inn', wifi: 'JRINN / 12345678', breakfast: '6:30–9:30 2F' } });
+    assert.equal(r.success, true);
+    const hotel = (await call('ta', 'status')).group.dayCards[0].hotel;
+    assert.equal(hotel.wifi, 'JRINN / 12345678');
+    assert.equal(hotel.breakfast, '6:30–9:30 2F');
+
+    // 艾婭匯入：預覽（不存），失敗不算次數，每團 5 次
+    llmReply = {
+        days: [{ date, note: '早餐在飯店', hotel: { name: 'JR Inn 札幌', addr: '札幌市中央區', phone: '', wifi: '', breakfast: '6:30' } }],
+        stops: [{ date, time: '18:00', tz: 'Asia/Tokyo', place: '飯店大廳' }, { date, time: '25:00', tz: 'Asia/Tokyo', place: '錯的' }],
+        rooms: [{ name: '王小明', room: '1203', group: '1 號車' }],
+    };
+    assert.equal((await call('ta', 'ai_import', { text: '第一天 18:00 飯店大廳集合' })).code, 'not_host');
+    r = await call('th', 'ai_import', { text: '第一天 18:00 飯店大廳集合，住 JR Inn' });
+    assert.equal(r.success, true);
+    assert.equal(r.import.days[0].hotel.name, 'JR Inn 札幌');
+    assert.equal(r.import.stops.length, 1);
+    assert.equal(r.import.rooms[0].room, '1203');
+    assert.equal(r.group.aiLeft, 4);
+    assert.equal(r.group.stops.length, 0); // 還沒存
+    llmReply = new Error('boom');
+    assert.equal((await call('th', 'ai_import', { text: '第一天 18:00 飯店大廳集合' })).code, 'ai');
+    assert.equal((await call('th', 'status')).group.aiLeft, 4);
+    llmReply = { days: [], stops: [], rooms: [] };
+    for (let i = 0; i < 4; i++) assert.equal((await call('th', 'ai_import', { text: '第一天 18:00 飯店大廳集合' })).success, true);
+    assert.equal((await call('th', 'ai_import', { text: '第一天 18:00 飯店大廳集合' })).code, 'ai_limit');
+    assert.equal((await call('th', 'ai_import', { text: '短' })).code, 'ai_empty');
+    await call('th', 'dissolve');
+});
+
+test('送花感謝：最後一天起才能送、每人每位一次、最後一天提醒、解散後 3 天內還能送、公開名片', async () => {
+    const start = now;
+    let r = await call('fh', 'create', { name: '沖繩三日', color: 'pink', days: 1, tz: 'Asia/Tokyo' });
+    const g0 = r.group;
+    for (const u of ['fa', 'fb', 'fc']) await call(u, 'join', { invite: g0.invite });
+    await call('fh', 'cohost_add', { uid: 'fc' });
+
+    // 1 天的團：開團當下就是最後一天 → 可以送；先測多天的情況用 status 的 open
+    assert.equal((await call('fa', 'status')).group.thanks.open, true);
+    r = await call('fa', 'thank', { to: 'fh', text: '謝謝你這幾天的照顧' });
+    assert.equal(r.success, true);
+    assert.deepEqual(r.group.thanks.sent, ['fh']);
+    assert.ok(pushes.some((p) => p.data.type === 'tgroup_flower' && p.uids[0] === 'fh'));
+    assert.equal((await call('fa', 'thank', { to: 'fh' })).code, 'already');
+    assert.equal((await call('fa', 'thank', { to: 'fa' })).code, 'bad_request');
+    assert.equal((await call('fa', 'thank', { to: 'fb' })).code, 'bad_request'); // 只能送給領隊
+    assert.equal((await call('fa', 'thank', { to: 'fc', text: '髒話' })).code, 'filtered');
+    assert.equal((await call('fa', 'thank', { to: 'fc' })).success, true); // 共同團主也可以收
+
+    // 最後一天傍晚提醒：只提醒還沒送的團員（不含領隊）
+    pushes.length = 0;
+    now = g0.endsAt - 7 * 3600000 + 1000;
+    await tour.remindThanks(now);
+    const rem = pushes.find((p) => p.data.type === 'tgroup_thanks');
+    assert.deepEqual(rem.uids, ['fb']);
+
+    // 領隊的名片：預設不公開；挑一則公開
+    r = await call('fh', 'my_card');
+    assert.equal(r.flowers, 1);
+    assert.equal(r.card.pub, false);
+    const id = r.thanks[0].id;
+    r = await call('fh', 'card_set', { pub: true, intro: '帶團 10 年，日本線' });
+    const slug = r.card.link.split('/l/')[1];
+    assert.match(slug, /^[a-z2-9]{10}$/);
+    let pub = await call(undefined, 'card', { slug });
+    assert.equal(pub.card.flowers, 1);
+    assert.equal(pub.card.thanks.length, 0);
+    await call('fh', 'thank_pub', { id, pub: true });
+    pub = await call(undefined, 'card', { slug });
+    assert.equal(pub.card.thanks[0].text, '謝謝你這幾天的照顧');
+    assert.equal(pub.card.intro, '帶團 10 年，日本線');
+    assert.equal(pub.card.thanks[0].group, '沖繩三日');
+    await call('fh', 'card_set', { pub: false });
+    assert.equal((await call(undefined, 'card', { slug })).code, 'not_found');
+
+    // 解散後：fb 還沒送 → 首頁問一次；3 天內可以送
+    await call('fh', 'dissolve');
+    r = await call('fb', 'status');
+    assert.equal(r.group, null);
+    assert.equal(r.ended.name, '沖繩三日');
+    assert.equal(r.ended.staff.length, 2);
+    assert.deepEqual(r.ended.sent, []);
+    r = await call('fb', 'thank', { to: 'fh', text: '下次還要跟你的團' });
+    assert.equal(r.success, true);
+    assert.deepEqual(r.ended.sent, ['fh']);
+    assert.equal((await call('fh', 'my_card')).flowers, 2);
+    // 已經送過的 fa 在解散後也不能再送給同一位
+    assert.equal((await call('fa', 'thank', { to: 'fh' })).code, 'already');
+    // 沒入過這一團的人不能送
+    assert.equal((await call('stranger', 'thank', { to: 'fh' })).code, 'no_group');
+    now = start;
+});
+
+test('送花感謝：多天的團在最後一天以前不能送', async () => {
+    let r = await call('mh', 'create', { name: '九州五日', color: 'gold', days: 3, tz: 'Asia/Tokyo' });
+    await call('ma', 'join', { invite: r.group.invite });
+    assert.equal((await call('ma', 'status')).group.thanks.open, false);
+    assert.equal((await call('ma', 'thank', { to: 'mh' })).code, 'not_yet');
+    await call('mh', 'dissolve');
 });

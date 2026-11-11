@@ -19,7 +19,7 @@ const tg = require('./tourgroup');
 
 const COLOR_DOT = { violet: '🟣', pink: '🩷', blue: '🔵', teal: '🩵', green: '🟢', gold: '🟡', orange: '🟠', red: '🔴' };
 const HOST_ONLY = ['cohost_add', 'cohost_remove', 'handoff', 'dissolve', 'verify', 'redeem', 'trip'];
-const STAFF_ONLY = ['call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set'];
+const STAFF_ONLY = ['call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set', 'mark', 'room', 'rooms', 'ai_import'];
 
 /**
  * @param {object} d
@@ -68,14 +68,16 @@ function create(d) {
         }
         return out.sort((a, b) => a.no - b.no);
     }
-    const putMember = (code, uid, m) => ['HSET', tg.KEY.members(code), uid, JSON.stringify({ no: m.no, note: m.note || '', sub: m.sub ?? null, joinedAt: m.joinedAt })];
+    const putMember = (code, uid, m) => ['HSET', tg.KEY.members(code), uid, JSON.stringify({ no: m.no, note: m.note || '', sub: m.sub ?? null, joinedAt: m.joinedAt, room: m.room || '' })];
     const title = (g) => `${COLOR_DOT[g.color] || '🟣'} ${g.name}`;
 
     async function destroy(code, list) {
         const stops = (await json(tg.KEY.stops(code)).catch(() => null)) || [];
         const g = await json(tg.KEY.group(code)).catch(() => null);
+        if (g && list.length) await keepEnded(code, g, list).catch((e) => console.warn('[旅行團] 解散紀錄失敗:', e.message));
         await d.pipe([
             ...(g && g.invite ? [['DEL', tg.KEY.invite(g.invite)]] : []),
+            ['ZREM', tg.KEY.thanksDue, code],
             ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
                 tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code), tg.KEY.days(code), tg.KEY.info(code), tg.KEY.mdata(code)],
             ...stops.map((x) => ['ZREM', tg.KEY.stopDue, `${code}|${x.id}`]),
@@ -83,6 +85,45 @@ function create(d) {
             ['SREM', tg.KEY.activeCalls, code],
             ...list.map((m) => ['DEL', tg.KEY.of(m.uid)]),
         ]);
+    }
+
+/** 解散後 3 天：團名、領隊、團員名單，團員在這段時間還能送花給領隊 */
+    async function keepEnded(code, g, list) {
+        const staffUids = [g.host, ...(g.cohosts || [])];
+        const profs = await d.pipe(staffUids.map((u) => ['HGET', tg.KEY.profile, u])).catch(() => []);
+        const staff = staffUids.map((u, i) => {
+            let p = {};
+            try { p = profs[i] ? JSON.parse(profs[i]) : {}; } catch (e) { p = {}; }
+            const m = list.find((x) => x.uid === u);
+            return { uid: u, no: m ? m.no : 0, name: p.name || '', avatar: p.avatar || '', role: u === g.host ? 'host' : 'cohost' };
+        });
+        const others = list.filter((m) => !staffUids.includes(m.uid)).map((m) => m.uid);
+        const ttl = String(tg.ENDED_TTL_S);
+        await d.pipe([
+            ['SET', tg.KEY.ended(code), JSON.stringify({ name: g.name, color: g.color, staff, members: others, endedAt: clock() }), 'EX', ttl],
+            ['EXPIRE', tg.KEY.thanked(code), ttl],
+            ...others.map((u) => ['SET', tg.KEY.endedOf(u), code, 'EX', ttl]),
+        ]);
+    }
+
+    /** 已經解散的團：給團員看的送花畫面（3 天內，還沒送給每位領隊） */
+    async function endedView(uid) {
+        const code = await d.cmd(['GET', tg.KEY.endedOf(uid)]).catch(() => null);
+        if (!code) return null;
+        const e = await json(tg.KEY.ended(code)).catch(() => null);
+        if (!e || !(e.members || []).includes(uid)) return null;
+        const sent = await d.pipe(e.staff.map((st) => ['HGET', tg.KEY.thanked(code), `${uid}|${st.uid}`])).catch(() => []);
+        return { code, name: e.name, color: e.color, staff: e.staff, sent: e.staff.filter((st, i) => !!sent[i]).map((st) => st.uid) };
+    }
+
+    /** 領隊自己的名片與收到的感謝 */
+    async function cardOf(uid) {
+        const [card, raw] = await Promise.all([json(tg.KEY.leaderCard(uid)), d.cmd(['LRANGE', tg.KEY.leaderThanks(uid), '0', '-1'])]);
+        const thanks = (raw || []).map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+        return {
+            card: { pub: !!(card && card.pub), intro: (card && card.intro) || '', link: card && card.slug ? `${tg.LINK_BASE}/l/${card.slug}` : null },
+            flowers: thanks.length, thanks,
+        };
     }
 
     /** 行程表改變後重算結束時間（最後一個集合點的當地時區），同步更新所有 key 的存活時間 */
@@ -96,6 +137,8 @@ function create(d) {
             ['EXPIRE', tg.KEY.members(code), ttl], ['EXPIRE', tg.KEY.stops(code), ttl], ['EXPIRE', tg.KEY.ann(code), ttl],
             ['EXPIRE', tg.KEY.days(code), ttl], ['EXPIRE', tg.KEY.info(code), ttl], ['EXPIRE', tg.KEY.mdata(code), ttl],
             ...(next.invite ? [['EXPIRE', tg.KEY.invite(next.invite), ttl]] : []),
+            ['ZADD', tg.KEY.thanksDue, String(tg.thanksRemindAt(next)), code],
+            ['EXPIRE', tg.KEY.thanked(code), ttl], ['EXPIRE', tg.KEY.aiImports(code), ttl],
             ...list.map((m) => ['EXPIRE', tg.KEY.of(m.uid), ttl]),
         ]);
         return next;
@@ -136,21 +179,23 @@ function create(d) {
     /** 給 App 的狀態：團主、共同團主看得到名單與回覆；團員只看到自己的 */
     async function statusView(uid, now) {
         const code = await d.cmd(['GET', tg.KEY.of(uid)]);
-        if (!code) return { group: null };
+        if (!code) return { group: null, ended: await endedView(uid) };
         let g = await load(code);
         if (!g || !tg.isOpen(g, now)) {
             if (g) await destroy(code, await members(code));
             else await d.cmd(['DEL', tg.KEY.of(uid)]);
-            return { group: null };
+            return { group: null, ended: await endedView(uid) };
         }
-        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops, posFlat, bubbleFlat, msgList, myBlocks, seenFlat, daysFlat, info, mdataFlat] = await Promise.all([
+        const [list, call, roll, acksFlat, answersFlat, lostFlat, ann, stops, posFlat, bubbleFlat, msgList, myBlocks, seenFlat, daysFlat, info, mdataFlat, thankedAll, aiUsed] = await Promise.all([
             members(code), json(tg.KEY.call(code)), json(tg.KEY.roll(code)),
             d.cmd(['HGETALL', tg.KEY.acks(code)]), d.cmd(['HGETALL', tg.KEY.answers(code)]), d.cmd(['HGETALL', tg.KEY.lost(code)]),
             json(tg.KEY.ann(code)), json(tg.KEY.stops(code)),
             d.cmd(['HGETALL', tg.KEY.pos(code)]), d.cmd(['HGETALL', tg.KEY.bubble(code)]), d.cmd(['LRANGE', tg.KEY.msgs(code), '0', '-1']),
             d.cmd(['HGET', tg.KEY.blocks(code), uid]), d.cmd(['HGETALL', tg.KEY.seen(code)]),
             d.cmd(['HGETALL', tg.KEY.days(code)]), json(tg.KEY.info(code)), d.cmd(['HGETALL', tg.KEY.mdata(code)]),
+            d.cmd(['HGETALL', tg.KEY.thanked(code)]), d.cmd(['GET', tg.KEY.aiImports(code)]),
         ]);
+        const thankedFlat = Object.keys(hashOf(thankedAll)).filter((k) => k.startsWith(`${uid}|`)).map((k) => k.slice(uid.length + 1));
         const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
         const days = Object.values(hashOf(daysFlat)).map(parse).filter(Boolean).sort((a, b) => (a.date < b.date ? -1 : 1));
         const mdata = Object.fromEntries(Object.entries(hashOf(mdataFlat)).map(([u, raw]) => [u, parse(raw)]).filter(([, v]) => v));
@@ -181,7 +226,10 @@ function create(d) {
             role, myNo: me ? me.no : null, mySub, hostName: nameOf(g.host),
             staff: [g.host, ...(g.cohosts || [])].map((u) => ({ uid: u, no: (list.find((m) => m.uid === u) || {}).no ?? 0, name: nameOf(u), avatar: avatarOf(u), role: u === g.host ? 'host' : 'cohost' })),
             call: tg.callLive(call, now) && forMe(call) ? { id: call.id, at: call.at, tz: call.tz, place: call.place, lat: call.lat, lng: call.lng, sub: call.sub, mine: acks[uid] || null } : null,
-            roll: roll && forMe(roll) ? { id: roll.id, sentAt: roll.sentAt, sub: roll.sub, mine: answers[uid] || null } : null,
+            roll: roll && forMe(roll) ? { id: roll.id, sentAt: roll.sentAt, sub: roll.sub, mine: answers[uid] === tg.MARKED ? 'here' : answers[uid] || null } : null,
+            myRoom: me ? me.room || '' : '',
+            // 送花感謝：最後一天起可以送給團主或共同團主（每人每位送一次）
+            thanks: { open: tg.canThank(g, now), sent: thankedFlat },
             announcements: tg.visibleAnnouncements(ann || [], mySub, staff),
             stops: (stops || []).filter((s) => forMe(s)),
             lostSent: tg.lostRoster(list.filter((m) => m.uid === uid), lostHash, now).length > 0,
@@ -195,7 +243,9 @@ function create(d) {
         if (staff) {
             view.qr = tg.groupLink(code, g.qrVer, g.invite);
             view.invite = g.invite || null;
-            const others = list.filter((m) => !tg.isStaff(g, m.uid)).map((m) => ({ uid: m.uid, no: m.no, note: m.note || '', sub: m.sub ?? null, name: nameOf(m.uid), avatar: avatarOf(m.uid), data: mdata[m.uid] || null }));
+            const others = list.filter((m) => !tg.isStaff(g, m.uid)).map((m) => ({ uid: m.uid, no: m.no, note: m.note || '', sub: m.sub ?? null, room: m.room || '', name: nameOf(m.uid), avatar: avatarOf(m.uid), data: mdata[m.uid] || null }));
+            view.aiLeft = Math.max(0, tg.AI_IMPORTS - Number(aiUsed || 0));
+            view.staffRooms = Object.fromEntries(list.filter((m) => tg.isStaff(g, m.uid)).map((m) => [m.uid, m.room || '']));
             view.members = others;
             const inCall = (rows, x) => (x && x.targets && x.targets.length ? rows.filter((m) => x.targets.includes(m.uid)) : rows);
             if (view.call) view.callRoster = tg.callRoster(inCall(others, call), acks);
@@ -205,8 +255,26 @@ function create(d) {
         return { group: view };
     }
 
+    /** 公開名片網頁 tourchip.web.app/l/<slug> 讀的資料：不用登入；只給領隊公開的感謝 */
+    async function publicCardOf(slug) {
+        if (!tg.isSlug(slug)) return null;
+        const uid = await d.cmd(['GET', tg.KEY.leaderSlug(slug)]);
+        if (!uid) return null;
+        const card = await json(tg.KEY.leaderCard(uid));
+        if (!card || !card.pub || card.slug !== slug) return null;
+        const [raw, prof] = await Promise.all([d.cmd(['LRANGE', tg.KEY.leaderThanks(uid), '0', '-1']), d.cmd(['HGET', tg.KEY.profile, uid])]);
+        const thanks = (raw || []).map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+        let name = '';
+        try { name = prof ? JSON.parse(prof).name || '' : ''; } catch (e) { name = ''; }
+        return tg.publicCard(card, thanks, name);
+    }
+
     async function handle(req, res) {
         if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+        if ((req.body || {}).action === 'card') {
+            const card = await publicCardOf(String(req.body.slug || '')).catch(() => null);
+            return res.status(200).json(card ? { success: true, card } : { success: false, code: 'not_found' });
+        }
         const lang = d.langOf(req);
         const uid = await d.verifyCaller(req);
         if (!uid) return res.status(401).json({ success: false, error: d.localize(lang, '未授權') });
@@ -301,6 +369,7 @@ function create(d) {
                     ['SET', tg.KEY.of(uid), code, 'EX', ttl],
                 ]);
                 await ensureInvite(code, made.group, now);
+                await d.cmd(['ZADD', tg.KEY.thanksDue, String(tg.thanksRemindAt(made.group)), code]);
                 return ok();
             }
 
@@ -340,6 +409,76 @@ function create(d) {
                     ['SET', tg.KEY.of(uid), code, 'EX', ttlFor(g, now)],
                 ]);
                 return ok();
+            }
+
+            if (action === 'thank') {
+                // 送一朵花給團主或共同團主，可以附一句話；團還在（最後一天起）或解散後 3 天內
+                const to = String(body.to || '');
+                const text = tg.cleanThank(body.text);
+                if (text && d.isDisallowed(text)) return fail('filtered');
+                let ctx = null;
+                const inCode = await d.cmd(['GET', tg.KEY.of(uid)]);
+                if (inCode) {
+                    const g0 = await load(inCode);
+                    if (g0 && tg.isOpen(g0, now)) {
+                        if (!tg.canThank(g0, now)) return fail('not_yet');
+                        ctx = { code: inCode, name: g0.name, staff: [g0.host, ...(g0.cohosts || [])], ttl: ttlFor(g0, now) };
+                    }
+                }
+                if (!ctx) {
+                    const e = await endedView(uid);
+                    if (e) ctx = { code: e.code, name: e.name, staff: e.staff.map((x) => x.uid), ttl: String(tg.ENDED_TTL_S) };
+                }
+                if (!ctx) return fail('no_group');
+                if (!ctx.staff.includes(to) || to === uid) return fail('bad_request');
+                if ((await d.cmd(['HSETNX', tg.KEY.thanked(ctx.code), `${uid}|${to}`, String(now)])) === 0) return fail('already');
+                const item = { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, at: now, group: ctx.name, text, pub: false };
+                await d.pipe([
+                    ['EXPIRE', tg.KEY.thanked(ctx.code), ctx.ttl],
+                    ['LPUSH', tg.KEY.leaderThanks(to), JSON.stringify(item)],
+                    ['LTRIM', tg.KEY.leaderThanks(to), '0', String(tg.MAX_THANKS_KEPT - 1)],
+                ]);
+                await push([to], `🌸 ${ctx.name}`, text ? `有團員送你一朵花：「${text}」` : '有團員送你一朵花。', { type: 'tgroup_flower' }).catch(() => 0);
+                return ok();
+            }
+
+            if (action === 'my_card') return res.status(200).json({ success: true, ...(await cardOf(uid)) });
+
+            if (action === 'card_set') {
+                // 公開名片：開或關、一句自我介紹；第一次開的時候產生網址
+                const cur = (await json(tg.KEY.leaderCard(uid))) || {};
+                const intro = body.intro === undefined ? cur.intro || '' : tg.cleanIntro(body.intro);
+                if (intro && d.isDisallowed(intro)) return fail('filtered');
+                const next = { ...cur, intro, pub: body.pub === undefined ? !!cur.pub : !!body.pub };
+                if (!next.slug) {
+                    for (let i = 0; i < 5 && !next.slug; i++) {
+                        const slug = tg.newSlug();
+                        if ((await d.cmd(['SET', tg.KEY.leaderSlug(slug), uid, 'NX'])) === 'OK') next.slug = slug;
+                    }
+                    if (!next.slug) return fail('busy');
+                }
+                await d.cmd(['SET', tg.KEY.leaderCard(uid), JSON.stringify(next)]);
+                return res.status(200).json({ success: true, ...(await cardOf(uid)) });
+            }
+
+            if (action === 'thank_pub') {
+                // 領隊自己挑哪些感謝要放在公開名片
+                const key = tg.KEY.leaderThanks(uid);
+                const raw = (await d.cmd(['LRANGE', key, '0', '-1'])) || [];
+                const items = raw.map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean);
+                const it = items.find((x) => x.id === String(body.id || ''));
+                if (!it) return fail('bad_request');
+                it.pub = !!body.pub;
+                await d.pipe([['DEL', key], ['RPUSH', key, ...items.map((x) => JSON.stringify(x))]]);
+                return res.status(200).json({ success: true, ...(await cardOf(uid)) });
+            }
+
+            if (action === 'thank_delete') {
+                const key = tg.KEY.leaderThanks(uid);
+                const raw = (await d.cmd(['LRANGE', key, '0', '-1'])) || [];
+                const items = raw.map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter((x) => x && x.id !== String(body.id || ''));
+                await d.pipe([['DEL', key], ...(items.length ? [['RPUSH', key, ...items.map((x) => JSON.stringify(x))]] : [])]);
+                return res.status(200).json({ success: true, ...(await cardOf(uid)) });
             }
 
             // ---------- 以下都要已經在團裡 ----------
@@ -636,6 +775,61 @@ function create(d) {
                 return ok();
             }
 
+            if (action === 'mark') {
+                // 領隊幫沒有手機、沒電、沒網路的人按「到了」（on=false 取消；只取消領隊按的）
+                const roll = await json(tg.KEY.roll(code));
+                if (!roll || roll.id !== body.rollId) return fail('ended');
+                const target = String(body.uid || '');
+                if (!(roll.targets || []).includes(target)) return fail('bad_request');
+                if (body.on === false) {
+                    if ((await d.cmd(['HGET', tg.KEY.answers(code), target])) === tg.MARKED) await d.cmd(['HDEL', tg.KEY.answers(code), target]);
+                } else {
+                    await d.pipe([['HSET', tg.KEY.answers(code), target, tg.MARKED], keep(tg.KEY.answers(code))]);
+                }
+                return ok();
+            }
+
+            if (action === 'room' || action === 'rooms') {
+                // 房號（團主、共同團主也可以有）；rooms 一次設定好幾個人（艾婭匯入分房表），可以同時分組
+                const rows = action === 'room' ? [{ uid: body.uid, room: body.room }] : Array.isArray(body.list) ? body.list.slice(0, 200) : null;
+                if (!rows) return fail('bad_request');
+                const list = await members(code);
+                const cmds = [];
+                for (const r of rows) {
+                    const m = list.find((x) => x.uid === String((r && r.uid) || ''));
+                    if (!m) return fail('bad_request');
+                    const next = { ...m };
+                    if (r.room !== undefined) next.room = tg.cleanRoom(r.room);
+                    if (r.sub !== undefined && m.uid !== g.host) {
+                        if (!tg.validSub(g, r.sub)) return fail('bad_request');
+                        next.sub = tg.normSub(r.sub);
+                    }
+                    cmds.push(putMember(code, m.uid, next));
+                }
+                if (cmds.length) await d.pipe(cmds);
+                return ok();
+            }
+
+            if (action === 'ai_import') {
+                // 艾婭匯入：貼上的行程或分房表 → 每日資訊、飯店、集合點、分房（先給 App 預覽，領隊確認後才存）
+                const text = String(body.text || '').trim();
+                if (text.length < 10) return fail('ai_empty');
+                if (text.length > tg.MAX_IMPORT_TEXT) return fail('ai_long');
+                if (!d.llm) return fail('ai');
+                const used = Number(await d.cmd(['INCR', tg.KEY.aiImports(code)]));
+                await d.cmd(['EXPIRE', tg.KEY.aiImports(code), ttlFor(g, now)]);
+                if (used > tg.AI_IMPORTS) return fail('ai_limit');
+                let raw;
+                try {
+                    raw = await d.llm({ prompt: tg.importPrompt(g, text), schema: tg.IMPORT_SCHEMA });
+                } catch (e) {
+                    console.warn('[旅行團] 艾婭匯入失敗:', e.message);
+                    await d.cmd(['DECR', tg.KEY.aiImports(code)]).catch(() => 0); // 失敗不算次數
+                    return fail('ai');
+                }
+                return ok({ import: tg.cleanImport(raw, g) });
+            }
+
             if (action === 'rotate_qr') {
                 // 換新 QR code：舊的 QR code、連結、邀請碼一起失效
                 if (g.invite) await d.cmd(['DEL', tg.KEY.invite(g.invite)]);
@@ -743,11 +937,30 @@ function create(d) {
         }
     }
 
+    /** 最後一天傍晚：提醒還沒送花的團員，可以送一朵花謝謝領隊 */
+    async function remindThanks(now) {
+        const due = (await d.cmd(['ZRANGEBYSCORE', tg.KEY.thanksDue, '-inf', String(now), 'LIMIT', '0', '200']).catch(() => [])) || [];
+        for (const code of due) {
+            await d.cmd(['ZREM', tg.KEY.thanksDue, code]);
+            try {
+                const g = await load(code);
+                if (!g || !tg.isOpen(g, now) || now > g.endsAt) continue;
+                const thanked = hashOf(await d.cmd(['HGETALL', tg.KEY.thanked(code)]));
+                const givers = new Set(Object.keys(thanked).map((k) => k.split('|')[0]));
+                const targets = (await members(code)).filter((m) => !tg.isStaff(g, m.uid) && !givers.has(m.uid)).map((m) => m.uid);
+                if (targets.length) await push(targets, title(g), '最後一天了！想謝謝領隊的話，可以送一朵花、留一句話。', { type: 'tgroup_thanks', code });
+            } catch (e) {
+                console.error(`[旅行團] ${code} 送花提醒失敗:`, e);
+            }
+        }
+    }
+
     /** 每分鐘：集合前 15 分鐘提醒一次；還沒按「收到」的人再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來 */
     async function remind() {
         const now = clock();
         try { await pingIdle(now); } catch (e) { console.error('[旅行團] 無聲推播失敗:', e); }
         try { await remindStops(now); } catch (e) { console.error('[旅行團] 行程提醒失敗:', e); }
+        try { await remindThanks(now); } catch (e) { console.error('[旅行團] 送花提醒失敗:', e); }
         const codes = (await d.cmd(['SMEMBERS', tg.KEY.activeCalls])) || [];
         for (const code of codes) {
             try {
@@ -775,7 +988,7 @@ function create(d) {
         }
     }
 
-    return { handle, remind, statusView, pingIdle, remindStops };
+    return { handle, remind, statusView, pingIdle, remindStops, remindThanks };
 }
 
 module.exports = { create, HOST_ONLY, STAFF_ONLY };

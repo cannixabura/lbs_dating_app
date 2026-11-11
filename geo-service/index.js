@@ -2877,9 +2877,22 @@ const tourApi = require("./tourgroup_api").create({
   verifyAppleJws: (jws) => orbs.verifyAppleJws(jws),
   receiptKey: orbs.receiptKey,
   playPurchase,
+  // 艾婭匯入行程與分房表：一次 Claude 呼叫，照 JSON Schema 回傳（App 先預覽，領隊確認才存）
+  llm: async ({ prompt, schema }) => {
+    const r = await claude().messages.create({
+      model: aiya.MODEL,
+      max_tokens: 16000,
+      output_config: { effort: "low", format: { type: "json_schema", schema } },
+      messages: [{ role: "user", content: prompt }],
+    }, { timeout: 80000 });
+    if (r.stop_reason === "refusal") throw new Error("refused");
+    if (r.stop_reason === "max_tokens") throw new Error("too long");
+    const block = r.content.find((b) => b.type === "text");
+    return JSON.parse(block ? block.text : "{}");
+  },
 });
 
-exports.tourGroup = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+exports.tourGroup = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY], timeoutSeconds: 120 }, (req, res) => {
   cors(req, res, () => tourApi.handle(req, res));
 });
 

@@ -83,6 +83,23 @@ const MAX_ADDR = 200;
 const MAX_PHONE = 25;
 const MAX_INFO_NOTE = 200;
 const CALL_LINGER_MS = 30 * 60 * 1000;
+// 飯店：Wi-Fi、早餐時間（領隊填，團員在每日資訊看）
+const MAX_WIFI = 80;
+const MAX_BREAKFAST = 60;
+// 房號（領隊在名單設定，或用艾婭匯入分房表）
+const MAX_ROOM = 10;
+// 手動點名：領隊幫沒有手機、沒電、沒網路的人按「到了」
+const MARKED = 'marked';
+// 送花感謝：最後一天起到解散後 3 天，團員可以送一朵花給團主或共同團主，附一句話
+const MAX_THANK = 60;
+const MAX_INTRO = 80;
+const MAX_THANKS_KEPT = 500; // 每位領隊最多留幾則感謝（舊的刪掉）
+const THANK_FROM_MS = 24 * 60 * 60 * 1000; // 結束前 24 小時（最後一天）起可以送
+const THANKS_REMIND_BEFORE_MS = 7 * 60 * 60 * 1000; // 最後一天約 17:00（結束前 7 小時）提醒團員
+const ENDED_TTL_S = 3 * 86400; // 解散後還能送花幾天
+// 艾婭匯入行程與分房表：領隊免費，每團最多 5 次
+const AI_IMPORTS = 5;
+const MAX_IMPORT_TEXT = 6000;
 const ANSWERS = ['here', '5min', 'help'];
 const LOST_TTL_MS = 30 * 60 * 1000;
 const VOUCHER_TTL_DAYS = 400;
@@ -119,6 +136,14 @@ const KEY = {
     stopDue: 'tgroup_stop_due', // 有序集合：「團代碼|集合點 id」→ 集合前 15 分鐘提醒的時間
     invite: (inv) => `tgroup_invite:${inv}`, // 邀請碼 → 團代碼（跟著團一起到期；換新 QR code 時刪掉舊的）
     inviteFails: (uid) => `tgroup_invfail:${uid}`, // 每人輸錯邀請碼的次數（一小時）
+    aiImports: (code) => `tgroup_aiimp:${code}`, // 這一團用了幾次艾婭匯入
+    thanked: (code) => `tgroup_thanked:${code}`, // hash「送的人|收的人」→ 1（每團每人對每位領隊送一次）
+    thanksDue: 'tgroup_thanks_due', // 有序集合：團代碼 → 最後一天提醒送花的時間
+    ended: (code) => `tgroup_ended:${code}`, // 解散後 3 天：團名、領隊名單、團員（還能送花）
+    endedOf: (uid) => `tgroup_ended_of:${uid}`, // 團員最近解散的團
+    leaderCard: (uid) => `tleader:${uid}`, // 領隊名片 JSON：{ slug, pub, intro }
+    leaderThanks: (uid) => `tleader_thanks:${uid}`, // 領隊收到的感謝（list，新的在前）JSON：{ id, at, group, text, pub }
+    leaderSlug: (slug) => `tleader_slug:${slug}`, // 公開名片網址 → 領隊 uid
 };
 
 const segmenter = new Intl.Segmenter('zh', { granularity: 'grapheme' });
@@ -186,6 +211,18 @@ function endOfLocalDate(date, tz) {
     t = guess - tzOffsetMin(tz, t) * 60000; // 夏令時間交界再校正一次
     return t;
 }
+
+/** 某時區某天某時刻（'HH:MM'）的時間戳；格式不對回傳 null */
+function localTimeToMs(date, hm, tz) {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(hm || ''));
+    if (!validDateStr(date) || !m || Number(m[1]) > 23 || Number(m[2]) > 59 || !validTz(tz)) return null;
+    const [y, mo, d] = String(date).split('-').map(Number);
+    const guess = Date.UTC(y, mo - 1, d, Number(m[1]), Number(m[2]));
+    let t = guess - tzOffsetMin(tz, guess) * 60000;
+    t = guess - tzOffsetMin(tz, t) * 60000;
+    return t;
+}
+const validDateStr = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 /** 某一刻在某時區的「HH:MM」 */
 function localHm(ms, tz) {
@@ -388,7 +425,12 @@ function callRoster(members, acks) {
 
 function rollRoster(members, answers) {
     const order = { help: 0, none: 1, '5min': 2, here: 3 };
-    const rows = members.map((m) => ({ ...m, answer: ANSWERS.includes((answers || {})[m.uid]) ? answers[m.uid] : 'none' }));
+    // 領隊手動按的「到了」算到了，另外標記 marked
+    const rows = members.map((m) => {
+        const a = (answers || {})[m.uid];
+        if (a === MARKED) return { ...m, answer: 'here', marked: true };
+        return { ...m, answer: ANSWERS.includes(a) ? a : 'none' };
+    });
     rows.sort((a, b) => order[a.answer] - order[b.answer] || a.no - b.no);
     return {
         rows, total: rows.length,
@@ -526,7 +568,9 @@ function makeDay({ date, note, hotel, links }, g) {
         const phone = cleanPhone(hotel.phone);
         const hasCoord = hotel.lat !== undefined && hotel.lat !== null && hotel.lng !== undefined && hotel.lng !== null;
         if (hasCoord && badCoord(hotel.lat, hotel.lng)) return { ok: false, code: 'place' };
-        if (name || addr) h = { name, addr, phone, lat: hasCoord ? Number(hotel.lat) : null, lng: hasCoord ? Number(hotel.lng) : null };
+        const wifi = clip(hotel.wifi, MAX_WIFI);
+        const breakfast = clip(hotel.breakfast, MAX_BREAKFAST);
+        if (name || addr || wifi || breakfast) h = { name, addr, phone, lat: hasCoord ? Number(hotel.lat) : null, lng: hasCoord ? Number(hotel.lng) : null, wifi, breakfast };
     }
     const out = [];
     if (links !== undefined && !Array.isArray(links)) return { ok: false, code: 'bad_request' };
@@ -540,7 +584,7 @@ function makeDay({ date, note, hotel, links }, g) {
     return { ok: true, card: { date, note: n, hotel: h, links: out } };
 }
 /** 要過濾髒話的文字 */
-const dayTexts = (c) => (c ? [c.note, c.hotel && c.hotel.name, ...c.links.map((l) => l.title)].filter(Boolean) : []);
+const dayTexts = (c) => (c ? [c.note, c.hotel && c.hotel.name, c.hotel && c.hotel.breakfast, ...c.links.map((l) => l.title)].filter(Boolean) : []);
 
 /**
  * 團體資訊：車輛（全團一台，或依分組各一台：車牌、車色車型、司機稱呼、司機電話、備註）、
@@ -562,6 +606,111 @@ function makeInfo({ buses, emergency }, g) {
 const infoTexts = (i) => [...i.buses.flatMap((b) => [b.plate, b.desc, b.driver, b.note]), i.emergency.agency, i.emergency.note].filter(Boolean);
 
 /** 團員資料：飲食禁忌、健康狀況（過敏、病史、用藥）、緊急聯絡人稱呼（不收電話）；全部空白 → null（刪除） */
+/** 房號：最多 10 字 */
+const cleanRoom = (s) => clip(s, MAX_ROOM);
+
+// ---------- 送花感謝 ----------
+/** 最後一天起（結束前 24 小時）到結束都可以送 */
+const canThank = (g, now) => !!g && now >= g.endsAt - THANK_FROM_MS && now <= g.endsAt;
+/** 最後一天提醒團員送花的時間 */
+const thanksRemindAt = (g) => g.endsAt - THANKS_REMIND_BEFORE_MS;
+const cleanThank = (t) => clip(t, MAX_THANK);
+const cleanIntro = (t) => clip(t, MAX_INTRO);
+const newSlug = (random) => randomCode(10, random).toLowerCase();
+const isSlug = (s) => typeof s === 'string' && /^[a-hj-np-z2-9]{10}$/.test(s);
+/** 公開名片：只給公開的感謝（不含送的人是誰） */
+function publicCard(card, thanks, name) {
+    return {
+        name: name || '', intro: (card && card.intro) || '',
+        flowers: thanks.length,
+        thanks: thanks.filter((t) => t.pub && t.text).map((t) => ({ text: t.text, at: t.at, group: t.group || '' })).slice(0, 100),
+    };
+}
+
+// ---------- 艾婭匯入行程與分房表 ----------
+/** 給 AI 的輸出格式（JSON Schema） */
+const IMPORT_SCHEMA = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['days', 'stops', 'rooms'],
+    properties: {
+        days: {
+            type: 'array',
+            items: {
+                type: 'object', additionalProperties: false, required: ['date', 'note', 'hotel'],
+                properties: {
+                    date: { type: 'string', description: 'YYYY-MM-DD' },
+                    note: { type: 'string', description: 'meals, notes, what to wear; plain text' },
+                    hotel: {
+                        type: 'object', additionalProperties: false, required: ['name', 'addr', 'phone', 'wifi', 'breakfast'],
+                        properties: { name: { type: 'string' }, addr: { type: 'string' }, phone: { type: 'string' }, wifi: { type: 'string' }, breakfast: { type: 'string' } },
+                    },
+                },
+            },
+        },
+        stops: {
+            type: 'array',
+            items: {
+                type: 'object', additionalProperties: false, required: ['date', 'time', 'tz', 'place'],
+                properties: { date: { type: 'string' }, time: { type: 'string', description: 'HH:MM local time' }, tz: { type: 'string', description: 'IANA time zone of the place' }, place: { type: 'string' } },
+            },
+        },
+        rooms: {
+            type: 'array',
+            items: {
+                type: 'object', additionalProperties: false, required: ['name', 'room', 'group'],
+                properties: { name: { type: 'string' }, room: { type: 'string' }, group: { type: 'string', description: 'bus / group name, or empty' } },
+            },
+        },
+    },
+};
+
+/** 給 AI 的指示 */
+function importPrompt(g, text) {
+    return [
+        'You read a tour leader\'s pasted itinerary and/or rooming list and extract structured data. Output JSON only, matching the schema.',
+        `The trip starts on ${g.startDate} and ends on ${g.endDate}. Day 1 = ${g.startDate}. Convert "Day N" or "第N天" to dates.`,
+        `If a time zone is unclear, use the place's country; default ${g.tz}.`,
+        'days: one entry per date that has info. note = short practical notes for members (meals, what to bring), in the source language, max 300 chars. hotel = that night\'s hotel (name and address as written, local language if given); wifi and breakfast only if stated; empty strings when unknown.',
+        'stops: meeting points / departure times with an explicit clock time (e.g. "08:00 lobby"). place max 30 chars. Skip entries without a time.',
+        'rooms: rooming list rows (guest name as written, room number, bus/group if given). Empty arrays when not present. Never invent data.',
+        '',
+        'TEXT:',
+        String(text || '').slice(0, MAX_IMPORT_TEXT),
+    ].join('\n');
+}
+
+/** 檢查並整理 AI 的輸出：日期要在行程內、時間要合法；回傳給 App 預覽（還沒存） */
+function cleanImport(raw, g) {
+    const r = raw && typeof raw === 'object' ? raw : {};
+    const inTrip = (date) => validDateStr(date) && addDays(date, 0) === date && dayDiff(g.startDate, date) >= -1 && dayDiff(g.startDate, date) < MAX_DAYS;
+    const days = [];
+    for (const d of Array.isArray(r.days) ? r.days : []) {
+        if (!d || !inTrip(d.date) || days.some((x) => x.date === d.date)) continue;
+        const made = makeDay({ date: d.date, note: d.note, hotel: d.hotel || null, links: [] }, g);
+        if (made.ok && made.card) days.push(made.card);
+    }
+    const stops = [];
+    for (const x of Array.isArray(r.stops) ? r.stops : []) {
+        if (!x || !inTrip(x.date)) continue;
+        const tz = validTz(x.tz) ? x.tz : g.tz;
+        const at = localTimeToMs(x.date, x.time, tz);
+        const place = clip(x.place, MAX_PLACE);
+        if (at === null || !place) continue;
+        stops.push({ at, tz, place });
+        if (stops.length >= MAX_STOPS) break;
+    }
+    stops.sort((a, b) => a.at - b.at);
+    const rooms = [];
+    for (const x of Array.isArray(r.rooms) ? r.rooms : []) {
+        const name = clip(x && x.name, 30), room = cleanRoom(x && x.room);
+        if (!name || (!room && !(x && x.group))) continue;
+        rooms.push({ name, room, group: clip(x.group, MAX_SUB_NAME) });
+        if (rooms.length >= 200) break;
+    }
+    return { days, stops, rooms };
+}
+
 function cleanMemberData(x) {
     const o = x || {};
     const d = { diet: clip(o.diet, 60), health: clipText(o.health, 150), contact: clip(o.contact, 20) };
@@ -656,7 +805,8 @@ function callText(call, now) {
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, FREE_DAYS, DAYS_PER_PASS, MAX_LEAD_DAYS, PASS_PRODUCT, DAYS_PRODUCT, PRODUCTS, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
     MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, PRESENCE_STALE_MS, PING_EVERY_MS, COLORS,
-    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY, INVITE_LENGTH, INVITE_FAILS, INVITE_FAIL_WINDOW_S, newInvite, normInvite,
+    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY, MAX_WIFI, MAX_BREAKFAST, MAX_ROOM, MARKED, MAX_THANK, MAX_THANKS_KEPT, THANK_FROM_MS, ENDED_TTL_S, AI_IMPORTS, MAX_IMPORT_TEXT,
+    localTimeToMs, cleanRoom, canThank, thanksRemindAt, cleanThank, cleanIntro, newSlug, isSlug, publicCard, IMPORT_SCHEMA, importPrompt, cleanImport, INVITE_LENGTH, INVITE_FAILS, INVITE_FAIL_WINDOW_S, newInvite, normInvite,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,
     makeGroup, changeTrip, addDayPass, tripDays, allowedDays, daysPassesNeeded, validDate, dayDiff, isOpen, memberLimit, isStaff, roleOf, canJoin, nextNumber,

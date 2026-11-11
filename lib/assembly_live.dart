@@ -20,47 +20,6 @@ import 'ui/night.dart';
 // - 不錄音：App 和伺服器都不保存聲音。
 // ============================================================================
 
-/// 本機測試用：flutter run --dart-define=ASM_LIVE_TEST=ws://<Mac IP>:7880 --dart-define=ASM_LIVE_TOKEN=<lk token create 產生>
-/// App 直接打開直播測試畫面，不經過正式伺服器；上架版本不會帶
-const liveTestUrl = String.fromEnvironment('ASM_LIVE_TEST');
-const liveTestToken = String.fromEnvironment('ASM_LIVE_TOKEN');
-
-/// 直播測試畫面（只在 ASM_LIVE_TEST 有值時使用）
-class AssemblyLiveTestScreen extends StatefulWidget {
-  const AssemblyLiveTestScreen({super.key});
-  @override
-  State<AssemblyLiveTestScreen> createState() => _AssemblyLiveTestScreenState();
-}
-
-class _AssemblyLiveTestScreenState extends State<AssemblyLiveTestScreen> {
-  static const _a = QAssembly(id: 'test', title: '量子音樂會', emoji: '🎵', plan: 'q2_1h', tier: 'q2', host: '測試主持人', code: 'Q2-1',
-      status: 'active', color: Color(0xFF7FD8FF), lat: 25.0336, lng: 121.5648, startAt: 0, endAt: 0, cap: 200, count: 1);
-
-  @override
-  void initState() {
-    super.initState();
-    AssemblyState.active.value = {'test': _a};
-    AssemblyLive.connect('test');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Night.night900,
-      body: SafeArea(
-        child: Stack(children: [
-          ListView(padding: const EdgeInsets.all(Night.space4), children: [
-            Text('${_a.emoji} ${_a.title}', style: const TextStyle(color: Night.ink, fontSize: 20, fontWeight: FontWeight.w600)),
-            const SizedBox(height: Night.space3),
-            const AssemblyLivePanel(a: _a, isHost: true),
-          ]),
-          Positioned(left: Night.space4, right: Night.space4, bottom: 24, child: AssemblyLiveBar(onOpen: (_) {})),
-        ]),
-      ),
-    );
-  }
-}
-
 class AssemblyLive {
   static final state = ValueNotifier<LiveState>(const LiveState());
   static Room? _room;
@@ -100,9 +59,7 @@ class AssemblyLive {
     _id = id;
     state.value = LiveState(id: id, connecting: true);
     try {
-      final (status, data) = liveTestUrl.isNotEmpty
-          ? (200, {'success': true, 'url': liveTestUrl, 'token': liveTestToken, 'identity': 'test', 'canPublish': true})
-          : await QuantumApi.assembly('asmAudio', {'id': id});
+      final (status, data) = await QuantumApi.assembly('asmAudio', {'id': id});
       if (status != 200 || data['success'] != true || _id != id) {
         if (_id == id) state.value = LiveState(id: id, error: data['code'] as String? ?? 'error');
         return;
@@ -133,13 +90,13 @@ class AssemblyLive {
         await Hardware.instance.setSpeakerphoneOn(true); // 收聽用喇叭，不是聽筒
       } catch (_) {}
       state.value = LiveState(id: id, connected: true, identity: '${data['identity']}', canPublish: data['canPublish'] == true,
-          isHost: AssemblyState.hostAsm.value == id || liveTestUrl.isNotEmpty);
+          isHost: AssemblyState.hostAsm.value == id);
     } catch (e) {
       if (_id == id) state.value = LiveState(id: id, error: 'connect');
     } finally {
       _connecting = false;
       // 連線期間集會換了：重新對齊
-      if (liveTestUrl.isEmpty && _wanted != _id) _sync();
+      if (_wanted != _id) _sync();
     }
   }
 

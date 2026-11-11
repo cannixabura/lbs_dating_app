@@ -48,6 +48,7 @@ import 'parallel_coords.dart';
 import 'passport.dart';
 import 'assembly_live.dart';
 import 'quantum_assembly.dart';
+import 'ui/frame_limit.dart';
 import 'quantum_live.dart';
 import 'quantum_meet.dart';
 import 'quantum_newyear.dart';
@@ -148,7 +149,7 @@ class MoodWhisperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // AIYA_MOCK 只在本機測試艾婭畫面時開啟（假資料、不連伺服器），上架版本不會帶
-      home: liveTestUrl.isNotEmpty ? const AssemblyLiveTestScreen() : aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
+      home: aiyaCameoTest ? const AiyaCameoTestScreen() : aiyaDirect ? const AiyaScreen() : ageBlocked ? const AgeBlockedScreen() : (hasSeenIntro ? const LoginScreen() : const IntroScreen()),
       ),
     );
   }
@@ -235,6 +236,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   late final AnimationController _quantumEntry = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000));
   late final AnimationController _quantumCollapse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
   late final AnimationController _quantumGlow = AnimationController(vsync: this, duration: const Duration(seconds: 3));
+  /// 呼吸光的重畫最多每秒 30 張（3 秒一次的慢動作，120Hz 重畫看不出差別，卻讓量子世界的圖層一直重畫）
+  late final FrameLimited _glowTick = FrameLimited(_quantumGlow);
   // 第二期：讓世界活起來
   List<QuantumPartner> _quantumPartners = []; // 糾纏中的人：不管多遠都畫一道光線
   QuantumPartner? _quantumPair; // 糾纏款配對的對方（也在量子世界時）：金、粉兩股的光繩
@@ -788,7 +791,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     });
   }
 
-  void _updateMapCamera() {
+  void _updateMapCamera({int duration = 100}) {
     if (_introFlying) return;
     if (_mapController != null && _currentPosition != null) {
       double tiltDegrees = (_pitchNotifier.value * 180 / pi).clamp(0.0, 60.0); 
@@ -804,7 +807,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
             bearing: _headingNotifier.value, 
           ),
         ),
-        duration: const Duration(milliseconds: 100),
+        duration: Duration(milliseconds: duration),
       );
     }
   }
@@ -828,6 +831,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     } catch (_) {}
     // 讓仰角從鏡頭的 50° 平順接回感測器
     _pitchNotifier.value = 50.0 * pi / 180.0;
+    _pitchSmooth = _pitchNotifier.value;
     if (mounted) setState(() => _introFlying = false);
     _checkPlaces();
   }
@@ -979,19 +983,83 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     if (_checkInRequested) _checkIn();
   }
 
+  /// 打開艾婭：聊天期間暫停 GPS、指南針、加速度計。
+  /// 這三樣會一直轉動地圖鏡頭，地圖被艾婭畫面蓋住也照樣在後面重畫，加上高精度 GPS，聊兩分鐘手機就發燙（11/11）。
+  /// 量子世界的席位在入場時就固定了，聊天期間不需要定位；關掉艾婭就恢復
+  Future<void> _openAiya() async {
+    // 原本有在跑的才恢復
+    final hadSensors = _compassStream != null || _accelerometerStream != null, hadPosition = _positionStream != null;
+    _compassStream?.cancel();
+    _accelerometerStream?.cancel();
+    _compassStream = _accelerometerStream = null;
+    _positionStream?.cancel();
+    _positionStream = null;
+    try {
+      await openAiya(context);
+    } finally {
+      if (mounted) {
+        if (hadSensors) _startMotionSensors();
+        if (hadPosition) _startPositionUpdates();
+      }
+    }
+  }
+
+  double _pitchSmooth = 0;
+  double? _headingPending;
+  final Stopwatch _sensorClock = Stopwatch()..start();
+  int _sensorLastMs = -1000;
+  Timer? _sensorPushTimer;
+
+  /// 指南針與加速度計只記下最新的值，由這裡統一推給地圖鏡頭與擴增實境圖層：
+  /// 每秒最多 20 次、兩者同一次更新（不會互搶），動畫時間略長於間隔，讓 3D 建築的透視連續轉動不跳格。
+  /// 原本每個讀數都轉一次地圖鏡頭，地圖引擎幾乎不停重畫，很耗電（11/11）
+  static const int _sensorGapMs = 50;
+  void _queueSensorPush() {
+    if (_sensorPushTimer != null) return;
+    final wait = _sensorGapMs - (_sensorClock.elapsedMilliseconds - _sensorLastMs);
+    if (wait <= 0) {
+      _pushSensors();
+    } else {
+      _sensorPushTimer = Timer(Duration(milliseconds: wait), _pushSensors);
+    }
+  }
+
+  void _pushSensors() {
+    _sensorPushTimer = null;
+    if (!mounted) return;
+    _sensorLastMs = _sensorClock.elapsedMilliseconds;
+    var changed = false;
+    final h = _headingPending;
+    if (h != null) {
+      final diff = ((h - _headingNotifier.value + 540) % 360) - 180;
+      if (diff.abs() >= 0.5) { _headingNotifier.value = h; changed = true; }
+    }
+    if ((_pitchSmooth - _pitchNotifier.value).abs() >= 0.2 * pi / 180) { _pitchNotifier.value = _pitchSmooth; changed = true; }
+    if (changed) _updateMapCamera(duration: 90);
+  }
+
   void _startMotionSensors() {
+    _pitchSmooth = _pitchNotifier.value;
+    _headingPending = null;
     try {
       _compassStream?.cancel();
       _compassStream = FlutterCompass.events?.listen((CompassEvent event) {
-        if (event.heading != null && mounted) { _headingNotifier.value = event.heading!; _updateMapCamera(); }
+        final h = event.heading;
+        if (h == null || !mounted) return;
+        final diff = ((h - _headingNotifier.value + 540) % 360) - 180;
+        _headingPending = h;
+        if (diff.abs() >= 0.5) _queueSensorPush();
       }, onError: (e) {});
     } catch (e) {}
 
     try {
       _accelerometerStream?.cancel();
-      _accelerometerStream = accelerometerEventStream().listen((AccelerometerEvent event) {
+      // 每 50 毫秒取樣一次（原本 200 毫秒，傾斜時一頓一頓）；平滑係數換算成同樣的反應速度（原本每 200 毫秒 0.1）
+      _accelerometerStream = accelerometerEventStream(samplingPeriod: const Duration(milliseconds: 50)).listen((AccelerometerEvent event) {
         double targetPitch = atan2(event.y, event.z).clamp(0.0, 80.0 * pi / 180.0);
-        if (mounted) { _pitchNotifier.value += (targetPitch - _pitchNotifier.value) * 0.1; _updateMapCamera(); }
+        if (!mounted) return;
+        _pitchSmooth += (targetPitch - _pitchSmooth) * 0.026;
+        if ((_pitchSmooth - _pitchNotifier.value).abs() >= 0.2 * pi / 180) _queueSensorPush();
       }, onError: (e) {});
     } catch (e) {}
   }
@@ -3508,10 +3576,10 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     WhisperGroup.incomingRoll.removeListener(_onWgIncomingRoll);
     HiddenContent.instance.removeListener(_onHiddenContentChanged);
     quantumSession.removeListener(_onQuantumChanged);
-    _quantumEntry.dispose(); _quantumCollapse.dispose(); _quantumGlow.dispose();
+    _quantumEntry.dispose(); _quantumCollapse.dispose(); _quantumGlow.dispose(); _glowTick.dispose();
     _quantumClock?.cancel(); _chimeBell?.dispose();
     for (final sub in _signalSubs) { sub.cancel(); }
-    _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
+    _sensorPushTimer?.cancel(); _positionStream?.cancel(); _compassStream?.cancel(); _accelerometerStream?.cancel();
     _incomingRequestsStream?.cancel(); _heartbeatTimer?.cancel(); _radarTimer?.cancel();
     _blockSubscription?.cancel(); _blockedBySubscription?.cancel(); _connectionSubscription?.cancel();
     _headingNotifier.dispose(); _pitchNotifier.dispose(); _scaleNotifier.dispose(); _activeUsersNotifier.dispose(); _introFade.dispose();
@@ -3636,7 +3704,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedBuilder(
-                              animation: _quantumGlow,
+                              animation: _glowTick,
                               builder: (context, _) {
                                 final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
                                 return CustomPaint(
@@ -3658,7 +3726,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           child: ValueListenableBuilder<bool>(
                             valueListenable: AiyaPrefs.enabled,
                             builder: (context, aiyaOn, _) => !aiyaOn ? const SizedBox.shrink()
-                                : AiyaCameo(anchor: () => _aiyaPillarAnchor(screenWidth, screenHeight), onTap: () => openAiya(context)),
+                                : AiyaCameo(anchor: () => _aiyaPillarAnchor(screenWidth, screenHeight), onTap: _openAiya),
                           ),
                         ),
                       // 艾婭：101 光柱底下的「艾婭 · AI」標籤，點了就敲門（設定裡可以關掉）
@@ -3667,7 +3735,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                           child: ValueListenableBuilder<bool>(
                             valueListenable: AiyaPrefs.enabled,
                             builder: (context, aiyaOn, _) => !aiyaOn ? const SizedBox.shrink() : AnimatedBuilder(
-                              animation: _quantumGlow,
+                              animation: _glowTick,
                               builder: (context, _) {
                                 final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
                                 final proj = QuantumProjector(centerEast: c.east, centerNorth: c.north, heading: currentHeading, pitch: smoothPitch,
@@ -3677,7 +3745,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                                 final at = hit.$1;
                                 if (at.dx < 0 || at.dx > screenWidth || at.dy < 0 || at.dy > screenHeight) return const SizedBox.shrink();
                                 return Stack(children: [
-                                  Positioned(left: at.dx - 70, top: at.dy - 2, width: 140, child: AiyaPillarChip(onTap: () => openAiya(context))),
+                                  Positioned(left: at.dx - 70, top: at.dy - 2, width: 140, child: AiyaPillarChip(onTap: _openAiya)),
                                 ]);
                               },
                             ),
@@ -3687,7 +3755,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (quantumOn)
                         Positioned.fill(
                           child: AnimatedBuilder(
-                            animation: Listenable.merge([_quantumGlow, AssemblyState.active]),
+                            animation: Listenable.merge([_glowTick, AssemblyState.active]),
                             builder: (context, _) {
                               final list = AssemblyState.active.value.values.where((a) => a.active).toList();
                               if (list.isEmpty) return const SizedBox.shrink();
@@ -3769,7 +3837,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedBuilder(
-                              animation: _quantumGlow,
+                              animation: _glowTick,
                               builder: (context, _) {
                                 final now = DateTime.now();
                                 final c = quantumLocal(_radarCenter.lat, _radarCenter.lng);
@@ -3895,7 +3963,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedBuilder(
-                              animation: _quantumGlow,
+                              animation: _glowTick,
                               builder: (context, _) {
                                 final now = DateTime.now().millisecondsSinceEpoch;
                                 _resonanceUntil.removeWhere((_, until) => until < now);
@@ -4059,7 +4127,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedBuilder(
-                              animation: _quantumGlow,
+                              animation: _quantumGlow, // 倒數與煙火是快速動畫，維持全速
                               builder: (context, _) => CustomPaint(painter: QuantumCountdownPainter(t: QuantumChime.offset(DateTime.now()))),
                             ),
                           ),
@@ -4152,6 +4220,7 @@ class _AnimatedBubbleUI extends StatefulWidget {
 class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerProviderStateMixin {
   AnimationController? _controller;  
   late Animation<double> _glowAnimation;
+  late final FrameLimited _glowTick; // 光暈的重畫最多每秒 30 張
   // 🌟 串流只建立一次：若在 build 內呼叫 onValue，每一幀都會產生新串流、反覆重新訂閱，大頭貼永遠載不出來
   late Stream<DatabaseEvent> _avatarStream;
 
@@ -4161,6 +4230,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
     _avatarStream = FirebaseDatabase.instance.ref('user_avatars/${widget.uid}').onValue;
     // 一律建立 controller：殘影 / 休息中的人回到活躍時，呼吸光暈要能重新亮起
     _controller = AnimationController(vsync: this);
+    _glowTick = FrameLimited(_controller!);
     _setupAnimation();
   }
 
@@ -4200,6 +4270,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
 
   @override 
   void dispose() { 
+    _glowTick.dispose();
     _controller?.dispose(); 
     super.dispose(); 
   }
@@ -4213,7 +4284,7 @@ class _AnimatedBubbleUIState extends State<_AnimatedBubbleUI> with SingleTickerP
     final Color accent = isPending ? Night.knockPink : (widget.isShadow ? Night.shadowInk : widget.baseColor);
 
     return AnimatedBuilder(
-      animation: _glowAnimation,
+      animation: _glowTick,
       builder: (context, child) {
         double glowValue = _glowAnimation.value;
         final Color borderColor = widget.isShadow
@@ -4445,14 +4516,15 @@ class RadarRipple extends StatefulWidget {
 
 class _RadarRippleState extends State<RadarRipple> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late final FrameLimited _tick = FrameLimited(_controller); // 漣漪的重畫最多每秒 30 張
   @override void initState() { super.initState(); _controller = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(); }
-  @override void dispose() { _controller.dispose(); super.dispose(); }
-  @override Widget build(BuildContext context) { return CustomPaint(size: const Size(300, 300), painter: RadarPainter(_controller, widget.moodColor)); }
+  @override void dispose() { _tick.dispose(); _controller.dispose(); super.dispose(); }
+  @override Widget build(BuildContext context) { return CustomPaint(size: const Size(300, 300), painter: RadarPainter(_controller, widget.moodColor, repaint: _tick)); }
 }
 
 class RadarPainter extends CustomPainter {
   final Animation<double> animation; final Color baseColor; 
-  RadarPainter(this.animation, this.baseColor) : super(repaint: animation);
+  RadarPainter(this.animation, this.baseColor, {Listenable? repaint}) : super(repaint: repaint ?? animation);
   @override void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2); final maxRadius = size.width / 2;
     for (int i = 0; i < 3; i++) {

@@ -12,13 +12,11 @@ import '../quantum_orb.dart';
 import '../ui/night.dart';
 import 'aiya_store.dart';
 
-/// 實測用：--dart-define=AIYA_FPS=true 在畫面上顯示每秒張數與每張花的時間
-const _showFps = bool.fromEnvironment('AIYA_FPS');
-
 /// 打開艾婭（量子世界中央光柱）
+/// 不透明的頁面：淡入結束後，底下的量子世界（地圖、光球動畫、地圖上的小光柱）就停止繪製。
+/// 原本是半透明疊在地圖上，兩個畫面一起全速繪製，聊兩分鐘手機就發燙（11/11）。
 Future<void> openAiya(BuildContext context) => Navigator.of(context).push(PageRouteBuilder(
-      opaque: false,
-      barrierColor: const Color(0xCC070B1F),
+      opaque: true,
       transitionDuration: const Duration(milliseconds: 350),
       pageBuilder: (_, __, ___) => const AiyaScreen(),
       transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
@@ -97,10 +95,6 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   AiyaHoloBuffers? _buf;
   final _video = AiyaVideo();
   final _rnd = Random();
-  // 效能顯示
-  final _fpsText = ValueNotifier<String>('');
-  final _frameTimes = <double>[];
-  final _rasterMs = <double>[], _buildMs = <double>[];
 
   final _msgs = <_Msg>[];
   final _input = TextEditingController();
@@ -128,9 +122,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
       if (_due < now) _due = now; // 落後太多（例如剛從背景回來）就從現在重新算
       _anim.update(dt);
       _frame.value++;
-      if (_showFps) _countFrame(dt);
     })..start();
-    if (_showFps) SchedulerBinding.instance.addTimingsCallback(_onTimings);
     _video.onEnd = (_) => _video.play('idle', _anim.time, loop: true);
     AiyaStore.notice.addListener(_onNotice);
     AiyaStore.credits.addListener(_onCredits);
@@ -151,9 +143,7 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _ticker.dispose();
-    if (_showFps) SchedulerBinding.instance.removeTimingsCallback(_onTimings);
     _video.dispose();
-    _fpsText.dispose();
     _clock?.cancel();
     _typer?.cancel();
     AiyaStore.notice.removeListener(_onNotice);
@@ -818,28 +808,6 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _countFrame(double dt) {
-    _frameTimes.add(dt);
-    if (_frameTimes.length < 60) return;
-    final avg = _frameTimes.reduce((a, b) => a + b) / _frameTimes.length, worst = _frameTimes.reduce(max);
-    double mean(List<double> l) => l.isEmpty ? 0 : l.reduce((a, b) => a + b) / l.length;
-    double top(List<double> l) => l.isEmpty ? 0 : l.reduce(max);
-    _fpsText.value = '每秒 ${(1 / avg).toStringAsFixed(1)} 張　最慢一張 ${(worst * 1000).toStringAsFixed(0)} 毫秒\n'
-        '計算 ${mean(_buildMs).toStringAsFixed(1)}／${top(_buildMs).toStringAsFixed(1)} 毫秒　繪圖 ${mean(_rasterMs).toStringAsFixed(1)}／${top(_rasterMs).toStringAsFixed(1)} 毫秒\n'
-        '粒子 ${_holo?.faceCount ?? 0}＋${(_holo?.count ?? 0) - (_holo?.faceCount ?? 0)}　片段 ${_clipNames[_video.current] ?? '-'}';
-    _frameTimes.clear(); _rasterMs.clear(); _buildMs.clear();
-  }
-
-  static const _clipNames = {'idle': '安靜微笑', 'hello': '打招呼', 'think': '思考', 'talk1': '看著你說話', 'talk_soft': '輕輕說', 'talk_slow': '輕輕慢慢說',
-    'surprise': '驚訝', 'shy': '害羞', 'worry': '擔心', 'wink': '眨眼', 'laugh': '開心大笑'};
-
-  void _onTimings(List<ui.FrameTiming> timings) {
-    for (final t in timings) {
-      _buildMs.add(t.buildDuration.inMicroseconds / 1000);
-      _rasterMs.add(t.rasterDuration.inMicroseconds / 1000);
-    }
-  }
-
   String _timeLeft() {
     if (_endsAt == null) return '';
     final s = _endsAt!.difference(DateTime.now()).inSeconds.clamp(0, 3600);
@@ -856,7 +824,8 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
     final stage = Rect.fromLTWH(0, stageTop, size.width, stageH.clamp(160.0, size.height));
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // 跟原本「地圖＋80% 深色遮罩」看起來差不多的深色底
+      backgroundColor: const Color(0xFF070B1F),
       resizeToAvoidBottomInset: false,
       body: Stack(children: [
         // 金色光暈
@@ -882,11 +851,6 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
               _ => const SizedBox.shrink(),
             },
           )))),
-        if (_showFps)
-          Positioned(
-            left: Night.space4, top: mq.padding.top + 48,
-            child: IgnorePointer(child: ValueListenableBuilder(valueListenable: _fpsText, builder: (_, v, __) => Text(v, style: const TextStyle(color: Color(0xFF7CFFB2), fontSize: 11, fontFamily: 'monospace')))),
-          ),
         // 上方：名稱、AI 標示、剩餘時間、結束
         Positioned(
           left: 0, right: 0, top: mq.padding.top + 8,
@@ -917,9 +881,25 @@ class _AiyaScreenState extends State<AiyaScreen> with SingleTickerProviderStateM
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: (size.height - keyboard) * 0.34),
-                  child: ListView.builder(
-                    controller: _scroll, shrinkWrap: true, itemCount: _msgs.length,
-                    itemBuilder: (context, i) => _bubble(_msgs[i]),
+                  // 上面還有被捲走的對話時，頂部淡出，不會在艾婭下方切出一條硬邊；捲到最上面就不淡
+                  child: AnimatedBuilder(
+                    animation: _scroll,
+                    builder: (context, list) {
+                      final fade = _scroll.hasClients ? _scroll.position.pixels.clamp(0.0, 56.0) : 0.0;
+                      return ShaderMask(
+                        blendMode: BlendMode.dstIn,
+                        shaderCallback: (r) => LinearGradient(
+                          begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                          colors: const [Color(0x00FFFFFF), Color(0xFFFFFFFF)],
+                          stops: [0, r.height > 0 ? (fade / r.height).clamp(0.0, 1.0) : 0],
+                        ).createShader(r),
+                        child: list,
+                      );
+                    },
+                    child: ListView.builder(
+                      controller: _scroll, shrinkWrap: true, itemCount: _msgs.length,
+                      itemBuilder: (context, i) => _bubble(_msgs[i]),
+                    ),
                   ),
                 ),
                 const SizedBox(height: Night.space2),

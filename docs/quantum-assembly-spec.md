@@ -143,6 +143,4 @@ Redis：
 6. 操作說明（guideS17）加上 Q2 的說明，重新產生網站說明頁。
 7. 隱私權政策裡的「日本或新加坡的雲端主機」改成實際業者與地點。
 
-本機測試：`livekit-server --dev`（金鑰 devkey／secret），
-`flutter run --dart-define=ASM_LIVE_TEST=ws://<Mac IP>:7880 --dart-define=ASM_LIVE_TOKEN=$(lk token create --api-key devkey --api-secret secret --join --room asm_test --identity simhost --valid-for 24h)`，
-另一端用 `lk room join --url ws://localhost:7880 --api-key devkey --api-secret secret --identity guest --publish <檔案.ogg> asm_test` 模擬講話的人。
+本機測試：`livekit-server --dev`（金鑰 devkey／secret），用 `lk room join --url ws://localhost:7880 --api-key devkey --api-secret secret --identity guest --publish <檔案.ogg> <房間>` 模擬講話的人。

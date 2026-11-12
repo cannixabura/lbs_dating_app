@@ -310,9 +310,9 @@ Future<void> showCreateWhisperGroup(BuildContext context) {
 
 // ---------- 旅行團 TourChip 導流 ----------
 // 只在 iOS 顯示：TourChip 目前只上架 App Store（Google Play 還沒上架，上架後再開 Android）
-// 只給 TourChip 有的介面語言（沒有 pt / es / hi）
+// TourChip 1.0.2 起已有城市低語全部的介面語言（含 pt / es / hi），不再限制語言
 const _tourChipAppStore = 'https://apps.apple.com/app/id6832215611';
-bool get _showTourChip => Platform.isIOS && !const {'pt', 'es', 'hi'}.contains(tr.localeName.split('_').first);
+bool get _showTourChip => Platform.isIOS;
 
 class _TourChipCard extends StatelessWidget {
   const _TourChipCard();

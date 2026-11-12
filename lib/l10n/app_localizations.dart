@@ -4707,6 +4707,24 @@ abstract class AppLocalizations {
   /// **'20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。'**
   String get wgFreeNote;
 
+  /// No description provided for @wgTourChipTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'要帶旅行團？'**
+  String get wgTourChipTitle;
+
+  /// No description provided for @wgTourChipBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'「旅行團 TourChip」是我們專為領隊、導遊做的 App：副領隊、分組、公告、行程表都有。'**
+  String get wgTourChipBody;
+
+  /// No description provided for @wgTourChipButton.
+  ///
+  /// In zh, this message translates to:
+  /// **'去 App Store 看看'**
+  String get wgTourChipButton;
+
   /// No description provided for @wgCreateButton.
   ///
   /// In zh, this message translates to:

@@ -1580,6 +1580,9 @@
     }
   },
   "wgFreeNote": "20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。",
+  "wgTourChipTitle": "要帶旅行團？",
+  "wgTourChipBody": "「旅行團 TourChip」是我們專為領隊、導遊做的 App：副領隊、分組、公告、行程表都有。",
+  "wgTourChipButton": "去 App Store 看看",
   "wgCreateButton": "開團",
   "wgJoined": "已加入「{name}」，你是 {no} 號",
   "@wgJoined": {

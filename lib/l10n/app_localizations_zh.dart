@@ -2578,6 +2578,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wgFreeNote => '20 人以內免費；超過 20 人時，團主開通 7 天方案就能到 100 人。';
 
   @override
+  String get wgTourChipTitle => '要帶旅行團？';
+
+  @override
+  String get wgTourChipBody =>
+      '「旅行團 TourChip」是我們專為領隊、導遊做的 App：副領隊、分組、公告、行程表都有。';
+
+  @override
+  String get wgTourChipButton => '去 App Store 看看';
+
+  @override
   String get wgCreateButton => '開團';
 
   @override
@@ -6245,6 +6255,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get wgFreeNote => '20 人以内免费；超过 20 人时，团主开通 7 天方案就能到 100 人。';
+
+  @override
+  String get wgTourChipTitle => '要带旅行团？';
+
+  @override
+  String get wgTourChipBody =>
+      '「旅行团 TourChip」是我们专为领队、导游做的 App：副领队、分组、公告、行程表都有。';
+
+  @override
+  String get wgTourChipButton => '去 App Store 看看';
 
   @override
   String get wgCreateButton => '开团';

@@ -265,6 +265,7 @@ Future<void> showCreateWhisperGroup(BuildContext context) {
             Text(tr.wgCreateTitle, style: Night.title, textAlign: TextAlign.center),
             const SizedBox(height: Night.space2),
             Text(tr.wgCreateBody, style: Night.caption, textAlign: TextAlign.center),
+            if (_showTourChip) ...[const SizedBox(height: Night.space3), const _TourChipCard()],
             const SizedBox(height: Night.space4),
             TextField(
               controller: name, maxLength: 20, style: const TextStyle(color: Night.ink),
@@ -304,6 +305,41 @@ Future<void> showCreateWhisperGroup(BuildContext context) {
         ),
       ),
     )),
+  );
+}
+
+// ---------- 旅行團 TourChip 導流 ----------
+// 只在 iOS 顯示：TourChip 目前只上架 App Store（Google Play 還沒上架，上架後再開 Android）
+// 只給 TourChip 有的介面語言（沒有 pt / es / hi）
+const _tourChipAppStore = 'https://apps.apple.com/app/id6832215611';
+bool get _showTourChip => Platform.isIOS && !const {'pt', 'es', 'hi'}.contains(tr.localeName.split('_').first);
+
+class _TourChipCard extends StatelessWidget {
+  const _TourChipCard();
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Colors.white.withValues(alpha: 0.06),
+    borderRadius: BorderRadius.circular(14),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => launchUrl(Uri.parse(_tourChipAppStore), mode: LaunchMode.externalApplication),
+      child: Padding(
+        padding: const EdgeInsets.all(Night.space3),
+        child: Row(children: [
+          const Icon(Icons.tour_outlined, color: Night.ink, size: 26),
+          const SizedBox(width: Night.space3),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(tr.wgTourChipTitle, style: Night.caption.copyWith(color: Night.ink, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 2),
+            Text(tr.wgTourChipBody, style: Night.caption.copyWith(fontSize: 12)),
+            const SizedBox(height: 4),
+            Text(tr.wgTourChipButton, style: Night.caption.copyWith(fontSize: 12, decoration: TextDecoration.underline)),
+          ])),
+          const Icon(Icons.open_in_new, color: Night.ink, size: 16),
+        ]),
+      ),
+    ),
   );
 }
 

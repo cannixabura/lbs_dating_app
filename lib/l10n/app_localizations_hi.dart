@@ -2831,6 +2831,16 @@ class AppLocalizationsHi extends AppLocalizations {
       '20 लोगों तक मुफ़्त। ज़्यादा के लिए लीडर 7-दिन का प्लान ले (100 तक)।';
 
   @override
+  String get wgTourChipTitle => 'टूर ले जा रहे हैं?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip हमारा ऐप है जो टूर लीडर और गाइड के लिए बना है: सह-लीडर, उप-समूह, घोषणाएँ और यात्रा कार्यक्रम।';
+
+  @override
+  String get wgTourChipButton => 'App Store पर देखें';
+
+  @override
   String get wgCreateButton => 'ग्रुप बनाएँ';
 
   @override

@@ -2630,6 +2630,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get wgFreeNote => '20 人まで無料。それ以上はリーダーが 7 日間プランで最大 100 人に。';
 
   @override
+  String get wgTourChipTitle => 'ツアーを引率しますか？';
+
+  @override
+  String get wgTourChipBody =>
+      '「TourChip」は添乗員・ガイドのために作った私たちのアプリです。サブリーダー、班分け、お知らせ、行程表がそろっています。';
+
+  @override
+  String get wgTourChipButton => 'App Store で見る';
+
+  @override
   String get wgCreateButton => '作成';
 
   @override

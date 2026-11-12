@@ -2844,6 +2844,16 @@ class AppLocalizationsPt extends AppLocalizations {
       'Grátis para até 20 pessoas. Para mais, o líder pega o plano de 7 dias (até 100).';
 
   @override
+  String get wgTourChipTitle => 'Vai guiar uma excursão?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip é o nosso app feito para líderes de excursão e guias, com co-líderes, subgrupos, avisos e roteiro.';
+
+  @override
+  String get wgTourChipButton => 'Ver na App Store';
+
+  @override
   String get wgCreateButton => 'Criar grupo';
 
   @override

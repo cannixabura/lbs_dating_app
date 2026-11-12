@@ -2759,6 +2759,16 @@ class AppLocalizationsVi extends AppLocalizations {
       'Miễn phí đến 20 người. Nhiều hơn thì trưởng nhóm mua gói 7 ngày (tối đa 100).';
 
   @override
+  String get wgTourChipTitle => 'Bạn dẫn đoàn du lịch?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip là ứng dụng của chúng tôi dành cho trưởng đoàn và hướng dẫn viên, có phó đoàn, chia nhóm, thông báo và lịch trình.';
+
+  @override
+  String get wgTourChipButton => 'Xem trên App Store';
+
+  @override
   String get wgCreateButton => 'Tạo nhóm';
 
   @override

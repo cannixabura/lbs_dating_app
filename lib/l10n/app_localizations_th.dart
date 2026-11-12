@@ -2781,6 +2781,16 @@ class AppLocalizationsTh extends AppLocalizations {
       'ฟรีถึง 20 คน ถ้ามากกว่านั้น หัวหน้าซื้อแพ็กเกจ 7 วัน (สูงสุด 100 คน)';
 
   @override
+  String get wgTourChipTitle => 'กำลังจะพาทัวร์ใช่ไหม?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip คือแอปของเราที่ทำมาเพื่อหัวหน้าทัวร์และไกด์ มีผู้ช่วยหัวหน้า แบ่งกลุ่มย่อย ประกาศ และตารางเดินทาง';
+
+  @override
+  String get wgTourChipButton => 'ดูใน App Store';
+
+  @override
   String get wgCreateButton => 'สร้าง';
 
   @override

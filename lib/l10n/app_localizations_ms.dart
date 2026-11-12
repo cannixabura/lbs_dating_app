@@ -2774,6 +2774,16 @@ class AppLocalizationsMs extends AppLocalizations {
       'Percuma sehingga 20 orang. Lebih daripada itu, ketua dapatkan pelan 7 hari (hingga 100).';
 
   @override
+  String get wgTourChipTitle => 'Mengetuai rombongan pelancongan?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip ialah aplikasi kami untuk ketua rombongan dan pemandu pelancong, dengan pembantu ketua, kumpulan kecil, pengumuman dan jadual perjalanan.';
+
+  @override
+  String get wgTourChipButton => 'Lihat di App Store';
+
+  @override
   String get wgCreateButton => 'Mulakan';
 
   @override

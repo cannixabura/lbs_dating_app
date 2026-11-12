@@ -2649,6 +2649,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get wgFreeNote => '20명까지 무료예요. 더 많으면 리더가 7일 플랜으로 100명까지 늘릴 수 있어요.';
 
   @override
+  String get wgTourChipTitle => '투어를 인솔하시나요?';
+
+  @override
+  String get wgTourChipBody =>
+      'TourChip은 인솔자와 가이드를 위해 만든 저희 앱이에요. 부인솔자, 조 나누기, 공지, 일정표가 있어요.';
+
+  @override
+  String get wgTourChipButton => 'App Store에서 보기';
+
+  @override
   String get wgCreateButton => '만들기';
 
   @override

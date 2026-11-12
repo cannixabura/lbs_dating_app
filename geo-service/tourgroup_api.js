@@ -282,6 +282,9 @@ function create(d) {
         const action = body.action, now = clock();
         // pong 來自背景收到的無聲推播：那時 App 的語言設定可能還沒載入，不更新推播語言
         if (action !== 'pong') await d.cmd(['HSET', tg.KEY.lang, uid, lang]).catch(() => 0);
+        // App 的 build 號：只對有送花功能的新版發送花提醒（舊版不帶這個標頭）
+        const build = Number((req.headers || {})['x-app-build']);
+        if (Number.isInteger(build) && build > 0 && build < 100000) await d.cmd(['HSET', tg.KEY.build, uid, String(build)]).catch(() => 0);
         // 有聯絡就記下時間（地圖上不變灰），並把下次無聲推播往後排
         const myCode = await d.cmd(['GET', tg.KEY.of(uid)]).catch(() => null);
         if (myCode) {
@@ -947,7 +950,9 @@ function create(d) {
                 if (!g || !tg.isOpen(g, now) || now > g.endsAt) continue;
                 const thanked = hashOf(await d.cmd(['HGETALL', tg.KEY.thanked(code)]));
                 const givers = new Set(Object.keys(thanked).map((k) => k.split('|')[0]));
-                const targets = (await members(code)).filter((m) => !tg.isStaff(g, m.uid) && !givers.has(m.uid)).map((m) => m.uid);
+                const rest = (await members(code)).filter((m) => !tg.isStaff(g, m.uid) && !givers.has(m.uid)).map((m) => m.uid);
+                const builds = rest.length ? (await d.cmd(['HMGET', tg.KEY.build, ...rest])) || [] : [];
+                const targets = rest.filter((u, i) => Number(builds[i]) >= tg.THANKS_MIN_BUILD);
                 if (targets.length) await push(targets, title(g), '最後一天了！想謝謝領隊的話，可以送一朵花、留一句話。', { type: 'tgroup_thanks', code });
             } catch (e) {
                 console.error(`[旅行團] ${code} 送花提醒失敗:`, e);

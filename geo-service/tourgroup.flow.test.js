@@ -36,7 +36,7 @@ const tour = api.create({
 async function call(uid, action, body = {}, lang) {
     let out;
     const res = { status: () => res, json: (x) => { out = x; return res; }, send: (x) => { out = x; return res; } };
-    await tour.handle({ method: 'POST', uid, lang, body: { action, ...body } }, res);
+    await tour.handle({ method: 'POST', uid, lang, headers: { 'x-app-build': uid === 'oldapp' ? undefined : '9' }, body: { action, ...body } }, res);
     return out;
 }
 
@@ -547,7 +547,7 @@ test('送花感謝：最後一天起才能送、每人每位一次、最後一�
     const start = now;
     let r = await call('fh', 'create', { name: '沖繩三日', color: 'pink', days: 1, tz: 'Asia/Tokyo' });
     const g0 = r.group;
-    for (const u of ['fa', 'fb', 'fc']) await call(u, 'join', { invite: g0.invite });
+    for (const u of ['fa', 'fb', 'fc', 'oldapp']) await call(u, 'join', { invite: g0.invite });
     await call('fh', 'cohost_add', { uid: 'fc' });
 
     // 1 天的團：開團當下就是最後一天 → 可以送；先測多天的情況用 status 的 open
@@ -567,7 +567,7 @@ test('送花感謝：最後一天起才能送、每人每位一次、最後一�
     now = g0.endsAt - 7 * 3600000 + 1000;
     await tour.remindThanks(now);
     const rem = pushes.find((p) => p.data.type === 'tgroup_thanks');
-    assert.deepEqual(rem.uids, ['fb']);
+    assert.deepEqual(rem.uids, ['fb']); // 舊版 App（沒帶 build 號）不提醒
 
     // 領隊的名片：預設不公開；挑一則公開
     r = await call('fh', 'my_card');

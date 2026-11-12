@@ -99,6 +99,8 @@ const THANKS_REMIND_BEFORE_MS = 7 * 60 * 60 * 1000; // 最後一天約 17:00（�
 const ENDED_TTL_S = 3 * 86400; // 解散後還能送花幾天
 // 艾婭匯入行程與分房表：領隊免費，每團最多 5 次
 const AI_IMPORTS = 5;
+// 有送花功能的 App 版本（build 9 = 1.0.1）；舊版收到送花提醒也找不到地方送，所以只提醒新版
+const THANKS_MIN_BUILD = 9;
 const MAX_IMPORT_TEXT = 6000;
 const ANSWERS = ['here', '5min', 'help'];
 const LOST_TTL_MS = 30 * 60 * 1000;
@@ -136,6 +138,7 @@ const KEY = {
     stopDue: 'tgroup_stop_due', // 有序集合：「團代碼|集合點 id」→ 集合前 15 分鐘提醒的時間
     invite: (inv) => `tgroup_invite:${inv}`, // 邀請碼 → 團代碼（跟著團一起到期；換新 QR code 時刪掉舊的）
     inviteFails: (uid) => `tgroup_invfail:${uid}`, // 每人輸錯邀請碼的次數（一小時）
+    build: 'tgroup_build', // 每位使用者 App 的 build 號（App 每次呼叫帶 X-App-Build）
     aiImports: (code) => `tgroup_aiimp:${code}`, // 這一團用了幾次艾婭匯入
     thanked: (code) => `tgroup_thanked:${code}`, // hash「送的人|收的人」→ 1（每團每人對每位領隊送一次）
     thanksDue: 'tgroup_thanks_due', // 有序集合：團代碼 → 最後一天提醒送花的時間
@@ -805,7 +808,7 @@ function callText(call, now) {
 module.exports = {
     FREE_LIMIT, PAID_LIMIT, MAX_DAYS, FREE_DAYS, DAYS_PER_PASS, MAX_LEAD_DAYS, PASS_PRODUCT, DAYS_PRODUCT, PRODUCTS, BUNDLE_ID, PLAY_PACKAGE, LINK_BASE, CODE_LENGTH, VOUCHER_LENGTH,
     MAX_NAME, MAX_PLACE, MAX_NOTE, MAX_COHOSTS, MAX_SUBS, MAX_SUB_NAME, MAX_ANN, MAX_ANN_LEN, MAX_STOPS, MAX_NICK, MAX_BUBBLE, MAX_MSG, MAX_MSGS, MSG_RATE, POS_FRESH_MS, PRESENCE_STALE_MS, PING_EVERY_MS, COLORS,
-    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY, MAX_WIFI, MAX_BREAKFAST, MAX_ROOM, MARKED, MAX_THANK, MAX_THANKS_KEPT, THANK_FROM_MS, ENDED_TTL_S, AI_IMPORTS, MAX_IMPORT_TEXT,
+    REMIND_EVERY_MS, REMIND_MAX, CALL_LEAD_MAX_MS, PRE_REMIND_MS, PRE_REMIND_MIN_LEAD_MS, MAX_LINKS, CALL_LINGER_MS, ANSWERS, LOST_TTL_MS, VOUCHER_TTL_DAYS, DEFAULT_TZ, KEY, THANKS_MIN_BUILD, MAX_WIFI, MAX_BREAKFAST, MAX_ROOM, MARKED, MAX_THANK, MAX_THANKS_KEPT, THANK_FROM_MS, ENDED_TTL_S, AI_IMPORTS, MAX_IMPORT_TEXT,
     localTimeToMs, cleanRoom, canThank, thanksRemindAt, cleanThank, cleanIntro, newSlug, isSlug, publicCard, IMPORT_SCHEMA, importPrompt, cleanImport, INVITE_LENGTH, INVITE_FAILS, INVITE_FAIL_WINDOW_S, newInvite, normInvite,
     clip, newCode, newVoucherCode, isCode, isVoucherCode,
     validTz, tzOffsetMin, localDate, endOfLocalDate, localHm, addDays, computeEndsAt,

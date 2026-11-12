@@ -44,6 +44,9 @@ if (!admin.apps.length) admin.initializeApp();
 //    firebase functions:secrets:set UPSTASH_REDIS_REST_TOKEN
 const UPSTASH_URL = defineSecret("UPSTASH_REDIS_REST_URL");
 const UPSTASH_TOKEN = defineSecret("UPSTASH_REDIS_REST_TOKEN");
+// Q2 語音直播主機（Vultr 東京自架 LiveKit）：firebase functions:secrets:set LIVEKIT_URL／LIVEKIT_API_KEY／LIVEKIT_API_SECRET
+// livekit.js 讀 process.env；只有 quantum 和 endAssemblies 需要
+const LIVEKIT_SECRETS = [defineSecret("LIVEKIT_URL"), defineSecret("LIVEKIT_API_KEY"), defineSecret("LIVEKIT_API_SECRET")];
 const UPSTASH_SECRETS = [UPSTASH_URL, UPSTASH_TOKEN];
 
 const MAX_RADIUS_KM = 5;
@@ -740,7 +743,18 @@ async function assemblyOptions(uid, now) {
     const vouchers = { "1h": 0, "2h": 0, q2_1h: 0, q2_2h: 0 };
     Object.values(vouchersSnap.val() || {}).forEach((v) => { if (v && vouchers[v.plan] != null) vouchers[v.plan]++; });
     // q2：直播主機設定好才開放 Q2
-    return { free: freeUsed !== 1, vouchers, q2: livekit.configured() };
+    return { free: freeUsed !== 1, vouchers, q2: await q2Open(uid) };
+}
+
+/**
+ * Q2 開放給誰：直播主機設定好，而且（正式開放 qConfig/q2Open = true，或是測試名單 qConfig/q2Testers/{uid}）。
+ * 正式上線前先只給測試名單，避免一般使用者看到還沒上架的 Q2 方案。
+ */
+async function q2Open(uid) {
+    if (!livekit.configured()) return false;
+    const snap = await admin.database().ref("qConfig").once("value");
+    const c = snap.val() || {};
+    return c.q2Open === true || !!(c.q2Testers && c.q2Testers[uid] === true);
 }
 
 async function handleAssembly(req, res, uid, action, lang, now) {
@@ -789,7 +803,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
         const title = assembly.cleanTitle(req.body.title);
         if (!plan) return fail("bad_plan");
         const tier = assembly.tierOf(plan);
-        if (tier === "q2" && !livekit.configured()) return fail("q2_unavailable");
+        if (tier === "q2" && !(await q2Open(uid))) return fail("q2_unavailable");
         if (!title) return fail("bad_title");
         if (isDisallowed(title)) return fail("blocked_words");
         const emoji = assembly.validEmoji(req.body.emoji) ? req.body.emoji : assembly.EMOJIS[0];
@@ -1037,7 +1051,7 @@ async function handleAssembly(req, res, uid, action, lang, now) {
 }
 
 /** 每分鐘：時間到的集會自動結束（主持人不在量子世界也照常進行） */
-exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, async () => {
+exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ...LIVEKIT_SECRETS] }, async () => {
     const now = Date.now();
     const ids = await sendUpstashCommand(["ZRANGE", assembly.KEY.active, "0", "-1"]);
     for (const id of Array.isArray(ids) ? ids : []) {
@@ -1052,7 +1066,7 @@ exports.endAssemblies = onSchedule({ schedule: "every 1 minutes", region: "asia-
     }
 });
 
-exports.quantum = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
+exports.quantum = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ...LIVEKIT_SECRETS] }, (req, res) => {
   cors(req, res, async () => {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const uid = await verifyCaller(req);

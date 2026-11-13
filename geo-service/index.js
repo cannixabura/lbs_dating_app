@@ -2217,11 +2217,15 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         let session = null;
         try { session = raw ? JSON.parse(raw) : null; } catch (e) { session = null; }
         if (!session || session.id !== req.body.sessionId || !aiya.sessionAlive(session, now)) return res.status(200).json({ success: false, code: "ended" });
-        const text = aiya.cleanInput(req.body.text);
-        if (!text) return res.status(200).json({ success: false, code: "empty" });
-        if (isDisallowed(text)) return res.status(200).json({ success: false, code: "filtered" });
+        // 旅行團可以附一張照片（景點導覽、菜單、招牌）：照片只送這一次、不存，紀錄裡只留「這裡傳過照片」
+        const photo = app.id === "tour" && req.body.image != null ? aiya.cleanPhoto(req.body.image) : null;
+        if (app.id === "tour" && req.body.image != null && !photo) return res.status(200).json({ success: false, code: "bad_photo" });
+        if (photo && (session.photos || 0) >= aiya.PHOTO_PER_SESSION) return res.status(200).json({ success: false, code: "photo_max" });
+        const text = aiya.cleanInput(req.body.text) || "";
+        if (!text && !photo) return res.status(200).json({ success: false, code: "empty" });
+        if (text && isDisallowed(text)) return res.status(200).json({ success: false, code: "filtered" });
 
-        session.msgs.push({ role: "user", content: text });
+        session.msgs.push({ role: "user", content: photo ? `${aiya.PHOTO_PLACEHOLDER} ${text}`.trim() : text });
         session.turns += 1;
         // stream: true（1.0.5 起）→ 一行一個 JSON：{t:"delta",text} 是到目前為止（已遮蔽）的回覆，最後 {t:"done",…} 跟一般回應一樣
         const wantStream = req.body.stream === true;
@@ -2241,7 +2245,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         try {
           const params = {
             model: aiya.MODEL,
-            max_tokens: 1024,
+            max_tokens: photo ? aiya.PHOTO_MAX_TOKENS : 1024,
             output_config: { effort: "low", format: { type: "json_schema", schema: aiya.REPLY_SCHEMA } },
             system: [
               { type: "text", text: aiya.personaOf(app), cache_control: { type: "ephemeral" } },
@@ -2253,7 +2257,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
                   : await aiyaContext(session.lang || lang, now),
               },
             ],
-            messages: session.msgs,
+            messages: photo ? aiya.withPhoto(session.msgs, photo, text) : session.msgs,
           };
           let response;
           if (wantStream) {
@@ -2276,7 +2280,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           if (response.stop_reason === "refusal") code = "refused";
           else {
             const textBlock = response.content.find((b) => b.type === "text");
-            parsed = aiya.parseReply(textBlock && textBlock.text);
+            parsed = aiya.parseReply(textBlock && textBlock.text, { long: !!photo });
             if (!parsed) code = "busy";
           }
         } catch (e) {
@@ -2293,6 +2297,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         let reply = maskBlockedTerms(parsed.reply);
         if (aiya.mentionsCrisis(text)) reply = `${reply} ${aiya.hotline(session.lang || lang)}`;
         session.msgs.push({ role: "assistant", content: JSON.stringify({ reply: parsed.reply, expression: parsed.expression }) });
+        if (photo) session.photos = (session.photos || 0) + 1;
         // 語音朗讀只念艾婭剛說的這一句（不能拿去念任意文字）；同一句最多念 2 次
         session.lastReply = reply;
         session.spoken = 0;
@@ -2331,6 +2336,50 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           ]),
         ]);
         return res.status(200).json({ success: true, format: "aac", audio: audio.toString("base64"), speechCharsLeft: Math.max(0, aiya.SPEECH_CHARS_PER_DAY - st.speechChars - text.length) });
+      }
+
+      if (action === "spot") {
+        // 旅行團：走到行程表上的景點附近，艾婭的一分鐘介紹（不扣聊天次數；同景點同語言全站共用快取 30 天）
+        if (app.id !== "tour") return res.status(400).json({ success: false, code: "bad_request" });
+        const name = aiya.cleanSpotName(req.body.place);
+        if (!name) return res.status(200).json({ success: false, code: "empty" });
+        const lat = aiya.roundCoord(req.body.lat, 90), lng = aiya.roundCoord(req.body.lng, 180);
+        const day = aiya.dayKey(now);
+        const cacheKey = aiya.SPOT_KEY.intro(lang, name, lat, lng);
+        const usedKey = aiya.SPOT_KEY.used(uid, day);
+        const [cached, consent, used, spent] = await Promise.all([
+          sendUpstashCommand(["GET", cacheKey]),
+          admin.database().ref(aiya.dbPath(app, "aiyaConsent", uid)).once("value").then((s) => s.val()),
+          sendUpstashCommand(["GET", usedKey]),
+          sendUpstashCommand(["GET", aiya.SPOT_KEY.budget(day)]),
+        ]);
+        if (!consent || Number(consent.v) < aiya.CONSENT_VERSION) return res.status(200).json({ success: false, code: "consent" });
+        if (parseInt(used || "0", 10) >= aiya.SPOT_PER_DAY) return res.status(200).json({ success: false, code: "spot_max" });
+        await sendUpstashPipeline([["INCR", usedKey], ["EXPIRE", usedKey, "172800"]]);
+        if (cached) {
+          try { return res.status(200).json({ success: true, cached: true, ...JSON.parse(cached) }); } catch (e) { /* 壞掉的快取：重新產生 */ }
+        }
+        if (parseInt(spent || "0", 10) >= aiya.SPOT_DAILY_BUDGET_MICRO) return res.status(200).json({ success: false, code: "resting" });
+        let spot = null;
+        try {
+          const response = await claude().messages.create({
+            model: aiya.MODEL,
+            max_tokens: 700,
+            output_config: { effort: "low", format: { type: "json_schema", schema: aiya.SPOT_SCHEMA } },
+            system: [{ type: "text", text: aiya.SPOT_PROMPT, cache_control: { type: "ephemeral" } }],
+            messages: [{ role: "user", content: aiya.spotRequest({ name, lat, lng, lang }) }],
+          });
+          const cost = aiya.costMicro(response.usage);
+          sendUpstashPipeline([["INCRBY", aiya.SPOT_KEY.budget(day), String(cost)], ["EXPIRE", aiya.SPOT_KEY.budget(day), "172800"]]).catch((e) => console.warn("aiya spot budget:", e.message));
+          const textBlock = response.stop_reason === "refusal" ? null : response.content.find((b) => b.type === "text");
+          spot = aiya.parseSpot(textBlock && textBlock.text);
+        } catch (e) {
+          console.error("aiya spot failed:", e && e.status, e && e.message);
+        }
+        if (!spot) return res.status(200).json({ success: false, code: "busy" });
+        spot.intro = maskBlockedTerms(spot.intro);
+        await sendUpstashCommand(["SET", cacheKey, JSON.stringify(spot), "EX", String(aiya.SPOT_TTL_S)]);
+        return res.status(200).json({ success: true, cached: false, ...spot });
       }
 
       if (action === "voiceConsent") {

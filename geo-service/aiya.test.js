@@ -322,3 +322,51 @@ test('decideOpen：試用中先用試用，不扣每天的免費次數；試用�
     assert.deepStrictEqual(aiya.decideOpen({ ...base, usedToday: 30, trial }), { ok: false, code: 'daily_max' });
     assert.deepStrictEqual(aiya.decideOpen({ ...base, friend: true, trial }), { ok: true, pay: 'friend' });
 });
+
+test('cleanPhoto：只收 JPEG、PNG，太大或亂碼回 null', () => {
+    const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(200, 1)]).toString('base64');
+    const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(200, 1)]).toString('base64');
+    assert.deepStrictEqual(aiya.cleanPhoto(jpeg), { media_type: 'image/jpeg', data: jpeg });
+    assert.strictEqual(aiya.cleanPhoto(png).media_type, 'image/png');
+    assert.strictEqual(aiya.cleanPhoto(Buffer.alloc(300, 7).toString('base64')), null);
+    assert.strictEqual(aiya.cleanPhoto('not base64!'.repeat(20)), null);
+    assert.strictEqual(aiya.cleanPhoto(Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.alloc(aiya.PHOTO_MAX_BYTES + 10)]).toString('base64')), null);
+    assert.strictEqual(aiya.cleanPhoto(123), null);
+});
+
+test('withPhoto：只有最後一則換成照片＋問題，紀錄不動', () => {
+    const msgs = [{ role: 'user', content: '嗨' }, { role: 'assistant', content: '{}' }, { role: 'user', content: aiya.PHOTO_PLACEHOLDER }];
+    const out = aiya.withPhoto(msgs, { media_type: 'image/jpeg', data: 'AAAA' }, '');
+    assert.strictEqual(out.length, 3);
+    assert.deepStrictEqual(out[0], msgs[0]);
+    assert.strictEqual(out[2].content[0].type, 'image');
+    assert.strictEqual(out[2].content[1].type, 'text');
+    assert.ok(out[2].content[1].text.length > 0);
+    assert.strictEqual(msgs[2].content, aiya.PHOTO_PLACEHOLDER);
+});
+
+test('parseReply long：照片回覆保留換行、可以比較長', () => {
+    const lines = Array.from({ length: 30 }, (_, i) => `第${i}道 豬肉 ¥500`).join('\n');
+    const r = aiya.parseReply(JSON.stringify({ reply: `拉麵（ラーメン）  –  豬骨湯\n\n\n餃子 – ¥400\n${lines}`, expression: 'smile' }), { long: true });
+    assert.ok(r.reply.startsWith('拉麵（ラーメン） – 豬骨湯\n餃子 – ¥400\n'));
+    assert.ok(r.reply.split('\n').length <= 16);
+    assert.ok(aiya.visibleLength(r.reply) <= aiya.MAX_PHOTO_REPLY_CHARS);
+    assert.ok(!aiya.parseReply(JSON.stringify({ reply: 'a\nb', expression: 'calm' })).reply.includes('\n'));
+});
+
+test('景點介紹：名稱、座標、快取鍵、解析', () => {
+    assert.strictEqual(aiya.cleanSpotName('  淺草寺\n雷門  '), '淺草寺 雷門');
+    assert.strictEqual(aiya.cleanSpotName('   '), null);
+    assert.strictEqual(aiya.roundCoord(35.71478, 90), 35.71);
+    assert.strictEqual(aiya.roundCoord('x', 90), null);
+    assert.strictEqual(aiya.roundCoord(200, 180), null);
+    const k = aiya.SPOT_KEY.intro('zh-Hant', '淺草寺', 35.71, 139.8);
+    assert.strictEqual(k, aiya.SPOT_KEY.intro('zh-Hant', '淺草寺', 35.71, 139.8));
+    assert.notStrictEqual(k, aiya.SPOT_KEY.intro('ja', '淺草寺', 35.71, 139.8));
+    assert.ok(k.startsWith('aiya_spot:zh-Hant:'));
+    assert.deepStrictEqual(aiya.parseSpot('{"known":false,"title":"大廳","intro":"x"}'), { known: false, title: '大廳', intro: '' });
+    assert.strictEqual(aiya.parseSpot('{"known":true,"title":"淺草寺","intro":"  東京最古老的寺廟, 建於628年。 "}').intro, '東京最古老的寺廟，建於628年。');
+    assert.strictEqual(aiya.parseSpot('{"known":true,"title":"x","intro":""}'), null);
+    assert.strictEqual(aiya.parseSpot('oops'), null);
+    assert.ok(aiya.spotRequest({ name: '淺草寺', lat: 35.71, lng: 139.8, lang: 'ja' }).includes('Japanese'));
+});

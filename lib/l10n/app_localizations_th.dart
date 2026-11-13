@@ -1512,6 +1512,43 @@ class AppLocalizationsTh extends AppLocalizations {
   String get feedbackSubject => 'ความคิดเห็นเกี่ยวกับ Mood Whisper';
 
   @override
+  String get feedbackTitle => 'ส่งความคิดเห็น';
+
+  @override
+  String get feedbackSubtitle => 'บอกเราได้ในแอปเลย';
+
+  @override
+  String get feedbackIntro =>
+      'ข้อเสนอแนะ ปัญหา หรือข้อกังวลด้านความปลอดภัย มีเพียงทีม Mood Whisper เท่านั้นที่อ่านได้';
+
+  @override
+  String get feedbackKindIdea => 'ข้อเสนอแนะ';
+
+  @override
+  String get feedbackKindBug => 'แจ้งปัญหา';
+
+  @override
+  String get feedbackKindSafety => 'ความปลอดภัย';
+
+  @override
+  String get feedbackKindOther => 'อื่น ๆ';
+
+  @override
+  String get feedbackHint => 'อยากบอกอะไรเรา?';
+
+  @override
+  String get feedbackSend => 'ส่ง';
+
+  @override
+  String get feedbackThanks => 'ขอบคุณ เราได้รับแล้ว';
+
+  @override
+  String get feedbackNotSent => 'ส่งไม่สำเร็จ โปรดลองอีกครั้งภายหลัง';
+
+  @override
+  String get feedbackEmpty => 'โปรดเขียนข้อความก่อน';
+
+  @override
   String get loginNeedMood => 'เขียนความรู้สึกตอนนี้ แล้วค่อยก้าวเข้าสู่เมือง';
 
   @override
@@ -2706,10 +2743,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ถ้าคุณอนุญาต ทุกครั้งที่คุณแตะ \"เช็กอิน\" (หรือ \"เข้า\" ในโลกควอนตัม) ด้วยตัวเอง ผู้ใช้คนอื่นจะเห็นจุดที่คุณเช็กอิน (ไม่ใช่ตำแหน่งแบบเรียลไทม์) ชื่อเล่น และอารมณ์ของคุณบนแผนที่ ไม่มีการเช็กอินอัตโนมัติ และคุณจะหายไปจากแผนที่เมื่อออกจากแอป คุณปฏิเสธได้ และปิดได้ทุกเมื่อในการตั้งค่า';
 
   @override
-  String get mapConsentAllow => 'อนุญาต';
+  String get mapConsentAllow => 'แสดงฉันบนแผนที่';
 
   @override
-  String get mapConsentDecline => 'ไม่อนุญาต';
+  String get mapConsentDecline => 'ไว้ทีหลัง';
 
   @override
   String get mapConsentDeclined =>

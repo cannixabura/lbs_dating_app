@@ -1417,6 +1417,43 @@ class AppLocalizationsKo extends AppLocalizations {
   String get feedbackSubject => 'Mood Whisper 의견';
 
   @override
+  String get feedbackTitle => '의견 보내기';
+
+  @override
+  String get feedbackSubtitle => '앱에서 바로 알려 주세요';
+
+  @override
+  String get feedbackIntro =>
+      '제안, 문제, 안전 관련 걱정 모두 좋아요. 보낸 내용은 Mood Whisper 팀만 볼 수 있어요.';
+
+  @override
+  String get feedbackKindIdea => '제안';
+
+  @override
+  String get feedbackKindBug => '문제 신고';
+
+  @override
+  String get feedbackKindSafety => '안전 관련';
+
+  @override
+  String get feedbackKindOther => '기타';
+
+  @override
+  String get feedbackHint => '어떤 이야기를 전하고 싶나요?';
+
+  @override
+  String get feedbackSend => '보내기';
+
+  @override
+  String get feedbackThanks => '고마워요. 잘 받았어요.';
+
+  @override
+  String get feedbackNotSent => '보내지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get feedbackEmpty => '내용을 먼저 적어 주세요.';
+
+  @override
   String get loginNeedMood => '지금 기분을 남긴 뒤 도시로 들어가세요.';
 
   @override
@@ -2576,10 +2613,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '허용하면 내가 직접 \"체크인\"(양자 세계에서는 \"들어가기\")을 누를 때마다 다른 사용자의 지도에 체크인한 곳(실시간 위치가 아님), 닉네임, 기분이 표시돼요. 자동 체크인은 없고, 앱을 나가면 지도에서 사라져요. 거부할 수 있고, 설정에서 언제든 끌 수 있어요.';
 
   @override
-  String get mapConsentAllow => '허용';
+  String get mapConsentAllow => '지도에 나를 표시';
 
   @override
-  String get mapConsentDecline => '허용 안 함';
+  String get mapConsentDecline => '나중에';
 
   @override
   String get mapConsentDeclined =>

@@ -7,7 +7,6 @@ import 'package:flutter/services.dart' show SystemNavigator;
 import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'legal.dart';
-import 'location_consent.dart';
 import 'main.dart'; 
 import 'ui/night.dart';
 
@@ -84,8 +83,8 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Apple 5.1.2(i)：在地圖上顯示位置前先問，使用者可以拒絕
-    if (!await ensureMapConsent(context) || !mounted) return;
+    // 「在地圖上顯示位置」的同意改到第一次打卡時才問（main.dart _tapCheckIn）：
+    // Apple 5.1.1(iv) 不允許在系統定位權限之前先出現可以拒絕的自訂說明；打卡時系統權限已經問過了
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_mood', mood);

@@ -1478,6 +1478,43 @@ class AppLocalizationsId extends AppLocalizations {
   String get feedbackSubject => 'Masukan untuk Mood Whisper';
 
   @override
+  String get feedbackTitle => 'Kirim masukan';
+
+  @override
+  String get feedbackSubtitle => 'Sampaikan langsung di aplikasi';
+
+  @override
+  String get feedbackIntro =>
+      'Saran, masalah, atau kekhawatiran keamanan. Hanya tim Mood Whisper yang bisa membacanya.';
+
+  @override
+  String get feedbackKindIdea => 'Saran';
+
+  @override
+  String get feedbackKindBug => 'Masalah';
+
+  @override
+  String get feedbackKindSafety => 'Keamanan';
+
+  @override
+  String get feedbackKindOther => 'Lainnya';
+
+  @override
+  String get feedbackHint => 'Apa yang ingin kamu sampaikan?';
+
+  @override
+  String get feedbackSend => 'Kirim';
+
+  @override
+  String get feedbackThanks => 'Terima kasih, sudah kami terima.';
+
+  @override
+  String get feedbackNotSent => 'Belum terkirim. Coba lagi nanti.';
+
+  @override
+  String get feedbackEmpty => 'Tulis sesuatu dulu, ya.';
+
+  @override
   String get loginNeedMood =>
       'Tulis perasaanmu sekarang, lalu masuklah ke kota.';
 
@@ -2683,10 +2720,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Jika kamu izinkan, setiap kali kamu sendiri mengetuk Check-in (atau Masuk di Dunia Kuantum), pengguna lain melihat tempat kamu check-in (bukan posisi langsung), nama panggilan, dan suasana hatimu di peta. Tidak ada check-in otomatis, dan kamu hilang dari peta saat keluar dari aplikasi. Kamu bisa menolak, dan bisa mematikannya kapan saja di Pengaturan.';
 
   @override
-  String get mapConsentAllow => 'Izinkan';
+  String get mapConsentAllow => 'Tampilkan saya di peta';
 
   @override
-  String get mapConsentDecline => 'Jangan izinkan';
+  String get mapConsentDecline => 'Nanti saja';
 
   @override
   String get mapConsentDeclined =>

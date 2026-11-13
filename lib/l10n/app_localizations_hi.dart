@@ -1540,6 +1540,44 @@ class AppLocalizationsHi extends AppLocalizations {
   String get feedbackSubject => 'Mood Whisper के बारे में राय';
 
   @override
+  String get feedbackTitle => 'सुझाव भेजें';
+
+  @override
+  String get feedbackSubtitle => 'ऐप में ही हमें बताएँ';
+
+  @override
+  String get feedbackIntro =>
+      'सुझाव, समस्या या सुरक्षा से जुड़ी चिंता — कुछ भी लिखें। आपका संदेश सिर्फ़ Mood Whisper टीम पढ़ सकती है।';
+
+  @override
+  String get feedbackKindIdea => 'सुझाव';
+
+  @override
+  String get feedbackKindBug => 'समस्या';
+
+  @override
+  String get feedbackKindSafety => 'सुरक्षा';
+
+  @override
+  String get feedbackKindOther => 'अन्य';
+
+  @override
+  String get feedbackHint => 'आप हमें क्या बताना चाहते हैं?';
+
+  @override
+  String get feedbackSend => 'भेजें';
+
+  @override
+  String get feedbackThanks => 'धन्यवाद, हमें मिल गया।';
+
+  @override
+  String get feedbackNotSent =>
+      'नहीं भेजा जा सका। कृपया बाद में फिर कोशिश करें।';
+
+  @override
+  String get feedbackEmpty => 'पहले कुछ लिखें।';
+
+  @override
   String get loginNeedMood =>
       'अभी आप कैसा महसूस कर रहे हैं, लिखें, फिर शहर में आएँ।';
 
@@ -2751,10 +2789,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'अनुमति देने पर, हर बार जब आप खुद चेक-इन (या क्वांटम वर्ल्ड में जाएँ) दबाएँगे, दूसरे यूज़र मैप पर आपकी चेक-इन वाली जगह (आपकी लाइव लोकेशन नहीं), आपका निकनेम और मूड देखेंगे। कोई ऑटोमैटिक चेक-इन नहीं है, और ऐप छोड़ते ही आप मैप से गायब हो जाते हैं। आप मना कर सकते हैं, और कभी भी सेटिंग्स में इसे बंद कर सकते हैं।';
 
   @override
-  String get mapConsentAllow => 'अनुमति दें';
+  String get mapConsentAllow => 'मुझे मैप पर दिखाएँ';
 
   @override
-  String get mapConsentDecline => 'अनुमति न दें';
+  String get mapConsentDecline => 'अभी नहीं';
 
   @override
   String get mapConsentDeclined =>

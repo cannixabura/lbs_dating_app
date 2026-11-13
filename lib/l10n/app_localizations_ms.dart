@@ -1483,6 +1483,44 @@ class AppLocalizationsMs extends AppLocalizations {
   String get feedbackSubject => 'Maklum balas Mood Whisper';
 
   @override
+  String get feedbackTitle => 'Hantar maklum balas';
+
+  @override
+  String get feedbackSubtitle => 'Beritahu kami terus dalam apl';
+
+  @override
+  String get feedbackIntro =>
+      'Cadangan, masalah atau kebimbangan keselamatan. Hanya pasukan Mood Whisper boleh membacanya.';
+
+  @override
+  String get feedbackKindIdea => 'Cadangan';
+
+  @override
+  String get feedbackKindBug => 'Masalah';
+
+  @override
+  String get feedbackKindSafety => 'Keselamatan';
+
+  @override
+  String get feedbackKindOther => 'Lain-lain';
+
+  @override
+  String get feedbackHint => 'Apa yang anda mahu beritahu kami?';
+
+  @override
+  String get feedbackSend => 'Hantar';
+
+  @override
+  String get feedbackThanks => 'Terima kasih, kami sudah terima.';
+
+  @override
+  String get feedbackNotSent =>
+      'Tidak dihantar. Sila cuba lagi sebentar nanti.';
+
+  @override
+  String get feedbackEmpty => 'Sila tulis sesuatu dahulu.';
+
+  @override
   String get loginNeedMood =>
       'Tulis perasaan anda sekarang, kemudian masuk ke bandar.';
 
@@ -2695,10 +2733,10 @@ class AppLocalizationsMs extends AppLocalizations {
       'Jika anda benarkan, setiap kali anda sendiri mengetik Daftar masuk (atau Masuk di Dunia Kuantum), pengguna lain melihat tempat anda daftar masuk (bukan lokasi masa nyata), nama panggilan dan mood anda pada peta. Tiada daftar masuk automatik, dan anda hilang dari peta apabila keluar dari aplikasi. Anda boleh menolak, dan boleh mematikannya bila-bila masa dalam Tetapan.';
 
   @override
-  String get mapConsentAllow => 'Benarkan';
+  String get mapConsentAllow => 'Tunjukkan saya pada peta';
 
   @override
-  String get mapConsentDecline => 'Jangan benarkan';
+  String get mapConsentDecline => 'Bukan sekarang';
 
   @override
   String get mapConsentDeclined =>

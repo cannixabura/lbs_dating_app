@@ -2565,6 +2565,78 @@ abstract class AppLocalizations {
   /// **'城市低語 意見回報'**
   String get feedbackSubject;
 
+  /// No description provided for @feedbackTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'意見回饋'**
+  String get feedbackTitle;
+
+  /// No description provided for @feedbackSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'直接在 App 裡告訴我們'**
+  String get feedbackSubtitle;
+
+  /// No description provided for @feedbackIntro.
+  ///
+  /// In zh, this message translates to:
+  /// **'建議、問題或安全疑慮都可以寫，送出後只有城市低語團隊看得到。'**
+  String get feedbackIntro;
+
+  /// No description provided for @feedbackKindIdea.
+  ///
+  /// In zh, this message translates to:
+  /// **'建議'**
+  String get feedbackKindIdea;
+
+  /// No description provided for @feedbackKindBug.
+  ///
+  /// In zh, this message translates to:
+  /// **'問題回報'**
+  String get feedbackKindBug;
+
+  /// No description provided for @feedbackKindSafety.
+  ///
+  /// In zh, this message translates to:
+  /// **'安全疑慮'**
+  String get feedbackKindSafety;
+
+  /// No description provided for @feedbackKindOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get feedbackKindOther;
+
+  /// No description provided for @feedbackHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'想跟我們說什麼？'**
+  String get feedbackHint;
+
+  /// No description provided for @feedbackSend.
+  ///
+  /// In zh, this message translates to:
+  /// **'送出'**
+  String get feedbackSend;
+
+  /// No description provided for @feedbackThanks.
+  ///
+  /// In zh, this message translates to:
+  /// **'謝謝你，我們收到了。'**
+  String get feedbackThanks;
+
+  /// No description provided for @feedbackNotSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有送出，請稍後再試。'**
+  String get feedbackNotSent;
+
+  /// No description provided for @feedbackEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'請先寫一點內容。'**
+  String get feedbackEmpty;
+
   /// No description provided for @loginNeedMood.
   ///
   /// In zh, this message translates to:
@@ -4572,13 +4644,13 @@ abstract class AppLocalizations {
   /// No description provided for @mapConsentAllow.
   ///
   /// In zh, this message translates to:
-  /// **'允許'**
+  /// **'在地圖上顯示我'**
   String get mapConsentAllow;
 
   /// No description provided for @mapConsentDecline.
   ///
   /// In zh, this message translates to:
-  /// **'不允許'**
+  /// **'先不要'**
   String get mapConsentDecline;
 
   /// No description provided for @mapConsentDeclined.

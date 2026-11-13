@@ -1362,6 +1362,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackSubject => '城市低語 意見回報';
 
   @override
+  String get feedbackTitle => '意見回饋';
+
+  @override
+  String get feedbackSubtitle => '直接在 App 裡告訴我們';
+
+  @override
+  String get feedbackIntro => '建議、問題或安全疑慮都可以寫，送出後只有城市低語團隊看得到。';
+
+  @override
+  String get feedbackKindIdea => '建議';
+
+  @override
+  String get feedbackKindBug => '問題回報';
+
+  @override
+  String get feedbackKindSafety => '安全疑慮';
+
+  @override
+  String get feedbackKindOther => '其他';
+
+  @override
+  String get feedbackHint => '想跟我們說什麼？';
+
+  @override
+  String get feedbackSend => '送出';
+
+  @override
+  String get feedbackThanks => '謝謝你，我們收到了。';
+
+  @override
+  String get feedbackNotSent => '沒有送出，請稍後再試。';
+
+  @override
+  String get feedbackEmpty => '請先寫一點內容。';
+
+  @override
   String get loginNeedMood => '請留下你此刻的心情，再沒入城市。';
 
   @override
@@ -2507,10 +2543,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '允許後，每次你自己按下「打卡」或量子世界的「進入」，其他使用者會在地圖上看到你打卡的地方（不是即時位置）、暱稱與心情。不會自動打卡；離開 App 就從地圖上消失。你可以拒絕，也可以隨時在設定關掉。';
 
   @override
-  String get mapConsentAllow => '允許';
+  String get mapConsentAllow => '在地圖上顯示我';
 
   @override
-  String get mapConsentDecline => '不允許';
+  String get mapConsentDecline => '先不要';
 
   @override
   String get mapConsentDeclined => '好的，你不會出現在任何人的地圖上。想打卡時再按一次就好。';
@@ -5041,6 +5077,42 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get feedbackSubject => '城市低语 意见反馈';
 
   @override
+  String get feedbackTitle => '意见反馈';
+
+  @override
+  String get feedbackSubtitle => '直接在 App 里告诉我们';
+
+  @override
+  String get feedbackIntro => '建议、问题或安全疑虑都可以写，送出后只有城市低语团队看得到。';
+
+  @override
+  String get feedbackKindIdea => '建议';
+
+  @override
+  String get feedbackKindBug => '问题反馈';
+
+  @override
+  String get feedbackKindSafety => '安全疑虑';
+
+  @override
+  String get feedbackKindOther => '其他';
+
+  @override
+  String get feedbackHint => '想跟我们说什么？';
+
+  @override
+  String get feedbackSend => '发送';
+
+  @override
+  String get feedbackThanks => '谢谢你，我们收到了。';
+
+  @override
+  String get feedbackNotSent => '没有发送成功，请稍后再试。';
+
+  @override
+  String get feedbackEmpty => '请先写一点内容。';
+
+  @override
   String get loginNeedMood => '请留下你此刻的心情，再没入城市。';
 
   @override
@@ -6186,10 +6258,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       '允许后，每次你自己点“打卡”或量子世界的“进入”，其他用户会在地图上看到你打卡的地方（不是实时位置）、昵称与心情。不会自动打卡；离开 App 就从地图上消失。你可以拒绝，也可以随时在设置中关闭。';
 
   @override
-  String get mapConsentAllow => '允许';
+  String get mapConsentAllow => '在地图上显示我';
 
   @override
-  String get mapConsentDecline => '不允许';
+  String get mapConsentDecline => '先不要';
 
   @override
   String get mapConsentDeclined => '好的，你不会出现在任何人的地图上。想打卡时再点一次就好。';

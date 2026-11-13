@@ -1553,6 +1553,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get feedbackSubject => 'Comentarios sobre Mood Whisper';
 
   @override
+  String get feedbackTitle => 'Enviar comentarios';
+
+  @override
+  String get feedbackSubtitle => 'Cuéntanos directamente en la app';
+
+  @override
+  String get feedbackIntro =>
+      'Ideas, problemas o inquietudes de seguridad. Solo el equipo de Mood Whisper lee lo que envíes.';
+
+  @override
+  String get feedbackKindIdea => 'Idea';
+
+  @override
+  String get feedbackKindBug => 'Problema';
+
+  @override
+  String get feedbackKindSafety => 'Seguridad';
+
+  @override
+  String get feedbackKindOther => 'Otro';
+
+  @override
+  String get feedbackHint => '¿Qué quieres contarnos?';
+
+  @override
+  String get feedbackSend => 'Enviar';
+
+  @override
+  String get feedbackThanks => 'Gracias, lo recibimos.';
+
+  @override
+  String get feedbackNotSent => 'No se envió. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get feedbackEmpty => 'Escribe algo primero.';
+
+  @override
   String get loginNeedMood =>
       'Escribe cómo te sientes ahora y entra a la ciudad.';
 
@@ -2763,10 +2800,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Si lo permites, cada vez que tú mismo toques Registrarme (o Entrar en el Mundo Cuántico), los demás usuarios verán en el mapa el lugar donde te registraste (no tu posición en vivo), tu apodo y tu estado de ánimo. No hay registro automático, y desapareces del mapa al salir de la app. Puedes rechazarlo y desactivarlo cuando quieras en Configuración.';
 
   @override
-  String get mapConsentAllow => 'Permitir';
+  String get mapConsentAllow => 'Mostrarme en el mapa';
 
   @override
-  String get mapConsentDecline => 'No permitir';
+  String get mapConsentDecline => 'Ahora no';
 
   @override
   String get mapConsentDeclined =>

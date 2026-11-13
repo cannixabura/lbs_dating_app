@@ -1552,6 +1552,43 @@ class AppLocalizationsPt extends AppLocalizations {
   String get feedbackSubject => 'Feedback do Mood Whisper';
 
   @override
+  String get feedbackTitle => 'Enviar feedback';
+
+  @override
+  String get feedbackSubtitle => 'Fale com a gente direto no app';
+
+  @override
+  String get feedbackIntro =>
+      'Ideias, problemas ou preocupações de segurança. Só a equipe do Mood Whisper lê o que você enviar.';
+
+  @override
+  String get feedbackKindIdea => 'Ideia';
+
+  @override
+  String get feedbackKindBug => 'Problema';
+
+  @override
+  String get feedbackKindSafety => 'Segurança';
+
+  @override
+  String get feedbackKindOther => 'Outro';
+
+  @override
+  String get feedbackHint => 'O que você quer nos contar?';
+
+  @override
+  String get feedbackSend => 'Enviar';
+
+  @override
+  String get feedbackThanks => 'Obrigado, recebemos.';
+
+  @override
+  String get feedbackNotSent => 'Não foi enviado. Tente de novo mais tarde.';
+
+  @override
+  String get feedbackEmpty => 'Escreva algo primeiro.';
+
+  @override
   String get loginNeedMood =>
       'Escreva como você se sente agora e entre na cidade.';
 
@@ -2765,10 +2802,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Se você permitir, cada vez que você mesmo tocar em Fazer check-in (ou Entrar no Mundo Quântico), os outros usuários veem no mapa o lugar do check-in (não sua posição em tempo real), seu apelido e seu humor. Não há check-in automático, e você some do mapa quando sai do app. Você pode recusar e desligar isso quando quiser nos Ajustes.';
 
   @override
-  String get mapConsentAllow => 'Permitir';
+  String get mapConsentAllow => 'Mostrar-me no mapa';
 
   @override
-  String get mapConsentDecline => 'Não permitir';
+  String get mapConsentDecline => 'Agora não';
 
   @override
   String get mapConsentDeclined =>

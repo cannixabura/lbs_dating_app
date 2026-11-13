@@ -232,6 +232,21 @@
       }
     },
 
+    // App 內意見回饋（Google Play 兒童安全標準政策）：只能新增，不能讀；後台在主控台查看
+    "feedback": {
+      "$id": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['uid', 'kind', 'text', 'at'])",
+        "uid": { ".validate": "newData.val() === auth.uid" },
+        "kind": { ".validate": "newData.val() === 'idea' || newData.val() === 'bug' || newData.val() === 'safety' || newData.val() === 'other'" },
+        "text": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000" },
+        "platform": { ".validate": "newData.val() === 'ios' || newData.val() === 'android'" },
+        "locale": { ".validate": "newData.isString() && newData.val().length <= 16" },
+        "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
+      }
+    },
+
     // 審核狀態：只由後台（Cloud Functions 或你在 Firebase 主控台）寫入；本人可讀
     "moderation": {
       "$uid": {

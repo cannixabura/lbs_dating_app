@@ -1479,6 +1479,43 @@ class AppLocalizationsVi extends AppLocalizations {
   String get feedbackSubject => 'Góp ý cho Mood Whisper';
 
   @override
+  String get feedbackTitle => 'Gửi góp ý';
+
+  @override
+  String get feedbackSubtitle => 'Nói với chúng tôi ngay trong ứng dụng';
+
+  @override
+  String get feedbackIntro =>
+      'Góp ý, lỗi hoặc lo ngại về an toàn đều được. Chỉ đội ngũ Mood Whisper đọc được nội dung bạn gửi.';
+
+  @override
+  String get feedbackKindIdea => 'Góp ý';
+
+  @override
+  String get feedbackKindBug => 'Báo lỗi';
+
+  @override
+  String get feedbackKindSafety => 'An toàn';
+
+  @override
+  String get feedbackKindOther => 'Khác';
+
+  @override
+  String get feedbackHint => 'Bạn muốn nói gì với chúng tôi?';
+
+  @override
+  String get feedbackSend => 'Gửi';
+
+  @override
+  String get feedbackThanks => 'Cảm ơn bạn, chúng tôi đã nhận được.';
+
+  @override
+  String get feedbackNotSent => 'Chưa gửi được. Vui lòng thử lại sau.';
+
+  @override
+  String get feedbackEmpty => 'Hãy viết gì đó trước nhé.';
+
+  @override
   String get loginNeedMood =>
       'Hãy viết cảm xúc lúc này, rồi bước vào thành phố.';
 
@@ -2682,10 +2719,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nếu bạn cho phép, mỗi lần bạn tự chạm Check-in (hoặc Vào trong Thế giới lượng tử), người dùng khác sẽ thấy nơi bạn check-in (không phải vị trí trực tiếp), biệt danh và tâm trạng của bạn trên bản đồ. Không có check-in tự động, và bạn biến khỏi bản đồ khi rời ứng dụng. Bạn có thể từ chối, và có thể tắt bất cứ lúc nào trong Cài đặt.';
 
   @override
-  String get mapConsentAllow => 'Cho phép';
+  String get mapConsentAllow => 'Hiện tôi trên bản đồ';
 
   @override
-  String get mapConsentDecline => 'Không cho phép';
+  String get mapConsentDecline => 'Để sau';
 
   @override
   String get mapConsentDeclined =>

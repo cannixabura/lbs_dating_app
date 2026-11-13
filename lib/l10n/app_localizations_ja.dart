@@ -1404,6 +1404,43 @@ class AppLocalizationsJa extends AppLocalizations {
   String get feedbackSubject => 'Mood Whisper へのご意見';
 
   @override
+  String get feedbackTitle => 'ご意見・お問い合わせ';
+
+  @override
+  String get feedbackSubtitle => 'アプリから直接送れます';
+
+  @override
+  String get feedbackIntro =>
+      'ご提案、不具合、安全上の心配など何でもどうぞ。送った内容は Mood Whisper の運営チームだけが読みます。';
+
+  @override
+  String get feedbackKindIdea => 'ご提案';
+
+  @override
+  String get feedbackKindBug => '不具合';
+
+  @override
+  String get feedbackKindSafety => '安全上の心配';
+
+  @override
+  String get feedbackKindOther => 'その他';
+
+  @override
+  String get feedbackHint => 'どんなことを伝えたいですか？';
+
+  @override
+  String get feedbackSend => '送信';
+
+  @override
+  String get feedbackThanks => 'ありがとうございます。受け取りました。';
+
+  @override
+  String get feedbackNotSent => '送信できませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get feedbackEmpty => '内容を入力してください。';
+
+  @override
   String get loginNeedMood => '今の気持ちを書いてから、街に入りましょう。';
 
   @override
@@ -2557,10 +2594,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '許可すると、あなたが自分で「チェックイン」（量子世界では「入る」）をタップするたびに、ほかのユーザーの地図にチェックインした場所（リアルタイムの位置ではありません）、ニックネーム、気分が表示されます。自動チェックインはなく、アプリを離れると地図から消えます。拒否することも、設定でいつでもオフにすることもできます。';
 
   @override
-  String get mapConsentAllow => '許可する';
+  String get mapConsentAllow => '地図に表示する';
 
   @override
-  String get mapConsentDecline => '許可しない';
+  String get mapConsentDecline => '今はしない';
 
   @override
   String get mapConsentDeclined =>

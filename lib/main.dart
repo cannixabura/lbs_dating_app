@@ -41,6 +41,7 @@ import 'guide_screen.dart';
 import 'manual_location_picker.dart';
 import 'whispers.dart';
 import 'nightly_reminder.dart';
+import 'feedback_sheet.dart';
 import 'report_sheet.dart';
 import 'l10n/l10n.dart';
 import 'parallel_universe.dart';
@@ -187,6 +188,8 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   Position? _checkInPosition;
   static const _checkInMoveMeters = 1000.0;
   late bool _checkInRequested = widget.checkIn;
+  bool _askingMapConsent = false;
+  bool _checkInCardHidden = false; // 打卡卡片按了 ✕；離開 App 後重設
   // 按下「在這裡打卡」後的載入畫面至少停留幾秒，讓人讀完「城市太安靜時去平行宇宙／量子世界」的提示
   static const _sensingMinDuration = Duration(seconds: 4);
   late bool _sensingHold = widget.checkIn;
@@ -535,7 +538,18 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
 
   /// 打卡：把此刻的位置公開在地圖上，啟動在線狀態與雷達。只由使用者按下按鈕觸發。
   void _checkIn() {
-    if (!MapConsent.allowed.value) { _checkInRequested = false; return; }
+    if (!MapConsent.allowed.value) {
+      // 從進城畫面按「在這裡打卡」進來、還沒同意過：等系統定位權限問完、拿到位置後才問（Apple 5.1.1(iv)）
+      if (_checkInRequested && _currentPosition != null && !_askingMapConsent) {
+        _checkInRequested = false;
+        _askingMapConsent = true;
+        ensureMapConsent(context).then((ok) {
+          _askingMapConsent = false;
+          if (ok && mounted) _checkIn();
+        });
+      }
+      return;
+    }
     final pos = _currentPosition;
     if (pos == null) return;
     _checkInRequested = false;
@@ -2263,6 +2277,21 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
   }
 
   Widget _buildCheckInCard() {
+    // 右上角 ✕：先不打卡，卡片收成右下角的小按鈕（離開 App 後下次打開會再顯示）
+    return Stack(children: [
+      _checkInCardBody(),
+      Positioned(
+        top: 4, right: 4,
+        child: IconButton(
+          icon: const Icon(Icons.close, color: Night.inkMuted, size: 20),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          onPressed: () => setState(() => _checkInCardHidden = true),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _checkInCardBody() {
     return GlassCard(
       glow: true,
       padding: const EdgeInsets.symmetric(horizontal: Night.space6, vertical: Night.space4),
@@ -2278,7 +2307,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
     );
   }
 
-  Widget _buildReCheckInPill() {
+  Widget _buildReCheckInPill({String? label}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -2291,7 +2320,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.where_to_vote_outlined, color: Night.auroraViolet, size: 18),
             const SizedBox(width: Night.space2),
-            Text(tr.checkInAgain, style: const TextStyle(color: Night.ink, fontSize: 14)),
+            Text(label ?? tr.checkInAgain, style: const TextStyle(color: Night.ink, fontSize: 14)),
           ]),
         ),
       ),
@@ -2573,6 +2602,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                   item(Icons.menu_book_outlined, tr.guide, subtitle: tr.guideSubtitle, onTap: () => go(() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuideScreen())))),
                   item(Icons.description_outlined, tr.termsOfUse, onTap: () => Legal.open(Legal.termsUrl)),
                   item(Icons.privacy_tip_outlined, tr.privacyPolicy, onTap: () => Legal.open(Legal.privacyUrl)),
+                  item(Icons.rate_review_outlined, tr.feedbackTitle, subtitle: tr.feedbackSubtitle, onTap: () => go(() => showFeedbackSheet(context))),
                   item(Icons.mail_outline, tr.contactUs, subtitle: Legal.contactEmail, onTap: () => Legal.emailUs()),
                   const Divider(color: Night.night600, height: Night.space6),
                   item(Icons.delete_forever_outlined, tr.deleteAccount, subtitle: tr.deleteAccountSubtitle, color: Night.danger, titleColor: Night.danger, onTap: () => go(_confirmDeleteAccount)),
@@ -3557,6 +3587,7 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
       // 鎖屏 / 切到背景：打卡立刻結束、從地圖上消失，回來要自己重新打卡（Apple 5.1.2(i)）
       // 註：iOS 開啟 App 切換器只會進入 inactive，此時從切換器滑掉 App 會觸發 onDisconnect → exited
       WhisperGroup.pause();
+      _checkInCardHidden = false; // 下次回到 App 再顯示打卡卡片
       if (!_isInForeground) return;
       _isInForeground = false;
       _heartbeatTimer?.cancel();
@@ -4098,8 +4129,11 @@ class _BlankCanvasScreenState extends State<BlankCanvasScreen> with WidgetsBindi
                       if (_locationServicesStarted)
                         Positioned(top: MediaQuery.of(context).padding.top + (quantumOn ? 10 : 62), right: Night.space4, child: QuantumWorldButton(onTap: _toggleQuantum)),
                       // 打卡：還沒打卡時只看得到地圖，按下才會出現在地圖上、看到附近的人
-                      if (!_locationServicesStarted && !_checkInRequested)
+                      if (!_locationServicesStarted && !_checkInRequested && !_checkInCardHidden)
                         Positioned(left: Night.space6, right: Night.space6, bottom: MediaQuery.of(context).padding.bottom + 152, child: _buildCheckInCard()),
+                      // 卡片收起後：右下角留一顆「在這裡打卡」，位置同打卡後的「結束打卡」
+                      if (!_locationServicesStarted && !_checkInRequested && _checkInCardHidden && !quantumOn && _currentPosition != null)
+                        Positioned(right: Night.space4, bottom: MediaQuery.of(context).padding.bottom + 92, child: _buildReCheckInPill(label: tr.checkInButton)),
                       // 走離打卡的地方：別人看到的還是打卡的位置，提醒可以重新打卡
                       if (_locationServicesStarted && _movedFarFromCheckIn && !quantumOn)
                         Positioned(left: 0, right: 0, bottom: MediaQuery.of(context).padding.bottom + 152, child: Center(child: _buildReCheckInPill())),

@@ -32,6 +32,7 @@ const assembly = require("./assembly");
 const livekit = require("./livekit");
 const crypto = require("crypto");
 const wgroup = require("./whispergroup");
+const tgroupKeys = require("./tourgroup").KEY;
 
 // 位置模糊化開關（2026-10 暫時關閉，雷達顯示真實位置；距離仍由 App 分級顯示）。
 // 重新開啟：改成 true 並重新部署 geo-service，同時更新隱私權政策與使用條款的位置說明。
@@ -1968,7 +1969,9 @@ async function aiyaStatus(uid, now, app = aiya.APPS.mw) {
     const consent = consentSnap.val();
     let session = null;
     try { session = sessionRaw ? JSON.parse(sessionRaw) : null; } catch (e) { session = null; }
+    const trial = app.id === "tour" ? await aiyaTrial(uid, day, now, app) : null;
     return {
+        trial,
         day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), budgetLimit: aiya.dailyBudgetMicro(app), reviewer: reviewer === 1,
         speechChars: parseInt(speechRaw || "0", 10),
         callFriendUsed: parseInt(friendUsedRaw || "0", 10), callBalance: Math.max(0, Number(callBalanceSnap.val()) || 0), activeCall,
@@ -1979,9 +1982,31 @@ async function aiyaStatus(uid, now, app = aiya.APPS.mw) {
     };
 }
 
+/**
+ * 旅行團：入團第一天免費。第一次看到這個帳號在團裡時，把試用開始時間定為入團（開團）時間，每個帳號只記一次（留 400 天）。
+ * 回傳 { active, endsAt, left, budgetFull }；從沒入過團回 null。
+ */
+async function aiyaTrial(uid, day, now, app) {
+    const [startRaw, usedRaw, budgetRaw, code] = await sendUpstashPipeline([
+        ["GET", aiya.KEY.trial(uid, app)], ["GET", aiya.KEY.trialUsed(uid, app)], ["GET", aiya.KEY.trialBudget(day, app)], ["GET", tgroupKeys.of(uid)],
+    ]);
+    let start = Number(startRaw) || 0;
+    if (!start && code) {
+        let joinedAt = now;
+        try { joinedAt = Number(JSON.parse((await sendUpstashCommand(["HGET", tgroupKeys.members(code), uid])) || "{}").joinedAt) || now; } catch (e) { /* 用現在 */ }
+        await sendUpstashCommand(["SET", aiya.KEY.trial(uid, app), String(joinedAt), "NX", "EX", String(400 * 86400)]);
+        start = Number(await sendUpstashCommand(["GET", aiya.KEY.trial(uid, app)])) || joinedAt;
+    }
+    if (!start) return null;
+    return { ...aiya.trialState({ start, used: parseInt(usedRaw || "0", 10), now }), budgetFull: parseInt(budgetRaw || "0", 10) >= aiya.dailyBudgetMicro(app) };
+}
+
 function aiyaStatusView(st, now) {
+    const trialOn = !st.friend && !!st.trial && st.trial.active && !st.trial.budgetFull;
     return {
-        freeLeft: st.reviewer ? aiya.FREE_PER_DAY : Math.max(0, (st.friend ? aiya.FRIEND_PER_DAY : aiya.FREE_PER_DAY) - st.usedToday),
+        // 入團第一天免費（旅行團）：試用中 freeLeft 顯示試用剩下的次數；trialEndsAt 給 App 顯示倒數
+        trial: trialOn, trialEndsAt: trialOn ? st.trial.endsAt : 0, trialLeft: trialOn ? st.trial.left : 0,
+        freeLeft: st.reviewer ? aiya.FREE_PER_DAY : trialOn ? st.trial.left : Math.max(0, (st.friend ? aiya.FRIEND_PER_DAY : aiya.FREE_PER_DAY) - st.usedToday),
         credits: st.credits, consented: st.consented,
         resting: !st.reviewer && !st.friend && st.budgetMicro >= st.budgetLimit,
         friend: st.friend, friendExp: st.friendExp,
@@ -2176,8 +2201,12 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           if (!paid.committed || !charged) return res.status(200).json({ success: false, code: "no_quota", ...aiyaStatusView(st, now) });
           st.credits = Math.max(0, st.credits - 1);
         }
-        await sendUpstashPipeline([["INCR", aiya.KEY.quota(uid, st.day, app)], ["EXPIRE", aiya.KEY.quota(uid, st.day, app), "172800"]]);
+        await sendUpstashPipeline([
+          ["INCR", aiya.KEY.quota(uid, st.day, app)], ["EXPIRE", aiya.KEY.quota(uid, st.day, app), "172800"],
+          ...(decision.pay === "trial" ? [["INCR", aiya.KEY.trialUsed(uid, app)], ["EXPIRE", aiya.KEY.trialUsed(uid, app), String(3 * 86400)]] : []),
+        ]);
         st.usedToday += 1;
+        if (decision.pay === "trial") st.trial.left = Math.max(0, st.trial.left - 1);
         st.session = { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, startedAt: now, turns: 0, pay: decision.pay, lang, msgs: [] };
         await saveAiyaSession(uid, st.session, app);
         return res.status(200).json({ success: true, resumed: false, ...aiyaStatusView(st, now) });
@@ -2242,7 +2271,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           }
           const spent = aiya.costMicro(response.usage);
           const day = aiya.dayKey(now);
-          const budgetKey = session.pay === "free" ? aiya.KEY.budget(day, app) : aiya.KEY.paid(day, app);
+          const budgetKey = session.pay === "free" ? aiya.KEY.budget(day, app) : session.pay === "trial" ? aiya.KEY.trialBudget(day, app) : aiya.KEY.paid(day, app);
           sendUpstashPipeline([["INCRBY", budgetKey, String(spent)], ["EXPIRE", budgetKey, "172800"]]).catch((e) => console.warn("aiya budget:", e.message));
           if (response.stop_reason === "refusal") code = "refused";
           else {

@@ -34,6 +34,10 @@ const FRIEND_PRODUCT = 'aiya_friend_monthly';
 const FRIEND_PER_DAY = 20;
 const FRIEND_SESSION_MS = 20 * 60 * 1000;
 const FRIEND_MAX_TURNS = 40;
+// 旅行團：入團第一天免費試用（從第一次入團或開團起 24 小時，最多 30 次聊天；每個帳號一次，再入別團不重算）。
+// 不吃每天 3 次的免費額度；費用另記一本（aiya_trial_budget），每天上限和旅行團的免費預算一樣，用完就回到一般規則。
+const TRIAL_MS = 24 * 3600 * 1000;
+const TRIAL_CHATS = 30;
 const MAX_INPUT_CHARS = 200;
 const MAX_REPLY_CHARS = 160;
 /**
@@ -79,6 +83,10 @@ const KEY = {
     budget: (day, app = APPS.mw) => `aiya_budget:${app.redis}${day}`,
     paid: (day, app = APPS.mw) => `aiya_paid:${app.redis}${day}`,
     speech: (uid, day, app = APPS.mw) => `aiya_tts:${app.redis}${uid}:${day}`,
+    /** 入團第一天免費：開始時間（每個帳號一次，留 400 天）、用了幾次、全站每天試用花掉的金額 */
+    trial: (uid, app = APPS.tour) => `aiya_trial:${app.redis}${uid}`,
+    trialUsed: (uid, app = APPS.tour) => `aiya_trial_used:${app.redis}${uid}`,
+    trialBudget: (day, app = APPS.tour) => `aiya_trial_budget:${app.redis}${day}`,
     speechBudget: (day) => `aiya_tts_budget:${day}`,
 };
 
@@ -105,7 +113,7 @@ function costMicro(usage) {
  * @param {{usedToday: number, credits: number, budgetMicro: number, reviewer?: boolean, friend?: boolean}} s
  * @returns {{ok: true, pay: 'free'|'friend'|'credit'} | {ok: false, code: 'daily_max'|'no_quota'|'resting'}}
  */
-function decideOpen({ usedToday, credits, budgetMicro, reviewer = false, friend = false, budgetLimit = DAILY_FREE_BUDGET_MICRO }) {
+function decideOpen({ usedToday, credits, budgetMicro, reviewer = false, friend = false, budgetLimit = DAILY_FREE_BUDGET_MICRO, trial = null }) {
     if (reviewer) return { ok: true, pay: 'free' };
     if (usedToday >= MAX_PER_DAY) return { ok: false, code: 'daily_max' };
     // 艾婭之友：每天前 20 次不看全站免費預算；用完再扣時光包
@@ -113,6 +121,8 @@ function decideOpen({ usedToday, credits, budgetMicro, reviewer = false, friend 
         if (usedToday < FRIEND_PER_DAY) return { ok: true, pay: 'friend' };
         return credits > 0 ? { ok: true, pay: 'credit' } : { ok: false, code: 'no_quota' };
     }
+    // 入團第一天免費（旅行團）：試用預算還沒用完就先用試用，不扣每天的免費次數
+    if (trial && trial.active && trial.left > 0 && !trial.budgetFull) return { ok: true, pay: 'trial' };
     if (usedToday < FREE_PER_DAY) {
         if (budgetMicro < budgetLimit) return { ok: true, pay: 'free' };
         // 全站免費預算用完：有時光包的人照樣能聊
@@ -124,6 +134,19 @@ function decideOpen({ usedToday, credits, budgetMicro, reviewer = false, friend 
 /** 這次對話的長度與則數：艾婭之友開始的對話是 20 分鐘、40 則，其他是 10 分鐘、20 則 */
 function sessionLimits(session) {
     return session && session.pay === 'friend' ? { ms: FRIEND_SESSION_MS, turns: FRIEND_MAX_TURNS } : { ms: SESSION_MS, turns: MAX_TURNS };
+}
+
+/**
+ * 入團第一天免費的狀態
+ * @param {{start: number|null, used: number, now: number}} s  start = 試用開始時間（第一次入團或開團），沒有就是 null
+ * @returns {{active: boolean, endsAt: number, left: number}}
+ */
+function trialState({ start, used, now }) {
+    const st = Number(start);
+    if (!Number.isFinite(st) || st <= 0) return { active: false, endsAt: 0, left: 0 };
+    const endsAt = st + TRIAL_MS;
+    const left = Math.max(0, TRIAL_CHATS - (Number(used) || 0));
+    return { active: now < endsAt && left > 0, endsAt, left };
 }
 
 /** 對話是否還在進行中 */
@@ -587,7 +610,7 @@ function liveInstructions(app, lang, context) {
 module.exports = {
     MODEL, PRICE, FREE_PER_DAY, MAX_PER_DAY, SESSION_MS, SESSION_TTL_S, MAX_TURNS, MAX_INPUT_CHARS, MAX_REPLY_CHARS,
     MONTHLY_FREE_BUDGET_USD, DAILY_FREE_BUDGET_MICRO, CONSENT_VERSION, EXPRESSIONS, PACKS, KEY, PERSONA, REPLY_SCHEMA,
-    FRIEND_PRODUCT, FRIEND_PER_DAY, FRIEND_SESSION_MS, FRIEND_MAX_TURNS,
+    FRIEND_PRODUCT, FRIEND_PER_DAY, FRIEND_SESSION_MS, FRIEND_MAX_TURNS, TRIAL_MS, TRIAL_CHATS, trialState,
     dayKey, costMicro, decideOpen, sessionLimits, sessionAlive, sessionView, friendActive, appleFriend, googleFriend, contextText, visibleLength, cleanInput, fullWidthPunct, parseReply,
     mentionsCrisis, hotline, applePack, googlePack, partialReply, streamSafe, STREAM_HOLD,
     APPS, appOf, appOfProduct, dailyBudgetMicro, dbPath, TOUR_PERSONA, MAX_TOUR_CONTEXT_CHARS, cleanTourContext, tourContextText, personaOf,

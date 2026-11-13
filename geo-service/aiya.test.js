@@ -303,3 +303,22 @@ test('語音通話的指示：保留艾婭的規則、拿掉文字格式、中�
     assert.match(aiya.liveInstructions(aiya.APPS.tour, 'en', ''), /TourChip/);
     assert.ok(aiya.LIVE_VOICES.includes(aiya.LIVE_VOICE));
 });
+
+test('入團第一天免費：24 小時、30 次，每個帳號一次', () => {
+    const t0 = Date.UTC(2026, 10, 13, 2, 0);
+    assert.deepStrictEqual(aiya.trialState({ start: null, used: 0, now: t0 }), { active: false, endsAt: 0, left: 0 });
+    assert.deepStrictEqual(aiya.trialState({ start: t0, used: 0, now: t0 + 1000 }), { active: true, endsAt: t0 + aiya.TRIAL_MS, left: 30 });
+    assert.strictEqual(aiya.trialState({ start: t0, used: 29, now: t0 + 23 * 3600e3 }).active, true);
+    assert.strictEqual(aiya.trialState({ start: t0, used: 30, now: t0 + 1000 }).active, false);
+    assert.strictEqual(aiya.trialState({ start: t0, used: 0, now: t0 + aiya.TRIAL_MS }).active, false);
+});
+
+test('decideOpen：試用中先用試用，不扣每天的免費次數；試用預算用完回到一般規則', () => {
+    const trial = { active: true, left: 5, budgetFull: false };
+    const base = { usedToday: 3, credits: 0, budgetMicro: 0, budgetLimit: aiya.dailyBudgetMicro(aiya.APPS.tour) };
+    assert.deepStrictEqual(aiya.decideOpen({ ...base, trial }), { ok: true, pay: 'trial' });
+    assert.deepStrictEqual(aiya.decideOpen({ ...base, trial: { ...trial, budgetFull: true } }), { ok: false, code: 'no_quota' });
+    assert.deepStrictEqual(aiya.decideOpen({ ...base, trial: { ...trial, active: false } }), { ok: false, code: 'no_quota' });
+    assert.deepStrictEqual(aiya.decideOpen({ ...base, usedToday: 30, trial }), { ok: false, code: 'daily_max' });
+    assert.deepStrictEqual(aiya.decideOpen({ ...base, friend: true, trial }), { ok: true, pay: 'friend' });
+});

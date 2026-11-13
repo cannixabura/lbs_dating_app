@@ -363,10 +363,21 @@ test('景點介紹：名稱、座標、快取鍵、解析', () => {
     const k = aiya.SPOT_KEY.intro('zh-Hant', '淺草寺', 35.71, 139.8);
     assert.strictEqual(k, aiya.SPOT_KEY.intro('zh-Hant', '淺草寺', 35.71, 139.8));
     assert.notStrictEqual(k, aiya.SPOT_KEY.intro('ja', '淺草寺', 35.71, 139.8));
-    assert.ok(k.startsWith('aiya_spot:zh-Hant:'));
+    assert.ok(k.startsWith('aiya_spot2:zh-Hant:'));
     assert.deepStrictEqual(aiya.parseSpot('{"known":false,"title":"大廳","intro":"x"}'), { known: false, title: '大廳', intro: '' });
     assert.strictEqual(aiya.parseSpot('{"known":true,"title":"淺草寺","intro":"  東京最古老的寺廟, 建於628年。 "}').intro, '東京最古老的寺廟，建於628年。');
     assert.strictEqual(aiya.parseSpot('{"known":true,"title":"x","intro":""}'), null);
     assert.strictEqual(aiya.parseSpot('oops'), null);
     assert.ok(aiya.spotRequest({ name: '淺草寺', lat: 35.71, lng: 139.8, lang: 'ja' }).includes('Japanese'));
+});
+
+test('cjkPunct：逐行換全形標點，不吃掉換行；長回覆的換行也保留', () => {
+    assert.strictEqual(aiya.cjkPunct('菜單,共六項:\n拉麵 – 900円'), '菜單，共六項：\n拉麵 – 900円');
+    const r = aiya.parseReply(JSON.stringify({ reply: '這是菜單,共兩項:\n拉麵\n餃子', expression: 'calm' }), { long: true });
+    assert.strictEqual(r.reply, '這是菜單，共兩項：\n拉麵\n餃子');
+});
+
+test('parseReply long：字面上的 \\n 也當成換行', () => {
+    const r = aiya.parseReply(JSON.stringify({ reply: '拉麵 – 900円\\n餃子 – 450円', expression: 'calm' }), { long: true });
+    assert.strictEqual(r.reply, '拉麵 – 900円\n餃子 – 450円');
 });

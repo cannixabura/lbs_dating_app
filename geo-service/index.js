@@ -2281,7 +2281,10 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           else {
             const textBlock = response.content.find((b) => b.type === "text");
             parsed = aiya.parseReply(textBlock && textBlock.text, { long: !!photo });
-            if (!parsed) code = "busy";
+            if (!parsed) {
+              code = "busy";
+              console.warn("aiya reply unparsed:", response.stop_reason, photo ? "photo" : "text", response.usage && response.usage.output_tokens);
+            }
           }
         } catch (e) {
           console.error("aiya claude failed:", e && e.status, e && e.message);
@@ -2294,7 +2297,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           await saveAiyaSession(uid, session, app);
           return finish({ success: false, code, session: aiya.sessionView(session, now) });
         }
-        let reply = maskBlockedTerms(parsed.reply);
+        let reply = aiya.cjkPunct(maskBlockedTerms(parsed.reply));
         if (aiya.mentionsCrisis(text)) reply = `${reply} ${aiya.hotline(session.lang || lang)}`;
         session.msgs.push({ role: "assistant", content: JSON.stringify({ reply: parsed.reply, expression: parsed.expression }) });
         if (photo) session.photos = (session.photos || 0) + 1;
@@ -2377,7 +2380,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
           console.error("aiya spot failed:", e && e.status, e && e.message);
         }
         if (!spot) return res.status(200).json({ success: false, code: "busy" });
-        spot.intro = maskBlockedTerms(spot.intro);
+        spot.intro = aiya.cjkPunct(maskBlockedTerms(spot.intro));
         await sendUpstashCommand(["SET", cacheKey, JSON.stringify(spot), "EX", String(aiya.SPOT_TTL_S)]);
         return res.status(200).json({ success: true, cached: false, ...spot });
       }

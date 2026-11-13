@@ -45,7 +45,7 @@ const PHOTO_MAX_BYTES = 1500 * 1024;
 const PHOTO_PER_SESSION = 5;
 const MAX_PHOTO_REPLY_CHARS = 700;
 const MAX_PHOTO_LINES = 16;
-const PHOTO_MAX_TOKENS = 1500;
+const PHOTO_MAX_TOKENS = 3000;
 /** 歷史紀錄裡代替照片的文字（之後的對話看不到照片本身，只知道這裡傳過一張） */
 const PHOTO_PLACEHOLDER = '(I sent you a photo here.)';
 /**
@@ -295,15 +295,19 @@ function fullWidthPunct(text) {
 
 /** 照片的回覆（菜單、景點）可以比較長、保留換行：每行收掉多餘空白，最多 MAX_PHOTO_LINES 行 */
 function tidyLong(text) {
-    return String(text).split(/\r?\n/).map((l) => l.replace(/[ \t　]+/g, ' ').trim()).filter(Boolean).slice(0, MAX_PHOTO_LINES).join('\n');
+    // 模型偶爾把換行寫成字面上的 \n（多跳脫一次），一併當成換行
+    return String(text).replace(/\\n/g, '\n').split(/\r?\n/).map((l) => l.replace(/[ \t　]+/g, ' ').trim()).filter(Boolean).slice(0, MAX_PHOTO_LINES).join('\n');
 }
+
+/** 逐行換全形標點（不吃掉換行）；遮蔽髒話會把字轉成半形，送出前要再跑一次 */
+const cjkPunct = (text) => String(text).split('\n').map(fullWidthPunct).join('\n');
 
 function parseReply(text, { long = false } = {}) {
     let obj;
     try { obj = JSON.parse(String(text || '').trim()); } catch (e) { return null; }
     if (!obj || typeof obj.reply !== 'string') return null;
     const reply = long
-        ? truncate(fullWidthPunct(tidyLong(obj.reply)), MAX_PHOTO_REPLY_CHARS)
+        ? truncate(cjkPunct(tidyLong(obj.reply)), MAX_PHOTO_REPLY_CHARS)
         : truncate(fullWidthPunct(obj.reply.replace(/\s+/g, ' ').trim()), MAX_REPLY_CHARS);
     if (!reply) return null;
     const expression = EXPRESSIONS.includes(obj.expression) ? obj.expression : 'calm';
@@ -538,7 +542,7 @@ const SPOT_KEY = {
     /** 景點介紹快取：語言＋名稱＋粗略座標 */
     intro: (lang, name, lat, lng) => {
         const id = require('crypto').createHash('sha1').update(`${lang}|${String(name).toLowerCase()}|${lat ?? ''}|${lng ?? ''}`).digest('hex').slice(0, 20);
-        return `aiya_spot:${lang}:${id}`;
+        return `aiya_spot2:${lang}:${id}`; // 2：全形標點修正後的版本
     },
     used: (uid, day) => `aiya_spot_used:tour:${uid}:${day}`,
     budget: (day) => `aiya_spot_budget:${day}`,
@@ -733,7 +737,7 @@ module.exports = {
     MODEL, PRICE, FREE_PER_DAY, MAX_PER_DAY, SESSION_MS, SESSION_TTL_S, MAX_TURNS, MAX_INPUT_CHARS, MAX_REPLY_CHARS,
     MONTHLY_FREE_BUDGET_USD, DAILY_FREE_BUDGET_MICRO, CONSENT_VERSION, EXPRESSIONS, PACKS, KEY, PERSONA, REPLY_SCHEMA,
     FRIEND_PRODUCT, FRIEND_PER_DAY, FRIEND_SESSION_MS, FRIEND_MAX_TURNS, TRIAL_MS, TRIAL_CHATS, trialState,
-    dayKey, costMicro, decideOpen, sessionLimits, sessionAlive, sessionView, friendActive, appleFriend, googleFriend, contextText, visibleLength, cleanInput, fullWidthPunct, parseReply,
+    dayKey, costMicro, decideOpen, sessionLimits, sessionAlive, sessionView, friendActive, appleFriend, googleFriend, contextText, visibleLength, cleanInput, fullWidthPunct, cjkPunct, parseReply,
     mentionsCrisis, hotline, applePack, googlePack, partialReply, streamSafe, STREAM_HOLD,
     APPS, appOf, appOfProduct, dailyBudgetMicro, dbPath, TOUR_PERSONA, MAX_TOUR_CONTEXT_CHARS, cleanTourContext, tourContextText, personaOf,
     SPEECH_MODEL, SPEECH_VOICE, SPEECH_CHARS_PER_DAY, SPEECH_MONTHLY_BUDGET_USD, SPEECH_DAILY_BUDGET_MICRO, SPEECH_MICRO_PER_CHAR,

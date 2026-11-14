@@ -103,6 +103,21 @@ const AI_IMPORTS = 5;
 const THANKS_MIN_BUILD = 9;
 const MAX_IMPORT_TEXT = 6000;
 const ANSWERS = ['here', '5min', 'help'];
+// 到點自動點名：App 判斷進到集合點 30 公尺內（加 GPS 誤差），伺服器放寬到 60 公尺；集合前 30 分鐘起才算
+const ARRIVE_RADIUS_M = 60;
+const ARRIVE_BEFORE_MS = 30 * 60 * 1000;
+// 我會晚到：晚幾分鐘、原因（可以不選）
+const LATE_MINS = [3, 5, 10];
+const LATE_WHY = { toilet: '在排廁所', pay: '在結帳', way: '在路上了' };
+// 脫隊預警：只用 2 分鐘內的位置（App 開著才會更新）；大部分人（6 成、至少 3 人）在領隊 150 公尺內才算「一起走」，
+// 這時離最近的領隊超過 250 公尺、持續 3 分鐘就提醒；回到 150 公尺內解除；每個團最多 1 分鐘檢查一次
+const FAR_FRESH_MS = 2 * 60 * 1000;
+const FAR_NEAR_M = 150;
+const FAR_M = 250;
+const FAR_HOLD_MS = 3 * 60 * 1000;
+const FAR_GROUP_SHARE = 0.6;
+const FAR_MIN_PEOPLE = 3;
+const FAR_CHECK_S = 60;
 const LOST_TTL_MS = 30 * 60 * 1000;
 const VOUCHER_TTL_DAYS = 400;
 const DEFAULT_TZ = 'Asia/Taipei';
@@ -118,6 +133,10 @@ const KEY = {
     lost: (code) => `tgroup_lost:${code}`,
     ann: (code) => `tgroup_ann:${code}`,
     stops: (code) => `tgroup_stops:${code}`,
+    arrive: (code) => `tgroup_arrive:${code}`, // 這次集合自動點到的人：hash uid → 時間（新集合、結束集合就刪）
+    late: (code) => `tgroup_late:${code}`, // 這次集合「我會晚到」：hash uid → JSON { mins, why, at }
+    far: (code) => `tgroup_far:${code}`, // 脫隊預警：hash uid → JSON { since, alerted, d }
+    farChk: (code) => `tgroup_farchk:${code}`, // 脫隊檢查的節流（1 分鐘）
     activeCalls: 'tgroup_active_calls',
     lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
     profile: 'tgroup_profile', // 每位使用者的暱稱與頭像 JSON（旅行團自己的，不讀城市低語的 user_data）
@@ -419,19 +438,115 @@ function dueReminders(call, memberUids, acks, now) {
     return memberUids.filter((u) => targets.has(u) && (acks || {})[u] !== 'ack' && ((call.remind || {})[u] || 0) < REMIND_MAX);
 }
 
-function callRoster(members, acks) {
-    const order = { none: 0, seen: 1, ack: 2 };
-    const rows = members.map((m) => ({ ...m, state: (acks || {})[m.uid] === 'ack' ? 'ack' : (acks || {})[m.uid] === 'seen' ? 'seen' : 'none' }));
-    rows.sort((a, b) => order[a.state] - order[b.state] || a.no - b.no);
-    return { rows, acked: rows.filter((r) => r.state === 'ack').length, total: rows.length };
+/**
+ * 集合名單：state 是 none／seen／ack（舊版 App 只看這個）；另外標 arrived（到點自動點到）、late（我會晚到）。
+ * 排序：沒反應、打開沒回、會晚到、收到、已到
+ */
+function callRoster(members, acks, arrived = {}, lates = {}) {
+    const rank = (r) => (r.arrived ? 4 : r.late ? 2 : { none: 0, seen: 1, ack: 3 }[r.state]);
+    const rows = members.map((m) => {
+        const a = (acks || {})[m.uid];
+        const row = { ...m, state: a === 'ack' ? 'ack' : a === 'seen' ? 'seen' : 'none' };
+        if ((arrived || {})[m.uid]) row.arrived = true;
+        const l = parseLate((lates || {})[m.uid]);
+        if (l && !row.arrived) row.late = l;
+        return row;
+    });
+    rows.sort((a, b) => rank(a) - rank(b) || a.no - b.no);
+    return {
+        rows, total: rows.length,
+        acked: rows.filter((r) => r.state === 'ack').length,
+        arrived: rows.filter((r) => r.arrived).length,
+        late: rows.filter((r) => r.late).length,
+    };
 }
 
-function rollRoster(members, answers) {
+// ---------- 到點自動點名、我會晚到 ----------
+
+/** 兩點距離（公尺） */
+function distM(aLat, aLng, bLat, bLng) {
+    const R = 6371000, rad = Math.PI / 180;
+    const dLat = (bLat - aLat) * rad, dLng = (bLng - aLng) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * rad) * Math.cos(bLat * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/** 能不能算「到了」：集合還在、集合前 30 分鐘起、在集合點 60 公尺內 */
+function canArrive(call, { lat, lng }, now) {
+    if (!callLive(call, now)) return { ok: false, code: 'ended' };
+    const la = Number(lat), lo = Number(lng);
+    if (!validPos(la, lo)) return { ok: false, code: 'bad_request' };
+    if (now < call.at - ARRIVE_BEFORE_MS) return { ok: false, code: 'too_early' };
+    if (distM(la, lo, call.lat, call.lng) > ARRIVE_RADIUS_M) return { ok: false, code: 'too_far' };
+    return { ok: true };
+}
+
+function makeLate({ mins, why }, now) {
+    const m = Number(mins);
+    if (!LATE_MINS.includes(m)) return { ok: false, code: 'bad_request' };
+    const w = why && LATE_WHY[why] ? why : '';
+    return { ok: true, late: { mins: m, why: w, at: now } };
+}
+
+function parseLate(raw) {
+    if (!raw) return null;
+    let l;
+    try { l = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { return null; }
+    return l && LATE_MINS.includes(l.mins) ? { mins: l.mins, why: LATE_WHY[l.why] ? l.why : '', at: Number(l.at) || 0 } : null;
+}
+
+/** 給領隊的推播（繁中原文，送出時翻成收件人的語言） */
+function lateText(no, late) {
+    const base = `${no} 號會晚 ${late.mins} 分鐘到`;
+    return late.why ? `${base}：${LATE_WHY[late.why]}` : base;
+}
+
+// ---------- 脫隊預警 ----------
+
+/**
+ * @param {object} p
+ * @param {{uid:string,lat:number,lng:number,at:number}[]} p.staff   團主、共同團主的位置
+ * @param {{uid:string,lat:number,lng:number,at:number}[]} p.members 團員的位置（有同意並開著分享的）
+ * @param {object} p.prev   上次的紀錄 uid → { since, alerted, d }
+ * @param {string[]} [p.skip] 不檢查的人（已經按「我迷路了」）
+ * @returns {{ next: object, alerts: {uid:string,d:number}[], together: boolean }}
+ */
+function farCheck({ staff, members, prev = {}, skip = [], now }) {
+    const fresh = (p) => p && validPos(p.lat, p.lng) && now - (Number(p.at) || 0) <= FAR_FRESH_MS;
+    const anchors = (staff || []).filter(fresh);
+    const people = (members || []).filter(fresh).filter((p) => !skip.includes(p.uid));
+    const next = {}, alerts = [];
+    if (!anchors.length || people.length < FAR_MIN_PEOPLE) return { next, alerts, together: false };
+    const dOf = (p) => Math.min(...anchors.map((a) => distM(p.lat, p.lng, a.lat, a.lng)));
+    const ds = people.map((p) => ({ uid: p.uid, d: dOf(p) }));
+    const together = ds.filter((x) => x.d <= FAR_NEAR_M).length / ds.length >= FAR_GROUP_SHARE;
+    // 自由活動（大家分散）：不提醒、清掉紀錄
+    if (!together) return { next, alerts, together };
+    for (const { uid, d } of ds) {
+        const was = prev[uid];
+        if (d <= FAR_NEAR_M) continue; // 回到隊伍：解除
+        if (d <= FAR_M) { if (was) next[uid] = { ...was, d: Math.round(d) }; continue; } // 中間地帶：維持原狀
+        const since = was ? was.since : now;
+        const alerted = !!(was && was.alerted);
+        const due = !alerted && now - since >= FAR_HOLD_MS;
+        next[uid] = { since, alerted: alerted || due, d: Math.round(d) };
+        if (due) alerts.push({ uid, d: Math.round(d) });
+    }
+    return { next, alerts, together };
+}
+
+/** 脫隊推播（繁中原文）：給領隊、給本人；距離取整到 50 公尺 */
+const farRound = (d) => Math.max(50, Math.round(d / 50) * 50);
+const farTextStaff = (no, d) => `${no} 號離大家約 ${farRound(d)} 公尺，可能脫隊了`;
+const farTextSelf = (d) => `你離大家約 ${farRound(d)} 公尺了，記得跟上隊伍`;
+
+function rollRoster(members, answers, arrived = {}) {
     const order = { help: 0, none: 1, '5min': 2, here: 3 };
-    // 領隊手動按的「到了」算到了，另外標記 marked
+    // 領隊手動按的「到了」算到了，另外標記 marked；這次集合自動點到、還沒回答的也算到了，標記 auto
     const rows = members.map((m) => {
         const a = (answers || {})[m.uid];
         if (a === MARKED) return { ...m, answer: 'here', marked: true };
+        if (!a && (arrived || {})[m.uid]) return { ...m, answer: 'here', auto: true };
         return { ...m, answer: ANSWERS.includes(a) ? a : 'none' };
     });
     rows.sort((a, b) => order[a.answer] - order[b.answer] || a.no - b.no);
@@ -815,6 +930,8 @@ module.exports = {
     makeGroup, changeTrip, addDayPass, tripDays, allowedDays, daysPassesNeeded, validDate, dayDiff, isOpen, memberLimit, isStaff, roleOf, canJoin, nextNumber,
     addCohost, removeCohost, cleanSubs, validSub, normSub, targetUids,
     makeCall, callLive, preRemindDue, stopRemindAt, dueReminders, callRoster, rollRoster, makeLost, lostRoster,
+    ARRIVE_RADIUS_M, ARRIVE_BEFORE_MS, LATE_MINS, LATE_WHY, FAR_FRESH_MS, FAR_NEAR_M, FAR_M, FAR_HOLD_MS, FAR_CHECK_S,
+    distM, canArrive, makeLate, parseLate, lateText, farCheck, farTextStaff, farTextSelf,
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
     makeStop, upsertStop, removeStop,
     applePass, googlePass, kindOf, makeVoucher, canRedeem, cleanPhone, cleanUrl, makeDay, dayTexts, makeInfo, infoTexts, cleanMemberData, groupLink, voucherLink, callText, cleanProfile,

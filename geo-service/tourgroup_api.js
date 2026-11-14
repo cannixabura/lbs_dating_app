@@ -10,7 +10,7 @@
 //   團主與共同團主也能：day_set（每日資訊卡）/ info_set（車輛、緊急聯絡）
 //   只有團主：cohost_add / cohost_remove / handoff / dissolve / verify / redeem / trip（改出發日、天數）
 //   所有團員：mdata（自己的飲食、健康、緊急聯絡人稱呼；只有團主與共同團主看得到）
-//   團員：join / seen / ack / answer / lost / found（自己）/ leave
+//   團員：join / seen / ack / answer / lost / found（自己）/ leave / arrive（到點自動點名）/ late（我會晚到）
 //   所有人：status；不必在團裡：create / join / buy_voucher / vouchers
 // 團員的位置不會給團主；集合點是團主放的座標；「我迷路了」是團員自己按下才傳一次。
 // ============================================================================
@@ -79,7 +79,8 @@ function create(d) {
             ...(g && g.invite ? [['DEL', tg.KEY.invite(g.invite)]] : []),
             ['ZREM', tg.KEY.thanksDue, code],
             ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
-                tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code), tg.KEY.days(code), tg.KEY.info(code), tg.KEY.mdata(code)],
+                tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code), tg.KEY.days(code), tg.KEY.info(code), tg.KEY.mdata(code),
+                tg.KEY.arrive(code), tg.KEY.late(code), tg.KEY.far(code), tg.KEY.farChk(code)],
             ...stops.map((x) => ['ZREM', tg.KEY.stopDue, `${code}|${x.id}`]),
             ...list.map((m) => ['ZREM', tg.KEY.pingDue, `${code}|${m.uid}`]),
             ['SREM', tg.KEY.activeCalls, code],
@@ -195,6 +196,10 @@ function create(d) {
             d.cmd(['HGETALL', tg.KEY.days(code)]), json(tg.KEY.info(code)), d.cmd(['HGETALL', tg.KEY.mdata(code)]),
             d.cmd(['HGETALL', tg.KEY.thanked(code)]), d.cmd(['GET', tg.KEY.aiImports(code)]),
         ]);
+        const [arriveFlat, lateFlat, farFlat] = await Promise.all([
+            d.cmd(['HGETALL', tg.KEY.arrive(code)]), d.cmd(['HGETALL', tg.KEY.late(code)]), d.cmd(['HGETALL', tg.KEY.far(code)]),
+        ]);
+        const arrived = hashOf(arriveFlat), lates = hashOf(lateFlat);
         const thankedFlat = Object.keys(hashOf(thankedAll)).filter((k) => k.startsWith(`${uid}|`)).map((k) => k.slice(uid.length + 1));
         const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
         const days = Object.values(hashOf(daysFlat)).map(parse).filter(Boolean).sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -225,7 +230,7 @@ function create(d) {
             paid: !!g.paid, limit: tg.memberLimit(g), count: list.length, subs: g.subs || [],
             role, myNo: me ? me.no : null, mySub, hostName: nameOf(g.host),
             staff: [g.host, ...(g.cohosts || [])].map((u) => ({ uid: u, no: (list.find((m) => m.uid === u) || {}).no ?? 0, name: nameOf(u), avatar: avatarOf(u), role: u === g.host ? 'host' : 'cohost' })),
-            call: tg.callLive(call, now) && forMe(call) ? { id: call.id, at: call.at, tz: call.tz, place: call.place, lat: call.lat, lng: call.lng, sub: call.sub, mine: acks[uid] || null } : null,
+            call: tg.callLive(call, now) && forMe(call) ? { id: call.id, at: call.at, tz: call.tz, place: call.place, lat: call.lat, lng: call.lng, sub: call.sub, mine: acks[uid] || null, here: !!arrived[uid], late: tg.parseLate(lates[uid]) } : null,
             roll: roll && forMe(roll) ? { id: roll.id, sentAt: roll.sentAt, sub: roll.sub, mine: answers[uid] === tg.MARKED ? 'here' : answers[uid] || null } : null,
             myRoom: me ? me.room || '' : '',
             // 送花感謝：最後一天起可以送給團主或共同團主（每人每位送一次）
@@ -248,8 +253,13 @@ function create(d) {
             view.staffRooms = Object.fromEntries(list.filter((m) => tg.isStaff(g, m.uid)).map((m) => [m.uid, m.room || '']));
             view.members = others;
             const inCall = (rows, x) => (x && x.targets && x.targets.length ? rows.filter((m) => x.targets.includes(m.uid)) : rows);
-            if (view.call) view.callRoster = tg.callRoster(inCall(others, call), acks);
-            if (view.roll) view.rollRoster = tg.rollRoster(inCall(others, roll), answers);
+            if (view.call) view.callRoster = tg.callRoster(inCall(others, call), acks, arrived, lates);
+            // 點名時：這次集合已經自動點到的人算到了（集合還在才算）
+            if (view.roll) view.rollRoster = tg.rollRoster(inCall(others, roll), answers, view.call ? arrived : {});
+            // 脫隊預警：已經提醒過、還沒回到隊伍的人
+            const farHash = hashOf(farFlat);
+            view.far = others.map((m) => ({ m, f: parse(farHash[m.uid]) })).filter(({ f }) => f && f.alerted)
+                .map(({ m, f }) => ({ uid: m.uid, no: m.no, name: m.name, note: m.note, d: f.d, since: f.since }));
             view.lost = tg.lostRoster(others, lostHash, now);
         }
         return { group: view };
@@ -267,6 +277,38 @@ function create(d) {
         let name = '';
         try { name = prof ? JSON.parse(prof).name || '' : ''; } catch (e) { name = ''; }
         return tg.publicCard(card, thanks, name);
+    }
+
+    /** 脫隊預警：有人回報位置時檢查（每團最多 1 分鐘一次）；有集合進行中就不檢查（大家正在往集合點走） */
+    async function checkFar(code, g, now) {
+        const last = Number(await d.cmd(['GET', tg.KEY.farChk(code)])) || 0;
+        if (now - last < tg.FAR_CHECK_S * 1000) return;
+        await d.cmd(['SET', tg.KEY.farChk(code), String(now), 'EX', String(tg.FAR_CHECK_S * 2)]);
+        const call = await json(tg.KEY.call(code));
+        if (call && tg.callLive(call, now)) { await d.cmd(['DEL', tg.KEY.far(code)]); return; }
+        const [list, posFlat, farFlat, lostFlat] = await Promise.all([
+            members(code), d.cmd(['HGETALL', tg.KEY.pos(code)]), d.cmd(['HGETALL', tg.KEY.far(code)]), d.cmd(['HGETALL', tg.KEY.lost(code)]),
+        ]);
+        const shareFlat = await d.pipe(list.map((m) => ['HGET', tg.KEY.share, m.uid])).catch(() => []);
+        const posHash = hashOf(posFlat);
+        const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
+        const at = (m, i) => (tg.shareState(shareFlat[i]).on ? parse(posHash[m.uid]) : null);
+        const pts = list.map((m, i) => ({ m, p: at(m, i) })).filter((x) => x.p).map(({ m, p }) => ({ uid: m.uid, lat: p.lat, lng: p.lng, at: p.at }));
+        const staffSet = new Set([g.host, ...(g.cohosts || [])]);
+        const prev = Object.fromEntries(Object.entries(hashOf(farFlat)).map(([u, raw]) => [u, parse(raw)]).filter(([, v]) => v));
+        const { next, alerts } = tg.farCheck({
+            staff: pts.filter((p) => staffSet.has(p.uid)), members: pts.filter((p) => !staffSet.has(p.uid)),
+            prev, skip: Object.keys(hashOf(lostFlat)), now,
+        });
+        const cmds = [['DEL', tg.KEY.far(code)]];
+        const entries = Object.entries(next);
+        if (entries.length) cmds.push(['HSET', tg.KEY.far(code), ...entries.flatMap(([u, v]) => [u, JSON.stringify(v)])], ['EXPIRE', tg.KEY.far(code), '3600']);
+        await d.pipe(cmds);
+        for (const a of alerts) {
+            const m = list.find((x) => x.uid === a.uid);
+            await push([...staffSet], title(g), tg.farTextStaff(m ? m.no : '?', a.d), { type: 'tgroup_far', code, uid: a.uid });
+            await push([a.uid], title(g), tg.farTextSelf(a.d), { type: 'tgroup_far_self', code });
+        }
     }
 
     async function handle(req, res) {
@@ -501,6 +543,7 @@ function create(d) {
                 if (!tg.validPos(lat, lng)) return fail('bad_request');
                 if (!(await shareMe()).on) return fail('not_sharing');
                 await d.pipe([['HSET', tg.KEY.pos(code), uid, JSON.stringify({ lat, lng, at: now })], keep(tg.KEY.pos(code))]);
+                await checkFar(code, g, now).catch((e) => console.warn('[旅行團] 脫隊檢查失敗:', e.message));
                 return res.status(200).json({ success: true });
             }
 
@@ -570,7 +613,7 @@ function create(d) {
                 if (made.call.place && d.isDisallowed(made.call.place)) return fail('filtered');
                 await d.pipe([
                     ['SET', tg.KEY.call(code), JSON.stringify(made.call), 'EX', String(Math.ceil((made.call.at + tg.CALL_LINGER_MS - now) / 1000))],
-                    ['DEL', tg.KEY.acks(code)],
+                    ['DEL', tg.KEY.acks(code), tg.KEY.arrive(code), tg.KEY.late(code)],
                     ['SADD', tg.KEY.activeCalls, code],
                 ]);
                 await push(targets, title(g), tg.callText(made.call, now), { type: 'tgroup_call', code, callId: made.call.id }, { urgent: true });
@@ -599,8 +642,43 @@ function create(d) {
                 return ok();
             }
 
+            // 到點自動點名：App 發現自己進到集合點附近就送一次（只用來判斷，不存位置）
+            if (action === 'arrive') {
+                if (role !== 'member') return fail('bad_request');
+                const call = await json(tg.KEY.call(code));
+                if (!call || call.id !== body.callId) return fail('ended');
+                if (call.targets && call.targets.length && !call.targets.includes(uid)) return fail('bad_request');
+                const can = tg.canArrive(call, { lat: body.lat, lng: body.lng }, now);
+                if (!can.ok) return fail(can.code);
+                const ttl = String(Math.max(60, Math.ceil((call.at + tg.CALL_LINGER_MS - now) / 1000)));
+                await d.pipe([
+                    ['HSETNX', tg.KEY.arrive(code), uid, String(now)], ['EXPIRE', tg.KEY.arrive(code), ttl],
+                    // 到了就不用再響「再提醒一次」
+                    ['HSET', tg.KEY.acks(code), uid, 'ack'], ['HDEL', tg.KEY.late(code), uid],
+                ]);
+                return ok();
+            }
+
+            // 我會晚到：晚 3／5／10 分鐘，可以附原因；領隊名單直接顯示，也會收到推播
+            if (action === 'late') {
+                if (role !== 'member') return fail('bad_request');
+                const call = await json(tg.KEY.call(code));
+                if (!call || call.id !== body.callId || !tg.callLive(call, now)) return fail('ended');
+                if (call.targets && call.targets.length && !call.targets.includes(uid)) return fail('bad_request');
+                const made = tg.makeLate({ mins: body.mins, why: body.why }, now);
+                if (!made.ok) return fail(made.code);
+                const ttl = String(Math.max(60, Math.ceil((call.at + tg.CALL_LINGER_MS - now) / 1000)));
+                await d.pipe([
+                    ['HSET', tg.KEY.late(code), uid, JSON.stringify(made.late)], ['EXPIRE', tg.KEY.late(code), ttl],
+                    ['HSET', tg.KEY.acks(code), uid, 'ack'],
+                ]);
+                const me = (await members(code)).find((m) => m.uid === uid);
+                await push([g.host, ...(g.cohosts || [])], title(g), tg.lateText(me ? me.no : '?', made.late), { type: 'tgroup_late', code });
+                return ok();
+            }
+
             if (action === 'call_done') {
-                await d.pipe([['DEL', tg.KEY.call(code), tg.KEY.acks(code)], ['SREM', tg.KEY.activeCalls, code]]);
+                await d.pipe([['DEL', tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.arrive(code), tg.KEY.late(code)], ['SREM', tg.KEY.activeCalls, code]]);
                 return ok();
             }
 

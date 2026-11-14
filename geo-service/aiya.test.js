@@ -336,7 +336,8 @@ test('cleanPhoto：只收 JPEG、PNG，太大或亂碼回 null', () => {
 
 test('withPhoto：只有最後一則換成照片＋問題，紀錄不動', () => {
     const msgs = [{ role: 'user', content: '嗨' }, { role: 'assistant', content: '{}' }, { role: 'user', content: aiya.PHOTO_PLACEHOLDER }];
-    const out = aiya.withPhoto(msgs, { media_type: 'image/jpeg', data: 'AAAA' }, '');
+    const out = aiya.withPhoto(msgs, { media_type: 'image/jpeg', data: 'AAAA' }, '', 'ja');
+    assert.ok(out[2].content[1].text.includes('Japanese'));
     assert.strictEqual(out.length, 3);
     assert.deepStrictEqual(out[0], msgs[0]);
     assert.strictEqual(out[2].content[0].type, 'image');

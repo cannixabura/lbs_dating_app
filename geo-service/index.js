@@ -2257,7 +2257,7 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
                   : await aiyaContext(session.lang || lang, now),
               },
             ],
-            messages: photo ? aiya.withPhoto(session.msgs, photo, text) : session.msgs,
+            messages: photo ? aiya.withPhoto(session.msgs, photo, text, session.lang || lang) : session.msgs,
           };
           let response;
           if (wantStream) {

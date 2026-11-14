@@ -484,13 +484,14 @@ function cleanPhoto(b64) {
  * 送給模型的訊息：歷史紀錄照原樣，最後一則換成「照片＋問題」（照片不寫進紀錄）
  * @param {Array<{role: string, content: string}>} msgs  最後一則是這次使用者說的話（含 PHOTO_PLACEHOLDER）
  */
-function withPhoto(msgs, photo, question) {
+function withPhoto(msgs, photo, question, lang) {
     const head = msgs.slice(0, -1);
     return [...head, {
         role: 'user',
         content: [
             { type: 'image', source: { type: 'base64', media_type: photo.media_type, data: photo.data } },
-            { type: 'text', text: question || 'What is this? Please help me as a traveller.' },
+            // 只傳照片沒寫字：預設問題要指明 App 語言，不然模型會跟著英文的預設問題用英文回答
+            { type: 'text', text: question || `(No question, only this photo.) Help me with it as a traveller. Reply in ${LANG_NAMES[lang] || 'Traditional Chinese (Taiwan)'}.` },
         ],
     }];
 }

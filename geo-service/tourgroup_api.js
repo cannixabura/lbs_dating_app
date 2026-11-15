@@ -10,7 +10,9 @@
 //   團主與共同團主也能：day_set（每日資訊卡）/ info_set（車輛、緊急聯絡）
 //   只有團主：cohost_add / cohost_remove / handoff / dissolve / verify / redeem / trip（改出發日、天數）
 //   所有團員：mdata（自己的飲食、健康、緊急聯絡人稱呼；只有團主與共同團主看得到）
-//   團員：join / seen / ack / answer / lost / found（自己）/ leave / arrive（到點自動點名）/ late（我會晚到）
+//   團員：join / seen / ack / answer / lost / found（自己）/ leave / arrive（到點自動點名）/ late（我會晚到）/ vote（投票）
+//   團主與共同團主：poll_new / poll_close / poll_delete（投票與調查）
+//   同意分享的所有人：jio_new / jio_join（團內揪伴）；jio_delete（自己的；團主與共同團主可刪任何一個）
 //   所有人：status；不必在團裡：create / join / buy_voucher / vouchers
 // 團員的位置不會給團主；集合點是團主放的座標；「我迷路了」是團員自己按下才傳一次。
 // ============================================================================
@@ -19,7 +21,7 @@ const tg = require('./tourgroup');
 
 const COLOR_DOT = { violet: '🟣', pink: '🩷', blue: '🔵', teal: '🩵', green: '🟢', gold: '🟡', orange: '🟠', red: '🔴' };
 const HOST_ONLY = ['cohost_add', 'cohost_remove', 'handoff', 'dissolve', 'verify', 'redeem', 'trip'];
-const STAFF_ONLY = ['call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set', 'mark', 'room', 'rooms', 'ai_import'];
+const STAFF_ONLY = ['poll_new', 'poll_close', 'poll_delete', 'call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set', 'mark', 'room', 'rooms', 'ai_import'];
 
 /**
  * @param {object} d
@@ -71,6 +73,12 @@ function create(d) {
     const putMember = (code, uid, m) => ['HSET', tg.KEY.members(code), uid, JSON.stringify({ no: m.no, note: m.note || '', sub: m.sub ?? null, joinedAt: m.joinedAt, room: m.room || '' })];
     const title = (g) => `${COLOR_DOT[g.color] || '🟣'} ${g.name}`;
 
+    /** 刪掉某些投票的選擇（回傳一個 HDEL 指令，沒有就回 null） */
+    async function dropVotes(code, ids) {
+        const keys = Object.keys(hashOf(await d.cmd(['HGETALL', tg.KEY.votes(code)]))).filter((k) => ids.some((id) => k.startsWith(`${id}|`)));
+        return keys.length ? ['HDEL', tg.KEY.votes(code), ...keys] : null;
+    }
+
     async function destroy(code, list) {
         const stops = (await json(tg.KEY.stops(code)).catch(() => null)) || [];
         const g = await json(tg.KEY.group(code)).catch(() => null);
@@ -80,7 +88,8 @@ function create(d) {
             ['ZREM', tg.KEY.thanksDue, code],
             ['DEL', tg.KEY.group(code), tg.KEY.members(code), tg.KEY.call(code), tg.KEY.acks(code), tg.KEY.roll(code), tg.KEY.answers(code), tg.KEY.lost(code), tg.KEY.ann(code), tg.KEY.stops(code),
                 tg.KEY.pos(code), tg.KEY.bubble(code), tg.KEY.msgs(code), tg.KEY.blocks(code), tg.KEY.seen(code), tg.KEY.days(code), tg.KEY.info(code), tg.KEY.mdata(code),
-                tg.KEY.arrive(code), tg.KEY.late(code), tg.KEY.far(code), tg.KEY.farChk(code)],
+                tg.KEY.arrive(code), tg.KEY.late(code), tg.KEY.far(code), tg.KEY.farChk(code),
+                tg.KEY.polls(code), tg.KEY.votes(code), tg.KEY.jio(code), tg.KEY.jioJoin(code)],
             ...stops.map((x) => ['ZREM', tg.KEY.stopDue, `${code}|${x.id}`]),
             ...list.map((m) => ['ZREM', tg.KEY.pingDue, `${code}|${m.uid}`]),
             ['SREM', tg.KEY.activeCalls, code],
@@ -140,6 +149,7 @@ function create(d) {
             ...(next.invite ? [['EXPIRE', tg.KEY.invite(next.invite), ttl]] : []),
             ['ZADD', tg.KEY.thanksDue, String(tg.thanksRemindAt(next)), code],
             ['EXPIRE', tg.KEY.thanked(code), ttl], ['EXPIRE', tg.KEY.aiImports(code), ttl],
+            ['EXPIRE', tg.KEY.polls(code), ttl], ['EXPIRE', tg.KEY.votes(code), ttl], ['EXPIRE', tg.KEY.jio(code), ttl], ['EXPIRE', tg.KEY.jioJoin(code), ttl],
             ...list.map((m) => ['EXPIRE', tg.KEY.of(m.uid), ttl]),
         ]);
         return next;
@@ -196,8 +206,10 @@ function create(d) {
             d.cmd(['HGETALL', tg.KEY.days(code)]), json(tg.KEY.info(code)), d.cmd(['HGETALL', tg.KEY.mdata(code)]),
             d.cmd(['HGETALL', tg.KEY.thanked(code)]), d.cmd(['GET', tg.KEY.aiImports(code)]),
         ]);
-        const [arriveFlat, lateFlat, farFlat] = await Promise.all([
+        const [arriveFlat, lateFlat, farFlat, polls, votesFlat, jios, jioJoinFlat, blocksFlat] = await Promise.all([
             d.cmd(['HGETALL', tg.KEY.arrive(code)]), d.cmd(['HGETALL', tg.KEY.late(code)]), d.cmd(['HGETALL', tg.KEY.far(code)]),
+            json(tg.KEY.polls(code)), d.cmd(['HGETALL', tg.KEY.votes(code)]), json(tg.KEY.jio(code)), d.cmd(['HGETALL', tg.KEY.jioJoin(code)]),
+            d.cmd(['HGETALL', tg.KEY.blocks(code)]),
         ]);
         const arrived = hashOf(arriveFlat), lates = hashOf(lateFlat);
         const thankedFlat = Object.keys(hashOf(thankedAll)).filter((k) => k.startsWith(`${uid}|`)).map((k) => k.slice(uid.length + 1));
@@ -245,6 +257,13 @@ function create(d) {
             messages: tg.messagesFor(msgList, uid, blockedByMe).map((m) => ({ ...m, mine: m.from === uid })),
             names: Object.fromEntries(list.map((m) => [m.uid, { no: m.no, name: nameOf(m.uid), avatar: avatarOf(m.uid), role: tg.roleOf(g, m.uid) }])),
         };
+        // 投票：看得到全團的與自己那一組的
+        const votes = hashOf(votesFlat);
+        view.polls = (polls || []).filter((p) => forMe(p)).map((p) => tg.pollView(p, votes, uid, staff, tg.targetUids(g, list, p.sub)));
+        // 揪伴：我封鎖的人、封鎖我的人都看不到
+        const blocksAll = hashOf(blocksFlat);
+        const blockedMe = Object.entries(blocksAll).filter(([, raw]) => { try { return JSON.parse(raw || '[]').includes(uid); } catch (e) { return false; } }).map(([u]) => u);
+        view.jios = tg.jioView(jios || [], hashOf(jioJoinFlat), uid, [...blockedByMe, ...blockedMe], list.map((m) => m.uid), now);
         if (staff) {
             view.qr = tg.groupLink(code, g.qrVer, g.invite);
             view.invite = g.invite || null;
@@ -717,6 +736,97 @@ function create(d) {
                 await d.cmd(['SET', tg.KEY.ann(code), JSON.stringify(list), 'EX', ttlFor(g, now)]);
                 const targets = tg.targetUids(g, await members(code), body.sub);
                 await push(targets, title(g), made.ann.text, { type: 'tgroup_ann', code });
+                return ok();
+            }
+
+            // ---------- 投票與調查（團主、共同團主發起；團員投） ----------
+            if (action === 'poll_new') {
+                if (!tg.validSub(g, body.sub)) return fail('bad_request');
+                const made = tg.makePoll({ q: body.q, opts: body.opts, multi: body.multi, sub: body.sub }, uid, now);
+                if (!made.ok) return fail(made.code);
+                if (d.isDisallowed([made.poll.q, ...made.poll.opts].join(' '))) return fail('filtered');
+                const old = (await json(tg.KEY.polls(code))) || [];
+                const list = tg.pushPoll(old, made.poll);
+                const dropped = old.filter((p) => !list.some((x) => x.id === p.id)).map((p) => p.id);
+                await d.pipe([['SET', tg.KEY.polls(code), JSON.stringify(list), 'EX', ttlFor(g, now)], ...(dropped.length ? [await dropVotes(code, dropped)] : [])].filter(Boolean));
+                const targets = tg.targetUids(g, await members(code), body.sub);
+                await push(targets, title(g), `投票：${made.poll.q}`, { type: 'tgroup_poll', code, pollId: made.poll.id });
+                return ok();
+            }
+
+            if (action === 'poll_close' || action === 'poll_delete') {
+                const list = (await json(tg.KEY.polls(code))) || [];
+                const poll = list.find((p) => p.id === String(body.id || ''));
+                if (!poll) return fail('ended');
+                const next = action === 'poll_close' ? list.map((p) => (p.id === poll.id ? { ...p, closed: body.open !== true } : p)) : list.filter((p) => p.id !== poll.id);
+                await d.pipe([['SET', tg.KEY.polls(code), JSON.stringify(next), 'EX', ttlFor(g, now)], ...(action === 'poll_delete' ? [await dropVotes(code, [poll.id])] : [])].filter(Boolean));
+                return ok();
+            }
+
+            if (action === 'vote') {
+                if (role !== 'member') return fail('bad_request');
+                const poll = ((await json(tg.KEY.polls(code))) || []).find((p) => p.id === String(body.id || ''));
+                if (!poll) return fail('ended');
+                if (poll.closed) return fail('closed');
+                const me = (await members(code)).find((m) => m.uid === uid);
+                if (!me || (poll.sub !== null && poll.sub !== undefined && me.sub !== poll.sub)) return fail('bad_request');
+                const picks = tg.cleanChoice(poll, body.choice);
+                if (!picks) return fail('bad_request');
+                await d.pipe([['HSET', tg.KEY.votes(code), tg.voteKey(poll.id, uid), JSON.stringify(picks)], keep(tg.KEY.votes(code))]);
+                return ok();
+            }
+
+            // ---------- 團內揪伴（同意分享後才能發、才能說要去） ----------
+            if (action === 'jio_new') {
+                if (!(await shareMe()).consent) return fail('need_consent');
+                const made = tg.makeJio({ text: body.text }, uid, now);
+                if (!made.ok) return fail(made.code);
+                if (d.isDisallowed(made.jio.text)) return fail('filtered');
+                const list = tg.liveJios((await json(tg.KEY.jio(code))) || [], now);
+                const no = tg.canJio(list, uid, now);
+                if (no) return fail(no);
+                await d.cmd(['SET', tg.KEY.jio(code), JSON.stringify([made.jio, ...list]), 'EX', ttlFor(g, now)]);
+                const all = await members(code);
+                const blocks = hashOf(await d.cmd(['HGETALL', tg.KEY.blocks(code)]));
+                const blockedMe = (u) => { try { return JSON.parse(blocks[u] || '[]').includes(uid); } catch (e) { return false; } };
+                const me = all.find((m) => m.uid === uid);
+                const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
+                await push(all.filter((m) => m.uid !== uid && !blockedMe(m.uid)).map((m) => m.uid), title(g), `🙋 ${prof.name || `#${me ? me.no : '?'}`}：${made.jio.text}`, { type: 'tgroup_jio', code, jioId: made.jio.id });
+                return ok();
+            }
+
+            if (action === 'jio_join') {
+                if (!(await shareMe()).consent) return fail('need_consent');
+                const jio = tg.liveJios((await json(tg.KEY.jio(code))) || [], now).find((j) => j.id === String(body.id || ''));
+                if (!jio) return fail('ended');
+                if (jio.by === uid) return fail('bad_request');
+                const field = `${jio.id}|${uid}`;
+                if (body.on === false) {
+                    await d.cmd(['HDEL', tg.KEY.jioJoin(code), field]);
+                    return ok();
+                }
+                const added = await d.cmd(['HSETNX', tg.KEY.jioJoin(code), field, '1']);
+                await d.cmd(['EXPIRE', tg.KEY.jioJoin(code), ttlFor(g, now)]);
+                let theirBlocks = [];
+                try { theirBlocks = JSON.parse((await d.cmd(['HGET', tg.KEY.blocks(code), jio.by])) || '[]'); } catch (e) { theirBlocks = []; }
+                if (Number(added) === 1 && !theirBlocks.includes(uid)) {
+                    const me = (await members(code)).find((m) => m.uid === uid);
+                    const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
+                    await push([jio.by], title(g), `${prof.name || `#${me ? me.no : '?'}`} 也要去：${jio.text}`, { type: 'tgroup_jio', code, jioId: jio.id });
+                }
+                return ok();
+            }
+
+            if (action === 'jio_delete') {
+                const list = (await json(tg.KEY.jio(code))) || [];
+                const jio = list.find((j) => j.id === String(body.id || ''));
+                if (!jio) return ok();
+                if (jio.by !== uid && role === 'member') return fail('not_host', 403);
+                const joins = Object.keys(hashOf(await d.cmd(['HGETALL', tg.KEY.jioJoin(code)]))).filter((k) => k.startsWith(`${jio.id}|`));
+                await d.pipe([
+                    ['SET', tg.KEY.jio(code), JSON.stringify(tg.liveJios(list.filter((j) => j.id !== jio.id), now)), 'EX', ttlFor(g, now)],
+                    ...(joins.length ? [['HDEL', tg.KEY.jioJoin(code), ...joins]] : []),
+                ]);
                 return ok();
             }
 

@@ -137,6 +137,10 @@ const KEY = {
     late: (code) => `tgroup_late:${code}`, // 這次集合「我會晚到」：hash uid → JSON { mins, why, at }
     far: (code) => `tgroup_far:${code}`, // 脫隊預警：hash uid → JSON { since, alerted, d }
     farChk: (code) => `tgroup_farchk:${code}`, // 脫隊檢查的節流（1 分鐘）
+    polls: (code) => `tgroup_polls:${code}`, // 投票：JSON 陣列（新的在前，最多 10 個）
+    votes: (code) => `tgroup_votes:${code}`, // 投票的選擇：hash `${pollId}|${uid}` → JSON 選項陣列
+    jio: (code) => `tgroup_jio:${code}`, // 揪伴：JSON 陣列（12 小時後消失）
+    jioJoin: (code) => `tgroup_jiojoin:${code}`, // 誰也要去：hash `${jioId}|${uid}` → '1'
     activeCalls: 'tgroup_active_calls',
     lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
     profile: 'tgroup_profile', // 每位使用者的暱稱與頭像 JSON（旅行團自己的，不讀城市低語的 user_data）
@@ -590,6 +594,93 @@ const pushAnnouncement = (list, ann) => [ann, ...(list || [])].slice(0, MAX_ANN)
 /** 團員看得到的公告：全團的，加上自己那一組的 */
 const visibleAnnouncements = (list, sub, staff) => (list || []).filter((a) => staff || a.sub === null || a.sub === sub);
 
+// ---------- 投票與調查、團內揪伴 ----------
+
+const MAX_POLLS = 10; // 一團最多留 10 個投票（新的在前）
+const MAX_POLL_Q = 60;
+const MAX_POLL_OPT = 30;
+const MAX_POLL_OPTS = 6;
+const MAX_JIO = 20; // 一團同時最多 20 個揪伴
+const MAX_JIO_TEXT = 40;
+const MAX_JIO_MINE = 3; // 每人同時最多 3 個
+const JIO_TTL_MS = 12 * 3600000; // 揪伴 12 小時後自動消失
+
+const newId = (now) => `${now.toString(36)}${crypto.randomBytes(2).toString('hex')}`;
+
+/** 團主或共同團主發起投票：問題、2–6 個選項（不重複）、可不可以複選、對象（全團或某一組） */
+function makePoll({ q, opts, multi, sub }, by, now) {
+    const question = clipText(q, MAX_POLL_Q);
+    if (!question) return { ok: false, code: 'empty' };
+    const list = [...new Set((Array.isArray(opts) ? opts : []).map((o) => clipText(o, MAX_POLL_OPT)).filter(Boolean))];
+    if (list.length < 2 || list.length > MAX_POLL_OPTS) return { ok: false, code: 'bad_request' };
+    return { ok: true, poll: { id: newId(now), q: question, opts: list, multi: multi === true, sub: normSub(sub), by, at: now, closed: false } };
+}
+
+const pushPoll = (list, poll) => [poll, ...(list || [])].slice(0, MAX_POLLS);
+
+/** 投票的選擇：選項編號（不重複、由小到大）；單選只能 1 個；不合法回 null */
+function cleanChoice(poll, choice) {
+    if (!Array.isArray(choice)) return null;
+    const picks = [...new Set(choice)].filter((i) => Number.isInteger(i) && i >= 0 && i < poll.opts.length).sort((a, b) => a - b);
+    if (picks.length !== choice.length || !picks.length) return null;
+    if (!poll.multi && picks.length !== 1) return null;
+    return picks;
+}
+
+const voteKey = (pollId, uid) => `${pollId}|${uid}`;
+
+/**
+ * 給 App 看的投票：每個選項幾票、我選了什麼；團主與共同團主另外看到誰選了什麼、還有幾人沒投
+ * @param votes hash：`${pollId}|${uid}` → JSON 選項陣列
+ * @param targets 這個投票的對象（團員 uid）
+ */
+function pollView(poll, votes, uid, staff, targets) {
+    const counts = poll.opts.map(() => 0);
+    const who = poll.opts.map(() => []);
+    let voters = 0;
+    for (const u of targets) {
+        const picks = parseJson(votes[voteKey(poll.id, u)], null);
+        if (!Array.isArray(picks)) continue;
+        voters++;
+        for (const i of picks) if (i >= 0 && i < counts.length) { counts[i]++; who[i].push(u); }
+    }
+    const mine = parseJson(votes[voteKey(poll.id, uid)], null);
+    const view = { id: poll.id, q: poll.q, opts: poll.opts, multi: !!poll.multi, sub: poll.sub ?? null, at: poll.at, closed: !!poll.closed, counts, voters, total: targets.length, mine: Array.isArray(mine) ? mine : null };
+    if (staff) view.who = who;
+    return view;
+}
+
+/** 揪伴：「誰要一起去…」最多 40 字 */
+function makeJio({ text }, by, now) {
+    const t = clipText(text, MAX_JIO_TEXT);
+    if (!t) return { ok: false, code: 'empty' };
+    return { ok: true, jio: { id: newId(now), by, text: t, at: now } };
+}
+
+/** 還沒過期的揪伴（新的在前） */
+const liveJios = (list, now) => (list || []).filter((j) => j && j.at + JIO_TTL_MS > now).sort((a, b) => b.at - a.at);
+
+/** 能不能再發一個：全團沒滿、自己同時不超過 3 個 */
+function canJio(list, uid, now) {
+    const live = liveJios(list, now);
+    if (live.length >= MAX_JIO) return 'too_many';
+    if (live.filter((j) => j.by === uid).length >= MAX_JIO_MINE) return 'too_many';
+    return null;
+}
+
+/**
+ * 給 App 看的揪伴：不含我封鎖的人發的、也不含封鎖我的人發的；誰也要去（同樣排除封鎖）
+ * @param joins hash：`${jioId}|${uid}` → '1'
+ * @param hidden 我看不到的人（我封鎖的＋封鎖我的）
+ */
+function jioView(list, joins, uid, hidden, members, now) {
+    const inGroup = new Set(members);
+    return liveJios(list, now).filter((j) => inGroup.has(j.by) && !hidden.includes(j.by)).map((j) => {
+        const going = members.filter((u) => joins[`${j.id}|${u}`] && u !== j.by);
+        return { id: j.id, by: j.by, text: j.text, at: j.at, until: j.at + JIO_TTL_MS, going: going.filter((u) => !hidden.includes(u)), count: going.length, mine: j.by === uid, joined: going.includes(uid) };
+    });
+}
+
 // ---------- 行程表 ----------
 
 /**
@@ -933,6 +1024,8 @@ module.exports = {
     ARRIVE_RADIUS_M, ARRIVE_BEFORE_MS, LATE_MINS, LATE_WHY, FAR_FRESH_MS, FAR_NEAR_M, FAR_M, FAR_HOLD_MS, FAR_CHECK_S,
     distM, canArrive, makeLate, parseLate, lateText, farCheck, farTextStaff, farTextSelf,
     makeAnnouncement, pushAnnouncement, visibleAnnouncements,
+    MAX_POLLS, MAX_POLL_Q, MAX_POLL_OPT, MAX_POLL_OPTS, MAX_JIO, MAX_JIO_TEXT, MAX_JIO_MINE, JIO_TTL_MS,
+    makePoll, pushPoll, cleanChoice, voteKey, pollView, makeJio, liveJios, canJio, jioView,
     makeStop, upsertStop, removeStop,
     applePass, googlePass, kindOf, makeVoucher, canRedeem, cleanPhone, cleanUrl, makeDay, dayTexts, makeInfo, infoTexts, cleanMemberData, groupLink, voucherLink, callText, cleanProfile,
     shareState, validPos, isOnline, peopleView, makeMessage, messagesFor,

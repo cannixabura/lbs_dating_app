@@ -193,3 +193,46 @@ test('流程：團內揪伴', async () => {
     assert.equal((await call('m1', 'status')).group.jios.length, 0);
     assert.equal((await call('m1', 'jio_new', { text: '再揪一次' })).success, true);
 });
+
+test('封鎖的人收不到我的揪伴推播；退團時投票、揪伴、我也去一起刪掉', async () => {
+    let r = await call('H2', 'create', { name: '大阪三日', color: 'blue', days: 3, tz: 'Asia/Tokyo' });
+    const code = r.group.code;
+    const v = Number(new URL(r.group.qr).searchParams.get('v'));
+    for (const u of ['n1', 'n2', 'n3']) assert.equal((await call(u, 'join', { code, v })).success, true);
+    for (const u of ['n1', 'n2', 'n3', 'H2']) await call(u, 'share', { on: true, consent: true });
+
+    // n1 封鎖 n2：n1 發揪伴不推給 n2
+    await call('n1', 'block', { uid: 'n2' });
+    pushes.length = 0;
+    r = await call('n1', 'jio_new', { text: '一起去道頓堀' });
+    assert.deepEqual(pushes[0].uids.sort(), ['H2', 'n3']);
+
+    // n2 退團：他的票、他的揪伴、他按的我也去都刪掉；揪伴名額不再被佔
+    const p = (await call('H2', 'poll_new', { q: '晚餐', opts: ['拉麵', '燒肉'] })).group.polls[0];
+    await call('n2', 'vote', { id: p.id, choice: [0] });
+    await call('n3', 'vote', { id: p.id, choice: [1] });
+    const j2 = (await call('n2', 'jio_new', { text: '誰要去環球影城' })).group.jios.find((j) => j.mine);
+    await call('n3', 'jio_join', { id: j2.id });
+    const j1 = (await call('n3', 'status')).group.jios.find((j) => j.by === 'n1');
+    await call('n2', 'jio_join', { id: j1.id });
+    assert.equal((await call('n2', 'leave')).success, true);
+    const votes = Object.keys(Object.fromEntries((run(['HGETALL', tg.KEY.votes(code)]) || []).reduce((a, x, i, arr) => (i % 2 ? a : [...a, [x, arr[i + 1]]]), [])));
+    assert.ok(votes.every((k) => !k.endsWith('|n2')));
+    r = await call('n3', 'status');
+    assert.equal(r.group.jios.length, 1);
+    assert.equal(r.group.jios[0].count, 0);
+    assert.deepEqual(r.group.polls[0].counts, [0, 1]);
+});
+
+test('到點自動點名：集合發出後才入團的人也能點到、說會晚到', async () => {
+    let r = await call('H3', 'create', { name: '京都一日', color: 'green', days: 1, tz: 'Asia/Tokyo' });
+    const code = r.group.code;
+    const v = Number(new URL(r.group.qr).searchParams.get('v'));
+    await call('k1', 'join', { code, v });
+    r = await call('H3', 'call', { at: now + 20 * 60000, tz: 'Asia/Tokyo', place: '清水寺', lat: 34.9949, lng: 135.785 });
+    assert.equal(r.success, true);
+    await call('k2', 'join', { code, v });
+    assert.equal((await call('k2', 'late', { callId: r.group.call.id, mins: 5 })).success, true);
+    now += 15 * 60000;
+    assert.equal((await call('k2', 'arrive', { callId: r.group.call.id, lat: 34.9949, lng: 135.785 })).success, true);
+});

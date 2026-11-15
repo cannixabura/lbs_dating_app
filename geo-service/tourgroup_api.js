@@ -79,6 +79,22 @@ function create(d) {
         return keys.length ? ['HDEL', tg.KEY.votes(code), ...keys] : null;
     }
 
+    /** 退團或被移出：這個人的到點、晚到、脫隊、投票、揪伴與「我也去」一起刪掉（回傳指令陣列） */
+    async function forgetMember(code, u, g, now) {
+        const [votes, joins, jios] = await Promise.all([
+            d.cmd(['HGETALL', tg.KEY.votes(code)]).then((h) => Object.keys(hashOf(h))), d.cmd(['HGETALL', tg.KEY.jioJoin(code)]).then((h) => Object.keys(hashOf(h))), json(tg.KEY.jio(code)),
+        ]);
+        const mine = (jios || []).filter((j) => j.by === u).map((j) => j.id);
+        const vk = (votes || []).filter((k) => k.endsWith(`|${u}`));
+        const jk = (joins || []).filter((k) => k.endsWith(`|${u}`) || mine.some((id) => k.startsWith(`${id}|`)));
+        return [
+            ['HDEL', tg.KEY.arrive(code), u], ['HDEL', tg.KEY.late(code), u], ['HDEL', tg.KEY.far(code), u],
+            ...(vk.length ? [['HDEL', tg.KEY.votes(code), ...vk]] : []),
+            ...(jk.length ? [['HDEL', tg.KEY.jioJoin(code), ...jk]] : []),
+            ...(mine.length ? [['SET', tg.KEY.jio(code), JSON.stringify(tg.liveJios((jios || []).filter((j) => j.by !== u), now)), 'EX', ttlFor(g, now)]] : []),
+        ];
+    }
+
     async function destroy(code, list) {
         const stops = (await json(tg.KEY.stops(code)).catch(() => null)) || [];
         const g = await json(tg.KEY.group(code)).catch(() => null);
@@ -661,12 +677,19 @@ function create(d) {
                 return ok();
             }
 
+            // 這個集合有沒有叫到我：看我現在的分組（集合發出後才入團或換組的人也算）
+            const inCallNow = async (call) => {
+                if (call.sub === null || call.sub === undefined) return true;
+                const mine = (await members(code)).find((m) => m.uid === uid);
+                return !!mine && (mine.sub ?? null) === call.sub;
+            };
+
             // 到點自動點名：App 發現自己進到集合點附近就送一次（只用來判斷，不存位置）
             if (action === 'arrive') {
                 if (role !== 'member') return fail('bad_request');
                 const call = await json(tg.KEY.call(code));
                 if (!call || call.id !== body.callId) return fail('ended');
-                if (call.targets && call.targets.length && !call.targets.includes(uid)) return fail('bad_request');
+                if (!(await inCallNow(call))) return fail('not_target');
                 const can = tg.canArrive(call, { lat: body.lat, lng: body.lng }, now);
                 if (!can.ok) return fail(can.code);
                 const ttl = String(Math.max(60, Math.ceil((call.at + tg.CALL_LINGER_MS - now) / 1000)));
@@ -683,7 +706,7 @@ function create(d) {
                 if (role !== 'member') return fail('bad_request');
                 const call = await json(tg.KEY.call(code));
                 if (!call || call.id !== body.callId || !tg.callLive(call, now)) return fail('ended');
-                if (call.targets && call.targets.length && !call.targets.includes(uid)) return fail('bad_request');
+                if (!(await inCallNow(call))) return fail('not_target');
                 const made = tg.makeLate({ mins: body.mins, why: body.why }, now);
                 if (!made.ok) return fail(made.code);
                 const ttl = String(Math.max(60, Math.ceil((call.at + tg.CALL_LINGER_MS - now) / 1000)));
@@ -789,9 +812,11 @@ function create(d) {
                 const all = await members(code);
                 const blocks = hashOf(await d.cmd(['HGETALL', tg.KEY.blocks(code)]));
                 const blockedMe = (u) => { try { return JSON.parse(blocks[u] || '[]').includes(uid); } catch (e) { return false; } };
+                let iBlocked = [];
+                try { iBlocked = JSON.parse(blocks[uid] || '[]'); } catch (e) { iBlocked = []; }
                 const me = all.find((m) => m.uid === uid);
                 const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
-                await push(all.filter((m) => m.uid !== uid && !blockedMe(m.uid)).map((m) => m.uid), title(g), `🙋 ${prof.name || `#${me ? me.no : '?'}`}：${made.jio.text}`, { type: 'tgroup_jio', code, jioId: made.jio.id });
+                await push(all.filter((m) => m.uid !== uid && !blockedMe(m.uid) && !iBlocked.includes(m.uid)).map((m) => m.uid), title(g), `🙋 ${prof.name || `#${me ? me.no : '?'}`}：${made.jio.text}`, { type: 'tgroup_jio', code, jioId: made.jio.id });
                 return ok();
             }
 
@@ -863,6 +888,7 @@ function create(d) {
                         ['HDEL', tg.KEY.answers(code), target], ['HDEL', tg.KEY.lost(code), target],
                         ['HDEL', tg.KEY.pos(code), target], ['HDEL', tg.KEY.bubble(code), target], ['HDEL', tg.KEY.seen(code), target], ['ZREM', tg.KEY.pingDue, `${code}|${target}`],
                         ['HDEL', tg.KEY.mdata(code), target],
+                        ...(await forgetMember(code, target, g, now)),
                     ]);
                 } else if (action === 'cohost_add') {
                     const r = tg.addCohost(g, target, list);
@@ -1038,6 +1064,7 @@ function create(d) {
                     ['HDEL', tg.KEY.answers(code), uid], ['HDEL', tg.KEY.lost(code), uid],
                     ['HDEL', tg.KEY.pos(code), uid], ['HDEL', tg.KEY.bubble(code), uid], ['HDEL', tg.KEY.seen(code), uid], ['ZREM', tg.KEY.pingDue, `${code}|${uid}`],
                     ['HDEL', tg.KEY.mdata(code), uid],
+                    ...(await forgetMember(code, uid, g, now)),
                 ]);
                 return res.status(200).json({ success: true, group: null });
             }

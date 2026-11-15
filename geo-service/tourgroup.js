@@ -141,6 +141,8 @@ const KEY = {
     votes: (code) => `tgroup_votes:${code}`, // 投票的選擇：hash `${pollId}|${uid}` → JSON 選項陣列
     jio: (code) => `tgroup_jio:${code}`, // 揪伴：JSON 陣列（12 小時後消失）
     jioJoin: (code) => `tgroup_jiojoin:${code}`, // 誰也要去：hash `${jioId}|${uid}` → '1'
+    cast: (code) => `tgroup_cast:${code}`, // 講解廣播：JSON {id, by, sub, at, until}；同一團同時只有一場
+    activeCasts: 'tgroup_active_casts', // 進行中的廣播（set of code），排程到期就關房間
     activeCalls: 'tgroup_active_calls',
     lang: 'tgroup_lang', // 每位使用者的語言（推播用；旅行團帳號沒有城市低語的 user_data）
     profile: 'tgroup_profile', // 每位使用者的暱稱與頭像 JSON（旅行團自己的，不讀城市低語的 user_data）
@@ -681,6 +683,21 @@ function jioView(list, joins, uid, hidden, members, now) {
     });
 }
 
+// ---------- 講解廣播（團主、共同團主講，團員用自己的耳機聽；LiveKit，見 livekit.js） ----------
+
+const CAST_MAX_MS = 2 * 3600000; // 一次廣播最長 2 小時，到時間自動結束
+const CAST_TOKEN_TTL_S = 15 * 60; // 連線通行證 15 分鐘（連上之後 LiveKit 自己續）
+
+/** 開一場廣播（同一團同時只有一場） */
+function makeCast({ sub }, uid, now) {
+    return { id: now.toString(36), by: uid, sub: normSub(sub), at: now, until: now + CAST_MAX_MS };
+}
+
+const castLive = (c, now) => !!(c && c.id && now < c.until);
+
+/** LiveKit 房間名：tour_ 開頭，和城市低語的 asm_ 分開 */
+const castRoom = (code, cast) => `tour_${code}_${cast.id}`;
+
 // ---------- 行程表 ----------
 
 /**
@@ -1027,6 +1044,7 @@ module.exports = {
     MAX_POLLS, MAX_POLL_Q, MAX_POLL_OPT, MAX_POLL_OPTS, MAX_JIO, MAX_JIO_TEXT, MAX_JIO_MINE, JIO_TTL_MS,
     makePoll, pushPoll, cleanChoice, voteKey, pollView, makeJio, liveJios, canJio, jioView,
     makeStop, upsertStop, removeStop,
+    CAST_MAX_MS, CAST_TOKEN_TTL_S, makeCast, castLive, castRoom,
     applePass, googlePass, kindOf, makeVoucher, canRedeem, cleanPhone, cleanUrl, makeDay, dayTexts, makeInfo, infoTexts, cleanMemberData, groupLink, voucherLink, callText, cleanProfile,
     shareState, validPos, isOnline, peopleView, makeMessage, messagesFor,
 };

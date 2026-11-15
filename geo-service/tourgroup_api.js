@@ -13,6 +13,8 @@
 //   團員：join / seen / ack / answer / lost / found（自己）/ leave / arrive（到點自動點名）/ late（我會晚到）/ vote（投票）
 //   團主與共同團主：poll_new / poll_close / poll_delete（投票與調查）
 //   同意分享的所有人：jio_new / jio_join（團內揪伴）；jio_delete（自己的；團主與共同團主可刪任何一個）
+//   團主與共同團主：cast_start / cast_stop（講解廣播；同一團同時只有一場，最長 2 小時）
+//   所有人：cast_token（拿 LiveKit 通行證；只有開廣播的人能發聲，團員只能聽）
 //   所有人：status；不必在團裡：create / join / buy_voucher / vouchers
 // 團員的位置不會給團主；集合點是團主放的座標；「我迷路了」是團員自己按下才傳一次。
 // ============================================================================
@@ -21,7 +23,7 @@ const tg = require('./tourgroup');
 
 const COLOR_DOT = { violet: '🟣', pink: '🩷', blue: '🔵', teal: '🩵', green: '🟢', gold: '🟡', orange: '🟠', red: '🔴' };
 const HOST_ONLY = ['cohost_add', 'cohost_remove', 'handoff', 'dissolve', 'verify', 'redeem', 'trip'];
-const STAFF_ONLY = ['poll_new', 'poll_close', 'poll_delete', 'call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set', 'mark', 'room', 'rooms', 'ai_import'];
+const STAFF_ONLY = ['cast_start', 'poll_new', 'poll_close', 'poll_delete', 'call', 'ping', 'call_done', 'rollcall', 'roll_done', 'announce', 'note', 'assign', 'subs', 'stop_add', 'stop_remove', 'kick', 'rotate_qr', 'day_set', 'info_set', 'mark', 'room', 'rooms', 'ai_import'];
 
 /**
  * @param {object} d
@@ -40,6 +42,13 @@ const STAFF_ONLY = ['poll_new', 'poll_close', 'poll_delete', 'call', 'ping', 'ca
  */
 function create(d) {
     const clock = d.clock || Date.now;
+    // 講解廣播用城市低語的 LiveKit 主機（同一組 secret；房間名 tour_ 開頭）；測試時可以換成假的
+    const livekit = d.livekit || require('./livekit');
+    /** 結束廣播：刪資料、關 LiveKit 房間（關房間失敗不影響結束） */
+    async function endCast(code, cast) {
+        await d.pipe([['DEL', tg.KEY.cast(code)], ['SREM', tg.KEY.activeCasts, code]]);
+        if (cast && livekit.configured()) await livekit.deleteRoom(tg.castRoom(code, cast)).catch((e) => console.warn('[旅行團] 關廣播房間失敗:', e.message));
+    }
 
     const json = async (key) => {
         const raw = await d.cmd(['GET', key]);
@@ -84,6 +93,8 @@ function create(d) {
         const [votes, joins, jios] = await Promise.all([
             d.cmd(['HGETALL', tg.KEY.votes(code)]).then((h) => Object.keys(hashOf(h))), d.cmd(['HGETALL', tg.KEY.jioJoin(code)]).then((h) => Object.keys(hashOf(h))), json(tg.KEY.jio(code)),
         ]);
+        const cast = await json(tg.KEY.cast(code));
+        if (cast && cast.by === u) await endCast(code, cast);
         const mine = (jios || []).filter((j) => j.by === u).map((j) => j.id);
         const vk = (votes || []).filter((k) => k.endsWith(`|${u}`));
         const jk = (joins || []).filter((k) => k.endsWith(`|${u}`) || mine.some((id) => k.startsWith(`${id}|`)));
@@ -98,6 +109,8 @@ function create(d) {
     async function destroy(code, list) {
         const stops = (await json(tg.KEY.stops(code)).catch(() => null)) || [];
         const g = await json(tg.KEY.group(code)).catch(() => null);
+        const cast = await json(tg.KEY.cast(code)).catch(() => null);
+        if (cast) await endCast(code, cast);
         if (g && list.length) await keepEnded(code, g, list).catch((e) => console.warn('[旅行團] 解散紀錄失敗:', e.message));
         await d.pipe([
             ...(g && g.invite ? [['DEL', tg.KEY.invite(g.invite)]] : []),
@@ -280,6 +293,11 @@ function create(d) {
         const blocksAll = hashOf(blocksFlat);
         const blockedMe = Object.entries(blocksAll).filter(([, raw]) => { try { return JSON.parse(raw || '[]').includes(uid); } catch (e) { return false; } }).map(([u]) => u);
         view.jios = tg.jioView(jios || [], hashOf(jioJoinFlat), uid, [...blockedByMe, ...blockedMe], list.map((m) => m.uid), now);
+        // 講解廣播：全團的或我這一組的；開廣播的人看到 mine
+        const cast = await json(tg.KEY.cast(code));
+        view.cast = tg.castLive(cast, now) && forMe(cast)
+            ? { id: cast.id, by: cast.by, byName: nameOf(cast.by), sub: cast.sub, at: cast.at, until: cast.until, mine: cast.by === uid }
+            : null;
         if (staff) {
             view.qr = tg.groupLink(code, g.qrVer, g.invite);
             view.invite = g.invite || null;
@@ -842,6 +860,53 @@ function create(d) {
                 return ok();
             }
 
+            // 講解廣播：開始（同一團同時只有一場；別人在講就回 cast_busy）
+            if (action === 'cast_start') {
+                if (!livekit.configured()) return fail('cast_unavailable');
+                if (!tg.validSub(g, body.sub)) return fail('bad_request');
+                const cur = await json(tg.KEY.cast(code));
+                if (tg.castLive(cur, now) && cur.by !== uid) return fail('cast_busy');
+                if (tg.castLive(cur, now)) return ok();
+                const cast = tg.makeCast({ sub: body.sub }, uid, now);
+                await d.pipe([
+                    ['SET', tg.KEY.cast(code), JSON.stringify(cast), 'EX', String(Math.ceil(tg.CAST_MAX_MS / 1000) + 600)],
+                    ['SADD', tg.KEY.activeCasts, code],
+                ]);
+                const list = await members(code);
+                const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
+                const me = list.find((m) => m.uid === uid);
+                // 團員（全團或那一組）加上其他團主、共同團主
+                const targets = [...new Set([...tg.targetUids(g, list, cast.sub), g.host, ...(g.cohosts || [])])].filter((u) => u !== uid);
+                if (targets.length) await push(targets, title(g), `🎧 ${prof.name || `#${me ? me.no : '?'}`} 開始講解廣播，點一下收聽`, { type: 'tgroup_cast', code, castId: cast.id });
+                return ok();
+            }
+
+            // 講解廣播：結束（開廣播的人，或團主）
+            if (action === 'cast_stop') {
+                const cur = await json(tg.KEY.cast(code));
+                if (!cur) return ok();
+                if (cur.by !== uid && role !== 'host') return fail('not_host', 403);
+                await endCast(code, cur);
+                return ok();
+            }
+
+            // 講解廣播：LiveKit 通行證。只有開廣播的人（而且還是團主或共同團主）能發聲，其他人只能聽
+            if (action === 'cast_token') {
+                if (!livekit.configured()) return fail('cast_unavailable');
+                const cur = await json(tg.KEY.cast(code));
+                if (!tg.castLive(cur, now) || (cur.id !== String(body.castId || cur.id))) return fail('ended');
+                if (role === 'member') {
+                    const me = (await members(code)).find((m) => m.uid === uid);
+                    if (cur.sub !== null && cur.sub !== undefined && (!me || (me.sub ?? null) !== cur.sub)) return fail('not_target');
+                }
+                const prof = parseProfile(await d.cmd(['HGET', tg.KEY.profile, uid]));
+                const identity = livekit.identityOf(uid, `${code}_${cur.id}`);
+                const canPublish = cur.by === uid && role !== 'member';
+                const ttl = tg.CAST_TOKEN_TTL_S;
+                const token = livekit.accessToken({ room: tg.castRoom(code, cur), identity, name: prof.name || '', canPublish, ttlSeconds: ttl, now });
+                return res.status(200).json({ success: true, url: livekit.config().url, token, identity, canPublish, ttl });
+            }
+
             if (action === 'jio_delete') {
                 const list = (await json(tg.KEY.jio(code))) || [];
                 const jio = list.find((j) => j.id === String(body.id || ''));
@@ -898,6 +963,9 @@ function create(d) {
                     await push([target], title(g), '你成為這一團的共同團主了，可以發集合、點名和公告。', { type: 'tgroup_role', code });
                 } else if (action === 'cohost_remove') {
                     await save(code, tg.removeCohost(g, target), now);
+                    // 不再是共同團主：他正在講的廣播也結束
+                    const cast = await json(tg.KEY.cast(code));
+                    if (cast && cast.by === target) await endCast(code, cast);
                 } else {
                     // 交棒：團主交給這位成員；原團主留在團裡當共同團主（名額滿了就當團員）
                     const hostRow = list.find((x) => x.uid === g.host) || { joinedAt: now };
@@ -1176,11 +1244,21 @@ function create(d) {
     }
 
     /** 每分鐘：集合前 15 分鐘提醒一次；還沒按「收到」的人再提醒（每 60 秒、最多 3 次）；集合時間過 30 分鐘就收起來 */
+    /** 講解廣播到時間（2 小時）就結束、關房間 */
+    async function endExpiredCasts(now) {
+        const codes = (await d.cmd(['SMEMBERS', tg.KEY.activeCasts])) || [];
+        for (const code of codes) {
+            const cast = await json(tg.KEY.cast(code));
+            if (!tg.castLive(cast, now)) await endCast(code, cast);
+        }
+    }
+
     async function remind() {
         const now = clock();
         try { await pingIdle(now); } catch (e) { console.error('[旅行團] 無聲推播失敗:', e); }
         try { await remindStops(now); } catch (e) { console.error('[旅行團] 行程提醒失敗:', e); }
         try { await remindThanks(now); } catch (e) { console.error('[旅行團] 送花提醒失敗:', e); }
+        try { await endExpiredCasts(now); } catch (e) { console.error('[旅行團] 結束廣播失敗:', e); }
         const codes = (await d.cmd(['SMEMBERS', tg.KEY.activeCalls])) || [];
         for (const code of codes) {
             try {
@@ -1208,7 +1286,7 @@ function create(d) {
         }
     }
 
-    return { handle, remind, statusView, pingIdle, remindStops, remindThanks };
+    return { handle, remind, statusView, pingIdle, remindStops, remindThanks, endExpiredCasts };
 }
 
 module.exports = { create, HOST_ONLY, STAFF_ONLY };

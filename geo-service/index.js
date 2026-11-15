@@ -2987,11 +2987,11 @@ const tourApi = require("./tourgroup_api").create({
   },
 });
 
-exports.tourGroup = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY], timeoutSeconds: 120 }, (req, res) => {
+exports.tourGroup = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ANTHROPIC_KEY, ...LIVEKIT_SECRETS], timeoutSeconds: 120 }, (req, res) => {
   cors(req, res, () => tourApi.handle(req, res));
 });
 
-exports.remindTourGroups = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: UPSTASH_SECRETS }, () => tourApi.remind());
+exports.remindTourGroups = onSchedule({ schedule: "every 1 minutes", region: "asia-southeast1", secrets: [...UPSTASH_SECRETS, ...LIVEKIT_SECRETS] }, () => tourApi.remind());
 
 exports.deleteAccount = onRequest({ region: "asia-southeast1", secrets: UPSTASH_SECRETS }, (req, res) => {
   cors(req, res, async () => {

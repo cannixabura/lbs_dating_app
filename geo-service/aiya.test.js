@@ -382,3 +382,47 @@ test('parseReply long：字面上的 \\n 也當成換行', () => {
     const r = aiya.parseReply(JSON.stringify({ reply: '拉麵 – 900円\\n餃子 – 450円', expression: 'calm' }), { long: true });
     assert.strictEqual(r.reply, '拉麵 – 900円\n餃子 – 450円');
 });
+
+// ---------- OneRule 一句家規（app: onerule） ----------
+
+test('onerule: app config, persona and voice instructions', () => {
+    const app = aiya.appOf('onerule');
+    assert.strictEqual(app.id, 'onerule');
+    assert.strictEqual(app.bundleId, 'ai.onerule.onerule');
+    assert.strictEqual(aiya.personaOf(app), aiya.ONERULE_PERSONA);
+    assert.strictEqual(aiya.personaOf(aiya.APPS.tour), aiya.TOUR_PERSONA);
+    assert.strictEqual(aiya.personaOf(aiya.APPS.mw), aiya.PERSONA);
+    // 沒有商品：任何商品代號都不會被當成 OneRule 的
+    assert.strictEqual(aiya.appOfProduct(''), null);
+    assert.notStrictEqual(aiya.appOfProduct('aiya_time_5'), app);
+    const ins = aiya.liveInstructions(app, 'zh-Hant', aiya.oneruleContextText({ lang: 'zh-Hant', now: Date.UTC(2026, 10, 16, 12, 0), role: 'child' }));
+    assert.match(ins, /OneRule/);
+    assert.match(ins, /This is a voice call\./);
+    assert.match(ins, /Never lift, pause, shorten or get around a rule/);
+    assert.doesNotMatch(ins, /Output:/);
+    assert.match(ins, /talking with a child/);
+    assert.match(ins, /20:00/); // 預設台灣時間 UTC+8
+});
+
+test('onerule: family context is data, trimmed and capped', () => {
+    const c = aiya.oneruleContextText({ lang: 'en', now: 0, tzOffsetMin: 0, role: 'parent', family: 'Bedtime 21:00\u0007\n\n\n\nweekdays  only' + 'x'.repeat(2000) });
+    assert.match(c, /talking with a parent/);
+    assert.match(c, /<family>/);
+    assert.doesNotMatch(c, /\u0007/);
+    assert.ok(c.length < aiya.MAX_FAMILY_CONTEXT_CHARS + 400);
+    assert.doesNotMatch(aiya.oneruleContextText({ lang: 'en', now: 0 }), /<family>/);
+});
+
+test('onerule: included monthly call minutes', () => {
+    const included = aiya.APPS.onerule.includedCallSeconds;
+    assert.strictEqual(included, 1800);
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, included }), { ok: true, maxMs: 1800000 });
+    assert.deepStrictEqual(aiya.decideCall({ consented: true, included, friendUsed: 1800 }), { ok: false, code: 'no_minutes' });
+    assert.deepStrictEqual(aiya.decideCall({ consented: false, included }), { ok: false, code: 'voice_consent' });
+    assert.deepStrictEqual(aiya.callSecondsLeft({ friend: false, friendUsed: 600, balance: 0, included }), { free: 1200, paid: 0, total: 1200 });
+    // 艾婭之友與內含分鐘取大的，不是相加
+    assert.strictEqual(aiya.callSecondsLeft({ friend: true, friendUsed: 0, balance: 0, included }).free, 3600);
+    assert.deepStrictEqual(aiya.splitCharge(100, { friend: false, friendUsed: 1750, balance: 0, included }), { fromFree: 50, fromPaid: 0 });
+    // 其他 App 不受影響
+    assert.deepStrictEqual(aiya.decideCall({ consented: true }), { ok: false, code: 'no_minutes' });
+});

@@ -1975,6 +1975,7 @@ async function aiyaStatus(uid, now, app = aiya.APPS.mw) {
         day, usedToday: parseInt(usedRaw || "0", 10), budgetMicro: parseInt(budgetRaw || "0", 10), budgetLimit: aiya.dailyBudgetMicro(app), reviewer: reviewer === 1,
         speechChars: parseInt(speechRaw || "0", 10),
         callFriendUsed: parseInt(friendUsedRaw || "0", 10), callBalance: Math.max(0, Number(callBalanceSnap.val()) || 0), activeCall,
+        callIncluded: app.includedCallSeconds || 0,
         voiceConsented: !!voiceConsent && voiceConsent.v >= aiya.VOICE_CONSENT_VERSION,
         credits: Math.max(0, Number(creditsSnap.val()) || 0), consented: !!consent && consent.v >= aiya.CONSENT_VERSION,
         session: aiya.sessionAlive(session, now) ? session : null,
@@ -2020,7 +2021,7 @@ function aiyaStatusView(st, now) {
 
 /** 給 App 的通話時間資訊 */
 function aiyaCallView(st) {
-    const left = aiya.callSecondsLeft({ friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+    const left = aiya.callSecondsLeft({ friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance, included: st.callIncluded });
     return {
         call: true, voiceConsented: st.voiceConsented, callIdleMs: aiya.CALL_IDLE_MS, callBeatMs: aiya.CALL_BEAT_MS,
         callSecondsLeft: st.reviewer ? Math.max(left.total, 300) : left.total, callFreeLeft: left.free, callPaidLeft: left.paid,
@@ -2041,7 +2042,7 @@ async function settleAiyaCall(uid, app, now, st, force = true) {
     st.activeCall = null;
     if (deleted !== 1) return 0;
     const seconds = st.reviewer ? 0 : aiya.callChargeSeconds(call, now);
-    const { fromFree, fromPaid } = aiya.splitCharge(seconds, { friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+    const { fromFree, fromPaid } = aiya.splitCharge(seconds, { friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance, included: st.callIncluded });
     const month = aiya.monthKey(now);
     const cmds = [["INCRBY", aiya.CALL_KEY.budget(month), String(aiya.callChargeSeconds(call, now))], ["EXPIRE", aiya.CALL_KEY.budget(month), String(400 * 86400)]];
     if (fromFree > 0) cmds.push(["INCRBY", aiya.CALL_KEY.friendUsed(uid, month, app), String(fromFree)], ["EXPIRE", aiya.CALL_KEY.friendUsed(uid, month, app), String(40 * 86400)]);
@@ -2398,12 +2399,14 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         const st = await aiyaStatus(uid, now, app);
         // 上一通還沒結算（例如 App 當掉）：先結算再開新的
         await settleAiyaCall(uid, app, now, st, true);
-        const ok = aiya.decideCall({ consented: st.voiceConsented, reviewer: st.reviewer, friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance });
+        const ok = aiya.decideCall({ consented: st.voiceConsented, reviewer: st.reviewer, friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance, included: st.callIncluded });
         if (!ok.ok) return res.status(200).json({ success: false, code: ok.code, ...aiyaStatusView(st, now) });
         const voice = aiya.LIVE_VOICES.includes(req.body.voice) ? req.body.voice : aiya.LIVE_VOICE;
         const context = app.id === "tour"
           ? aiya.tourContextText({ lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), tour: req.body.tourContext })
-          : await aiyaContext(lang, now);
+          : app.id === "onerule"
+            ? aiya.oneruleContextText({ lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), role: req.body.role, family: req.body.familyContext })
+            : await aiyaContext(lang, now);
         let live;
         try {
           live = await openaiLiveSession(sdp, { model: aiya.LIVE_MODEL, instructions: aiya.liveInstructions(app, lang, context), audio: { output: { voice } } });

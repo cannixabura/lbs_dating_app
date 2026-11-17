@@ -14,6 +14,7 @@ const citymood = require("./citymood");
 const whisper = require("./whisper");
 const { maskBlockedTerms, isDisallowed } = require("./contentfilter");
 const demo = require("./demo");
+const demoCity = require("./demo_city");
 const betasignup = require("./betasignup");
 const gathering = require("./gathering");
 const publicmood = require("./publicmood");
@@ -194,6 +195,14 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang
     for (const m of Array.isArray(publicHits) ? publicHits : []) {
         if (Array.isArray(m) && m[0]) found.push([m[0], parseFloat(m[1]), { lat: parseFloat(m[2][1]), lng: parseFloat(m[2][0]) }]);
     }
+    // 城市示範對象（每座平行宇宙城市 100 位）：和台北示範合併，取最近的幾位，上限相同
+    const cityNpc = new Map();
+    for (const b of demoCity.nearbyCityBots(parallel.CITIES, here, radiusKM)) {
+        cityNpc.set(b.uid, b);
+        found.push([b.uid, b.dist, { lat: b.lat, lng: b.lng }]);
+    }
+    found.sort((a, b) => a[1] - b[1]);
+    found.splice(realCount >= demo.CROWDED_REAL_USERS ? demo.CROWDED_MAX_RESULTS : demo.PUBLIC_MAX_RESULTS);
 
     const isReviewer = await sendUpstashCommand(["SISMEMBER", demo.REVIEWERS_KEY, viewerUid]);
     if (isReviewer === 1) {
@@ -214,11 +223,20 @@ async function nearbyDemoBots(viewerUid, lat, lng, radiusKM, realCount = 0, lang
     const profiles = await sendUpstashPipeline(found.map(([botUid]) => ["HMGET", `user_data:${botUid}`, "mood", "nickname", "hidden", "hostEmoji"]));
     const now = Date.now();
     const bots = [];
+    const seed = [];
     found.forEach(([botUid, , pos], i) => {
-        const [mood, nickname, hidden, hostEmoji] = profiles[i] || [];
+        let [mood, nickname, hidden, hostEmoji] = profiles[i] || [];
+        const npc = cityNpc.get(botUid);
+        if (npc && !nickname) {
+            // 第一次出現：把名字與心情寫進 user_data，檢舉、隱藏、聊天取名才和真人一樣運作
+            ({ mood, nickname } = npc);
+            seed.push(["HSET", `user_data:${botUid}`, "mood", mood, "nickname", nickname, "demo", "1"]);
+        }
         if (hidden === "1" || !nickname) return; // 被檢舉隱藏，或尚未建立資料
-        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: localize(lang, mood || ""), nickname: localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
+        // 城市示範對象的名字與心情維持當地語言，不翻譯
+        bots.push({ uid: botUid, lat: pos.lat, lng: pos.lng, mood: npc ? mood : localize(lang, mood || ""), nickname: npc ? nickname : localize(lang, nickname), status: 'active', shadowAge: 0, timestamp: now, demo: true, ...(hostEmoji ? { hostEmoji } : {}) });
     });
+    if (seed.length) await sendUpstashPipeline(seed).catch((e) => console.warn("city npc seed failed:", e.message));
     return bots;
 }
 

@@ -426,3 +426,17 @@ test('onerule: included monthly call minutes', () => {
     // 其他 App 不受影響
     assert.deepStrictEqual(aiya.decideCall({ consented: true }), { ok: false, code: 'no_minutes' });
 });
+
+test('口譯（旅行團）：語言組要合法、指示只翻譯不聊天', () => {
+    assert.deepStrictEqual(aiya.interpretPair('zh-Hant', 'ja'), { a: 'zh-Hant', b: 'ja' });
+    assert.deepStrictEqual(aiya.interpretPair('en', 'fr'), { a: 'en', b: 'fr' });
+    assert.strictEqual(aiya.interpretPair('ja', 'ja'), null);
+    assert.strictEqual(aiya.interpretPair('zh-Hant', 'xx'), null);
+    assert.strictEqual(aiya.interpretPair(undefined, 'ja'), null);
+    const t = aiya.interpretInstructions('zh-Hant', 'ja');
+    assert.match(t, /interpreter/);
+    assert.match(t, /speaks Japanese/);
+    assert.match(t, /Never answer questions yourself/);
+    assert.match(t, /台灣華語/);
+    assert.doesNotMatch(aiya.interpretInstructions('en', 'de'), /台灣華語/);
+});

@@ -2420,14 +2420,17 @@ exports.aiya = onRequest({ region: "asia-southeast1", secrets: [...UPSTASH_SECRE
         const ok = aiya.decideCall({ consented: st.voiceConsented, reviewer: st.reviewer, friend: st.friend, friendUsed: st.callFriendUsed, balance: st.callBalance, included: st.callIncluded });
         if (!ok.ok) return res.status(200).json({ success: false, code: ok.code, ...aiyaStatusView(st, now) });
         const voice = aiya.LIVE_VOICES.includes(req.body.voice) ? req.body.voice : aiya.LIVE_VOICE;
-        const context = app.id === "tour"
+        // 旅行團的口譯：同一條通話線路、同樣依秒數扣通話時間，只是指示換成「只翻譯、不聊天」
+        const pair = app.id === "tour" && req.body.mode === "interpret" ? aiya.interpretPair(req.body.langA, req.body.langB) : null;
+        if (req.body.mode === "interpret" && !pair) return res.status(400).json({ success: false, code: "bad_request" });
+        const context = pair ? "" : app.id === "tour"
           ? aiya.tourContextText({ lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), tour: req.body.tourContext })
           : app.id === "onerule"
             ? aiya.oneruleContextText({ lang, now, tzOffsetMin: Number(req.body.tzOffsetMin), role: req.body.role, family: req.body.familyContext })
             : await aiyaContext(lang, now);
         let live;
         try {
-          live = await openaiLiveSession(sdp, { model: aiya.LIVE_MODEL, instructions: aiya.liveInstructions(app, lang, context), audio: { output: { voice } } });
+          live = await openaiLiveSession(sdp, { model: aiya.LIVE_MODEL, instructions: pair ? aiya.interpretInstructions(pair.a, pair.b) : aiya.liveInstructions(app, lang, context), audio: { output: { voice } } });
         } catch (e) {
           console.error("aiya call failed:", e && e.status, e && e.message);
           return res.status(200).json({ success: false, code: "busy" });

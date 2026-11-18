@@ -37,6 +37,9 @@ class AiyaCall {
   /// 通話結束時呼叫（reason：time_up / idle / hangup / closed）
   void Function(String reason)? onEnded;
 
+  /// 每個 OpenAI 事件（資料通道 oai-events）都先交給這裡。旅行團的口譯用來拿雙方的逐字稿
+  void Function(Map<String, dynamic> event)? onEvent;
+
   RTCPeerConnection? _pc;
   MediaStream? _mic;
   RTCDataChannel? _dc;
@@ -49,7 +52,8 @@ class AiyaCall {
   bool _userSpoke = false;
 
   /// 開始通話。成功回 null；失敗回伺服器或本機的 code（mic_denied / friend_only / voice_consent / call_daily_max …）
-  Future<String?> start({String? voice}) async {
+  /// body：額外送給伺服器的欄位（旅行團口譯：{mode: 'interpret', langA, langB}）
+  Future<String?> start({String? voice, Map<String, dynamic>? body}) async {
     if (state.value != AiyaCallState.idle) return 'busy';
     state.value = AiyaCallState.connecting;
     aiyaLine.value = '';
@@ -76,7 +80,7 @@ class AiyaCall {
       };
       final offer = await _pc!.createOffer({'offerToReceiveAudio': true, 'offerToReceiveVideo': false});
       await _pc!.setLocalDescription(offer);
-      final r = await api.call('call', {'sdp': offer.sdp, if (voice != null) 'voice': voice, ...?api.extra?.call()});
+      final r = await api.call('call', {'sdp': offer.sdp, if (voice != null) 'voice': voice, ...?api.extra?.call(), ...?body});
       if (r['success'] != true || r['sdp'] is! String) {
         await _cleanup();
         return '${r['code'] ?? 'busy'}';
@@ -118,6 +122,7 @@ class AiyaCall {
       if (d is Map<String, dynamic>) e = d;
     } catch (_) {}
     if (e == null) return;
+    onEvent?.call(e);
     switch (e['type']) {
       case 'session.input_transcript.delta':
         // 使用者開口：艾婭下一次說話開新的一行

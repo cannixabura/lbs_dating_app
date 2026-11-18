@@ -792,6 +792,42 @@ function liveInstructions(app, lang, context) {
     ].join('\n');
 }
 
+/** 口譯（旅行團）：可以選的語言（App 的 12 種＋常見旅遊地） */
+const INTERPRET_LANGS = {
+    ...LANG_NAMES, 'zh-Hant': 'Traditional Chinese (Taiwan Mandarin)', es: 'Spanish', pt: 'Portuguese',
+    fr: 'French', de: 'German', it: 'Italian', ru: 'Russian', tr: 'Turkish', ar: 'Arabic', nl: 'Dutch',
+};
+
+/** App 送來的口譯語言組；不合法回 null */
+function interpretPair(a, b) {
+    if (!INTERPRET_LANGS[a] || !INTERPRET_LANGS[b] || a === b) return null;
+    return { a, b };
+}
+
+/**
+ * 口譯的指示：兩個人面對面、各說各的語言，艾婭只翻譯、不聊天
+ * a = 團員（手機主人）的語言，b = 對方（當地人）的語言
+ */
+function interpretInstructions(a, b) {
+    const A = INTERPRET_LANGS[a], B = INTERPRET_LANGS[b];
+    return [
+        'You are a live voice interpreter, nothing else. Two people are talking face to face with one phone between them:',
+        `- Person 1 is a traveler who speaks ${A}.`,
+        `- Person 2 is a local (a shop clerk, driver, waiter, etc.) who speaks ${B}.`,
+        '',
+        'Rules:',
+        `- When you hear ${A}, say the same thing in ${B}. When you hear ${B}, say the same thing in ${A}.`,
+        '- Translate faithfully and completely, in the first person, keeping the tone and politeness level. Use natural spoken words, not a word-for-word translation.',
+        '- Never answer questions yourself, never add greetings, comments, explanations or "he says / she asks". Only the translation.',
+        '- Keep numbers, prices, times, places and names exact.',
+        '- If you hear another language, translate it into whichever of the two languages the other person speaks.',
+        '- If it is only noise, a cough or unclear, stay silent. Do not ask them to repeat unless it is completely impossible to translate; then ask briefly in the speaker\'s language.',
+        '- Each turn is independent: translate just what was said, then wait.',
+        a === 'zh-Hant' || b === 'zh-Hant' ? `- ${VOICE_STYLE['zh-Hant']}` : '',
+        '- If someone asks you directly, say clearly that you are an AI interpreter.',
+    ].filter(Boolean).join('\n');
+}
+
 module.exports = {
     MODEL, PRICE, FREE_PER_DAY, MAX_PER_DAY, SESSION_MS, SESSION_TTL_S, MAX_TURNS, MAX_INPUT_CHARS, MAX_REPLY_CHARS,
     MONTHLY_FREE_BUDGET_USD, DAILY_FREE_BUDGET_MICRO, CONSENT_VERSION, EXPRESSIONS, PACKS, KEY, PERSONA, REPLY_SCHEMA,
@@ -803,7 +839,7 @@ module.exports = {
     speechInstructions, speechText, decideSpeech,
     LIVE_MODEL, LIVE_VOICES, LIVE_VOICE, CALL_MAX_MS, CALL_IDLE_MS, CALL_BEAT_MS, CALL_STALE_MS, CALL_MIN_SECONDS, FRIEND_CALL_SECONDS, CALL_PACKS,
     VOICE_CONSENT_VERSION, MAX_SDP_CHARS, CALL_KEY, monthKey, callPackSeconds, callSecondsLeft, decideCall, callChargeSeconds, splitCharge,
-    appleCallPack, googleCallPack, liveInstructions,
+    appleCallPack, googleCallPack, liveInstructions, INTERPRET_LANGS, interpretPair, interpretInstructions,
     PHOTO_MAX_BYTES, PHOTO_PER_SESSION, MAX_PHOTO_REPLY_CHARS, PHOTO_MAX_TOKENS, PHOTO_PLACEHOLDER, cleanPhoto, withPhoto,
     SPOT_TTL_S, SPOT_PER_DAY, SPOT_DAILY_BUDGET_MICRO, SPOT_SCHEMA, SPOT_PROMPT, SPOT_KEY, cleanSpotName, roundCoord, spotRequest, parseSpot,
 };

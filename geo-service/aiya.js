@@ -792,10 +792,18 @@ function liveInstructions(app, lang, context) {
     ].join('\n');
 }
 
-/** 口譯（旅行團）：可以選的語言（App 的 12 種＋常見旅遊地） */
+/** 口譯（旅行團）：可以選的語言，約 65 種（App lib/aiya/interp_langs.dart 要一致） */
 const INTERPRET_LANGS = {
-    ...LANG_NAMES, 'zh-Hant': 'Traditional Chinese (Taiwan Mandarin)', es: 'Spanish', pt: 'Portuguese',
-    fr: 'French', de: 'German', it: 'Italian', ru: 'Russian', tr: 'Turkish', ar: 'Arabic', nl: 'Dutch',
+    'zh-Hant': 'Traditional Chinese (Taiwan Mandarin)', 'zh-Hans': 'Simplified Chinese (Mandarin)', yue: 'Cantonese (Hong Kong)',
+    en: 'English', ja: 'Japanese', ko: 'Korean', th: 'Thai', vi: 'Vietnamese', id: 'Indonesian', ms: 'Malay',
+    fil: 'Filipino (Tagalog)', my: 'Burmese', km: 'Khmer', lo: 'Lao', mn: 'Mongolian',
+    hi: 'Hindi', bn: 'Bengali', ur: 'Urdu', ne: 'Nepali', si: 'Sinhala', ta: 'Tamil', te: 'Telugu', mr: 'Marathi',
+    gu: 'Gujarati', kn: 'Kannada', ml: 'Malayalam', pa: 'Punjabi', kk: 'Kazakh', uz: 'Uzbek',
+    fr: 'French', de: 'German', it: 'Italian', es: 'Spanish', pt: 'Portuguese', nl: 'Dutch', ca: 'Catalan', el: 'Greek',
+    ru: 'Russian', uk: 'Ukrainian', pl: 'Polish', cs: 'Czech', sk: 'Slovak', hu: 'Hungarian', ro: 'Romanian',
+    bg: 'Bulgarian', hr: 'Croatian', sr: 'Serbian', sl: 'Slovenian', sv: 'Swedish', da: 'Danish', no: 'Norwegian',
+    fi: 'Finnish', et: 'Estonian', lv: 'Latvian', lt: 'Lithuanian', is: 'Icelandic', tr: 'Turkish', ar: 'Arabic',
+    he: 'Hebrew', fa: 'Persian', sw: 'Swahili', am: 'Amharic', af: 'Afrikaans',
 };
 
 /** App 送來的口譯語言組；不合法回 null */

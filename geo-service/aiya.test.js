@@ -440,3 +440,10 @@ test('口譯（旅行團）：語言組要合法、指示只翻譯不聊天', ()
     assert.match(t, /台灣華語/);
     assert.doesNotMatch(aiya.interpretInstructions('en', 'de'), /台灣華語/);
 });
+
+test('口譯語言擴充到約 60 種：粵語、菲律賓文、緬甸文等都能用', () => {
+    assert.ok(Object.keys(aiya.INTERPRET_LANGS).length >= 60);
+    assert.deepStrictEqual(aiya.interpretPair('yue', 'fil'), { a: 'yue', b: 'fil' });
+    assert.match(aiya.interpretInstructions('zh-Hant', 'my'), /speaks Burmese/);
+    assert.match(aiya.interpretInstructions('yue', 'en'), /Cantonese/);
+});

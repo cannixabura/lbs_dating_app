@@ -257,6 +257,7 @@ const LANG_NAMES = {
     'zh-Hant': 'Traditional Chinese (Taiwan)', 'zh-Hans': 'Simplified Chinese', en: 'English', ja: 'Japanese',
     ko: 'Korean', ms: 'Malay', id: 'Indonesian', vi: 'Vietnamese', th: 'Thai',
     pt: 'Brazilian Portuguese', es: 'Latin American Spanish', hi: 'Hindi',
+    fr: 'French', de: 'German', it: 'Italian', cs: 'Czech', pl: 'Polish', uk: 'Ukrainian',
 };
 const MOOD_NAMES = { joy: 'happy', sad: 'sad or tired', angry: 'annoyed', calm: 'calm', passion: 'fired up', love: 'in love', other: 'other moods' };
 
@@ -344,6 +345,12 @@ const HOTLINES = {
     es: 'Si estás pasando un momento muy difícil, llama al número de emergencias o a una línea de crisis de tu país (en Argentina, el 135). No estás solo.',
     hi: 'अगर आप अभी बहुत परेशान हैं, तो Tele-MANAS हेल्पलाइन 14416 पर कॉल करें (24 घंटे, मुफ़्त)। आप अकेले नहीं हैं।',
     vi: 'Nếu bạn đang rất khó khăn, hãy gọi số khẩn cấp hoặc đường dây hỗ trợ khủng hoảng tại nơi bạn ở. Bạn không một mình.',
+    fr: "Si c'est très dur en ce moment, appelez le 3114 (France, gratuit, 24 h/24) ou le numéro d'urgence local. Vous n'êtes pas seul·e.",
+    de: 'Wenn es dir gerade sehr schlecht geht, ruf die TelefonSeelsorge an: 0800 111 0 111 (Deutschland, kostenlos, rund um die Uhr) oder den Notruf 112. Du bist nicht allein.',
+    it: "Se in questo momento stai molto male, chiama il 112 o una linea di ascolto del posto in cui ti trovi. Non sei solo.",
+    cs: 'Pokud je vám teď opravdu těžko, zavolejte Linku první psychické pomoci 116 123 (Česko, zdarma, nonstop) nebo tísňovou linku 112. Nejste na to sami.',
+    pl: 'Jeśli jest ci teraz bardzo ciężko, zadzwoń pod numer alarmowy 112 albo na telefon zaufania w miejscu, w którym jesteś. Nie jesteś sam.',
+    uk: 'Якщо вам зараз дуже важко, зателефонуйте на лінію Lifeline Ukraine 7333 (цілодобово, безкоштовно) або на номер екстреної допомоги 112. Ви не самі.',
 };
 
 function mentionsCrisis(text) {

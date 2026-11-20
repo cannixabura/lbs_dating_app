@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { TABLE, LANGS, normalizeLang, localize } = require('./i18n');
 
-test('每一列都有八種語言，變數名稱一致', () => {
+test('每一列都有每種語言，變數名稱一致', () => {
     for (const row of TABLE) {
         assert.strictEqual(row.length, LANGS.length, row[0]);
         const vars = (t) => [...t.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join();
@@ -16,7 +16,13 @@ test('語言標籤', () => {
     assert.strictEqual(normalizeLang('zh_CN'), 'zh-Hans');
     assert.strictEqual(normalizeLang('en-US,en;q=0.9'), 'en');
     assert.strictEqual(normalizeLang('in-ID'), 'id');
-    assert.strictEqual(normalizeLang('fr'), 'en');
+    assert.strictEqual(normalizeLang('nl'), 'en'); // 不支援的語言用英文
+    assert.strictEqual(normalizeLang('fr-FR'), 'fr');
+    assert.strictEqual(normalizeLang('de-AT'), 'de');
+    assert.strictEqual(normalizeLang('it'), 'it');
+    assert.strictEqual(normalizeLang('cs-CZ'), 'cs');
+    assert.strictEqual(normalizeLang('pl-PL'), 'pl');
+    assert.strictEqual(normalizeLang('uk-UA'), 'uk');
     assert.strictEqual(normalizeLang('pt-BR'), 'pt');
     assert.strictEqual(normalizeLang('es-419'), 'es');
     assert.strictEqual(normalizeLang('hi-IN'), 'hi');
